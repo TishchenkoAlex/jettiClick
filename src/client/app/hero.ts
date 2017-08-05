@@ -1,5 +1,5 @@
 export class Hero {
-  id: number;
-  name: string;
-  saying: string;
+  id: string;
+  value: string;
+  code: string;
 }

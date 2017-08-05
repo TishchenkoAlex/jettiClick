@@ -10,7 +10,7 @@ export class HeroService {
   constructor(private http: HttpClient) {}
 
   getHeroes() {
-    return this.http.get<Array<Hero>>(`${api}/heroes`)
+    return this.http.get<Array<Hero>>(`${api}/suggest/Catalog.Managers/`)
   }
 
   deleteHero(hero: Hero) {
