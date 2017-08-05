@@ -7,14 +7,14 @@
 {
   "type": "chrome",
   "request": "launch",
-  "name": "Launch Chrome",
+  "name": "Debug Client",
   "url": "http://localhost:4200",
   "webRoot": "${workspaceRoot}"
 },
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Debug Server",
       "program": "${workspaceRoot}/src/server/index.js"
     }
   ]
