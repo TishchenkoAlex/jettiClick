@@ -1,0 +1,47 @@
+<div fxLayout="column" fxFlex [class.dark-theme]="isDarkTheme">
+    <md-toolbar color="primary" class = "mat-elevation-z5">
+      <button md-icon-button (click)="sideNav.opened = !sideNav.opened">
+        <md-icon>menu</md-icon>
+      </button>
+      <span>Angular Material</span>
+      <span fxFlex></span>
+      <button md-icon-button [mdMenuTriggerFor]="themeMenu">
+        <md-icon>more_vert</md-icon>
+      </button>
+    </md-toolbar>
+    <md-sidenav-container fxFlex>
+      <md-sidenav [mode]="this.sideNav.mode" [opened]="this.sideNav.opened">
+        <md-tab-group>
+          <md-tab label="Users">
+            <md-nav-list>
+              <md-list-item *ngFor="let user of users" [class.mat-list-item-focus]="selectedUser === user" (click)="selectedUser = user" >
+                <md-icon svgIcon="avatars:{{user.avatar}}" class="avatar"></md-icon>
+                <span>{{user.name}}</span>
+              </md-list-item>
+            </md-nav-list>
+          </md-tab>
+          <md-tab label="Settings">
+            <span>Settings</span>
+          </md-tab>
+        </md-tab-group>
+      </md-sidenav>
+      <div class="content" fxLayout.sm="row" fxLayout.lt-sm="column" fxLayoutGap="16px">
+        <md-card *ngIf="selectedUser">
+          <md-icon svgIcon="avatars:{{selectedUser.avatar}}" class="avatar"></md-icon>
+          <h2>{{selectedUser.name}}</h2>
+          <p>{{selectedUser.details}}</p>
+        </md-card>
+        <md-card fxLayout="column" fxLayoutGap="14px" *ngIf="selectedUser">
+          <md-slide-toggle [(ngModel)]="selectedUser.isAdmin">Is Admin?</md-slide-toggle>
+          <md-slide-toggle [(ngModel)]="selectedUser.isCool">Is Cool?</md-slide-toggle>
+        </md-card>
+        <button md-fab (click)="openAdminDialog()" class="fab-bottom-right">
+          <md-icon>add</md-icon>
+        </button>
+      </div>
+    </md-sidenav-container>
+    <md-menu #themeMenu x-position="before">
+      <button md-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
+    </md-menu>
+  </div>
+  
