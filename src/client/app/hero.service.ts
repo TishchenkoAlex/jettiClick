@@ -2,14 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { Hero } from './hero';
+import { environment } from '../environments/environment';
 
-const api = '/api';
+const api = environment.api;
+// const api = '/api';
 
 @Injectable()
 export class HeroService {
   constructor(private http: HttpClient) {}
 
   getHeroes() {
+    console.log(api);
     return this.http.get<Array<Hero>>(`${api}/suggest/Catalog.Managers/`)
   }
 

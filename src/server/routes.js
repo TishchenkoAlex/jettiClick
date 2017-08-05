@@ -103,7 +103,6 @@ router.get('/:type/list', async (req, res, next) => {
       const result = data;
       //const newData = data.map(r => { return ExecuteScript(r, schema.scripts)});
       //const newDoc = ExecuteScript(data[0], schema.scripts);
-      res.contentType('application/json');
       res.json(data);
   } catch (err) {
       next(err.message);

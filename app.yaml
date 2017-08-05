@@ -1,0 +1,6 @@
+#gcloud app deploy --project jetti-project
+
+runtime: nodejs
+env: flex
+manual_scaling:
+  instances: 1
