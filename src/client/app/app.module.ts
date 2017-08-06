@@ -2,8 +2,11 @@ import 'hammerjs';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/map';
 
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FlexLayoutModule} from '@angular/flex-layout';
@@ -11,7 +14,7 @@ import {FlexLayoutModule} from '@angular/flex-layout';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 
-import {DialogComponent} from './dialog/dialog.component';
+import { DialogComponent } from './dialog/dialog.component';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 
@@ -32,15 +35,18 @@ import {
   MdCheckboxModule
 } from '@angular/material';
 
+import { ApiService } from './services/api.service';
+import { commonDataTableComponent } from './common/datatable/datatable.component';
+
 @NgModule({
   declarations: [
     AppComponent,
-    DialogComponent
+    DialogComponent,
+    commonDataTableComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule,
     FlexLayoutModule,
     BrowserAnimationsModule,
     MdToolbarModule,
@@ -61,7 +67,7 @@ import {
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
   ],
-  providers: [],
+  providers: [ApiService],
   entryComponents: [DialogComponent],
   bootstrap: [AppComponent]
 })
