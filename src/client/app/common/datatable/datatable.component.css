@@ -1,0 +1,46 @@
+.mat-column-select {
+  max-width: 32px;
+  min-width: 32px;
+}
+
+.mat-column-date {
+  max-width: 130px;
+  min-width: 130px;
+}
+
+.mat-column-code1 {
+  max-width: 110px;
+  min-width: 110px;
+}
+
+.mat-column-posted {
+  max-width: 50px;
+  min-width: 50px;
+}
+
+.mat-column-description {
+  min-width: 100px;
+}
+
+.mat-input-container {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 32px;
+}
+
+.mat-table {
+  overflow: auto;
+}
+
+.mat-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 550px;
+}
+
+.search-header {
+  min-height: 64px;
+  display: flex;
+  padding: 0px 24px 0;
+  font-size: 14px;  
+}

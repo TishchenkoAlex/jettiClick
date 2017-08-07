@@ -5,7 +5,7 @@
 
 export const environment = {
   production: false,
-  api: 'http://localhost:3000/api',
+  api: 'http://localhost:3000/api/',
   firebase: {
     apiKey: 'AIzaSyD1QE8sGmF4S6KHZoPprWP3bxz6vYVimyQ',
     authDomain: 'jetti-app.firebaseapp.com',

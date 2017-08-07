@@ -1,7 +1,9 @@
 import 'hammerjs';
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { NgModule, LOCALE_ID } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule, Routes } from '@angular/router';
+
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/catch';
@@ -14,7 +16,6 @@ import {FlexLayoutModule} from '@angular/flex-layout';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 
-import { DialogComponent } from './dialog/dialog.component';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 
@@ -32,19 +33,28 @@ import {
   MdInputModule,
   MdSelectModule,
   MdOptionModule,
-  MdCheckboxModule
+  MdCheckboxModule,
+  MdTableModule,
+  MdPaginatorModule,
+  MdSortModule,
+  MdNativeDateModule,
 } from '@angular/material';
 
 import { ApiService } from './services/api.service';
-import { commonDataTableComponent } from './common/datatable/datatable.component';
+import { commonDataTableComponent, ApiDataSource } from './common/datatable/datatable.component';
+import { CdkTableModule } from '@angular/cdk/table';
+import { HttpClientModule } from '@angular/common/http';
+import { appRoutes } from './app.routes';
+import { MenuComponent } from './common/datatable/menu/menu.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DialogComponent,
+    MenuComponent,
     commonDataTableComponent,
   ],
   imports: [
+    CdkTableModule,
     BrowserModule,
     FormsModule,
     FlexLayoutModule,
@@ -63,12 +73,27 @@ import { commonDataTableComponent } from './common/datatable/datatable.component
     MdSelectModule,
     MdOptionModule,
     MdCheckboxModule,
+    MdTableModule,
+    MdPaginatorModule,
+    MdPaginatorModule,
+    MdSortModule,
+
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    MdNativeDateModule,
+    ReactiveFormsModule,
+    HttpClientModule,
 
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
+
+    RouterModule.forRoot(appRoutes),
   ],
-  providers: [ApiService],
-  entryComponents: [DialogComponent],
+  providers: [
+    {provide: LOCALE_ID, useValue: 'ru-RU'},
+    ApiService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

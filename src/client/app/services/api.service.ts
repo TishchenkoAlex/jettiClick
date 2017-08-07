@@ -12,9 +12,9 @@ export class ApiService {
     constructor(private http: HttpClient) {
     }
 
-    getDocList(type, skip = 0, top = 50, order = '', sortOrder = 1, filter = ''): Observable<any[]> {
+    getDocList(type, skip = 0, top = 50, order = '', filter = ''): Observable<any[]> {
         // tslint:disable-next-line:max-line-length
-        const query = `${this.url}${type}/list?$top=${top}&$skip=${skip}&$filter=${filter}&$order=${order}${sortOrder === 1 ? '' : ' desc'}`;
+        const query = `${this.url}${type}/list?$top=${top}&$skip=${skip}&$filter=${filter}&$order=${order}`;
         console.log(query);
         return (this.http.get(query) as Observable<any[]>)
         .catch(err => {

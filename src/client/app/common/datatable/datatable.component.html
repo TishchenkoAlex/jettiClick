@@ -1,0 +1,48 @@
+<div class="mat-container mat-elevation-z8" >
+    <div class="search-header">
+        <md-input-container floatPlaceholder="never">
+            <input mdInput #filter placeholder="Filter">
+        </md-input-container>
+    </div>
+
+    <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
+        <ng-container cdkColumnDef="select">
+            <md-header-cell *cdkHeaderCellDef>
+                <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
+                </md-checkbox>
+            </md-header-cell>
+            <md-cell *cdkCellDef="let row">
+                <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row.id) : null" [checked]="selection.isSelected(row.id)">
+                </md-checkbox>
+            </md-cell>
+        </ng-container>
+
+        
+        <ng-container cdkColumnDef="date">
+            <md-header-cell *cdkHeaderCellDef md-sort-header> date </md-header-cell>
+            <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="code">
+            <md-header-cell *cdkHeaderCellDef md-sort-header style="max-width: 110px"> code </md-header-cell>
+            <md-cell *cdkCellDef="let row" style="max-width: 110px"> {{row.code}} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="description">
+            <md-header-cell *cdkHeaderCellDef md-sort-header> description </md-header-cell>
+            <md-cell *cdkCellDef="let row"> {{row.description}} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="posted">
+            <md-header-cell *cdkHeaderCellDef md-sort-header> posted </md-header-cell>
+            <md-cell *cdkCellDef="let row" [style.color]="row.posted"> {{row.color}} </md-cell>
+        </ng-container>
+
+        <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
+        <md-row *cdkRowDef="let row; columns: displayedColumns;"  (click)="selection.toggle(row.id)">
+        </md-row>
+    </md-table>
+
+    <md-paginator #paginator [length]="this.pageSize" [pageIndex]="0" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 100]">
+    </md-paginator>
+</div>
