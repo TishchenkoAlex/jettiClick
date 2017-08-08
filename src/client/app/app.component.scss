@@ -1,0 +1,23 @@
+:host {
+    display: flex;
+    flex: 1;
+  }
+  
+  md-sidenav {
+    width: 250px;
+  }
+
+  .content {
+    padding: 12px;
+  }
+  
+    
+  .mat-elevation-z8 {
+    position: relative;
+    z-index: 8;
+  }
+
+.bottom-bar {
+    position: fixed;
+    bottom: 16px;
+}

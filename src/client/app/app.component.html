@@ -1,1 +1,33 @@
-<app-memu></app-memu>
+<div fxLayout="column" fxFlex [class.dark-theme]="isDarkTheme">
+    <div>
+        <md-toolbar color="primary" class="mat-elevation-z8">
+            <button md-icon-button (click)="sideNav.opened = !sideNav.opened"><md-icon>menu</md-icon></button>
+            <span>Jetti - ClickSales module</span>
+            <span fxFlex></span>
+            <button md-icon-button [mdMenuTriggerFor]="themeMenu"><md-icon>more_vert</md-icon></button>
+        </md-toolbar>
+    </div>
+
+    <md-sidenav-container fxFlex="100%">
+        <md-sidenav mode="side" [opened]="this.sideNav.opened">
+            <md-nav-list>
+                <md-list-item *ngFor="let item of menuItems | async" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
+                    [routerLink]="item.link">
+                    <md-icon class="avatar">{{ item.icon }}</md-icon>
+                    <span>{{item.label}}</span>
+                </md-list-item>
+            </md-nav-list>
+        </md-sidenav>
+        <div class="content" fxLayout="row" fxLayoutGap="8px">
+            <div fxFlex="100%">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+    </md-sidenav-container>
+
+<!--     <md-toolbar color="primary"></md-toolbar>
+ --></div>
+
+<md-menu #themeMenu x-position="before">
+    <button md-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
+</md-menu>

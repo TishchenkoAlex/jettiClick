@@ -1,11 +1,12 @@
-<div class="mat-container mat-elevation-z8" >
+<div class="mat-container mat-elevation-z4">
     <div class="search-header">
-        <md-input-container floatPlaceholder="never">
+        <md-input-container>
             <input mdInput #filter placeholder="Filter">
         </md-input-container>
     </div>
-
+    <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
     <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
+
         <ng-container cdkColumnDef="select">
             <md-header-cell *cdkHeaderCellDef>
                 <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
@@ -17,15 +18,14 @@
             </md-cell>
         </ng-container>
 
-        
-        <ng-container cdkColumnDef="date">
+        <ng-container cdkColumnDef="date" >
             <md-header-cell *cdkHeaderCellDef md-sort-header> date </md-header-cell>
             <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
         </ng-container>
 
         <ng-container cdkColumnDef="code">
-            <md-header-cell *cdkHeaderCellDef md-sort-header style="max-width: 110px"> code </md-header-cell>
-            <md-cell *cdkCellDef="let row" style="max-width: 110px"> {{row.code}} </md-cell>
+            <md-header-cell *cdkHeaderCellDef md-sort-header> code </md-header-cell>
+            <md-cell *cdkCellDef="let row"> {{row.code}} </md-cell>
         </ng-container>
 
         <ng-container cdkColumnDef="description">
@@ -33,14 +33,40 @@
             <md-cell *cdkCellDef="let row"> {{row.description}} </md-cell>
         </ng-container>
 
+        <ng-container cdkColumnDef="Manager">
+                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md> Manager </md-header-cell>
+                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md> {{row.Manager}} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="Customer">
+                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md> Customer </md-header-cell>
+                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md > {{row.Customer}} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="Amount">
+                <md-header-cell *cdkHeaderCellDef md-sort-header style="min-width:100px;max-width:100px;text-align: center">Amount</md-header-cell>
+                <md-cell *cdkCellDef="let row" style="min-width:100px;max-width:100px;text-align: right"> {{row.Amount | number:'1.2-2' }} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="Tax">
+                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md style="min-width:50px;max-width:50px;text-align: center">Tax</md-header-cell>
+                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md style="min-width:50px;max-width:50px;text-align: center"> {{row.Tax | number:'1.2-2'}} </md-cell>
+        </ng-container>
+
+        <ng-container cdkColumnDef="Status">
+                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md style="min-width:80px;max-width:80px;text-align: center">Status</md-header-cell>
+                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md style="min-width:80px;max-width:80px;text-align: center"> {{row.Status}} </md-cell>
+        </ng-container>
+
         <ng-container cdkColumnDef="posted">
-            <md-header-cell *cdkHeaderCellDef md-sort-header> posted </md-header-cell>
-            <md-cell *cdkCellDef="let row" [style.color]="row.posted"> {{row.color}} </md-cell>
+            <md-header-cell *cdkHeaderCellDef md-sort-header style="min-width:50px;max-width:50px;text-align:center">...</md-header-cell>
+            <md-cell *cdkCellDef="let row" [style.color]="row.posted" style="min-width:50px;max-width:50px;text-align:center"> 
+                <md-checkbox [value]="row.posted" [disabled]="true" fxHide.sm></md-checkbox>
+            </md-cell>
         </ng-container>
 
         <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
-        <md-row *cdkRowDef="let row; columns: displayedColumns;"  (click)="selection.toggle(row.id)">
-        </md-row>
+        <md-row *cdkRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row.id)"></md-row>
     </md-table>
 
     <md-paginator #paginator [length]="this.pageSize" [pageIndex]="0" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 100]">

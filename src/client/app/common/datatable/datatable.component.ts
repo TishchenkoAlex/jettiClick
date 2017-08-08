@@ -20,7 +20,7 @@ import { ApiService } from '../../services/api.service';
   templateUrl: './datatable.component.html',
   // tslint:disable-next-line:class-name
 }) export class commonDataTableComponent implements OnInit {
-  displayedColumns = ['select', 'date', 'code', 'description', 'posted'];
+  displayedColumns = ['select', 'date', 'code', 'description', 'Manager', 'Customer', 'Amount', 'Tax', 'Status', 'posted'];
   selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
 
@@ -75,6 +75,7 @@ export class ApiDataSource extends DataSource<any> {
   set filter(filter: string) { this._filterChange.next(filter); }
 
   renderedData: any[];
+  isLoadingResults = true;
 
   constructor(private apiService: ApiService, private docType: string, private pageSize: number,
     private _paginator: MdPaginator,
@@ -90,22 +91,23 @@ export class ApiDataSource extends DataSource<any> {
       this._filterChange,
       this._paginator.page,
     ];
-
-    return Observable.merge(...displayDataChanges).switchMap((c) => {
-      const filter = this._filterChange.value ? `description ILIKE '*${this._filterChange.value}*'` : '';
-      return this.apiService.getDocList(this.docType,
-        (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
-        this._sort.active ? this._sort.active + ' ' + this._sort.direction : '', filter)
-      .do((data) => {
-        if (!this.renderedData || this._filterChange.value) {
-          this.apiService.getDocsCount(this.docType, filter)
-          .subscribe(count => {
-            this._paginator.length = count;
+    return Observable.merge(...displayDataChanges)
+      .startWith(null)
+      .switchMap((c) => {
+        this.isLoadingResults = true;
+        const filter = this._filterChange.value ? `description ILIKE '*${this._filterChange.value}*'` : '';
+        return this.apiService.getDocList(this.docType,
+          (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
+          this._sort.active ? this._sort.active + ' ' + this._sort.direction : '', filter)
+          .do((data) => {
+            this.apiService.getDocsCount(this.docType, filter)
+              .subscribe(count => {
+                this._paginator.length = count;
+                this.renderedData = data;
+                this.isLoadingResults = false;
+              });
           });
-        };
-        this.renderedData = data;
-        });
-    });
+      });
   }
 
   disconnect() { }
