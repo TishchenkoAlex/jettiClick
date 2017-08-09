@@ -5,7 +5,7 @@
         </md-input-container>
     </div>
     <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
-    <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
+    <md-table #table [dataSource]="dataSource" mdSort class="mat-table" >
 
         <ng-container cdkColumnDef="select">
             <md-header-cell *cdkHeaderCellDef>
@@ -44,24 +44,24 @@
         </ng-container>
 
         <ng-container cdkColumnDef="Amount">
-                <md-header-cell *cdkHeaderCellDef md-sort-header style="min-width:100px;max-width:100px;text-align: center">Amount</md-header-cell>
-                <md-cell *cdkCellDef="let row" style="min-width:100px;max-width:100px;text-align: right"> {{row.Amount | number:'1.2-2' }} </md-cell>
+                <md-header-cell *cdkHeaderCellDef md-sort-header>Amount</md-header-cell>
+                <md-cell *cdkCellDef="let row"> {{row.Amount | number:'1.2-2' }} </md-cell>
         </ng-container>
 
         <ng-container cdkColumnDef="Tax">
-                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md style="min-width:50px;max-width:50px;text-align: center">Tax</md-header-cell>
-                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md style="min-width:50px;max-width:50px;text-align: center"> {{row.Tax | number:'1.2-2'}} </md-cell>
+                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md>Tax</md-header-cell>
+                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md> {{row.Tax | number:'1.2-2'}} </md-cell>
         </ng-container>
 
         <ng-container cdkColumnDef="Status">
-                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md style="min-width:80px;max-width:80px;text-align: center">Status</md-header-cell>
-                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md style="min-width:80px;max-width:80px;text-align: center"> {{row.Status}} </md-cell>
+                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md>Status</md-header-cell>
+                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md> {{row.Status}} </md-cell>
         </ng-container>
 
         <ng-container cdkColumnDef="posted">
-            <md-header-cell *cdkHeaderCellDef md-sort-header style="min-width:50px;max-width:50px;text-align:center">...</md-header-cell>
-            <md-cell *cdkCellDef="let row" [style.color]="row.posted" style="min-width:50px;max-width:50px;text-align:center"> 
-                <md-checkbox [value]="row.posted" [disabled]="true" fxHide.sm></md-checkbox>
+            <md-header-cell *cdkHeaderCellDef md-sort-header>...</md-header-cell>
+            <md-cell *cdkCellDef="let row" [style.color]="row.posted"> 
+                <md-checkbox [value]="row.posted" [disabled]="true"></md-checkbox>
             </md-cell>
         </ng-container>
 

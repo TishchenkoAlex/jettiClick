@@ -7,7 +7,6 @@
             <button md-icon-button [mdMenuTriggerFor]="themeMenu"><md-icon>more_vert</md-icon></button>
         </md-toolbar>
     </div>
-
     <md-sidenav-container fxFlex="100%">
         <md-sidenav mode="side" [opened]="this.sideNav.opened">
             <md-nav-list>
@@ -25,8 +24,9 @@
         </div>
     </md-sidenav-container>
 
-<!--     <md-toolbar color="primary"></md-toolbar>
- --></div>
+    <!--     <md-toolbar color="primary"></md-toolbar>
+ -->
+</div>
 
 <md-menu #themeMenu x-position="before">
     <button md-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
