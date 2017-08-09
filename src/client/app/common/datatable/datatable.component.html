@@ -18,55 +18,53 @@
             </md-cell>
         </ng-container>
 
-        <ng-container cdkColumnDef="date" >
+        <ng-container *ngIf="this.docType.startsWith('Document')" cdkColumnDef="date" >
             <md-header-cell *cdkHeaderCellDef md-sort-header> date </md-header-cell>
             <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
         </ng-container>
-
+    
         <ng-container cdkColumnDef="code">
             <md-header-cell *cdkHeaderCellDef md-sort-header> code </md-header-cell>
             <md-cell *cdkCellDef="let row"> {{row.code}} </md-cell>
         </ng-container>
-
+    
         <ng-container cdkColumnDef="description">
             <md-header-cell *cdkHeaderCellDef md-sort-header> description </md-header-cell>
-            <md-cell *cdkCellDef="let row"> {{row.description}} </md-cell>
-        </ng-container>
-
-        <ng-container cdkColumnDef="Manager">
-                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md> Manager </md-header-cell>
-                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md> {{row.Manager}} </md-cell>
-        </ng-container>
-
-        <ng-container cdkColumnDef="Customer">
-                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md> Customer </md-header-cell>
-                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md > {{row.Customer}} </md-cell>
-        </ng-container>
-
-        <ng-container cdkColumnDef="Amount">
-                <md-header-cell *cdkHeaderCellDef md-sort-header>Amount</md-header-cell>
-                <md-cell *cdkCellDef="let row"> {{row.Amount | number:'1.2-2' }} </md-cell>
-        </ng-container>
-
-        <ng-container cdkColumnDef="Tax">
-                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md>Tax</md-header-cell>
-                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md> {{row.Tax | number:'1.2-2'}} </md-cell>
-        </ng-container>
-
-        <ng-container cdkColumnDef="Status">
-                <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-md>Status</md-header-cell>
-                <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-md> {{row.Status}} </md-cell>
-        </ng-container>
-
-        <ng-container cdkColumnDef="posted">
-            <md-header-cell *cdkHeaderCellDef md-sort-header>...</md-header-cell>
-            <md-cell *cdkCellDef="let row" [style.color]="row.posted"> 
-                <md-checkbox [value]="row.posted" [disabled]="true"></md-checkbox>
+            <md-cell *cdkCellDef="let row">
+                {{row.description}} 
             </md-cell>
         </ng-container>
 
+        <ng-container *ngFor="let col of columns" [cdkColumnDef]="col.field">
+            <md-header-cell *cdkHeaderCellDef md-sort-header fxFlex fxShow="false" fxShow.gt-xs>{{ col.label }}</md-header-cell>
+            <md-cell *cdkCellDef="let row" fxFlex fxShow="false" fxShow.gt-xs> 
+                <span [ngSwitch]="col.type">
+                    <span *ngSwitchCase = "'string'">
+                        {{row[col.field]}} 
+                    </span>
+                    <span *ngSwitchCase = "'datetime'">
+                        {{row[col.field] | date:'dd.MM.yyyy mm:ss'}} 
+                    </span>
+                    <span *ngSwitchCase = "'date'">
+                            {{row[col.field] | date:'dd.MM.yyyy'}} 
+                        </span>
+                    <span *ngSwitchCase = "'number'">
+                        {{row[col.field] | number:'1.2-2' }} 
+                    </span>
+                    <span *ngSwitchCase = "'boolean'">
+                        <md-checkbox [value]="row[col.field]" disabled="true"></md-checkbox>
+                    </span>
+                    <span *ngSwitchDefault>
+                        <span *ngIf="col.type.includes('.')">
+                            {{row[col.field].value}} 
+                        </span>
+                    </span>
+                </span>
+            </md-cell>
+        </ng-container>
+                
         <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
-        <md-row *cdkRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row.id)"></md-row>
+        <md-row *cdkRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row.id)" ></md-row>
     </md-table>
 
     <md-paginator #paginator [length]="this.pageSize" [pageIndex]="0" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 100]">

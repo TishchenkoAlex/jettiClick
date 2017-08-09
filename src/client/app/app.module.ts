@@ -25,12 +25,14 @@ import { ApiService } from './services/api.service';
 import { commonDataTableComponent, ApiDataSource } from './common/datatable/datatable.component';
 import { appRoutes } from './app.routes';
 import { HomeComponent } from './home/home.component';
+import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     commonDataTableComponent,
+    TabControllerComponent,
   ],
   imports: [
     FlexLayoutModule,

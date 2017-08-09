@@ -27,7 +27,8 @@ export class AppComponent {
   }
 
   private switchMedia(change: MediaChange) {
-    if (change.mqAlias === 'xs') {
+    console.log(change.mqAlias);
+    if (change.mqAlias === 'xs' || change.mqAlias === 'sm') {
       this.sideNav.mode = 'push';
       this.sideNav.opened = false;
     } else {

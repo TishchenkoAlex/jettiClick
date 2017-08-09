@@ -13,6 +13,15 @@ import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/debounceTime';
 import { ApiService } from '../../services/api.service';
 
+interface ColDef {
+  field: string;
+  type: string;
+  label: string;
+  hidden: boolean;
+  order: number;
+  style: string;
+};
+
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'common-datatable',
@@ -20,13 +29,15 @@ import { ApiService } from '../../services/api.service';
   templateUrl: './datatable.component.html',
   // tslint:disable-next-line:class-name
 }) export class commonDataTableComponent implements OnInit {
-  displayedColumns = ['select', 'date', 'code', 'description', 'Manager', 'Customer', 'Amount', 'Tax', 'Status', 'posted'];
+  displayedColumns = ['select'];
   selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
 
-  @Input() docType = 'Document.ClientOrder';
-  @Input() pageSize = 10;
+  @Input() docType = '';
+  @Input() pageSize = 5;
   totalRecords = 0;
+
+  columns: ColDef[] = [];
 
   @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild(MdSort) sort: MdSort;
@@ -36,12 +47,35 @@ import { ApiService } from '../../services/api.service';
 
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize, this.paginator, this.sort);
+
     Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .debounceTime(300)
       .distinctUntilChanged()
       .subscribe(() => {
         if (!this.dataSource) { return; }
         this.dataSource.filter = this.filter.nativeElement.value;
+      });
+
+    this.apiService.getView(this.docType)
+      .subscribe(view => {
+        Object.keys(view).map((property) => {
+          // tslint:disable-next-line:curly
+          if (['id', 'date', 'code', 'description', 'type', 'posted', 'deleted', 'isfolder', 'parent'].indexOf(property) > -1
+            || (view[property].constructor === Array)) return;
+          const prop = view[property];
+          const order = prop['order'] * 1 || 99;
+          const hidden = prop['hidden'] === 'true';
+          const label = prop['label'] || property.toString();
+          const dataType = prop['type'] || 'string';
+          this.columns.push({ field: property, type: dataType, label: label, hidden: hidden, order: order, style: null });
+        });
+        this.columns.sort((a, b) => a.order - b.order);
+        this.displayedColumns = this.columns.map((c) => c.field);
+        if (this.docType.startsWith('Document')) {
+          this.displayedColumns.unshift('select', 'date', 'code', 'description');
+        } else {
+          this.displayedColumns.unshift('select', 'code', 'description');
+        }
       });
   }
 

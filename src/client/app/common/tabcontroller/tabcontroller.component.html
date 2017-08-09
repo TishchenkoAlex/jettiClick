@@ -1,0 +1,8 @@
+<md-tab-group [(selectedIndex)]="index">
+    <md-tab *ngFor="let tab of this.tabs" [label]="tab.header">
+        <common-datatable *ngIf="tab.closable; else Dashboard" [docType]="tab.header" [pageSize]="10"></common-datatable>
+        <ng-template #Dashboard>
+            <app-home></app-home>
+        </ng-template>
+    </md-tab>
+</md-tab-group>
