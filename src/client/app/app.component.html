@@ -1,9 +1,10 @@
 <div fxLayout="column" fxFlex [class.dark-theme]="isDarkTheme" fxFill>
     <div>
-        <md-toolbar class="app-navbar" color="primary"  class="mat-elevation-z8">
+        <md-toolbar class="app-navbar" color="primary" class="mat-elevation-z8">
             <button md-icon-button (click)="sideNav.opened = !sideNav.opened"><md-icon>menu</md-icon></button>
             <span>Jetti - ClickSales module</span>
             <span fxFlex></span>
+            <app-login></app-login>
             <button md-icon-button [mdMenuTriggerFor]="themeMenu"><md-icon>more_vert</md-icon></button>
         </md-toolbar>
     </div>

@@ -31,13 +31,13 @@
         <ng-container cdkColumnDef="description">
             <md-header-cell *cdkHeaderCellDef md-sort-header> description </md-header-cell>
             <md-cell *cdkCellDef="let row">
-                {{row.description}} 
+            <a href="#"  (click)="$event.stopPropagation();openDialog(row);false"> {{row.description}} </a>
             </md-cell>
         </ng-container>
 
         <ng-container *ngFor="let col of columns" [cdkColumnDef]="col.field">
-            <md-header-cell *cdkHeaderCellDef md-sort-header fxFlex fxShow="false" fxShow.gt-xs>{{ col.label }}</md-header-cell>
-            <md-cell *cdkCellDef="let row" fxFlex fxShow="false" fxShow.gt-xs> 
+            <md-header-cell *cdkHeaderCellDef md-sort-header fxShow="false" fxShow.gt-xs>{{ col.label }}</md-header-cell>
+            <md-cell *cdkCellDef="let row" fxShow="false" fxShow.gt-xs> 
                 <span [ngSwitch]="col.type">
                     <span *ngSwitchCase = "'string'">
                         {{row[col.field]}} 
@@ -64,7 +64,7 @@
         </ng-container>
                 
         <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
-        <md-row *cdkRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row.id)" ></md-row>
+        <md-row *cdkRowDef="let row; columns: displayedColumns;" ></md-row>
     </md-table>
 
     <md-paginator #paginator [length]="this.pageSize" [pageIndex]="0" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 100]">

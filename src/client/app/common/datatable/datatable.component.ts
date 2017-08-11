@@ -1,6 +1,7 @@
-import { Component, ElementRef, ViewChild, OnInit, Input } from '@angular/core';
+import { DialogComponent } from './../../dialog/dialog.component';
+import { Component, ElementRef, ViewChild, OnInit, Input, NgModule } from '@angular/core';
 import { DataSource } from '@angular/cdk/table';
-import { MdPaginator, MdSort, SelectionModel } from '@angular/material';
+import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/startWith';
@@ -8,6 +9,7 @@ import 'rxjs/add/observable/merge';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/debounceTime';
@@ -25,7 +27,7 @@ interface ColDef {
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'common-datatable',
-  styleUrls: ['./datatable.component.css'],
+  styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
   // tslint:disable-next-line:class-name
 }) export class commonDataTableComponent implements OnInit {
@@ -36,14 +38,13 @@ interface ColDef {
   @Input() docType = '';
   @Input() pageSize = 5;
   totalRecords = 0;
-
   columns: ColDef[] = [];
 
   @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild('filter') filter: ElementRef;
 
-  constructor(private apiService: ApiService) { };
+  constructor(private apiService: ApiService, private dialog: MdDialog) { };
 
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize, this.paginator, this.sort);
@@ -83,11 +84,7 @@ interface ColDef {
     if (!this.dataSource) { return false; }
     if (this.selection.isEmpty()) { return false; }
 
-    if (this.filter.nativeElement.value) {
-      return this.selection.selected.length === this.dataSource.renderedData.length;
-    } else {
-      return this.selection.selected.length === this.dataSource.renderedData.length;
-    }
+    return this.selection.selected.length === this.dataSource.renderedData.length;
   }
 
   masterToggle() {
@@ -95,11 +92,18 @@ interface ColDef {
 
     if (this.isAllSelected()) {
       this.selection.clear();
-    } else if (this.filter.nativeElement.value) {
-      this.dataSource.renderedData.forEach(data => this.selection.select(data.id));
     } else {
       this.dataSource.renderedData.forEach(data => this.selection.select(data.id));
     }
+  }
+
+  openDialog(row) {
+    this.dialog.open(DialogComponent, { data: Object.assign({}, row) }).afterClosed()
+      .filter(result => !!result)
+      .subscribe(data => {
+        Object.assign(row, data);
+      });
+
   }
 }
 
@@ -110,24 +114,24 @@ export class ApiDataSource extends DataSource<any> {
 
   renderedData: any[];
   isLoadingResults = true;
+  result$: Observable<any[]>;
 
-  constructor(private apiService: ApiService, private docType: string, private pageSize: number,
+  constructor(private apiService: ApiService,
+    private docType: string, private pageSize: number,
     private _paginator: MdPaginator,
     private _sort: MdSort) {
+
     super();
+
     this._paginator.pageSize = pageSize;
     this._filterChange.subscribe(() => this._paginator.pageIndex = 0);
-  }
 
-  connect(): Observable<any[]> {
-    const displayDataChanges = [
+    this.result$ = Observable.merge(...[
       this._sort.mdSortChange,
       this._filterChange,
       this._paginator.page,
-    ];
-    return Observable.merge(...displayDataChanges)
-      .startWith(null)
-      .switchMap((c) => {
+    ])
+      .switchMap((stream) => {
         this.isLoadingResults = true;
         const filter = this._filterChange.value ? `description ILIKE '*${this._filterChange.value}*'` : '';
         return this.apiService.getDocList(this.docType,
@@ -135,13 +139,23 @@ export class ApiDataSource extends DataSource<any> {
           this._sort.active ? this._sort.active + ' ' + this._sort.direction : '', filter)
           .do((data) => {
             this.apiService.getDocsCount(this.docType, filter)
+              .catch(err => {
+                return Observable.of(0)
+              })
               .subscribe(count => {
                 this._paginator.length = count;
                 this.renderedData = data;
                 this.isLoadingResults = false;
               });
+          })
+          .catch(err => {
+            return Observable.of<any[]>([]);
           });
       });
+  }
+
+  connect(): Observable<any[]> {
+    return this.result$;
   }
 
   disconnect() { }

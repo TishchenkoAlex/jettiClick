@@ -1,8 +1,11 @@
-<md-tab-group [(selectedIndex)]="index">
+<md-tab-group [(selectedIndex)]="index" (selectChange)="this.onChange($event)">
     <md-tab *ngFor="let tab of this.tabs" [label]="tab.header">
-        <common-datatable *ngIf="tab.closable; else Dashboard" [docType]="tab.header" [pageSize]="10"></common-datatable>
+        <common-datatable *ngIf="tab?.closable; else Dashboard" [docType]="tab.docType" [pageSize]="10"></common-datatable>
         <ng-template #Dashboard>
             <app-home></app-home>
         </ng-template>
     </md-tab>
 </md-tab-group>
+<button md-fab (click)="handleClose($event)" [disabled]="this.index===0" class="fab-bottom-right">
+    <md-icon>close</md-icon>
+</button>

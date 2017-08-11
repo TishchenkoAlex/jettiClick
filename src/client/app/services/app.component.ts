@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
+
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',

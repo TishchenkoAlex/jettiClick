@@ -7,12 +7,11 @@ import { environment } from '../../environments/environment';
 export class ApiService {
 
     private url = environment.api;
-    // private url = 'http://localhost:3000/api/'
 
     constructor(private http: HttpClient) {
     }
 
-    getDocList(type, skip = 0, top = 50, order = '', filter = ''): Observable<any[]> {
+    getDocList(type: string, skip = 0, top = 50, order = '', filter = ''): Observable<any[]> {
         // tslint:disable-next-line:max-line-length
         const query = `${this.url}${type}/list?$top=${top}&$skip=${skip}&$filter=${filter}&$order=${order}`;
         console.log(query);
@@ -24,32 +23,31 @@ export class ApiService {
 
     getView(type): Observable<any[]> {
         const query = `${this.url}${type}/view/`;
+        console.log(query);
         return (this.http.get(query) as Observable<any[]>)
-        .map(data => data['view'])
-        .catch(err => {
-            return Observable.of<any[]>([]);
-        });
+            .map(data => data['view'])
+            .catch(err => {
+                return Observable.of<any[]>([]);
+            });
     }
 
     getDocsCount(type, filter?): Observable<number> {
         const query = `${this.url}${type}/list?$filter=${filter}&$count`;
         console.log(query);
         return this.http.get(query)
-        .map(data => data[0]['count'])
-        .catch(err => {
-            console.log('Err', err);
-            return Observable.of<any[]>([]);
-        });
+            .map(data => data[0]['count'])
+            .catch(err => {
+                return Observable.of(0);
+            });
     }
 
     getSuggests(docType: string, filter = ''): Observable<any[]> {
         const query = `${this.url}suggest/${docType}/${filter}`;
         console.log(query);
         return (this.http.get(query) as Observable<any[]>)
-        .catch(err => {
-            console.log('Err', err);
-            return Observable.of<any[]>([]);
-        });
-      }
+            .catch(err => {
+                return Observable.of<any[]>([]);
+            });
+    }
 }
 

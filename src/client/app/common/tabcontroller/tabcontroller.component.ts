@@ -1,5 +1,14 @@
-import { Router, ActivatedRoute, ParamMap } from '@angular/router/';
+import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
+import { Observable } from 'rxjs/Observable';
+import { DialogComponent } from './../../dialog/dialog.component';
+import { Router, ActivatedRoute, ParamMap, Data } from '@angular/router/';
 import { Component, OnInit } from '@angular/core';
+
+interface TabDef {
+  closable: boolean;
+  header: string;
+  docType: string;
+}
 
 @Component({
   selector: 'app-tabcontroller',
@@ -8,9 +17,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TabControllerComponent implements OnInit {
   index = 0;
-  tabs: {closable: boolean, header: string}[] = [{closable: false, header: 'Home'}];
+  countOfTabs = 0;
+  tabs: TabDef[] = [];
+  url = '/store/sessions/Tishchenko/tabs/';
 
-  constructor(private route: ActivatedRoute, private router: Router) { }
+  constructor(private route: ActivatedRoute, private router: Router) {
+    const homeTab: TabDef = { closable: false, header: 'Home', docType: 'Home' };
+    this.tabs.push(homeTab);
+  }
 
   ngOnInit() {
     this.route.paramMap
@@ -19,9 +33,9 @@ export class TabControllerComponent implements OnInit {
         const index = this.tabs.findIndex(i => i.header === tabid);
         if (index === -1) {
           console.log('tabid', tabid);
-          const newTab = {closable: true, header: tabid};
+          const newTab: TabDef = {closable: true, header: tabid, docType: tabid};
           const lastTabIndex = this.tabs.push(newTab);
-            setTimeout(() => this.index = lastTabIndex - 1)
+          this.index = lastTabIndex - 1;
         } else {
           this.index = index;
         }
@@ -29,13 +43,13 @@ export class TabControllerComponent implements OnInit {
   }
 
   handleClose(event) {
-    this.tabs.splice(event.index, 1);
-    const tab = this.tabs[event.index - 1].header;
+    this.tabs.splice(this.index, 1);
+    const tab = this.tabs[this.index - 1].header;
     this.router.navigateByUrl(tab);
   }
 
   onChange(event) {
-    const tab = this.tabs[event.index].header;
+    const tab = this.tabs[this.index].header;
     this.router.navigateByUrl(tab);
   }
 }

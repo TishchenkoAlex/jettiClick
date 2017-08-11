@@ -1,0 +1,12 @@
+
+<div fxLayout="row" fxLayoutAlign="center center">
+<div> {{ (user | async)?.displayName }} </div>
+<img src="{{ (user | async)?.photoURL }}" 
+    style="overflow: hidden;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    margin: 5px;">
+<button md-button (click)="login()" *ngIf="!(user | async)?.uid">Login</button>
+<button md-button (click)="logout()" *ngIf="(user | async)?.uid">Logout</button>
+</div>
