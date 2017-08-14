@@ -29,6 +29,7 @@ import { appRoutes } from './app.routes';
 import { HomeComponent } from './home/home.component';
 import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
 import { LoginComponent } from './auth/login-component/login-component';
+import { AuthService } from './auth/auth.service';
 
 @NgModule({
   declarations: [
@@ -56,7 +57,8 @@ import { LoginComponent } from './auth/login-component/login-component';
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
-    ApiService
+    ApiService,
+    AuthService
   ],
   entryComponents: [
     DialogComponent

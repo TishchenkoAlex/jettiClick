@@ -25,7 +25,7 @@
     "@angular/platform-browser": "^4.3.4",
     "@angular/platform-browser-dynamic": "^4.3.4",
     "@angular/router": "^4.3.4",
-    "angularfire2": "^4.0.0-rc0",
+    "angularfire2": "^4.0.0-rc.1",
     "body-parser": "^1.17.2",
     "compression": "^1.7.0",
     "core-js": "^2.5.0",

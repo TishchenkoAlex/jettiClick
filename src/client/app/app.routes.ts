@@ -7,5 +7,5 @@ import { TabControllerComponent } from './common/tabcontroller/tabcontroller.com
 export const appRoutes: Routes = [
    // { path: 'login', component: LoginComponent },
     { path: '', redirectTo: 'Home', pathMatch: 'full' },
-    { path: ':id', component: TabControllerComponent, data: { title: 'Ok'}  },
+    { path: ':id', component: TabControllerComponent},
 ];

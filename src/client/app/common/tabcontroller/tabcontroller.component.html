@@ -1,4 +1,4 @@
-<md-tab-group [(selectedIndex)]="index" (selectChange)="this.onChange($event)">
+<md-tab-group [(selectedIndex)]="index" (selectChange)="this.onChange($event)" dynamicHeight="true">
     <md-tab *ngFor="let tab of this.tabs" [label]="tab.header">
         <common-datatable *ngIf="tab?.closable; else Dashboard" [docType]="tab.docType" [pageSize]="10"></common-datatable>
         <ng-template #Dashboard>
@@ -6,6 +6,6 @@
         </ng-template>
     </md-tab>
 </md-tab-group>
-<button md-fab (click)="handleClose($event)" [disabled]="this.index===0" class="fab-bottom-right">
+<button md-mini-fab (click)="handleClose($event)" *ngIf="this.index !== 0" class="fab-bottom-right">
     <md-icon>close</md-icon>
 </button>

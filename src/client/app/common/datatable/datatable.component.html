@@ -3,9 +3,10 @@
         <md-input-container>
             <input mdInput #filter placeholder="Filter">
         </md-input-container>
+        <button md-icon-button><md-icon>refresh</md-icon></button>
     </div>
-    <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
-    <md-table #table [dataSource]="dataSource" mdSort class="mat-table" >
+<!--     <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
+ -->    <md-table #table [dataSource]="dataSource" mdSort class="mat-table" >
 
         <ng-container cdkColumnDef="select">
             <md-header-cell *cdkHeaderCellDef>

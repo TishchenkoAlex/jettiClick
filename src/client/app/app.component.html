@@ -1,30 +1,33 @@
-<div fxLayout="column" fxFlex [class.dark-theme]="isDarkTheme" fxFill>
-    <div>
+<div fxFlex fxLayout="column" [class.dark-theme]="isDarkTheme">
+    <div fxFlex fxLayout="column">
         <md-toolbar class="app-navbar" color="primary" class="mat-elevation-z8">
             <button md-icon-button (click)="sideNav.opened = !sideNav.opened"><md-icon>menu</md-icon></button>
-            <span>Jetti - ClickSales module</span>
+            <span>Jetti - ClickSales</span>
             <span fxFlex></span>
-            <app-login></app-login>
             <button md-icon-button [mdMenuTriggerFor]="themeMenu"><md-icon>more_vert</md-icon></button>
+            <app-login></app-login>
         </md-toolbar>
-    </div>
-    <md-sidenav-container fxFlex>
-        <md-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z4">
-            <md-nav-list>
-                <md-list-item *ngFor="let item of menuItems | async" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
-                    [routerLink]="item.link">
-                    <md-icon class="avatar">{{ item.icon }}</md-icon>
-                    <span>{{item.label}}</span>
-                </md-list-item>
-            </md-nav-list>
-        </md-sidenav>
-        <div class="content">
-            <div class="mat-elevation-z4" fxLayout="column" fxFill>
-            <router-outlet fxFlex></router-outlet>
+        <md-sidenav-container style="height: 100%">
+            <md-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z4">
+                <md-nav-list>
+                    <md-list-item *ngFor="let item of menuItems | async" 
+                        [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
+                        [routerLink]="item.link">
+                        <md-icon md-list-icon>{{ item.icon }}</md-icon>
+                        <span md-line class="secondary">{{ item.label }}</span>
+                    </md-list-item>
+                </md-nav-list>
+            </md-sidenav>
+            <div class="content" >
+                <div class="mat-elevation-z4">
+                    <router-outlet></router-outlet>
+                </div>
             </div>
-        </div>
-    </md-sidenav-container>
+        </md-sidenav-container>
+    </div>
+    <md-toolbar color="primary" style="max-height: 30px" fxShow="false" fxShow.gt-xs></md-toolbar>
 </div>
+
 <md-menu #themeMenu x-position="before">
     <button md-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
 </md-menu>

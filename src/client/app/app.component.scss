@@ -1,23 +1,17 @@
-:host {
-    display: flex;
-    flex: 1;
-  }
-  
-  md-sidenav {
-    width: 250px;
-  }
-
-  .content {
-    padding: 8px;
-  }
-  
-
-.bottom-bar {
-    position: fixed;
-    bottom: 16px;
+md-sidenav {
+  width: 250px;
 }
 
+.content {
+  padding: 8px;
+}
+  
 .mat-elevation-z8 {
   position: relative;
   z-index: 8;
+}
+
+md-toolbar {
+  height: 30px;
+  max-height: 30px;
 }
