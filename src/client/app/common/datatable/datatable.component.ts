@@ -73,9 +73,9 @@ interface ColDef {
         this.columns.sort((a, b) => a.order - b.order);
         this.displayedColumns = this.columns.map((c) => c.field);
         if (this.docType.startsWith('Document')) {
-          this.displayedColumns.unshift('select', 'date', 'code', 'description');
+          this.displayedColumns.unshift('select', 'posted', 'date', 'code', 'description');
         } else {
-          this.displayedColumns.unshift('select', 'code', 'description');
+          this.displayedColumns.unshift('select', 'posted', 'code', 'description');
         }
       });
   }
@@ -83,13 +83,11 @@ interface ColDef {
   isAllSelected(): boolean {
     if (!this.dataSource) { return false; }
     if (this.selection.isEmpty()) { return false; }
-
     return this.selection.selected.length === this.dataSource.renderedData.length;
   }
 
   masterToggle() {
     if (!this.dataSource) { return; }
-
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {

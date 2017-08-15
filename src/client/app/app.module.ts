@@ -30,6 +30,9 @@ import { HomeComponent } from './home/home.component';
 import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
 import { LoginComponent } from './auth/login-component/login-component';
 import { AuthService } from './auth/auth.service';
+import { LocationStrategy } from '@angular/common';
+import { HashLocationStrategy } from '@angular/common';
+
 
 @NgModule({
   declarations: [
@@ -57,6 +60,7 @@ import { AuthService } from './auth/auth.service';
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
+    { provide: LocationStrategy, useClass: HashLocationStrategy },
     ApiService,
     AuthService
   ],

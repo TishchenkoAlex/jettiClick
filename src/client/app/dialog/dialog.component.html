@@ -1,13 +1,15 @@
 <form #form="ngForm" (ngSubmit)="dialogRef.close(form.value)" ngNativeValidate>
-  <div fxLayout="column" fxLayoutGap="8px">
+  <div fxLayout="column" fxLayoutAlign="center center" >
 
     <md-input-container>
         <input mdInput [(ngModel)]="data.code" name="code" placeholder="code" required>
     </md-input-container>
 
     <md-input-container>
-      <input mdInput [(ngModel)]="data.date" name = "date" placeholder="date" required>
+      <input mdInput [mdDatepicker]="picker" [(ngModel)]="data.date" name = "date" placeholder="date" required>
+      <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>      
     </md-input-container>
+    <md-datepicker #picker></md-datepicker>
 
     <md-input-container>
         <input mdInput [(ngModel)]="data.description" name="description" placeholder="description" required>
