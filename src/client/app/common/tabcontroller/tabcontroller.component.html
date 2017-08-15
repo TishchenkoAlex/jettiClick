@@ -1,5 +1,5 @@
-<md-tab-group [(selectedIndex)]="index" (selectChange)="this.onChange($event)" dynamicHeight="true">
-    <md-tab *ngFor="let tab of this.tabs" [label]="tab.header">
+<md-tab-group [(selectedIndex)]="index" (selectChange)="this.onChange($event)" dynamicHeight="true" fxFill>
+    <md-tab *ngFor="let tab of this.tabs" [label]="tab.header" fxFill>
         <common-datatable *ngIf="tab?.closable; else Dashboard" [docType]="tab.docType" [pageSize]="10"></common-datatable>
         <ng-template #Dashboard>
             <app-home></app-home>

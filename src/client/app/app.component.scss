@@ -1,5 +1,6 @@
 md-sidenav {
   width: 250px;
+  background: whitesmoke;
 }
 
 .content {
@@ -9,8 +10,4 @@ md-sidenav {
 .mat-elevation-z8 {
   position: relative;
   z-index: 8;
-}
-
-.mat-sidenav {
-  background: whitesmoke;
 }

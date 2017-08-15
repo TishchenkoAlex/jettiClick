@@ -1,32 +1,29 @@
-<div fxFlex fxLayout="column" [class.dark-theme]="isDarkTheme">
-    <div fxFlex fxLayout="column">
-        <md-toolbar class="app-navbar" color="primary" class="mat-elevation-z8">
-            <button md-icon-button (click)="sideNav.opened = !sideNav.opened"><md-icon>menu</md-icon></button>
-            <span>Jetti - ClickSales</span>
-            <span fxFlex></span>
-            <button md-icon-button [mdMenuTriggerFor]="themeMenu"><md-icon>more_vert</md-icon></button>
-            <app-login></app-login>
-        </md-toolbar>
-        <md-sidenav-container style="height: 100%">
-            <md-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
-                <md-nav-list>
-                    <md-list-item *ngFor="let item of menuItems | async" 
-                        [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
-                        [routerLink]="item.link">
-                        <md-icon md-list-icon color="primary">{{ item.icon }}</md-icon>
-                        <span md-line color="primary">{{ item.label }}</span>
-                    </md-list-item>
-                </md-nav-list>
-            </md-sidenav>
-            <div class="content" >
-                <div class="mat-elevation-z4">
-                    <router-outlet></router-outlet>
-                </div>
-            </div>
-        </md-sidenav-container>
-    </div>
-    <md-toolbar color="primary" style="max-height: 30px" fxShow="false" fxShow.gt-xs></md-toolbar>
+<md-toolbar class="app-navbar" color="primary" class="mat-elevation-z8">
+    <button md-icon-button (click)="sideNav.opened = !sideNav.opened"><md-icon>menu</md-icon></button>
+    <span>Jetti - ClickSales</span>
+    <span fxFlex></span>
+    <button md-icon-button [mdMenuTriggerFor]="themeMenu"><md-icon>more_vert</md-icon></button>
+    <app-login></app-login>
+</md-toolbar>
+<div style="background-color:blue;padding:10px; height: 500px">
+    <md-sidenav-container style="background-color:yellow;padding:10px" fxFlex>
+        <md-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
+            <md-nav-list>
+                <md-list-item *ngFor="let item of menuItems | async" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
+                    [routerLink]="item.link">
+                    <md-icon md-list-icon color="primary">{{ item.icon }}</md-icon>
+                    <span color="primary">{{ item.label }}</span>
+                </md-list-item>
+            </md-nav-list>
+        </md-sidenav>
+        <div class="content" style="background-color:red;padding:10px">
+
+                <router-outlet></router-outlet>
+
+        </div>
+    </md-sidenav-container>
 </div>
+<md-toolbar color="primary" style="max-height: 30px"></md-toolbar>
 
 <md-menu #themeMenu x-position="before">
     <button md-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
