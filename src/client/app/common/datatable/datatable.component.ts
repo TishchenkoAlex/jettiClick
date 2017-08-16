@@ -31,7 +31,8 @@ interface ColDef {
   templateUrl: './datatable.component.html',
   // tslint:disable-next-line:class-name
 }) export class commonDataTableComponent implements OnInit {
-  displayedColumns = ['select'];
+
+  displayedColumns = [];
   selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
 
@@ -83,7 +84,7 @@ interface ColDef {
   isAllSelected(): boolean {
     if (!this.dataSource) { return false; }
     if (this.selection.isEmpty()) { return false; }
-    return this.selection.selected.length === this.dataSource.renderedData.length;
+    return this.selection.selected.length >= this.dataSource.renderedData.length;
   }
 
   masterToggle() {
@@ -93,6 +94,10 @@ interface ColDef {
     } else {
       this.dataSource.renderedData.forEach(data => this.selection.select(data.id));
     }
+  }
+
+  Refresh() {
+    this.dataSource.Refresh();
   }
 
   openDialog(row) {
@@ -106,6 +111,8 @@ interface ColDef {
 }
 
 export class ApiDataSource extends DataSource<any> {
+  _doRefresh = new BehaviorSubject('refresh');
+
   _filterChange = new BehaviorSubject('');
   get filter(): string { return this._filterChange.value; }
   set filter(filter: string) { this._filterChange.next(filter); }
@@ -128,10 +135,13 @@ export class ApiDataSource extends DataSource<any> {
       this._sort.mdSortChange,
       this._filterChange,
       this._paginator.page,
+      this._doRefresh,
     ])
+      .distinctUntilChanged()
       .switchMap((stream) => {
         this.isLoadingResults = true;
-        const filter = this._filterChange.value ? `description ILIKE '*${this._filterChange.value}*'` : '';
+        // tslint:disable-next-line:max-line-length
+        const filter = this._filterChange.value ? `(description ILIKE '${this._filterChange.value}*' OR code ILIKE '${this._filterChange.value}*')` : '';
         return this.apiService.getDocList(this.docType,
           (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
           this._sort.active ? this._sort.active + ' ' + this._sort.direction : '', filter)
@@ -141,6 +151,7 @@ export class ApiDataSource extends DataSource<any> {
                 return Observable.of(0)
               })
               .subscribe(count => {
+                console.log('subscribe', count);
                 this._paginator.length = count;
                 this.renderedData = data;
                 this.isLoadingResults = false;
@@ -157,4 +168,8 @@ export class ApiDataSource extends DataSource<any> {
   }
 
   disconnect() { }
+
+  Refresh() {
+    this._doRefresh.next(Math.random().toString());
+  }
 }

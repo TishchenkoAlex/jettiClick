@@ -1,6 +1,10 @@
-<md-tab-group [(selectedIndex)]="index" (selectChange)="this.onChange($event)" dynamicHeight="true" fxFill>
-    <md-tab *ngFor="let tab of this.tabs" [label]="tab.header" fxFill>
-        <common-datatable *ngIf="tab?.closable; else Dashboard" [docType]="tab.docType" [pageSize]="10"></common-datatable>
+<md-tab-group [(selectedIndex)]="index" (selectChange)="this.onChange($event)" dynamicHeight="true">
+    <md-tab *ngFor="let tab of this.tabs">
+        <ng-template md-tab-label>
+                <md-icon md-tab-icon color="primary">search</md-icon>
+                {{ tab.header }}
+        </ng-template>
+        <common-datatable *ngIf="tab?.docType !== HOME; else Dashboard" [docType]="tab.docType" [pageSize]="10"></common-datatable>
         <ng-template #Dashboard>
             <app-home></app-home>
         </ng-template>

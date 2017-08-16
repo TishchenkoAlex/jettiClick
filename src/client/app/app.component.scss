@@ -11,3 +11,7 @@ md-sidenav {
   position: relative;
   z-index: 8;
 }
+
+.active-route {
+  background: lightgray;
+}
