@@ -1,8 +1,8 @@
 <div class="mat-container" fxLayout="column">
     <div class="search-header" fxLayout="row" style="margin-left: 16px; margin-right: 70px">
         <div fxLayout="row" fxLayoutGap="10px">
-            <button md-mini-fab color="primary"><md-icon>add</md-icon></button>
-            <button md-mini-fab color="default" (click)="Refresh()"><md-icon>refresh</md-icon></button>
+            <button md-mini-fab color="primary"  mdTooltip="create new" [mdTooltipShowDelay]="1000"><md-icon>add</md-icon></button>
+            <button md-mini-fab color="default" (click)="Refresh()" mdTooltip="refresh" [mdTooltipShowDelay]="1000"><md-icon>refresh</md-icon></button>
             <button *ngIf="selection.selected.length===1" md-mini-fab color="default"><md-icon>content_copy</md-icon></button>
             <button *ngIf="selection.selected.length" md-mini-fab color="accent"><md-icon>remove</md-icon></button>
         </div>
@@ -66,10 +66,10 @@
                     </md-cell>
                 </span>
                 <span *ngSwitchCase="'number'" >
-                    <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px; text-align: right; max-width: 100px">
+                    <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px; text-align: right; max-width: 90px">
                         <span> {{ col.label }} </span>
                     </md-header-cell>
-                    <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px; font-weight: bold; text-align: right; max-width: 100px">
+                    <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px; font-weight: bold; text-align: right; max-width: 90px">
                             {{row[col.field] | number:'1.2-2' }}
                     </md-cell>
                 </span>

@@ -111,7 +111,7 @@ interface ColDef {
 }
 
 export class ApiDataSource extends DataSource<any> {
-  _doRefresh = new BehaviorSubject('refresh');
+  _doRefresh = new BehaviorSubject('');
 
   _filterChange = new BehaviorSubject('');
   get filter(): string { return this._filterChange.value; }

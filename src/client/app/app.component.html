@@ -12,7 +12,7 @@
                 <md-list-item *ngFor="let item of menuItems | async" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
                     [routerLink]="item.link" [routerLinkActive]="['active-route']">
                     <md-icon md-list-icon color="primary">{{ item.icon }}</md-icon>
-                    <span md-line>{{ item.label }}</span>
+                    <span md-line color="primary">{{ item.label }}</span>
                 </md-list-item>
             </md-nav-list>
         </md-sidenav>
