@@ -1,5 +1,6 @@
 export class BaseDynamicControl<T> {
     value: T;
+    type: string;
     key: string;
     label: string;
     required: boolean;
@@ -8,6 +9,7 @@ export class BaseDynamicControl<T> {
 
     constructor(options: {
         value?: T,
+        type?: string,
         key?: string,
         label?: string,
         required?: boolean,
@@ -15,6 +17,7 @@ export class BaseDynamicControl<T> {
         controlType?: string
     } = {}) {
         this.value = options.value;
+        this.type = options.type || '';
         this.key = options.key || '';
         this.label = options.label || '';
         this.required = !!options.required;

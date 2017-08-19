@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { MdAutocompleteTrigger } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
@@ -20,7 +21,7 @@ export class DynamicFormControlComponent implements OnInit, AfterViewInit {
   suggestsReactive: Observable<any[]>;
   showSearchSpinner = false;
 
-  constructor(private http: ApiService) { }
+  constructor(private http: ApiService, private router: Router) { }
 
   myErrorStateMatcher(control: FormControl, form: FormGroupDirective | NgForm): boolean {
     return !(typeof control.value === 'object')
@@ -43,7 +44,9 @@ export class DynamicFormControlComponent implements OnInit, AfterViewInit {
   }
 
   handleOpen() {
-    console.log(this.form.controls[this.control.key].value.id);
+    const docType = this.form.controls[this.control.key].value.type;
+    const docID = this.form.controls[this.control.key].value.id;
+    this.router.navigateByUrl(`${docType}/${docID}`)
   }
 
   ngOnInit() {
