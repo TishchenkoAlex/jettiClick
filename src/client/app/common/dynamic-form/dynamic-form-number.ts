@@ -1,8 +1,8 @@
 import { BaseDynamicControl } from './dynamic-form-base';
 
-export class TextboxDynamicControl extends BaseDynamicControl<string> {
-    controlType = 'textbox';
-    type = 'string';
+export class NumberDynamicControl extends BaseDynamicControl<Date> {
+    controlType = 'number';
+    type = 'number';
 
     constructor(options: {} = {}) {
         super(options);

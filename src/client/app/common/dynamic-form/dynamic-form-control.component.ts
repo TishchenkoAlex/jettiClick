@@ -6,6 +6,7 @@ import { BaseDynamicControl } from './dynamic-form-base';
 import { Component, Input, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormGroupDirective, NgForm, NgModel } from '@angular/forms';
 
+
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'df-control',
@@ -13,7 +14,7 @@ import { FormGroup, FormControl, FormGroupDirective, NgForm, NgModel } from '@an
   styles: [`md-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`]
 })
 export class DynamicFormControlComponent implements OnInit, AfterViewInit {
-
+  EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
   @Input() control: BaseDynamicControl<any>;
   @Input() form: FormGroup;
   get isValid() { return this.form.controls[this.control.key].valid; }
@@ -44,7 +45,7 @@ export class DynamicFormControlComponent implements OnInit, AfterViewInit {
   }
 
   handleOpen() {
-    const docType = this.form.controls[this.control.key].value.type;
+    const docType = this.form.controls[this.control.key].value.type || this.control.type;
     const docID = this.form.controls[this.control.key].value.id;
     this.router.navigateByUrl(`${docType}/${docID}`)
   }
@@ -56,13 +57,22 @@ export class DynamicFormControlComponent implements OnInit, AfterViewInit {
         .distinctUntilChanged()
         .do(() => { this.showSearchSpinner = true })
         .map(val => this.displayFn(val))
-        .switchMap(name => this.getSuggests(this.control['type'], name))
-        .catch(err => { this.showSearchSpinner = false; return Observable.of<any[]>([])})
-        .do(() => { this.showSearchSpinner = false });
+        .switchMap(text => this.getSuggests(this.control['type'], text))
+        .catch(err => { this.showSearchSpinner = false; return Observable.of<any[]>([]) })
+        .do(() => {
+          this.showSearchSpinner = false;
+        });
     }
   }
 
   ngAfterViewInit() {
+/*     if (this.control.controlType === 'autocomplete') {
+      this.trigger.panelClosingActions
+        .subscribe((data) => console.log(data));
+      this.trigger.optionSelections
+        .subscribe((data) => console.log(data));
+    }; */
   }
+
 }
 

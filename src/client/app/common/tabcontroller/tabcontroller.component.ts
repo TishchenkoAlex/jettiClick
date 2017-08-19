@@ -6,8 +6,9 @@ import { Component, OnInit } from '@angular/core';
 
 interface TabDef {
   header: string;
-  docType: string;
   icon: string;
+  description: string;
+  docType: string;
   docID: string;
 }
 
@@ -22,13 +23,12 @@ export class TabControllerComponent implements OnInit {
   index = 0;
   countOfTabs = 0;
   tabs: TabDef[] = [];
-  url = '/store/sessions/Tishchenko/tabs/';
   tabid: string;
   docID: string;
   HOME = HOME;
 
   constructor(private route: ActivatedRoute, private router: Router, private db: AngularFireDatabase) {
-    const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '' };
+    const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '' };
     this.tabs.push(homeTab);
   }
 
@@ -42,7 +42,7 @@ export class TabControllerComponent implements OnInit {
           const menuItem = this.db.list('/Menu/main/', { query: { orderByChild: 'link', equalTo: this.tabid } })
             .take(1)
             .subscribe(item => {
-              const newTab: TabDef = { header: item[0].label, docType: this.tabid, icon: item[0].icon, docID: this.docID };
+              const newTab: TabDef = { header: item[0].label, docType: this.tabid, icon: item[0].icon, docID: this.docID, description: ''};
               const lastTabIndex = this.tabs.push(newTab);
               this.index = lastTabIndex - 1;
             });
@@ -65,6 +65,10 @@ export class TabControllerComponent implements OnInit {
     const docType = this.tabs[this.index].docType;
     const docID = this.tabs[this.index].docID;
     this.router.navigateByUrl(`${docType}/${docID}`)
+  }
+
+  onDocLoaded(event) {
+    this.tabs[this.index].description = (event.description as string).slice(0, 20)  || '';
   }
 
 }
