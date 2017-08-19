@@ -1,18 +1,10 @@
+import { Router } from '@angular/router';
 import { DialogComponent } from './../../dialog/dialog.component';
 import { Component, ElementRef, ViewChild, OnInit, Input, NgModule } from '@angular/core';
 import { DataSource } from '@angular/cdk/table';
 import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/observable/merge';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/first';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/debounceTime';
 import { ApiService } from '../../services/api.service';
 
 interface ColDef {
@@ -29,8 +21,8 @@ interface ColDef {
   selector: 'common-datatable',
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
-  // tslint:disable-next-line:class-name
-}) export class commonDataTableComponent implements OnInit {
+})
+export class CommonDataTableComponent implements OnInit {
 
   displayedColumns = [];
   selection = new SelectionModel<string>(true, []);
@@ -45,7 +37,7 @@ interface ColDef {
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild('filter') filter: ElementRef;
 
-  constructor(private apiService: ApiService, private dialog: MdDialog) { };
+  constructor(private apiService: ApiService, private dialog: MdDialog, private router: Router) { };
 
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize, this.paginator, this.sort);
@@ -108,6 +100,10 @@ interface ColDef {
       });
 
   }
+
+  openDoc(row) {
+    this.router.navigateByUrl(this.docType + '/' + row.id)
+  }
 }
 
 export class ApiDataSource extends DataSource<any> {
@@ -151,7 +147,6 @@ export class ApiDataSource extends DataSource<any> {
                 return Observable.of(0)
               })
               .subscribe(count => {
-                console.log('subscribe', count);
                 this._paginator.length = count;
                 this.renderedData = data;
                 this.isLoadingResults = false;

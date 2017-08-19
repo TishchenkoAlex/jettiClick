@@ -1,19 +1,12 @@
 import 'hammerjs';
-import { DialogComponent } from './dialog/dialog.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, LOCALE_ID } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule, Routes } from '@angular/router';
+import { RouteReuseStrategy, RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/skip';
-import 'rxjs/add/operator/take';
+import { LocationStrategy } from '@angular/common';
+import { HashLocationStrategy } from '@angular/common';
 
 import { MaterialModule } from './material-module';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -22,28 +15,54 @@ import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/skip';
+import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/startWith';
+import 'rxjs/add/observable/merge';
+import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/first';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/debounceTime';
+
+import { AppRouteReuseStrategy } from './route-reuse.strategy';
+
+import { appRoutes } from './app.routes';
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
 
 import { ApiService } from './services/api.service';
-import { commonDataTableComponent, ApiDataSource } from './common/datatable/datatable.component';
-import { appRoutes } from './app.routes';
+import { AuthService } from './auth/auth.service';
+
+import { LoginComponent } from './auth/login-component/login-component';
 import { HomeComponent } from './home/home.component';
 import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
-import { LoginComponent } from './auth/login-component/login-component';
-import { AuthService } from './auth/auth.service';
-import { LocationStrategy } from '@angular/common';
-import { HashLocationStrategy } from '@angular/common';
 
+import { CommonDataTableComponent, ApiDataSource } from './common/datatable/datatable.component';
+import { CommonFromComponent } from './common/form/form.component';
+
+import { DialogComponent } from './dialog/dialog.component';
+import { DynamicFormControlComponent } from './common/dynamic-form/dynamic-form-control.component';
+import { DynamicFormControlService } from './common/dynamic-form/dynamic-form-control.service';
+import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    commonDataTableComponent,
+    CommonDataTableComponent,
+    CommonFromComponent,
+
     TabControllerComponent,
     DialogComponent,
     LoginComponent,
+    DynamicFormControlComponent,
   ],
   imports: [
     FlexLayoutModule,
@@ -63,8 +82,14 @@ import { HashLocationStrategy } from '@angular/common';
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
     { provide: LocationStrategy, useClass: HashLocationStrategy },
+    {
+      provide: RouteReuseStrategy,
+      useClass: AppRouteReuseStrategy
+    },
     ApiService,
-    AuthService
+    AuthService,
+    DynamicFormControlService,
+    DynamicFormService
   ],
   entryComponents: [
     DialogComponent

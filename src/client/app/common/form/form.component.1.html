@@ -1,0 +1,70 @@
+<md-card fxLayout="column">
+    <div>
+        <md-card-title>{{ document.description }}</md-card-title>
+        <md-card-subtitle>{{ document.date | date:'medium' }}</md-card-subtitle>
+    </div>
+    <md-card-content>
+        <form #form="ngForm" ngNativeValidate>
+            <div fxLayout="column">
+
+                <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="25px" >
+
+                    <md-form-field *ngIf="!this.docType.startsWith('Document.')" fxFlex="calc(50% - 25px)">
+                        <input mdInput [(ngModel)]="document.code" name="code" placeholder="code" required>
+                    </md-form-field>
+
+                    <md-form-field *ngIf="!this.docType.startsWith('Document.')" fxFlex="calc(50% - 25px)">
+                        <input mdInput [(ngModel)]="document.description" name="description" placeholder="description" required>
+                    </md-form-field>
+
+                    <md-form-field *ngIf="this.docType.startsWith('Document.')" fxFlex="calc(50% - 25px)">
+                        <input mdInput [(ngModel)]="document.date" [mdDatepicker]="picker" name="date" placeholder="date" required>
+                        <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+                        <md-datepicker #picker></md-datepicker>
+                    </md-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="25px" fxLayoutAlign.gt-xs="start center">
+                    <span *ngFor="let field of fields" fxFlex="calc(50% - 25px)">
+                        <span [ngSwitch]="field.type">
+
+                            <span *ngSwitchCase = "'date'">    
+                                <md-form-field  fxFlex="calc(50% - 25px)">                     
+                                    <input mdInput [(ngModel)]="document[field.field]" [mdDatepicker]="picker2" 
+                                        [name]="field.field" [placeholder]="field.label" [required]="field.required">
+                                    <md-datepicker-toggle mdSuffix [for]="picker2"></md-datepicker-toggle>
+                                </md-form-field>
+                                <md-datepicker #picker2></md-datepicker>
+                            </span>
+
+                            <span *ngSwitchCase="'datetime'">    
+                                <md-form-field  fxFlex="calc(50% - 25px)">                     
+                                    <input mdInput [(ngModel)]="document[field.field]" [mdDatepicker]="picker3" 
+                                        [name]="field.field" [placeholder]="field.label" [required]="field.required">
+                                    <md-datepicker-toggle mdSuffix [for]="picker3"></md-datepicker-toggle>
+                                </md-form-field>
+                                <md-datepicker #picker3></md-datepicker>
+                            </span>
+
+                            <span *ngSwitchCase="'boolean'" fxFlex="calc(50% - 25px)">    
+                                <md-checkbox [(ngModel)]="document[field.field]" [name]="field.field" [required]="field.required">
+                                    {{ field.label }}
+                                </md-checkbox>
+                            </span>
+    
+                            <span *ngSwitchDefault>
+                                <md-form-field fxFlex="calc(50% - 25px)">
+                                    <input mdInput [(ngModel)]="document[field.field]" [name]="field.field" [placeholder]="field.label" [required]="field.required">
+                                </md-form-field>
+                            </span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </form>
+    </md-card-content>
+    <md-card-actions fxFlex fxFill fxLayoutAlign="center center" fxLayoutGap="5px">
+        <button md-raised-button color="warn" [disabled]="!form.valid">Save</button>
+        <button md-raised-button type="button">Cancel</button>
+    </md-card-actions>
+</md-card>

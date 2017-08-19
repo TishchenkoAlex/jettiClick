@@ -5,16 +5,15 @@
                 <md-icon md-tab-icon color="primary">{{ tab.icon }}</md-icon>
                 <span>{{ tab.header }}</span>
             </div>
-<!--             <md-icon color="primary" style="font-size: 10pt; width: 0px;height: 100%" *ngIf="tab?.docType !== HOME" md-tab-icon  
-                (click)="this.handleClose(tab.docType)">close
-            </md-icon> -->
+            <md-icon color="primary" style="font-size: 10pt; width: 0px;height: 100%" *ngIf="tab?.docType !== HOME" md-tab-icon  
+                (click)="this.handleClose(tab)">close
+            </md-icon>
         </ng-template>
-        <common-datatable *ngIf="tab?.docType !== HOME; else Dashboard" [docType]="tab.docType" [pageSize]="10"></common-datatable>
-        <ng-template #Dashboard>
-            <app-home></app-home>
-        </ng-template>
+        <app-home *ngIf="(tab?.docType === HOME)"></app-home>
+        <common-datatable *ngIf="(tab?.docType !== HOME) && (tab?.docID === '')" [docType]="tab.docType" [pageSize]="10"></common-datatable>
+        <common-form *ngIf="(tab?.docID !== '')" [docType]="tab.docType" [docID]="tab.docID" ></common-form>        
     </md-tab>
 </md-tab-group>
-<button md-mini-fab (click)="handleClose()" *ngIf="this.index !== 0" class="fab-bottom-right">
+<button md-mini-fab  *ngIf="index !== 0" (click)="handleClose()" class="fab-bottom-right">
     <md-icon mdTooltip="close tab" [mdTooltipShowDelay]="1000">close</md-icon>
 </button>

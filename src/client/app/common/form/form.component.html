@@ -1,0 +1,19 @@
+<md-card>
+    <div>
+        <md-card-title>{{ document.description }}</md-card-title>
+        <md-card-subtitle>{{ document.date | date:'medium' }}</md-card-subtitle>
+    </div>
+    <md-card-content >
+        <form [formGroup]="form" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="25px" >
+            <div *ngFor="let control of controls">
+                <df-control [control]="control" [form]="form" ></df-control>
+            </div>
+        </form>
+    </md-card-content>
+    <md-card-actions fxLayoutAlign="center center" fxLayoutGap="10px">
+        <button md-raised-button color="warn" [disabled]="!form.valid" (click)="onSubmit()" >Save</button>
+        <button md-raised-button type="button">Cancel</button>
+    </md-card-actions>
+</md-card>
+
+{{ this.value }}

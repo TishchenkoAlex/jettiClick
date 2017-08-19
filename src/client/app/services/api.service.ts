@@ -21,13 +21,22 @@ export class ApiService {
         });
     }
 
-    getView(type): Observable<any[]> {
+    getView(type: string): Observable<any[]> {
         const query = `${this.url}${type}/view/`;
         console.log(query);
         return (this.http.get(query) as Observable<any[]>)
             .map(data => data['view'])
             .catch(err => {
                 return Observable.of<any[]>([]);
+            });
+    }
+
+    getViewModel(type: string, id = ''): Observable<Object> {
+        const query = `${this.url}${type}/view/${id}`;
+        console.log(query);
+        return (this.http.get(query))
+            .catch(err => {
+                return Observable.of();
             });
     }
 

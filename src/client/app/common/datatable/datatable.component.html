@@ -46,7 +46,7 @@
             <md-header-cell *cdkHeaderCellDef md-sort-header> description </md-header-cell>
             <md-cell *cdkCellDef="let row">
                 <button md-button style="padding-left: 2px; text-align: left; width: 100%; font-weight: bold" color="primary" 
-                    (click)="$event.stopPropagation();openDialog(row);false"> {{row.description}} 
+                    (click)="$event.stopPropagation();openDoc(row);false"> {{row.description}} 
                 </button>
             </md-cell>
         </ng-container>

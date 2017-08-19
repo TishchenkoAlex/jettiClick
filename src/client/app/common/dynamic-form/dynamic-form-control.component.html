@@ -1,0 +1,36 @@
+<div [formGroup]="form" [ngSwitch]="control.controlType">
+
+  <md-form-field #textbox *ngSwitchCase="'textbox'" style="width: 270px">
+    <input #textbox mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key">
+  </md-form-field>
+
+  <md-form-field *ngSwitchCase="'autocomplete'" style="width: 270px">
+    <input #ac mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key" [mdAutocomplete]="auto"
+      [errorStateMatcher]="myErrorStateMatcher">
+    <button md-icon-button mdSuffix style="cursor: pointer" (click)="$event.stopPropagation(); handleOpen()"[tabIndex]=-1><md-icon>search</md-icon></button>
+    <button md-icon-button mdSuffix style="cursor: pointer" (click)="handleReset(ac)" [tabIndex]=-1><md-icon>clear</md-icon></button>
+    <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
+  </md-form-field>
+
+  <md-form-field *ngSwitchCase="'date'" style="width: 100px">
+    <input mdInput [mdDatepicker]="picker" placeholder={{control.label}} [formControlName]="control.key" [id]="control.key" pattern="">
+    <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+  </md-form-field>
+  <md-datepicker #picker></md-datepicker>
+  
+  <md-form-field *ngSwitchCase="'datetime'" style="width: 150px">
+      <input mdInput [mdDatepicker]="picker" placeholder={{control.label}} [formControlName]="control.key" [id]="control.key" pattern="">
+      <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+    </md-form-field>
+    <md-datepicker #picker></md-datepicker>
+
+  <md-checkbox *ngSwitchCase="'boolean'" style="width: 25px" [formControlName]="control.key" [id]="control.key">{{control.label}}</md-checkbox>
+
+</div>
+
+<md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
+  <md-option *ngFor="let value of this.suggestsReactive | async " [value]="value">
+    <span>{{ value.value }}</span>
+    <span> ({{value.code}}) </span>
+  </md-option>
+</md-autocomplete>
