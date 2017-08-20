@@ -81,7 +81,6 @@ import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
-    { provide: LocationStrategy, useClass: HashLocationStrategy },
     {
       provide: RouteReuseStrategy,
       useClass: AppRouteReuseStrategy

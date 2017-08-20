@@ -39,7 +39,7 @@ export class TabControllerComponent implements OnInit {
         this.docID = params.get('id') || '';
         const index = this.tabs.findIndex(i => (i.docType === this.tabid) && (i.docID === this.docID));
         if (index === -1) {
-          const menuItem = this.db.list('/Menu/main/', { query: { orderByChild: 'link', equalTo: this.tabid } })
+          const menuItem = this.db.list('/Menu/main/', { query: { orderByChild: 'link', equalTo: '/' + this.tabid } })
             .take(1)
             .subscribe(item => {
               const newTab: TabDef = { header: item[0].label, docType: this.tabid, icon: item[0].icon, docID: this.docID, description: ''};

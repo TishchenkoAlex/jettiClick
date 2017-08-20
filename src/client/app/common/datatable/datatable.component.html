@@ -65,6 +65,12 @@
                         {{row[col.field] | date:'dd.MM.yyyy mm:ss'}} 
                     </md-cell>
                 </span>
+                <span *ngSwitchCase="'date'">
+                    <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
+                    <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px">
+                        {{row[col.field] | date:'dd.MM.yyyy'}} 
+                    </md-cell>
+                </span>
                 <span *ngSwitchCase="'number'" >
                     <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px; text-align: right; max-width: 90px">
                         <span> {{ col.label }} </span>
