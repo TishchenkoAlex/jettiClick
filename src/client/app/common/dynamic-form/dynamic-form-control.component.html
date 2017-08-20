@@ -14,7 +14,7 @@
   <md-form-field *ngSwitchCase="'autocomplete'" fxFlex>
     <input #ac [required]="control.required" mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key"
       [mdAutocomplete]="auto" [errorStateMatcher]="myErrorStateMatcher" [readOnly]="control.readOnly">
-    <button md-icon-button mdSuffix style="cursor: pointer" (click)="$event.stopPropagation(); handleOpen()" [tabIndex]=-1><md-icon>search</md-icon></button>
+    <button md-icon-button mdSuffix style="cursor: pointer" (click)="$event.stopPropagation(); " [tabIndex]=-1><md-icon>search</md-icon></button>
     <button md-icon-button mdSuffix style="cursor: pointer" (click)="$event.stopPropagation(); handleReset(ac)" [tabIndex]=-1><md-icon>clear</md-icon></button>
     <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
   </md-form-field>

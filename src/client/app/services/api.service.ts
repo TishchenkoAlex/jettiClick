@@ -30,6 +30,7 @@ export class ApiService {
   }
 
   getViewModel(type: string, id = ''): Observable<Object> {
+    if (id === 'new') { id = ''; }
     const query = `${this.url}${type}/view/${id}`;
     return (this.http.get(query))
       .catch(err => {
@@ -49,9 +50,26 @@ export class ApiService {
   getSuggests(docType: string, filter = ''): Observable<any[]> {
     const query = `${this.url}suggest/${docType}/${filter}`;
     return (this.http.get(query) as Observable<any[]>)
-    .catch(err => {
+      .catch(err => {
         return Observable.of<any[]>([]);
       });
   }
+
+  postDoc(doc): Observable<Object> {
+    const query = `${this.url}`;
+    return (this.http.post(query, doc))
+      .catch(err => {
+        return Observable.of<Object>();
+      });
+  }
+
+  deleteDoc(id: string): Observable<Object> {
+    const query = `${this.url}${id}`;
+    return (this.http.delete(query))
+      .catch(err => {
+        return Observable.of<Object>();
+      });
+  }
+
 }
 

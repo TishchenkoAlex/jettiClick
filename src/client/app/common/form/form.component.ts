@@ -44,7 +44,42 @@ export class CommonFromComponent implements OnInit {
   }
 
   onSubmit() {
-    this.value = JSON.stringify(this.form.value);
+
+    const formDoc = this.form.value;
+
+    const newDoc = {
+      id: this.document.id,
+      type: this.document.type,
+      date: formDoc.date,
+      code: formDoc.code,
+      description: formDoc.description,
+      posted: false,
+      deleted: false,
+      parent: '',
+      isfolder: false,
+      doc: {
+      }
+    }
+
+    const exclude = ['id', 'code', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'date', 'description'];
+    Object.keys(formDoc).map((property) => {
+      if (exclude.indexOf(property) > -1) { return; }
+      if (typeof formDoc[property] === 'object') {
+        newDoc.doc[property] = formDoc[property]['id'] || formDoc[property];
+      } else {
+        newDoc.doc[property] = formDoc[property];
+      }
+    });
+    if (!newDoc['date']) { newDoc['date'] = this.document.date || new Date(); }
+    if (!newDoc['description']) { newDoc['description'] =
+      this.document.description || (newDoc['type'] + ' #' + newDoc['code'] + ' ' + newDoc['date'] + ''); };
+
+    this.value = JSON.stringify(newDoc);
+
+    this.apiService.postDoc(newDoc)
+    .subscribe(posted => {
+      this.form.patchValue(posted);
+    });
   }
 
   handleOnCancel() {

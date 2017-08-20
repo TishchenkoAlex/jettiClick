@@ -1,7 +1,7 @@
 <div class="mat-container" fxLayout="column">
     <div class="search-header" fxLayout="row" style="margin-left: 16px; margin-right: 70px">
         <div fxLayout="row" fxLayoutGap="10px">
-            <button md-mini-fab color="primary"  mdTooltip="create new" [mdTooltipShowDelay]="1000"><md-icon>add</md-icon></button>
+            <button md-mini-fab color="primary" (click)="addDoc()"  mdTooltip="create new" [mdTooltipShowDelay]="1000"><md-icon>add</md-icon></button>
             <button md-mini-fab color="default" (click)="Refresh()" mdTooltip="refresh" [mdTooltipShowDelay]="1000"><md-icon>refresh</md-icon></button>
             <button *ngIf="selection.selected.length===1" md-mini-fab color="default"><md-icon>content_copy</md-icon></button>
             <button *ngIf="selection.selected.length" md-mini-fab color="accent"><md-icon>remove</md-icon></button>

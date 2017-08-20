@@ -205,7 +205,7 @@ router.post('/', async (req, res, next) => {
                 description = i.description,
                 posted = i.posted, 
                 deleted = i.deleted,
-                isfolder = i.isfolder
+                isfolder = i.isfolder,
                 doc = i.doc
               FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
               WHERE d.Id = i.Id;

@@ -101,6 +101,10 @@ export class CommonDataTableComponent implements OnInit {
 
   }
 
+  addDoc() {
+    this.router.navigate([this.docType, 'new'])
+  }
+
   openDoc(row) {
     this.router.navigate([this.docType, row.id])
   }
