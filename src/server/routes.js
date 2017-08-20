@@ -150,7 +150,7 @@ router.get('/:type/view/*', async (req, res, next) => {
 router.get('/suggest/:type/*', async (req, res, next) => {
   try {
     let query = `
-      SELECT id as id, description as value, code as code
+      SELECT id as id, description as value, code as code, type as type
       FROM "Documents" WHERE type = '${req.params.type}'
       AND (description ILIKE '%${req.params[0]}%' OR code ILIKE '%${req.params[0]}%' OR id = '${req.params[0]}')
       ORDER BY description

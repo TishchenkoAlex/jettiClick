@@ -5,6 +5,7 @@ export class BaseDynamicControl<T> {
     label: string;
     required: boolean;
     readOnly: boolean;
+    hidden: boolean;
     order: number;
     controlType: string;
 
@@ -15,6 +16,7 @@ export class BaseDynamicControl<T> {
         label?: string,
         required?: boolean,
         readOnly?: boolean,
+        hidden?: boolean,
         order?: number,
         controlType?: string
     } = {}) {
@@ -24,7 +26,8 @@ export class BaseDynamicControl<T> {
         this.label = options.label || '';
         this.required = !!options.required;
         this.readOnly = !!options.readOnly;
-        this.order = options.order === undefined ? 1 : options.order;
+        this.hidden = !!options.hidden;
+        this.order = options.order === undefined ? 999 : options.order;
         this.controlType = options.controlType || '';
     }
 }

@@ -36,10 +36,13 @@ export class DynamicFormService {
           const dataType = prop['type'] || 'string';
           const required = prop['required'] || false;
           const readOnly = prop['readOnly'] || false;
+          // Корректировки даты и логических данных
+          if (dataType === 'date' || dataType === 'datetime') { model[property] = new Date(model[property]); }
+          if (dataType === 'boolean') { model[property] = !!model[property]; }
           let newControl: BaseDynamicControl<any>;
           const controlOptions = {
             key: property, value: model[property], label: label, type: docType,
-            required: required, readOnly: readOnly, order: order
+            required: required, readOnly: readOnly, order: order, hidden: hidden
           };
           switch (dataType) {
             case 'boolean':
@@ -56,6 +59,7 @@ export class DynamicFormService {
               break;
             default:
               if (dataType.includes('.')) {
+                controlOptions.type = dataType; // здесь нужен тип ссылки
                 newControl = new DropdownDynamicControl(controlOptions);
                 break;
               };

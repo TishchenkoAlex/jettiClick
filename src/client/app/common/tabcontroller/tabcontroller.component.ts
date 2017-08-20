@@ -57,7 +57,9 @@ export class TabControllerComponent implements OnInit {
       const index = this.tabs.findIndex(i => (i.docType === event.docType) && (i.docID === event.docID));
       this.index = index;
     }
-    this.tabs.splice(this.index--, 1);
+    this.tabs.splice(this.index, 1);
+    if (this.index === this.tabs.length) { this.index-- }
+
     this.onChange(event);
   }
 

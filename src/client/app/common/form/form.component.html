@@ -1,6 +1,11 @@
-<md-card>   
-    <div fxLayout="row" fxLayoutAlign="space-between center" >
-        <md-card-title>{{ form.value.description || this.document.description }}</md-card-title>
+<md-card>
+    <div style="display: flex; flex-flow: row; vertical-align: middle; justify-content: space-between">
+        <div style="display: flex; flex-flow: row; vertical-align: middle">
+            <md-icon *ngIf="this.document['deleted']" color="warn">indeterminate_check_box</md-icon>
+            <md-icon *ngIf="this.document['posted']" color="primary">check_box</md-icon>
+            <md-icon *ngIf="!this.document['posted'] && !this.document['deleted']" color="accent">check_box_outline_blank</md-icon>
+            <md-card-title>{{ form.value.description || this.document.description }}</md-card-title>
+        </div>
         <md-card-subtitle>{{ form.value.date || this.document.date | date:'medium' }}</md-card-subtitle>
     </div>
     <md-card-content>
@@ -12,7 +17,7 @@
             </div>
             <div fxLayoutGap.gt-xs="column" fxFlex>
                 <div *ngFor="let control of controls; let odd = odd">
-                    <df-control *ngIf="odd" [control]="control" [form]="form" ></df-control>
+                    <df-control *ngIf="odd" [control]="control" [form]="form"></df-control>
                 </div>
             </div>
         </form>
@@ -23,4 +28,4 @@
     </md-card-actions>
 </md-card>
 
-{{ this.value }}
+{{ value }}
