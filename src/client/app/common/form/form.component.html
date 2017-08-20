@@ -1,13 +1,15 @@
-<md-card>
-    <div style="display: flex; flex-flow: row; vertical-align: middle; justify-content: space-between">
-        <div style="display: flex; flex-flow: row; vertical-align: middle">
+<div fxLayoutAlign="start space-between" class="mat-card" style="height: 50px">
+    <div fxLayout="row" fxFlex>
+        <md-card-title fxLayout="row" fxLayoutAlign="start center">
             <md-icon *ngIf="this.document['deleted']" color="warn">indeterminate_check_box</md-icon>
             <md-icon *ngIf="this.document['posted']" color="primary">check_box</md-icon>
             <md-icon *ngIf="!this.document['posted'] && !this.document['deleted']" color="accent">check_box_outline_blank</md-icon>
-            <md-card-title>{{ form.value.description || this.document.description }}</md-card-title>
-        </div>
-        <md-card-subtitle>{{ form.value.date || this.document.date | date:'medium' }}</md-card-subtitle>
+            <span>{{ form.value.description || this.document.description }}</span>
+        </md-card-title>
     </div>
+    <md-card-subtitle style="font-size: 9pt">{{ form.value.date || this.document.date | date:'medium' }}</md-card-subtitle>
+</div>
+<md-card>
     <md-card-content>
         <form [formGroup]="form" fxLayout="row" fxLayout.xs="column" fxLayoutGap.gt-xs="35px">
             <div fxLayoutGap.gt-xs="column" fxFlex>

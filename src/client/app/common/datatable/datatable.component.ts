@@ -102,7 +102,7 @@ export class CommonDataTableComponent implements OnInit {
   }
 
   openDoc(row) {
-    this.router.navigateByUrl(this.docType + '/' + row.id)
+    this.router.navigate([this.docType, row.id])
   }
 }
 

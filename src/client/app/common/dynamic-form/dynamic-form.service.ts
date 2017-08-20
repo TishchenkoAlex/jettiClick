@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
 
@@ -9,12 +10,17 @@ import { DropdownDynamicControl } from './dynamic-form-dropdown';
 import { BaseDynamicControl } from './dynamic-form-base';
 import { DateDynamicControl } from './dynamic-form-date';
 
+export interface ViewModel {
+  view: BaseDynamicControl<any>[];
+  model: any
+}
+
 @Injectable()
 export class DynamicFormService {
 
   constructor(private apiService: ApiService) { };
 
-  getControls(docType: string, docID = '') {
+  getControls(docType: string, docID = ''): Observable<ViewModel> {
 
     const fields: BaseDynamicControl<any>[] = [];
     const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent'];

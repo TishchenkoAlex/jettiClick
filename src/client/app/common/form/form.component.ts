@@ -1,12 +1,12 @@
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs/Rx';
-import { DynamicFormService } from '../dynamic-form/dynamic-form.service';
 import { FormGroup } from '@angular/forms';
+import { Location } from '@angular/common';
+
+import { DynamicFormService, ViewModel } from '../dynamic-form/dynamic-form.service';
 import { BaseDynamicControl } from '../dynamic-form/dynamic-form-base';
 import { DynamicFormControlService } from '../dynamic-form/dynamic-form-control.service';
 import { ApiService } from '../../services/api.service';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Location } from '@angular/common';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -35,9 +35,9 @@ export class CommonFromComponent implements OnInit {
 
     this.dfs.getControls(this.docType, this.docID)
       .take(1)
-      .subscribe(viewmodel => {
-        this.controls = viewmodel.view;
-        this.document = viewmodel.model;
+      .subscribe((viewModel: ViewModel) => {
+        this.controls = viewModel.view;
+        this.document = viewModel.model;
         this.form = this.dfc.toFormGroup(this.controls);
         this.onDocLoaded.emit(this.document);
       });
