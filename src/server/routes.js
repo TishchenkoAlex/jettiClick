@@ -109,15 +109,54 @@ router.get('/:type/list', async (req, res, next) => {
   }
 });
 
+
 var clearObjectValues = (objToClear) => {
   Object.keys(objToClear).forEach((param) => {
     if (objToClear[param] && typeof objToClear[param] === "object") {
       clearObjectValues(objToClear[param]);
     } else {
-      objToClear[param] = '';
+      if (typeof objToClear[param] === "boolean") {
+        objToClear[param] = false;
+      } else {
+        objToClear[param] = '';
+      }
     }
   })
   return objToClear;
+};
+
+function isUUID(str) {
+  const pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
+  return pattern.test(str);
+}
+
+function setComplexType(obj, promises) {
+  for (var param in obj) {
+    if (param === 'id') { continue; }
+    if (obj[param] && typeof obj[param] === "object") {
+      setComplexType(obj[param], promises);
+    } else {
+      if (isUUID(obj[param])) {
+        const query = `select id as id, description as value, code as code, type as type from "Documents" WHERE id = '${obj[param]}'`;
+        data = db.oneOrNone(query);
+        obj[param] = data;
+        promises.push(obj[param]);
+      }
+    }
+  }
+};
+
+function resolveComplexType(obj, values) {
+  for (var param in obj) {
+    if (param === 'id') { continue; }
+    if (obj[param] && obj[param].toString().startsWith('[object Object')) {
+      resolveComplexType(obj[param], values);
+    } else {
+      if (obj[param] && obj[param].toString() === '[object Promise]') {
+        obj[param] = values.pop();
+      }
+    }
+  }
 };
 
 router.get('/:type/view/*', async (req, res, next) => {
@@ -125,22 +164,27 @@ router.get('/:type/view/*', async (req, res, next) => {
     const view = await db.one(`
           select uuid_generate_v1mc() id, now() date, "selectQuery", "full"  
           from config_schema_helper where type = $1`, [req.params.type]);
-
-    const query = !req.params['0'] ?
-      `${view.selectQuery} LIMIT 1` : `${view.selectQuery} AND id = '${req.params['0']}'`
-    const model = await db.one(query);
-
-    if (!req.params['0']) {
+    let model;
+    if (req.params['0']) {
+      model = await db.one(`select * from "Documents" WHERE id = $1`, [req.params['0']]);
+    } else {
+      model = await db.one(`select * from "Documents" where type = $1 LIMIT 1`, [req.params.type]);
       clearObjectValues(model);
       model.id = view.id;
       model.date = view.date;
       model.type = req.params.type;
-      model.posted = false,
-      model.deleted = false,
+      model.posted = false;
+      model.deleted = false;
       model.isfolder = false;
     };
 
-    const result = { view: view.full, model: model };
+    const promises = [];
+    setComplexType(model, promises);
+    const resolves = await Promise.all(promises);
+    resolveComplexType(model, resolves.reverse());
+    const newModel =  Object.assign({}, model, model['doc']);
+    delete newModel['doc'];
+    const result = { view: view.full, model: newModel };
     res.json(result);
   } catch (err) {
     next(err.message);

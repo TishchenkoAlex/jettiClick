@@ -64,7 +64,7 @@ export class CommonFromComponent implements OnInit {
     const exclude = ['id', 'code', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'date', 'description'];
     Object.keys(formDoc).map((property) => {
       if (exclude.indexOf(property) > -1) { return; }
-      if (typeof formDoc[property] === 'object') {
+      if ( formDoc[property] && typeof formDoc[property] === 'object') {
         newDoc.doc[property] = formDoc[property]['id'] || formDoc[property];
       } else {
         newDoc.doc[property] = formDoc[property];
@@ -76,10 +76,10 @@ export class CommonFromComponent implements OnInit {
 
     this.value = JSON.stringify(newDoc);
 
-    this.apiService.postDoc(newDoc)
+/*     this.apiService.postDoc(newDoc)
     .subscribe(posted => {
       this.form.patchValue(posted);
-    });
+    }); */
   }
 
   handleOnCancel() {
