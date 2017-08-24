@@ -1,3 +1,4 @@
+import { DocumentComponent } from '../dynamic-component/document.component';
 import { Router } from '@angular/router';
 import { DialogComponent } from './../../dialog/dialog.component';
 import { Component, ElementRef, ViewChild, OnInit, Input, NgModule } from '@angular/core';
@@ -22,14 +23,13 @@ interface ColDef {
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
 })
-export class CommonDataTableComponent implements OnInit {
+export class CommonDataTableComponent implements DocumentComponent, OnInit {
 
   displayedColumns = [];
   selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
 
-  @Input() docType = '';
-  @Input() pageSize = 5;
+  @Input() data;
   totalRecords = 0;
   columns: ColDef[] = [];
 
@@ -40,7 +40,7 @@ export class CommonDataTableComponent implements OnInit {
   constructor(private apiService: ApiService, private dialog: MdDialog, private router: Router) { };
 
   ngOnInit() {
-    this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize, this.paginator, this.sort);
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.data.pageSize, this.paginator, this.sort);
 
     Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .debounceTime(300)
@@ -50,7 +50,7 @@ export class CommonDataTableComponent implements OnInit {
         this.dataSource.filter = this.filter.nativeElement.value;
       });
 
-    this.apiService.getView(this.docType)
+    this.apiService.getView(this.data.docType)
       .subscribe(view => {
         Object.keys(view).map((property) => {
           // tslint:disable-next-line:curly
@@ -65,7 +65,7 @@ export class CommonDataTableComponent implements OnInit {
         });
         this.columns.sort((a, b) => a.order - b.order);
         this.displayedColumns = this.columns.map((c) => c.field);
-        if (this.docType.startsWith('Document')) {
+        if (this.data.docType.startsWith('Document')) {
           this.displayedColumns.unshift('select', 'posted', 'date', 'code', 'description');
         } else {
           this.displayedColumns.unshift('select', 'posted', 'code', 'description');
@@ -102,11 +102,11 @@ export class CommonDataTableComponent implements OnInit {
   }
 
   addDoc() {
-    this.router.navigate([this.docType, 'new'])
+    this.router.navigate([this.data.docType, 'new'])
   }
 
   openDoc(row) {
-    this.router.navigate([this.docType, row.id])
+    this.router.navigate([this.data.docType, row.id])
   }
 }
 

@@ -168,7 +168,13 @@ router.get('/:type/view/*', async (req, res, next) => {
     if (req.params['0']) {
       model = await db.one(`select * from "Documents" WHERE id = $1`, [req.params['0']]);
     } else {
-      model = await db.one(`select * from "Documents" where type = $1 LIMIT 1`, [req.params.type]);
+      model = await db.one(`select *,
+        (select max(code) from "Documents" where type = $1) as "nextCode",
+        (select description from config_schema where type = $1) as "nextDescription"
+        from "Documents" where type = $1 LIMIT 1`, [req.params.type]);
+      const code = ((parseInt(model.nextCode, 36)+1).toString(36));
+      new Date().toLocaleDateString
+      const description = `${model.nextDescription} #${code}`;
       clearObjectValues(model);
       model.id = view.id;
       model.date = view.date;
@@ -176,13 +182,17 @@ router.get('/:type/view/*', async (req, res, next) => {
       model.posted = false;
       model.deleted = false;
       model.isfolder = false;
+      model.code = code;
+      model.description = description;
+      delete model.nextCode; 
+      delete model.nextDescription; 
     };
 
     const promises = [];
     setComplexType(model, promises);
     const resolves = await Promise.all(promises);
     resolveComplexType(model, resolves.reverse());
-    const newModel =  Object.assign({}, model, model['doc']);
+    const newModel =  {...model, ...model['doc']};
     delete newModel['doc'];
     const result = { view: view.full, model: newModel };
     res.json(result);

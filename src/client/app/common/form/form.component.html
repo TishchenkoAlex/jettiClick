@@ -4,7 +4,7 @@
             <md-icon *ngIf="this.document['deleted']" color="warn">indeterminate_check_box</md-icon>
             <md-icon *ngIf="this.document['posted']" color="primary">check_box</md-icon>
             <md-icon *ngIf="!this.document['posted'] && !this.document['deleted']" color="accent">check_box_outline_blank</md-icon>
-            <span>{{ form.value.description || this.document.description }}</span>
+            <span style="margin-left: 10px">{{ form.value.description || this.document.description }}</span>
         </md-card-title>
     </div>
     <md-card-subtitle style="font-size: 9pt">{{ form.value.date || this.document.date | date:'medium' }}</md-card-subtitle>

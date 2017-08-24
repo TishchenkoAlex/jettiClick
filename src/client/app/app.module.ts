@@ -1,3 +1,4 @@
+import { DynamicFormsModule } from './dynamic.froms.module';
 import 'hammerjs';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -8,8 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { LocationStrategy } from '@angular/common';
 import { HashLocationStrategy } from '@angular/common';
 
-import { MaterialModule } from './material-module';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { MaterialModule } from './material.module';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
@@ -52,6 +52,11 @@ import { DynamicFormControlComponent } from './common/dynamic-form/dynamic-form-
 import { DynamicFormControlService } from './common/dynamic-form/dynamic-form-control.service';
 import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
 
+import { DynamicComponentDirective } from './common/dynamic-component/dynamic-component.directive';
+import { DynamicComponent } from './common/dynamic-component/dynamic-component';
+import { DocumentService } from './common/dynamic-component/document.service';
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -63,9 +68,10 @@ import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
     DialogComponent,
     LoginComponent,
     DynamicFormControlComponent,
+    DynamicComponentDirective,
+    DynamicComponent,
   ],
   imports: [
-    FlexLayoutModule,
     BrowserAnimationsModule,
     MaterialModule,
     BrowserModule,
@@ -78,6 +84,8 @@ import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
     AngularFireAuthModule,
 
     RouterModule.forRoot(appRoutes),
+
+    DynamicFormsModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
@@ -88,10 +96,14 @@ import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
     ApiService,
     AuthService,
     DynamicFormControlService,
-    DynamicFormService
+    DynamicFormService,
+    DocumentService
   ],
   entryComponents: [
-    DialogComponent
+    HomeComponent,
+    CommonDataTableComponent,
+    CommonFromComponent,
+    DialogComponent,
   ],
   bootstrap: [AppComponent]
 })

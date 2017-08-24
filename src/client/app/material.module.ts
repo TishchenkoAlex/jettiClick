@@ -10,7 +10,7 @@ import {
   MdSlideToggleModule, MdSnackBarModule, MdTableModule, MdTabsModule, MdToolbarModule,
   MdTooltipModule, MdNativeDateModule
 } from '@angular/material';
-
+import { FlexLayoutModule } from '@angular/flex-layout';
 @NgModule({
   exports: [
     CdkTableModule,
@@ -41,7 +41,8 @@ import {
     MdPaginatorModule,
     MdSortModule,
     MdTableModule,
-    MdNativeDateModule
+    MdNativeDateModule,
+    FlexLayoutModule,
   ]
 })
 export class MaterialModule { }

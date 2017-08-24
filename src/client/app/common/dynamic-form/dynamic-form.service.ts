@@ -43,12 +43,13 @@ export class DynamicFormService {
           const required = prop['required'] || false;
           const readOnly = prop['readOnly'] || false;
           // Корректировки даты и логических данных
-          if (dataType === 'date' || dataType === 'datetime') { model[property] = new Date(model[property] || model.doc[property]); }
-          if (dataType === 'boolean') { model[property] = model[property]  }
+          // tslint:disable-next-line:max-line-length
+          if (dataType === 'date' || dataType === 'datetime') { model[property] = new Date(model[property]) }
+          if (dataType === 'boolean') { model[property] = model[property] === undefined  ? model.doc[property] : model[property] }
           let newControl: BaseDynamicControl<any>;
           const controlOptions = {
-            key: property, value: model[property], label: label, type: docType,
-            required: required, readOnly: readOnly, order: order, hidden: hidden
+            key: property, value: model[property] === undefined  ? model.doc[property] : model[property],
+              label: label, type: docType, required: required, readOnly: readOnly, order: order, hidden: hidden
           };
           switch (dataType) {
             case 'boolean':

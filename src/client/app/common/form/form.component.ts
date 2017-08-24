@@ -1,45 +1,52 @@
+import { Component, EventEmitter, ViewChild, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup } from '@angular/forms';
 import { Location } from '@angular/common';
 
+import { DocumentComponent } from '../dynamic-component/document.component';
 import { DynamicFormService, ViewModel } from '../dynamic-form/dynamic-form.service';
 import { BaseDynamicControl } from '../dynamic-form/dynamic-form-base';
 import { DynamicFormControlService } from '../dynamic-form/dynamic-form-control.service';
 import { ApiService } from '../../services/api.service';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { DocumentService } from '../dynamic-component/document.service';
+import { DocModel } from '../_doc.model';
 
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'common-form',
   templateUrl: './form.component.html',
-  styleUrls: ['./form.component.scss'],
+  styleUrls: ['./form.component.scss']
 })
-export class CommonFromComponent implements OnInit {
+export class CommonFromComponent implements DocumentComponent, OnInit {
   form: FormGroup = new FormGroup({});
   value = '';
   controls: BaseDynamicControl<any>[];
 
-  @Input() docType = '';
-  @Input() docID = '';
+  @Input() data;
   document: any = {};
 
-  @Output() onDocLoaded = new EventEmitter<any>();
-  @Output() onCancel = new EventEmitter<any>();
 
   constructor(
     private apiService: ApiService, private dfc: DynamicFormControlService,
-    private dfs: DynamicFormService, private router: Router, private location: Location) {
+    private dfs: DynamicFormService, private router: Router, private location: Location,
+    private ds: DocumentService) {
+
   }
 
   ngOnInit() {
 
-    this.dfs.getControls(this.docType, this.docID)
+    this.dfs.getControls(this.data.docType, this.data.docID)
       .take(1)
       .subscribe((viewModel: ViewModel) => {
         this.controls = viewModel.view;
         this.document = viewModel.model;
         this.form = this.dfc.toFormGroup(this.controls);
-        this.onDocLoaded.emit(this.document);
+        this.ds.setDocument(this.document);
+
+        this.form.valueChanges
+          .subscribe((d) => {
+            this.ds.setDocument(d);
+          });
       });
   }
 
@@ -47,7 +54,7 @@ export class CommonFromComponent implements OnInit {
 
     const formDoc = this.form.value;
 
-    const newDoc = {
+    const newDoc: DocModel = {
       id: this.document.id,
       type: this.document.type,
       date: formDoc.date,
@@ -57,34 +64,36 @@ export class CommonFromComponent implements OnInit {
       deleted: false,
       parent: '',
       isfolder: false,
-      doc: {
-      }
+      doc: {}
     }
 
     const exclude = ['id', 'code', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'date', 'description'];
-    Object.keys(formDoc).map((property) => {
-      if (exclude.indexOf(property) > -1) { return; }
-      if ( formDoc[property] && typeof formDoc[property] === 'object') {
+    for (const property in formDoc) {
+      if (exclude.indexOf(property) > -1) { continue; }
+      if (formDoc[property] && typeof formDoc[property] === 'object') {
         newDoc.doc[property] = formDoc[property]['id'] || formDoc[property];
       } else {
         newDoc.doc[property] = formDoc[property];
       }
-    });
+    };
     if (!newDoc['date']) { newDoc['date'] = this.document.date || new Date(); }
-    if (!newDoc['description']) { newDoc['description'] =
-      this.document.description || (newDoc['type'] + ' #' + newDoc['code'] + ' ' + newDoc['date'] + ''); };
+    if (!newDoc['code']) { newDoc['code'] = 'NOCODE'; }
+    if (!newDoc['description']) {
+    newDoc['description'] =
+      this.document.description || (newDoc['type'] + ' #' + newDoc['code'] + ' ' + newDoc['date'] + '');
+    };
 
     this.value = JSON.stringify(newDoc);
 
-/*     this.apiService.postDoc(newDoc)
-    .subscribe(posted => {
-      this.form.patchValue(posted);
-    }); */
+    /*     this.apiService.postDoc(newDoc)
+        .subscribe(posted => {
+          this.form.patchValue(posted);
+        }); */
   }
 
   handleOnCancel() {
-    this.onCancel.emit(this.document);
+    this.ds.setCancel(this.document);
     this.location.back();
-/*     this.router.navigateByUrl(`${this.docType}`) */
+    /*     this.router.navigateByUrl(`${this.docType}`) */
   }
 }

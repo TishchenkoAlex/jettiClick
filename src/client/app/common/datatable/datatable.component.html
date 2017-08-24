@@ -32,7 +32,7 @@
             </md-cell>
         </ng-container>
 
-        <ng-container *ngIf="this.docType.startsWith('Document')" cdkColumnDef="date">
+        <ng-container *ngIf="data.docType.startsWith('Document')" cdkColumnDef="date">
             <md-header-cell *cdkHeaderCellDef md-sort-header> date </md-header-cell>
             <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
         </ng-container>
@@ -99,6 +99,6 @@
         <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
         <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
     </md-table>
-    <md-paginator #paginator [length]="this.pageSize" [pageIndex]="0" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
+    <md-paginator #paginator [length]="data.pageSize" [pageIndex]="0" [pageSize]="data.pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
     <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
 </div>

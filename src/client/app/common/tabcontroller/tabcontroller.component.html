@@ -8,10 +8,7 @@
             <md-icon color="primary" style="font-size: 10pt; width: 0px;height: 100%" *ngIf="tab?.docType !== HOME" md-tab-icon (click)="this.handleClose(tab)">close
             </md-icon>
         </ng-template>
-        <app-home *ngIf="(tab?.docType === HOME)"></app-home>
-        <common-datatable *ngIf="(tab?.docType !== HOME) && (tab?.docID === '')" [docType]="tab.docType" [pageSize]="10"></common-datatable>
-        <common-form *ngIf="(tab?.docID !== '')" [docType]="tab.docType" [docID]="tab.docID" (onDocLoaded)="onDocLoaded($event)"
-            (onCancel)="handleClose()"></common-form>
+        <dynamic-component [component]="component"></dynamic-component>
     </md-tab>
 </md-tab-group>
 <button md-mini-fab *ngIf="index !== 0 && !tabs[index].docID" (click)="handleClose()" class="fab-bottom-right">

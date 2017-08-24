@@ -13,9 +13,11 @@
 
   <md-form-field *ngSwitchCase="'autocomplete'" fxFlex>
     <input #ac [required]="control.required" mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key"
-      [mdAutocomplete]="auto" [errorStateMatcher]="myErrorStateMatcher" [readOnly]="control.readOnly">
-    <button md-icon-button mdSuffix style="cursor: pointer" (click)="$event.stopPropagation(); " [tabIndex]=-1><md-icon>search</md-icon></button>
-    <button md-icon-button mdSuffix style="cursor: pointer" (click)="$event.stopPropagation(); handleReset(ac)" [tabIndex]=-1><md-icon>clear</md-icon></button>
+      [mdAutocomplete]="auto" [readOnly]="control.readOnly">
+    <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleOpen($event)" 
+      *ngIf="form.controls[control.key]?.value" [tabIndex]=-1><md-icon>search</md-icon>
+    </button>
+    <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
     <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
   </md-form-field>
  
@@ -31,13 +33,15 @@
     <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
   </md-form-field>
   
-  <md-checkbox *ngSwitchCase="'boolean'" [required]="control.required" [formControlName]="control.key" [id]="control.key" fxFlex>{{control.label}}</md-checkbox>
+  <md-checkbox *ngSwitchCase="'boolean'" [required]="control.required" 
+    [formControlName]="control.key" [id]="control.key" fxFlex>{{control.label}}
+  </md-checkbox>
 
 </div>
 
 <md-datepicker #picker></md-datepicker>
 
-<md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
+<md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn" (optionSelected)="optionSelected($event)">
   <md-option *ngFor="let value of this.suggestsReactive | async " [value]="value">
     <span>{{ value.value }}</span>
     <span> ({{value.code}}) </span>

@@ -1,3 +1,4 @@
+import { CashRegisterForm } from './UI/Catalog/CashRegister/CashRegister.form';
 import { LoginComponent } from './auth/login-component/login-component';
 import { HomeComponent } from './home/home.component';
 import { RouterModule, Routes } from '@angular/router';
