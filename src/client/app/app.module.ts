@@ -43,7 +43,7 @@ import { LoginComponent } from './auth/login-component/login-component';
 
 import { DialogComponent } from './dialog/dialog.component';
 
-import { DynamicFormsModule } from './dynamic.froms.module';
+import { DynamicFormsModule } from './UI/dynamic.froms.module';
 
 @NgModule({
   declarations: [

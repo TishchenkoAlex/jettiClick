@@ -3,7 +3,7 @@ const db = require('./db');
 
 router.get('/', (req, res, next) => {
   res.status(200).send('Jetti API');
-});
+})
 
 router.get('/catalogs', async (req, res, next) => {
   try {
@@ -12,7 +12,7 @@ router.get('/catalogs', async (req, res, next) => {
   } catch (err) {
     next(err.message);
   }
-});
+})
 
 router.get('/documents', async (req, res, next) => {
   try {
@@ -21,7 +21,7 @@ router.get('/documents', async (req, res, next) => {
   } catch (err) {
     next(err.message);
   }
-});
+})
 
 // raw docs
 router.get('/:type', async (req, res, next) => {
@@ -56,7 +56,7 @@ router.get('/:type', async (req, res, next) => {
   } catch (err) {
     next(err.message);
   }
-});
+})
 
 function ExecuteScript(doc, scripts) {
   if (!(scripts && scripts['post'])) return;
@@ -109,21 +109,43 @@ router.get('/:type/list', async (req, res, next) => {
   }
 });
 
-
-var clearObjectValues = (objToClear) => {
-  Object.keys(objToClear).forEach((param) => {
-    if (objToClear[param] && typeof objToClear[param] === "object") {
-      clearObjectValues(objToClear[param]);
+var clearObjectValues = (obj) => {
+  for (var key in obj) {
+    if (obj[key] && typeof obj[key] === "object") {
+      clearObjectValues(obj[key]);
     } else {
-      if (typeof objToClear[param] === "boolean") {
-        objToClear[param] = false;
+      if (typeof obj[key] === "boolean") {
+        obj[key] = false;
       } else {
-        objToClear[param] = '';
+        obj[key] = '';
       }
     }
-  })
-  return objToClear;
-};
+  }
+}
+
+var crateObjectFromView = (model, view) => {
+  for (var key in view) {
+    if (view[key] && view[key].constructor == Array) {
+      model[key] = [{}];
+      crateObjectFromView(model[key][0], view[key][0]);
+    } else {
+      if (typeof view[key] === "boolean") {
+        model[key] = false;
+      } else {
+        if (view[key] && view[key]['type'] && view[key]['type'] === "number") {
+          model[key] = 0;
+        } else {
+          if (view[key] && view[key]['type'] && view[key]['type'].indexOf('.') > -1) {
+            model[key] = { id: '', code: '', description: '', type: view[key]['type'] }
+          }
+          else {
+            model[key] = '';
+          }
+        }
+      }
+    }
+  }
+}
 
 function isUUID(str) {
   const pattern = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i;
@@ -144,7 +166,7 @@ function setComplexType(obj, promises) {
       }
     }
   }
-};
+}
 
 function resolveComplexType(obj, values) {
   for (var param in obj) {
@@ -157,7 +179,7 @@ function resolveComplexType(obj, values) {
       }
     }
   }
-};
+}
 
 router.get('/:type/view/*', async (req, res, next) => {
   try {
@@ -168,14 +190,13 @@ router.get('/:type/view/*', async (req, res, next) => {
     if (req.params['0']) {
       model = await db.one(`select * from "Documents" WHERE id = $1`, [req.params['0']]);
     } else {
-      model = await db.one(`select *,
+      model = await db.one(`SELECT 
         (select max(code) from "Documents" where type = $1) as "nextCode",
         (select description from config_schema where type = $1) as "nextDescription"
-        from "Documents" where type = $1 LIMIT 1`, [req.params.type]);
-      const code = ((parseInt(model.nextCode, 36)+1).toString(36));
-      new Date().toLocaleDateString
+        `, [req.params.type]);
+      crateObjectFromView(model, view.full);
+      const code = ((parseInt(model.nextCode, 36) + 1).toString(36));
       const description = `${model.nextDescription} #${code}`;
-      clearObjectValues(model);
       model.id = view.id;
       model.date = view.date;
       model.type = req.params.type;
@@ -184,22 +205,25 @@ router.get('/:type/view/*', async (req, res, next) => {
       model.isfolder = false;
       model.code = code;
       model.description = description;
-      delete model.nextCode; 
-      delete model.nextDescription; 
-    };
+      delete model.nextCode;
+      delete model.nextDescription;
+      const result = { view: view.full, model: model };
+      res.json(result);
+      return;
+    }
 
     const promises = [];
     setComplexType(model, promises);
     const resolves = await Promise.all(promises);
     resolveComplexType(model, resolves.reverse());
-    const newModel =  {...model, ...model['doc']};
+    const newModel = { ...model, ...model['doc'] };
     delete newModel['doc'];
     const result = { view: view.full, model: newModel };
     res.json(result);
   } catch (err) {
     next(err.message);
   }
-});
+})
 
 router.get('/suggest/:type/*', async (req, res, next) => {
   try {

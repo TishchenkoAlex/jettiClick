@@ -90,7 +90,7 @@ export class TabControllerComponent implements OnInit, OnDestroy {
   }
 
   onDocLoaded(event) {
-    this.tabs[this.index].description = (event.description as string).slice(0, 20) || '';
+    this.tabs[this.index].description = event.description && (event.description as string).slice(0, 25) || '';
   }
 
   GetComponent(tab: TabDef) {

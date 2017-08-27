@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, TemplateRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, TemplateRef, OnChanges } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormGroup } from '@angular/forms';
+import { NgForm, FormGroup } from '@angular/forms';
 import { Location } from '@angular/common';
 
 import { DocumentComponent } from '../dynamic-component/document.component';
@@ -17,15 +17,16 @@ import { DocModel } from '../_doc.model';
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
-export class CommonFromComponent implements DocumentComponent, OnInit {
+export class CommonFromComponent implements DocumentComponent, OnInit, OnChanges {
 
   @Input() data;
   @Input() formTemplate: TemplateRef<any>;
 
-  form: FormGroup = new FormGroup({});
-  controls: BaseDynamicControl<any>[];
-  document: any = {};
-
+  @Input() form: FormGroup;
+  @Input() controls: BaseDynamicControl<any>[];
+  @Input() controlsByKey = {};
+  @Input() document;
+  // myContext = {frm: new FormGroup({}), ctls: []};
   constructor(
     private apiService: ApiService, private dfc: DynamicFormControlService,
     private dfs: DynamicFormService, private router: Router, private location: Location,
@@ -38,13 +39,19 @@ export class CommonFromComponent implements DocumentComponent, OnInit {
         this.controls = viewModel.view;
         this.document = viewModel.model;
         this.form = this.dfc.toFormGroup(this.controls);
+        this.controls.map(c => { this.controlsByKey[c.key] = c } );
+        console.log(viewModel);
+        // this.myContext = {frm: this.form, ctls: this.controls}
         this.ds.setDocument(this.document);
-
         this.form.valueChanges
-          .subscribe((d) => {
-            this.ds.setDocument(d);
+          .subscribe((formValue) => {
+            this.ds.setDocument(formValue);
           });
       });
+  }
+
+  ngOnChanges() {
+    // this.form.patchValue(this.form.value)
   }
 
   onSubmit() {
@@ -76,7 +83,8 @@ export class CommonFromComponent implements DocumentComponent, OnInit {
     if (!newDoc.description) {
       newDoc.description = this.document.description || (newDoc.type + ' #' + newDoc.code + ' ' + newDoc.date + '');
     };
-
+    console.log(newDoc);
+    this.ngOnChanges();
     /*     this.apiService.postDoc(newDoc)
         .subscribe(posted => {
           this.form.patchValue(posted);
@@ -89,9 +97,4 @@ export class CommonFromComponent implements DocumentComponent, OnInit {
     /*     this.router.navigateByUrl(`${this.docType}`) */
   }
 
-  get controlsContex() {
-    return {
-      controls: this.controls
-    }
-  }
 }
