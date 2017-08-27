@@ -1,4 +1,3 @@
-import { DynamicFormsModule } from './dynamic.froms.module';
 import 'hammerjs';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -31,61 +30,43 @@ import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/debounceTime';
 
-import { AppRouteReuseStrategy } from './route-reuse.strategy';
-
-import { appRoutes } from './app.routes';
-import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
+import { AppRouteReuseStrategy } from './route-reuse.strategy';
+import { appRoutes } from './app.routes';
+
+import { AppComponent } from './app.component';
 
 import { ApiService } from './services/api.service';
+
 import { AuthService } from './auth/auth.service';
-
 import { LoginComponent } from './auth/login-component/login-component';
-import { HomeComponent } from './home/home.component';
-import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
-
-import { CommonDataTableComponent, ApiDataSource } from './common/datatable/datatable.component';
-import { CommonFromComponent } from './common/form/form.component';
 
 import { DialogComponent } from './dialog/dialog.component';
-import { DynamicFormControlComponent } from './common/dynamic-form/dynamic-form-control.component';
-import { DynamicFormControlService } from './common/dynamic-form/dynamic-form-control.service';
-import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
 
-import { DynamicComponentDirective } from './common/dynamic-component/dynamic-component.directive';
-import { DynamicComponent } from './common/dynamic-component/dynamic-component';
-import { DocumentService } from './common/dynamic-component/document.service';
-
+import { DynamicFormsModule } from './dynamic.froms.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
-    CommonDataTableComponent,
-    CommonFromComponent,
-
-    TabControllerComponent,
     DialogComponent,
     LoginComponent,
-    DynamicFormControlComponent,
-    DynamicComponentDirective,
-    DynamicComponent,
+
   ],
   imports: [
-    BrowserAnimationsModule,
-    MaterialModule,
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+
+    MaterialModule,
+    DynamicFormsModule,
 
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireAuthModule,
 
     RouterModule.forRoot(appRoutes),
-
-    DynamicFormsModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
@@ -95,14 +76,8 @@ import { DocumentService } from './common/dynamic-component/document.service';
     },
     ApiService,
     AuthService,
-    DynamicFormControlService,
-    DynamicFormService,
-    DocumentService
   ],
   entryComponents: [
-    HomeComponent,
-    CommonDataTableComponent,
-    CommonFromComponent,
     DialogComponent,
   ],
   bootstrap: [AppComponent]

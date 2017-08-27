@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup } from '@angular/forms';
 import { Location } from '@angular/common';
@@ -25,16 +25,12 @@ export class CommonFromComponent implements DocumentComponent, OnInit {
   @Input() data;
   document: any = {};
 
-
   constructor(
     private apiService: ApiService, private dfc: DynamicFormControlService,
     private dfs: DynamicFormService, private router: Router, private location: Location,
-    private ds: DocumentService) {
-
-  }
+    private ds: DocumentService) {}
 
   ngOnInit() {
-
     this.dfs.getControls(this.data.docType, this.data.docID)
       .take(1)
       .subscribe((viewModel: ViewModel) => {
@@ -51,9 +47,7 @@ export class CommonFromComponent implements DocumentComponent, OnInit {
   }
 
   onSubmit() {
-
     const formDoc = this.form.value;
-
     const newDoc: DocModel = {
       id: this.document.id,
       type: this.document.type,

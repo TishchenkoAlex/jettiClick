@@ -1,10 +1,10 @@
-import { Router } from '@angular/router';
-import { ApiService } from '../../services/api.service';
-import { MdAutocompleteTrigger, MdAutocompleteSelectedEvent } from '@angular/material';
-import { Observable } from 'rxjs/Observable';
-import { BaseDynamicControl } from './dynamic-form-base';
 import { Component, Input, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormGroupDirective, NgForm, NgModel } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import { MdAutocompleteTrigger, MdAutocompleteSelectedEvent } from '@angular/material';
+import { BaseDynamicControl } from './dynamic-form-base';
+import { ApiService } from '../../services/api.service';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -25,7 +25,6 @@ export class DynamicFormControlComponent implements OnInit, AfterViewInit {
 
   validateAutoComplete(control: FormControl): { [s: string]: boolean } {
     const result = !(typeof control.value === 'object');
-    console.log('validation', result);
     if (result) { return { 'value is not database object': result }; };
     return null;
   }
@@ -67,7 +66,6 @@ export class DynamicFormControlComponent implements OnInit, AfterViewInit {
   }
 
   optionSelected(event: MdAutocompleteSelectedEvent) {
-    console.log('event', event);
   }
 
   ngAfterViewInit() {

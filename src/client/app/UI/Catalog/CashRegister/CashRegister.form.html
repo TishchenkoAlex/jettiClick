@@ -1,27 +1,26 @@
 <form #form="ngForm" (ngSubmit)="onSubmit(form)" ngNativeValidate>
-    <div fxLayout = "column">
-        
-        <md-form-field>
-            <input mdInput [(ngModel)]="model.code" name="code" placeholder="code" required>
-        </md-form-field>
-
-        <md-form-field>
-            <input mdInput [mdDatepicker]="DatePicker" [(ngModel)]="model.date" name="date" placeholder="date" required>
-            <md-datepicker-toggle mdSuffix [for]="DatePicker"></md-datepicker-toggle>
-            <md-datepicker #DatePicker [disabled]="false"></md-datepicker>
-        </md-form-field>
-
-        <md-form-field>
-            <input mdInput [(ngModel)]="model.description" name="description" placeholder="description" required>
-        </md-form-field>
-
-<!--         <div ngModelGroup="doc">
-        </div>
- -->
-    </div>
+  <div fxLayout="column">
+    
+    <md-form-field>
+      <input mdInput [(ngModel)]="viewModel?.model.code" name="code" placeholder="code" required autocomplete="off">
+    </md-form-field>
+    
+    <md-form-field>
+      <input mdInput [mdDatepicker]="DatePicker" [(ngModel)]="viewModel?.model.date" name="date" placeholder="date" required autocomplete="off">
+      <md-datepicker-toggle mdSuffix [for]="DatePicker"></md-datepicker-toggle>
+      <md-datepicker #DatePicker [disabled]="false"></md-datepicker>
+    </md-form-field>
+    
+    <md-form-field>
+      <input mdInput [(ngModel)]="viewModel?.model.description" name="description" placeholder="description" required autocomplete="off">
+    </md-form-field>
+    
+    <j-autocomplete [(ngModel)]="viewModel?.model['Product']" name="Product" placeholder="Product" required></j-autocomplete>
+    <!--<div ngModelGroup="doc"></div>-->
+  </div>
+  <div fxLayoutAlign="center center" fxLayoutGap="10px">
+    <button md-raised-button type="button">Cancel</button>
+    <button md-raised-button type="submit" color="accent" [disabled]="!form.valid">Save User</button>
+  </div>
 </form>
-<div fxLayoutAlign = "center center" fxLayoutGap="10px">
-        <button md-raised-button type="button">Cancel</button>
-        <button md-raised-button type="submit" color="accent" [disabled]="!form.valid">Save User</button>
-</div>
-{{ this.model | json }}
+{{ this.result | json }}

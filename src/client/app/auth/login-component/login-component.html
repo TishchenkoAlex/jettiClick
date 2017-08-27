@@ -1,17 +1,16 @@
 <div fxLayout="row" fxLayoutAlign="center center">
-    <img *ngIf="appAuth.user?.uid" [mdMenuTriggerFor]="themeMenu" 
-        src="{{ appAuth.user?.photoURL }}" style="width: 45px; height: 45px; border-radius: 50%; cursor: pointer">
-    <button md-button (click)="appAuth.login()" *ngIf="!appAuth.user?.uid">LOGIN</button>
+  <img *ngIf="appAuth.user?.uid" [mdMenuTriggerFor]="themeMenu" src="{{ appAuth.user?.photoURL }}" style="width: 45px; height: 45px; border-radius: 50%; cursor: pointer">
+  <button md-button (click)="appAuth.login()" *ngIf="!appAuth.user?.uid">LOGIN</button>
 </div>
 
 <md-menu #themeMenu>
-    <md-card fxLayout="column" fxLayoutAlign="center center" class="mat-elevation-z0">
-        <img src="{{ appAuth.user?.photoURL }}" style="width: 125px; height: 125px; border-radius: 50%; margin: 10px">
-        <md-card-title>{{ appAuth.user?.displayName }}</md-card-title>
-        <md-card-subtitle>{{ appAuth.user?.email }}</md-card-subtitle>
-    </md-card>
-    <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
-        <button md-raised-button color="warn" (click)="appAuth.logout()" *ngIf="appAuth.user?.uid">LOGOUT</button>
-        <button md-button>CLOSE</button>
-    </div>
+  <md-card fxLayout="column" fxLayoutAlign="center center" class="mat-elevation-z0">
+    <img src="{{ appAuth.user?.photoURL }}" style="width: 125px; height: 125px; border-radius: 50%; margin: 10px">
+    <md-card-title>{{ appAuth.user?.displayName }}</md-card-title>
+    <md-card-subtitle>{{ appAuth.user?.email }}</md-card-subtitle>
+  </md-card>
+  <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
+    <button md-raised-button color="warn" (click)="appAuth.logout()" *ngIf="appAuth.user?.uid">LOGOUT</button>
+    <button md-button>CLOSE</button>
+  </div>
 </md-menu>

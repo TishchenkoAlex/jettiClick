@@ -2,12 +2,12 @@
 
   <md-form-field *ngSwitchCase="'textbox'" fxFlex>
     <input [required]="control.required" #textbox mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key"
-      [readOnly]="control.readOnly">
+      [readOnly]="control.readOnly" autocomplete="off">
   </md-form-field>
 
   <md-form-field *ngSwitchCase="'number'" fxFlex>
     <input [required]="control.required" mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key"
-      style="text-align: right" [readOnly]="control.readOnly" type="number">
+      style="text-align: right" [readOnly]="control.readOnly" type="number" autocomplete="off">
       <button md-icon-button mdSuffix><md-icon>attach_money</md-icon></button>
   </md-form-field>
 
@@ -15,7 +15,7 @@
     <input #ac [required]="control.required" mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key"
       [mdAutocomplete]="auto" [readOnly]="control.readOnly">
     <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleOpen($event)" 
-      *ngIf="form.controls[control.key]?.value" [tabIndex]=-1><md-icon>search</md-icon>
+      *ngIf="form.controls[control.key]?.value" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon>
     </button>
     <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
     <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
@@ -23,13 +23,13 @@
  
   <md-form-field *ngSwitchCase="'date'" fxFlex>
     <input [required]="control.required" mdInput [mdDatepicker]="picker" placeholder={{control.label}} [formControlName]="control.key"
-      [id]="control.key" [readOnly]="control.readOnly">
+      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off">
     <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
   </md-form-field>
 
   <md-form-field *ngSwitchCase="'datetime'" fxFlex>
     <input [required]="control.required" mdInput [mdDatepicker]="picker" placeholder={{control.label}} [formControlName]="control.key"
-      [id]="control.key" [readOnly]="control.readOnly">
+      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off">
     <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
   </md-form-field>
   

@@ -1,3 +1,4 @@
+import { DocModel } from '../_doc.model';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
@@ -12,7 +13,7 @@ import { DateDynamicControl } from './dynamic-form-date';
 
 export interface ViewModel {
   view: BaseDynamicControl<any>[];
-  model: any
+  model: DocModel
 }
 
 @Injectable()
