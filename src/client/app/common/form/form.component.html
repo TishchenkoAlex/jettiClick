@@ -11,18 +11,7 @@
 </div>
 <md-card>
     <md-card-content>
-        <form [formGroup]="form" fxLayout="row" fxLayout.xs="column" fxLayoutGap.gt-xs="35px">
-            <div fxLayoutGap.gt-xs="column" fxFlex>
-                <div *ngFor="let control of controls; let odd = odd">
-                    <df-control *ngIf="!odd" [control]="control" [form]="form"></df-control>
-                </div>
-            </div>
-            <div fxLayoutGap.gt-xs="column" fxFlex>
-                <div *ngFor="let control of controls; let odd = odd">
-                    <df-control *ngIf="odd" [control]="control" [form]="form"></df-control>
-                </div>
-            </div>
-        </form>
+        <ng-container *ngTemplateOutlet="formTemplate ? formTemplate : defaultFormTemplate;"></ng-container>
     </md-card-content>
     <md-card-actions fxLayoutAlign="center center" fxLayoutGap="25px">
         <button md-raised-button color="warn" [disabled]="!form.valid" (click)="onSubmit()">Save</button>
@@ -30,4 +19,17 @@
     </md-card-actions>
 </md-card>
 
-{{ value }}
+<ng-template #defaultFormTemplate>
+    <form novalidate [formGroup]="form" fxLayout="row" fxLayout.xs="column" fxLayoutGap.gt-xs="35px">
+        <div fxLayoutGap.gt-xs="column" fxFlex>
+            <div *ngFor="let control of controls; let odd = odd">
+                <j-control *ngIf="!odd" [control]="control" [form]="form"></j-control>
+            </div>
+        </div>
+        <div fxLayoutGap.gt-xs="column" fxFlex>
+            <div *ngFor="let control of controls; let odd = odd">
+                <j-control *ngIf="odd" [control]="control" [form]="form"></j-control>
+            </div>
+        </div>
+    </form>
+</ng-template>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup } from '@angular/forms';
 import { Location } from '@angular/common';
@@ -13,16 +13,17 @@ import { DocModel } from '../_doc.model';
 
 @Component({
   // tslint:disable-next-line:component-selector
-  selector: 'common-form',
+  selector: 'j-form',
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss']
 })
 export class CommonFromComponent implements DocumentComponent, OnInit {
-  form: FormGroup = new FormGroup({});
-  value = '';
-  controls: BaseDynamicControl<any>[];
 
   @Input() data;
+  @Input() formTemplate: TemplateRef<any>;
+
+  form: FormGroup = new FormGroup({});
+  controls: BaseDynamicControl<any>[];
   document: any = {};
 
   constructor(
@@ -70,14 +71,11 @@ export class CommonFromComponent implements DocumentComponent, OnInit {
         newDoc.doc[property] = formDoc[property];
       }
     };
-    if (!newDoc['date']) { newDoc['date'] = this.document.date || new Date(); }
-    if (!newDoc['code']) { newDoc['code'] = 'NOCODE'; }
-    if (!newDoc['description']) {
-    newDoc['description'] =
-      this.document.description || (newDoc['type'] + ' #' + newDoc['code'] + ' ' + newDoc['date'] + '');
+    if (!newDoc.date) { newDoc.date = this.document.date || new Date(); }
+    if (!newDoc.code) { newDoc.code = 'NOCODE'; }
+    if (!newDoc.description) {
+      newDoc.description = this.document.description || (newDoc.type + ' #' + newDoc.code + ' ' + newDoc.date + '');
     };
-
-    this.value = JSON.stringify(newDoc);
 
     /*     this.apiService.postDoc(newDoc)
         .subscribe(posted => {
@@ -89,5 +87,11 @@ export class CommonFromComponent implements DocumentComponent, OnInit {
     this.ds.setCancel(this.document);
     this.location.back();
     /*     this.router.navigateByUrl(`${this.docType}`) */
+  }
+
+  get controlsContex() {
+    return {
+      controls: this.controls
+    }
   }
 }

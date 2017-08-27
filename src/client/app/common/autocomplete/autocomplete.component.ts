@@ -1,5 +1,13 @@
 import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import {
+    AbstractControl,
+    ControlValueAccessor,
+    FormControl,
+    NG_VALIDATORS,
+    NG_VALUE_ACCESSOR,
+    Validator,
+    ValidationErrors,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Observable } from 'rxjs/Observable';
@@ -11,7 +19,7 @@ export interface SuggestType { id: string; value: string, code: string, type: st
   // tslint:disable-next-line:component-selector
   selector: 'j-autocomplete',
   template: `
-    <md-form-field>
+    <md-form-field fxFlex>
       <input #control mdInput [(ngModel)]="value" [required]="required"
         [placeholder]="placeholder" [mdAutocomplete]="auto" [readOnly]="readOnly"
         [disabled]="disabled" (blur)="onBlur()">
@@ -31,9 +39,10 @@ export interface SuggestType { id: string; value: string, code: string, type: st
   styles: [`md-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`],
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompleteComponent), multi: true },
+    { provide: NG_VALIDATORS, useExisting: forwardRef(() => AutocompleteComponent), multi: true, },
   ]
 })
-export class AutocompleteComponent implements OnInit, ControlValueAccessor {
+export class AutocompleteComponent implements OnInit, ControlValueAccessor, Validator {
 
   @Input() readOnly = false;
   @Input() placeholder = '';
@@ -48,7 +57,6 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor {
     }
   }
   get value() { return this._value; }
-
   @ViewChild('control') control: ElementRef;
 
   suggests$: Observable<any[]>;
@@ -76,6 +84,10 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor {
     this.disabled = isDisabled;
   }
   // end of implementation ControlValueAccessor interface
+
+  validate(c: AbstractControl): ValidationErrors | null {
+    return c.valid ? null : {'not valid': true}
+  };
 
   constructor(private http: ApiService, private router: Router) { }
 
@@ -113,6 +125,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor {
     event.stopPropagation();
     this.router.navigate([this.value.type, this.value.id]);
   }
+
 
 }
 
