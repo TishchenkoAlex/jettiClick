@@ -27,7 +27,7 @@
     <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
   </md-form-field>
   
-  <md-checkbox *ngSwitchCase="'boolean'" [required]="control.required" 
+  <md-checkbox *ngSwitchCase="'checkbox'" [required]="control.required" 
     [formControlName]="control.key" [id]="control.key" fxFlex>{{control.label}}
   </md-checkbox>
 

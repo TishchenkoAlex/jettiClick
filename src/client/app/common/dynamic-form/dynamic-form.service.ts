@@ -1,12 +1,12 @@
-import { DocModel } from '../_doc.model';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
+import { DocModel } from '../_doc.model';
 
 import {
   BaseDynamicControl, BooleanDynamicControl, DateDynamicControl,
-  NumberDynamicControl, DropdownDynamicControl, TextboxDynamicControl 
+  NumberDynamicControl, DropdownDynamicControl, TextboxDynamicControl, ControlOptions 
 } from './dynamic-form-base';
 
 export interface ViewModel {
@@ -46,7 +46,7 @@ export class DynamicFormService {
           if (dataType === 'date' || dataType === 'datetime') { model[property] = new Date(model[property]) }
           if (dataType === 'boolean') { model[property] = model[property] === undefined  ? model.doc[property] : model[property] }
           let newControl: BaseDynamicControl<any>;
-          const controlOptions = {
+          const controlOptions: ControlOptions<any> = {
             key: property, value: model[property] === undefined  ? model.doc[property] : model[property],
               label: label, type: docType, required: required, readOnly: readOnly, order: order, hidden: hidden
           };
