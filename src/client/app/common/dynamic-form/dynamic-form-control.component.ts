@@ -1,8 +1,6 @@
-import { Component, Input, ViewChild, AfterViewInit, OnInit } from '@angular/core';
+import { Component, Input, AfterViewInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
 import { BaseDynamicControl } from './dynamic-form-base';
-import { ApiService } from '../../services/api.service';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -16,10 +14,7 @@ export class DynamicFormControlComponent implements AfterViewInit {
   @Input() control: BaseDynamicControl<any>;
   @Input() form: FormGroup;
   get isValid() { return this.form.controls[this.control.key].valid; }
-  suggestsReactive: Observable<any[]>;
-  showSearchSpinner = false;
 
-  constructor(private http: ApiService) { }
 
   validateAutoComplete(control: FormControl): { [s: string]: boolean } {
     const result = (control.value.value === '' && this.control.required === true);

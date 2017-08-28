@@ -1,12 +1,12 @@
-import { DocumentComponent } from '../dynamic-component/document.component';
-import { Router } from '@angular/router';
-import { DialogComponent } from './../../dialog/dialog.component';
 import { Component, ElementRef, ViewChild, OnInit, Input, NgModule } from '@angular/core';
+import { Router } from '@angular/router';
 import { DataSource } from '@angular/cdk/table';
 import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ApiService } from '../../services/api.service';
+import { DialogComponent } from './../../dialog/dialog.component';
+import { DocumentComponent } from '../dynamic-component/document.component';
 
 interface ColDef {
   field: string;

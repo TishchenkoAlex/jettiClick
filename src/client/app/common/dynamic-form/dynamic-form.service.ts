@@ -4,12 +4,10 @@ import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
 
-import { NumberDynamicControl } from './dynamic-form-number';
-import { BooleanDynamicControl } from './dynamic-form-boolean';
-import { TextboxDynamicControl } from './dynamic-form-text';
-import { DropdownDynamicControl } from './dynamic-form-dropdown';
-import { BaseDynamicControl } from './dynamic-form-base';
-import { DateDynamicControl } from './dynamic-form-date';
+import {
+  BaseDynamicControl, BooleanDynamicControl, DateDynamicControl,
+  NumberDynamicControl, DropdownDynamicControl, TextboxDynamicControl 
+} from './dynamic-form-base';
 
 export interface ViewModel {
   view: BaseDynamicControl<any>[];

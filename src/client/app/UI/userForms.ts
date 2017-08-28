@@ -3,7 +3,7 @@ import { CommonDataTableComponent } from '../common/datatable/datatable.componen
 import { CashRegisterForm } from './Catalog/CashRegister/CashRegister.form';
 
 const userForms = [
-    {type: 'Catalog.Managers', objectComponent: CashRegisterForm, listComponent: CommonDataTableComponent}
+    {type: 'Catalog.Managers1', objectComponent: CashRegisterForm, listComponent: CommonDataTableComponent}
 ]
 
 export function getDocListComponent(type: string) {

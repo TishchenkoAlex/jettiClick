@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap, Data } from '@angular/router/';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 import { DialogComponent } from './../../dialog/dialog.component';
-import { Subscription } from 'rxjs/Rx';
 
 import { BaseDynamicCompoment } from '../dynamic-component/dynamic-base.component';
 import { HomeComponent } from '../../home/home.component';
@@ -34,8 +34,8 @@ export class TabControllerComponent implements OnInit, OnDestroy {
   docID: string;
   HOME = HOME;
   component = new BaseDynamicCompoment(HomeComponent, {});
-  loaded$: Subscription;
-  canceled$: Subscription;
+  onChange$: Subscription;
+  onCancel$: Subscription;
 
   constructor(private route: ActivatedRoute, private router: Router,
     private db: AngularFireDatabase, private ds: DocumentService) {
@@ -63,13 +63,13 @@ export class TabControllerComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.loaded$ = this.ds.document$.subscribe((doc) => this.onDocLoaded(doc));
-    this.canceled$ = this.ds.cancel$.subscribe(() => this.handleClose(null));
+    this.onChange$ = this.ds.onChange$.subscribe((doc) => this.onDocLoaded(doc));
+    this.onCancel$ = this.ds.onCancel$.subscribe(() => this.handleClose(null));
   }
 
   ngOnDestroy() {
-    this.loaded$.unsubscribe();
-    this.canceled$.unsubscribe();
+    this.onChange$.unsubscribe();
+    this.onCancel$.unsubscribe();
   }
 
   handleClose(event) {

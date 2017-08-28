@@ -1,13 +1,10 @@
-<j-form [data]="data" [form]="form" [controls]="controls" [document]="document" [controlsByKey]="controlsByKey" [formTemplate]="myTemplate">
-  <ng-template #myTemplate>
-    <ng-container *ngIf="form">
-    <form novalidate [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="row" fxLayout.xs="column" fxLayoutGap.gt-xs="35px">
+<j-form [data]="data" [userTepmlate]="userTepmlate">
+  
+  <ng-template #userTepmlate let-f="form">
       <div fxLayoutGap.gt-xs="column" fxFlex>
-        <j-control [control]="controlsByKey['description']" [form]="form"></j-control>
-        <j-control [control]="controlsByKey['Product']" [form]="form"></j-control>
+        <j-control [control]="controlsByKey['description']" [form]="f"></j-control>
+        <j-control [control]="controlsByKey['Product']" [form]="f"></j-control>
       </div>
-    </form>
-    </ng-container>
   </ng-template>
+
 </j-form>
-{{ document | json }}

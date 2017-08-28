@@ -39,12 +39,12 @@ export class UserFormComponent implements OnInit, DocumentComponent {
       .subscribe((viewModel: ViewModel) => {
         this.viewModel = viewModel;
         this.normalizeObjectValues(this.viewModel.model);
-        this._documentService.setDocument(this.viewModel.model);
+        this._documentService.onChange(this.viewModel.model);
 
         this.form.form.valueChanges
           .distinctUntilChanged()
           .subscribe((d) => {
-            this._documentService.setDocument(this.viewModel.model);
+            this._documentService.onChange(this.viewModel.model);
           });
       });
   }
