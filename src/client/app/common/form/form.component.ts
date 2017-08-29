@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Router } from '@angular/router';
 import { FormGroup } from '@angular/forms';
 import { Location } from '@angular/common';
+import { Observable } from 'rxjs/Observable';
 
 import { DocumentComponent } from '../dynamic-component/document.component';
 import { DynamicFormService, ViewModel } from '../dynamic-form/dynamic-form.service';
@@ -23,26 +24,25 @@ export class CommonFromComponent implements DocumentComponent, OnInit, OnDestroy
   @Input() userTepmlate: TemplateRef<any>;
 
   afterPost$: Subscription;
-
+  viewModel$: Observable<ViewModel>
   document: DocModel;
-  form: FormGroup;
+  form: FormGroup = new FormGroup({});
+  controls: BaseDynamicControl<any>[] = [];
 
-  controls: BaseDynamicControl<any>[];
-  controlsByKey = {};
+  controlsByKey: any = {};
 
   constructor(
-    private fc: DynamicFormControlService, private fs: DynamicFormService, private ds: DocumentService,
-    private router: Router, private location: Location) { }
+    public fs: DynamicFormService, public ds: DocumentService,
+    public router: Router, public location: Location) { }
 
   ngOnInit() {
-    this.fs.getControls(this.data.docType, this.data.docID)
-      .take(1)
-      .subscribe((viewModel: ViewModel) => {
-        this.controls = viewModel.view;
+    this.viewModel$ = this.fs.getControls(this.data.docType, this.data.docID)
+      .do(viewModel => {
         this.document = viewModel.model;
-        this.form = this.fc.toFormGroup(this.controls);
-        this.controls.map(c => { this.controlsByKey[c.key] = c });
-        this.ds.onChange(this.document);
+        this.form = viewModel.formGroup;
+        this.controlsByKey = viewModel.controlsByKey;
+        this.controls = viewModel.view;
+        this.ds.onChange(this.document)
       });
 
     this.afterPost$ = this.ds.afterPost$
@@ -53,7 +53,6 @@ export class CommonFromComponent implements DocumentComponent, OnInit, OnDestroy
         this.document = doc;
         this.form.patchValue(this.document);
       });
-
   }
 
   ngOnDestroy() {

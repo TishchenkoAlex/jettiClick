@@ -73,14 +73,14 @@ export class DateTimeDynamicControl extends BaseDynamicControl<Date> {
   }
 }
 
-export interface ComplexObject {
-  id: string, code: string, desciption: string, type: string
+export interface JettiComplexObject {
+  id: string, value: string, code: string, type: string
 }
 
-export class DropdownDynamicControl extends BaseDynamicControl<ComplexObject> {
+export class DropdownDynamicControl extends BaseDynamicControl<JettiComplexObject> {
   controlType = 'autocomplete';
 
-  constructor(options: ControlOptions<ComplexObject> = {}) {
+  constructor(options: ControlOptions<JettiComplexObject> = {}) {
     super(options);
     this.type = options['type'] || '';
   }

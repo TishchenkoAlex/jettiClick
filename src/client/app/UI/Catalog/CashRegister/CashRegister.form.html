@@ -1,10 +1,11 @@
 <j-form [data]="data" [userTepmlate]="userTepmlate">
-  
-  <ng-template #userTepmlate let-f="form">
+  <div *ngIf="(viewModel$ | async) as viewModel">
+    <ng-template #userTepmlate>
       <div fxLayoutGap.gt-xs="column" fxFlex>
-        <j-control [control]="controlsByKey['description']" [form]="f"></j-control>
-        <j-control [control]="controlsByKey['Product']" [form]="f"></j-control>
+        <j-control [control]="controlsByKey.description" [form]="form"></j-control>
+        <j-control [control]="controlsByKey.Product" [form]="form"></j-control>
       </div>
-  </ng-template>
+    </ng-template>
+  </div>
 
 </j-form>

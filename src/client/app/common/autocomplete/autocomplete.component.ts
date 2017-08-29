@@ -2,7 +2,6 @@ import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output,
 import {
     AbstractControl,
     ControlValueAccessor,
-    FormControl,
     NG_VALIDATORS,
     NG_VALUE_ACCESSOR,
     Validator,
@@ -12,8 +11,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Observable } from 'rxjs/Observable';
 import { MdAutocompleteSelectedEvent } from '@angular/material';
-
-export interface SuggestType { id: string; value: string, code: string, type: string };
+import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -49,8 +47,8 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   @Input() required = false;
   @Input() disabled = false;
 
-  private _value: SuggestType;
-  set value(obj) {
+  private _value: JettiComplexObject;
+  @Input() set value(obj) {
     if (typeof obj !== 'string') {
       this._value = obj;
       this.onChange(this._value);
