@@ -82,7 +82,9 @@ export class DropdownDynamicControl extends BaseDynamicControl<JettiComplexObjec
 
   constructor(options: ControlOptions<JettiComplexObject> = {}) {
     super(options);
-    this.type = options['type'] || '';
+    if (!this.value) {
+      this.value = {id: '', value: '' , code: '', type: this.type}
+    }
   }
 }
 
@@ -91,6 +93,15 @@ export class NumberDynamicControl extends BaseDynamicControl<number> {
   type = 'number';
 
   constructor(options: ControlOptions<number> = {}) {
+    super(options);
+  }
+}
+
+export class TableDynamicControl extends BaseDynamicControl<Object> {
+  controlType = 'table';
+  type = 'table';
+
+  constructor(options: ControlOptions<Object> = {}) {
     super(options);
   }
 }

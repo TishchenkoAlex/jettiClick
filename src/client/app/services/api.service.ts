@@ -8,8 +8,7 @@ export class ApiService {
 
   private url = environment.api;
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   getDocList(type: string, skip = 0, top = 50, order = '', filter = ''): Observable<any[]> {
     // tslint:disable-next-line:max-line-length

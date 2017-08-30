@@ -8,7 +8,7 @@ import { DocModel } from '../_doc.model';
 
 import {
   BaseDynamicControl, BooleanDynamicControl, DateDynamicControl,
-  NumberDynamicControl, DropdownDynamicControl, TextboxDynamicControl, ControlOptions
+  NumberDynamicControl, DropdownDynamicControl, TextboxDynamicControl, ControlOptions, TableDynamicControl
 } from './dynamic-form-base';
 
 export interface ViewModel {
@@ -37,11 +37,18 @@ export class DynamicFormService {
         model.date = new Date(model.date);
         const view = viewModel['view'];
 
-        const process = (v, f) => {
+        const process = (v, f, m) => {
           Object.keys(v).map((property) => {
             if (exclude.indexOf(property) > -1) { return; }
             if (v[property].constructor === Array) {
-             return;
+              const value = [];
+              (m[property] as any[]).forEach(el => {
+                const val = [];
+                process(v[property][0], val, el);
+                value.push(val);
+              });
+              f.push(new TableDynamicControl({ key: property, label: property, value: value }));
+              return;
             };
             const prop = v[property];
             const order = prop['order'] * 1 || 99;
@@ -52,12 +59,12 @@ export class DynamicFormService {
             const readOnly = prop['readOnly'] || false;
             // Корректировки даты и логических данных
             // tslint:disable-next-line:max-line-length
-            if (dataType === 'date' || dataType === 'datetime') { model[property] = new Date(model[property]) }
-            if (dataType === 'boolean') { model[property] = model[property] === undefined ? model.doc[property] : model[property] }
+            if (dataType === 'date' || dataType === 'datetime') { m[property] = new Date(m[property]) }
+            if (dataType === 'boolean') { m[property] = m[property] === undefined ? false : m[property] }
             let newControl: BaseDynamicControl<any>;
             const controlOptions: ControlOptions<any> = {
-              key: property, value: model[property] === undefined ? model.doc[property] : model[property],
-              label: label, type: docType, required: required, readOnly: readOnly, order: order, hidden: hidden
+              key: property, value: m[property],
+              label: label, type: dataType, required: required, readOnly: readOnly, order: order, hidden: hidden
             };
             switch (dataType) {
               case 'boolean':
@@ -85,9 +92,10 @@ export class DynamicFormService {
           });
         };
 
-        process(view, fields);
+        process(view, fields, model);
         const controlsByKey: any = {};
         fields.map(c => { controlsByKey[c.key] = c });
+
         return {
           view: fields.sort((a, b) => a.order - b.order),
           model: model,

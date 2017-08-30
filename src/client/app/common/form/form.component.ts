@@ -66,7 +66,7 @@ export class CommonFromComponent implements DocumentComponent, OnInit, OnDestroy
       type: this.document.type,
       date: formDoc.date,
       code: formDoc.code,
-      description: formDoc.description,
+      description: formDoc.description || this.document.description,
       posted: true,
       deleted: false,
       parent: '',
@@ -75,15 +75,24 @@ export class CommonFromComponent implements DocumentComponent, OnInit, OnDestroy
     }
 
     const exclude = ['id', 'code', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'date', 'description'];
-    for (const property in formDoc) {
-      if (exclude.indexOf(property) > -1) { continue; }
-      if (formDoc[property] && typeof formDoc[property] === 'object') {
-        newDoc.doc[property] = formDoc[property]['id'] || formDoc[property];
-      } else {
-        newDoc.doc[property] = formDoc[property];
+
+    const process = (s, d) => {
+      for (const property in s) {
+        if (exclude.indexOf(property) > -1) { continue; }
+        if (s[property] && typeof s[property] === 'object') {
+          if (s[property].constructor === Array) {
+            //
+          } else {
+            d.doc[property] = s[property]['id'] || null;
+          }
+        } else {
+          d.doc[property] = s[property];
+        }
       }
-    };
-    this.ds.Post(newDoc);
+    }
+    process(formDoc, newDoc);
+    // this.ds.Post(newDoc);
+    console.log(newDoc);
   }
 
   handleOnCancel() {
