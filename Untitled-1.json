@@ -1,30 +1,35 @@
-SELECT jsonb_pretty(to_jsonb(R)) FROM (
-SELECT
-    d.id,
-    d.type,
-    d.date,
-    d.code,
-    d.description,
-    d.posted,
-    d.deleted,
-    d.parent,
-    d.isfolder,
-    jsonb_build_object('id', Customer.id, 'value', Customer.description, 'type', 'Catalog.Counterparties', 'code', Customer.code) "Customer",
-    jsonb_build_object('id', Manager.id, 'value', Manager.description, 'type', 'Catalog.Managers', 'code', Manager.code) "Manager",
-    (d.doc ->> 'Tax')::DECIMAL "Tax",
-    (d.doc ->> 'Amount')::DECIMAL "Amount",
-    d.doc ->> 'Status' "Status",
-    (SELECT replace(replace(jsonb_agg(j)::TEXT, '{"Items":', ''), '}}', '}')::JSONB FROM (
-        SELECT jsonb_build_object('Qty', x."Qty", 'Price', x."Price",
-            'SKU', jsonb_build_object('id', SKU.id, 'value', SKU.description, 'type', 'Catalog.Products', 'code', SKU.code)) "Items"
-        FROM
-            "Documents" di,
-            jsonb_to_recordset(d.doc->'Items') as x ("Qty" NUMERIC, "SKU" VARCHAR(36), "Price" NUMERIC)
-                LEFT JOIN "Documents" SKU ON SKU.id = x."SKU"
-        WHERE di.id = d.id) j) "Items"
-FROM
-    "Documents" d
-    LEFT JOIN "Documents" Customer ON Customer.id = d.doc ->> 'Customer'
-    LEFT JOIN "Documents" Manager ON Manager.id = d.doc ->> 'Manager'
-
-WHERE d.id = '0447d69c-602f-11e7-bd38-7f778cc55f02') R;
+{
+    "Tax": 20,
+    "Items": [
+        {
+            "Qty": 21,
+            "SKU": "be01a212-666e-11e7-84c6-7be710a256c4",
+            "PriceType": null,
+            "Price": 4,
+            "Tax": 0.5
+        },
+        {
+            "Qty": 6,
+            "SKU": "2a7b4c26-6751-11e7-9c49-db1644eddd24",
+            "PriceType": null,
+            "Price": 8,
+            "Tax": 0.5
+        }
+    ],
+    "Comments": [
+        {
+            "Date": "2017-08-24 13:20:23",
+            "User": "02266efa-690d-11e7-abd7-5fad3be4e5a7",
+            "Comment": "Test33"
+        },
+        {
+            "Date": "2017-08-23 13:20:23",
+            "User": "d5baebd6-6af4-11e7-875b-1789d7649e6c",
+            "Comment": "Test22"
+        }
+    ],    
+    "Amount": 1000,
+    "Status": "Pending",
+    "Manager": "033795cc-664b-11e7-9a40-175649f79056",
+    "Customer": "7ab6bafa-8cb7-11e7-b66d-d7cb5362ac55"
+}

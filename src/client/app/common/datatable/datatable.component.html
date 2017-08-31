@@ -88,9 +88,7 @@
                 <span *ngSwitchDefault>
                     <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px">
-                        <span *ngIf="col.type.includes('.')">
-                            {{row[col.field].value}} 
-                        </span>
+                        {{row[col.field]}}
                     </md-cell>
                 </span>               
             </span>

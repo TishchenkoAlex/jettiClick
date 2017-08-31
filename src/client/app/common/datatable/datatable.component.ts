@@ -141,25 +141,20 @@ export class ApiDataSource extends DataSource<any> {
       .switchMap((stream) => {
         this.isLoadingResults = true;
         // tslint:disable-next-line:max-line-length
-        const filter = this._filterChange.value ? `(description ILIKE '${this._filterChange.value}*' OR code ILIKE '${this._filterChange.value}*')` : '';
+        const filter = this._filterChange.value ? `(d.description ILIKE '${this._filterChange.value}*' OR d.code ILIKE '${this._filterChange.value}*')` : '';
         return this.apiService.getDocList(this.docType,
           (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
-          this._sort.active ? this._sort.active + ' ' + this._sort.direction : '', filter)
-          .do((data) => {
-            this.apiService.getDocsCount(this.docType, filter)
-              .catch(err => {
-                return Observable.of(0)
-              })
-              .subscribe(count => {
-                this._paginator.length = count;
-                this.renderedData = data;
+          this._sort.active ? '"' + this._sort.active + '" ' + this._sort.direction : '', filter)
+          .do(data => {
+                this._paginator.length = data['total_count'];
+                this.renderedData = data['data'];
                 this.isLoadingResults = false;
               });
           })
+          .map(data => data['data'])
           .catch(err => {
             return Observable.of<any[]>([]);
           });
-      });
   }
 
   connect(): Observable<any[]> {
