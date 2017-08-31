@@ -59,7 +59,9 @@ export class DynamicFormService {
             const readOnly = prop['readOnly'] || false;
             // Корректировки даты и логических данных
             // tslint:disable-next-line:max-line-length
-            if (dataType === 'date' || dataType === 'datetime') { m[property] = new Date(m[property]) }
+            if (dataType === 'date' || dataType === 'datetime') {
+              m[property] = m[property] ? new Date(m[property]) : null;
+            }
             if (dataType === 'boolean') { m[property] = m[property] === undefined ? false : m[property] }
             let newControl: BaseDynamicControl<any>;
             const controlOptions: ControlOptions<any> = {

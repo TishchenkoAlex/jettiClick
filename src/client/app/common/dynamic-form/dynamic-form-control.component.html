@@ -1,12 +1,12 @@
 <div [formGroup]="form" [ngSwitch]="control.controlType">
 
   <md-form-field *ngSwitchCase="'textbox'" fxFlex>
-    <input [required]="control.required" #textbox mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key"
+    <input [required]="control.required" #textbox mdInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
       [readOnly]="control.readOnly" autocomplete="off">
   </md-form-field>
 
   <md-form-field *ngSwitchCase="'number'" fxFlex>
-    <input [required]="control.required" mdInput placeholder={{control.label}} [formControlName]="control.key" [id]="control.key"
+    <input [required]="control.required" mdInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
       style="text-align: right" [readOnly]="control.readOnly" type="number" autocomplete="off">
       <button md-icon-button mdSuffix><md-icon>attach_money</md-icon></button>
   </md-form-field>
@@ -16,13 +16,13 @@
   </j-autocomplete>
  
   <md-form-field *ngSwitchCase="'date'" fxFlex>
-    <input [required]="control.required" mdInput [mdDatepicker]="picker" placeholder={{control.label}} [formControlName]="control.key"
+    <input [required]="control.required" mdInput [mdDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
       [id]="control.key" [readOnly]="control.readOnly" autocomplete="off">
     <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
   </md-form-field>
 
   <md-form-field *ngSwitchCase="'datetime'" fxFlex>
-    <input [required]="control.required" mdInput [mdDatepicker]="picker" placeholder={{control.label}} [formControlName]="control.key"
+    <input [required]="control.required" mdInput [mdDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
       [id]="control.key" [readOnly]="control.readOnly" autocomplete="off">
     <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
   </md-form-field>

@@ -15,19 +15,18 @@ export class DynamicFormControlComponent implements AfterViewInit {
   @Input() form: FormGroup;
   get isValid() { return this.form.controls[this.control.key].valid; }
 
-
-  validateAutoComplete(control: FormControl): { [s: string]: boolean } {
-    const result = (control.value.value === '' && this.control.required === true);
-    if (result) { return { 'value is required': result }; };
-    return null;
-  }
-
   ngAfterViewInit() {
     setTimeout(() => {
       if (this.control.controlType === 'autocomplete') {
         this.form.controls[this.control.key].setValidators(this.validateAutoComplete.bind(this));
       }
     });
+  }
+
+  validateAutoComplete(control: FormControl): { [s: string]: boolean } {
+    const result = (control.value.value === '' && this.control.required === true);
+    if (result) { return { 'value is required': result }; };
+    return null;
   }
 
 }

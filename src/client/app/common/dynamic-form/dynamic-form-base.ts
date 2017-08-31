@@ -59,7 +59,6 @@ export class DateDynamicControl extends BaseDynamicControl<Date> {
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);
-    this.value = new Date(options['value']);
   }
 }
 
@@ -69,7 +68,6 @@ export class DateTimeDynamicControl extends BaseDynamicControl<Date> {
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);
-    this.value = new Date(options['value']);
   }
 }
 
