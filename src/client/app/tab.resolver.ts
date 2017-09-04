@@ -1,5 +1,4 @@
 import { ApiService } from './services/api.service';
-import { DocumentService } from './common/dynamic-component/document.service';
 import { Injectable } from '@angular/core';
 import { DynamicFormService, ViewModel } from './common/dynamic-form/dynamic-form.service';
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';

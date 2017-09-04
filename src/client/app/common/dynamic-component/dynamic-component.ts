@@ -7,11 +7,7 @@ import { DocumentComponent } from './document.component';
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'dynamic-component',
-  template: `
-              <div>
-                <ng-template component-host></ng-template>
-              </div>
-            `
+  template: `<ng-template component-host></ng-template>`
 })
 export class DynamicComponent implements AfterViewInit {
   @Input() component: BaseDynamicCompoment;

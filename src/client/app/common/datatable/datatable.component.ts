@@ -1,10 +1,10 @@
-import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { Component, ElementRef, ViewChild, OnInit, Input, NgModule } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { DataSource } from '@angular/cdk/table';
-import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material';
+import { DataSource } from '@angular/cdk/table';
+import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
 import { DialogComponent } from './../../dialog/dialog.component';
 import { DocumentComponent } from '../dynamic-component/document.component';

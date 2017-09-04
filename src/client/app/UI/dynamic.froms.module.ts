@@ -12,18 +12,16 @@ import { DynamicFormService } from './../common/dynamic-form/dynamic-form.servic
 import { DynamicFormControlService } from './../common/dynamic-form/dynamic-form-control.service';
 import { DynamicFormControlComponent } from './../common/dynamic-form/dynamic-form-control.component';
 
-import { DocumentService } from './../common/dynamic-component/document.service';
 import { CommonDataTableComponent } from './../common/datatable/datatable.component';
-import { CommonFormComponent } from './../common/form/form.component';
 
 import { TabControllerComponent } from './../common/tabcontroller/tabcontroller.component';
 import { TabControllerService } from './../common/tabcontroller/tabcontroller.service';
 import { HomeComponent } from './../home/home.component';
 
-import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
-import { CommonFormHeaderComponent } from './../common/form/form.base.components/form.header';
-import { CommonFormActionsComponent } from './../common/form/form.base.components/form.actions';
 import { BaseFormComponent } from './../common/form/form.base.components/form.base.component';
+import { CommonFormComponent } from './../common/form/form.component';
+
+import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
 
 @NgModule({
   declarations: [
@@ -35,8 +33,6 @@ import { BaseFormComponent } from './../common/form/form.base.components/form.ba
     DynamicComponentDirective,
     DynamicComponent,
     DynamicFormControlComponent,
-    CommonFormHeaderComponent,
-    CommonFormActionsComponent,
     BaseFormComponent,
 
     CashRegisterForm, // add user froms above
@@ -53,7 +49,6 @@ import { BaseFormComponent } from './../common/form/form.base.components/form.ba
     TabControllerService,
     DynamicFormControlService,
     DynamicFormService,
-    DocumentService,
   ],
   entryComponents: [
     HomeComponent,
