@@ -8,11 +8,12 @@ export class ApiService {
 
   private url = environment.api;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getDocList(type: string, skip = 0, top = 50, order = '', filter = ''): Observable<Object> {
     // tslint:disable-next-line:max-line-length
     const query = `${this.url}${type}/list?$top=${top}&$skip=${skip}&$filter=${filter}&$order=${order}`;
+    console.log(query);
     return (this.http.get(query))
       .catch(err => {
         return Observable.of(null);
@@ -21,6 +22,7 @@ export class ApiService {
 
   getView(type: string): Observable<any[]> {
     const query = `${this.url}${type}/view/`;
+    console.log(query);
     return (this.http.get(query) as Observable<any[]>)
       .map(data => data['view'])
       .catch(err => {
@@ -31,6 +33,7 @@ export class ApiService {
   getViewModel(type: string, id = ''): Observable<Object> {
     if (id === 'new') { id = ''; }
     const query = `${this.url}${type}/view/${id}`;
+    console.log(query);
     return (this.http.get(query))
       .catch(err => {
         return Observable.of(null);

@@ -1,5 +1,6 @@
+import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { Component, ElementRef, ViewChild, OnInit, Input, NgModule } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DataSource } from '@angular/cdk/table';
 import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
@@ -37,7 +38,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild('filter') filter: ElementRef;
 
-  constructor(private apiService: ApiService, private dialog: MdDialog, private router: Router) { };
+  constructor(private route: ActivatedRoute, private apiService: ApiService, private dialog: MdDialog, private router: Router) { };
 
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.data.pageSize, this.paginator, this.sort);
@@ -50,27 +51,25 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
         this.dataSource.filter = this.filter.nativeElement.value;
       });
 
-    this.apiService.getView(this.data.docType)
-      .subscribe(view => {
-        Object.keys(view).map((property) => {
-          // tslint:disable-next-line:curly
-          if (['id', 'date', 'code', 'description', 'type', 'posted', 'deleted', 'isfolder', 'parent'].indexOf(property) > -1
-            || (view[property].constructor === Array)) return;
-          const prop = view[property];
-          const order = prop['order'] * 1 || 99;
-          const hidden = prop['hidden'] === 'true';
-          const label = prop['label'] || property.toString();
-          const dataType = prop['type'] || 'string';
-          this.columns.push({ field: property, type: dataType, label: label, hidden: hidden, order: order, style: null });
-        });
-        this.columns.sort((a, b) => a.order - b.order);
-        this.displayedColumns = this.columns.map((c) => c.field);
-        if (this.data.docType.startsWith('Document')) {
-          this.displayedColumns.unshift('select', 'posted', 'date', 'code', 'description');
-        } else {
-          this.displayedColumns.unshift('select', 'posted', 'code', 'description');
-        }
-      });
+    const view = (this.route.data['value'].detail);
+    Object.keys(view).map((property) => {
+      // tslint:disable-next-line:curly
+      if (['id', 'date', 'code', 'description', 'type', 'posted', 'deleted', 'isfolder', 'parent'].indexOf(property) > -1
+        || (view[property].constructor === Array)) return;
+      const prop = view[property];
+      const order = prop['order'] * 1 || 99;
+      const hidden = prop['hidden'] === 'true';
+      const label = prop['label'] || property.toString();
+      const dataType = prop['type'] || 'string';
+      this.columns.push({ field: property, type: dataType, label: label, hidden: hidden, order: order, style: null });
+    });
+    this.columns.sort((a, b) => a.order - b.order);
+    this.displayedColumns = this.columns.map((c) => c.field);
+    if (this.data.docType.startsWith('Document')) {
+      this.displayedColumns.unshift('select', 'posted', 'date', 'code', 'description');
+    } else {
+      this.displayedColumns.unshift('select', 'posted', 'code', 'description');
+    }
   }
 
   isAllSelected(): boolean {
@@ -146,15 +145,15 @@ export class ApiDataSource extends DataSource<any> {
           (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
           this._sort.active ? '"' + this._sort.active + '" ' + this._sort.direction : '', filter)
           .do(data => {
-                this._paginator.length = data['total_count'];
-                this.renderedData = data['data'];
-                this.isLoadingResults = false;
-              });
-          })
-          .map(data => data['data'])
-          .catch(err => {
-            return Observable.of<any[]>([]);
+            this._paginator.length = data['total_count'];
+            this.renderedData = data['data'];
+            this.isLoadingResults = false;
           });
+      })
+      .map(data => data['data'])
+      .catch(err => {
+        return Observable.of<any[]>([]);
+      });
   }
 
   connect(): Observable<any[]> {

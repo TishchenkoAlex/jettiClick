@@ -1,47 +1,62 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { DocModel } from '../_doc.model';
+import { Injectable, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { DocModel } from '../_doc.model';
+import { ViewModel } from '../dynamic-form/dynamic-form.service';
 
 @Injectable()
-export class DocumentService {
+export class DocumentService implements OnDestroy {
 
-  private _onChange = new Subject<DocModel>();
-  private _onCancel = new Subject<DocModel>();
-  private _beforePost = new Subject<DocModel>();
-  private _onPost = new Subject<DocModel>();
-  private _afterPost = new Subject<DocModel>();
-
-  onChange$ = this._onChange.asObservable();
-  onCancel$ = this._onCancel.asObservable();
-  beforePost$ = this._beforePost.asObservable();
-  onPost$ = this._onPost.asObservable();
-  afterPost$ = this._afterPost.asObservable();
-
-  constructor(private api: ApiService) {
-    this.beforePost$.subscribe(doc => {
-      this.onPost(doc);
-    });
-    this.onPost$.subscribe(doc => {
-      if (!doc.date) { doc.date = new Date(); }
-      this.api.postDoc(doc).subscribe((posted: DocModel) => {
-        this.afterPost(posted);
-      });
-    });
-    this.afterPost$.subscribe(doc => {
-      this.onChange(doc);
-    });
+  private viewModel: ViewModel;
+  constructor(private api: ApiService, private route: ActivatedRoute) {
+    this.viewModel = route.data['value']['detail'];
+    console.log('DOCSERVICE INIT', this.viewModel)
   }
 
-  onChange(document: DocModel) { this._onChange.next(document); }
-  onCancel(document: DocModel) { this._onCancel.next(document); }
-  beforePost(document: DocModel) { this._beforePost.next(document); }
-  onPost(document: DocModel) { this._onPost.next(document); }
-  afterPost(document: DocModel) { this._afterPost.next(document); }
+  ngOnDestroy() {
+    console.log('DOCSERVICE DESTROY', this.viewModel)
+  }
 
-  Post(document: DocModel) {
-    this.beforePost(document);
+  Post(viewModel: ViewModel) {
+    console.log('POST');
+    const formDoc = viewModel.formGroup.value;
+    const newDoc: DocModel = {
+      id: viewModel.model.id,
+      type: viewModel.model.type,
+      date: formDoc.date,
+      code: formDoc.code,
+      description: formDoc.description || viewModel.model.description,
+      posted: true,
+      deleted: false,
+      parent: '',
+      isfolder: false,
+      doc: {}
+    }
+
+    const exclude = ['id', 'code', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'date', 'description'];
+
+    const process = (s, d) => {
+      for (const property in s) {
+        if (exclude.indexOf(property) > -1) { continue; }
+        if (s[property] && typeof s[property] === 'object') {
+          if (s[property].constructor === Array) {
+            //
+          } else {
+            d.doc[property] = s[property]['id'] || null;
+          }
+        } else {
+          d.doc[property] = s[property];
+        }
+      }
+    }
+    process(formDoc, newDoc);
+    if (!newDoc.date) { newDoc.date = new Date(); }
+    this.api.postDoc(newDoc)
+      .share()
+      .subscribe((posted: DocModel) => {
+        viewModel.model = posted;
+        viewModel.formGroup.patchValue(posted);
+      });
   }
 
 }

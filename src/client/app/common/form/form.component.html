@@ -1,37 +1,16 @@
-<div *ngIf="(viewModel$ | async) as viewModel">
-  <div fxLayoutAlign="start space-between" class="mat-card" style="height: 50px">
-    <div fxLayout="row" fxFlex>
-      <md-card-title fxLayout="row" fxLayoutAlign="start center">
-        <md-icon *ngIf="viewModel.model.deleted" color="warn">indeterminate_check_box</md-icon>
-        <md-icon *ngIf="viewModel.model.posted" color="primary">check_box</md-icon>
-        <md-icon *ngIf="!viewModel.model.posted && !viewModel.model.deleted" color="accent">check_box_outline_blank</md-icon>
-        <span style="margin-left: 10px">{{ viewModel.model.description }}</span>
-      </md-card-title>
-    </div>
-    <md-card-subtitle style="font-size: 9pt">{{ viewModel.model.date | date:'medium' }}</md-card-subtitle>
-  </div>
-  <md-card>
-    <md-card-content>
-      <form novalidate [formGroup]="viewModel.formGroup" fxLayout="row" fxLayout.xs="column" fxLayoutGap.gt-xs="35px">
-        <ng-container *ngTemplateOutlet="userTepmlate ? userTepmlate : defaultFormTemplate;"></ng-container>
-      </form>
-    </md-card-content>
-    <md-card-actions fxLayoutAlign="center center" fxLayoutGap="25px">
-      <button md-raised-button color="warn" [disabled]="!viewModel.formGroup.valid" (click)="onSubmit()">Save</button>
-      <button md-raised-button type="button" (click)="handleOnCancel()">Cancel</button>
-    </md-card-actions>
-  </md-card>
+<j-form [data]="data" [userTepmlate]="userTepmlate">
 
-  <ng-template #defaultFormTemplate>
+  <ng-template #userTepmlate let-v="viewModel">
     <div fxLayoutGap.gt-xs="column" fxFlex>
-      <div *ngFor="let control of viewModel.view; let odd = odd">
-        <j-control *ngIf="!odd" [control]="control" [form]="form"></j-control>
+      <div *ngFor="let control of v.view; let odd = odd">
+        <j-control *ngIf="!odd" [control]="control" [form]="v.formGroup"></j-control>
       </div>
     </div>
     <div fxLayoutGap.gt-xs="column" fxFlex>
-      <div *ngFor="let control of viewModel.view; let odd = odd">
-        <j-control *ngIf="odd" [control]="control" [form]="form"></j-control>
+      <div *ngFor="let control of v.view; let odd = odd">
+        <j-control *ngIf="odd" [control]="control" [form]="v.formGroup"></j-control>
       </div>
     </div>
   </ng-template>
-</div>
+
+</j-form>

@@ -1,7 +1,7 @@
 import 'hammerjs';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule, LOCALE_ID } from '@angular/core';
+import { Injector, LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouteReuseStrategy, RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -29,6 +29,7 @@ import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/share';
 
 import { environment } from '../environments/environment';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
@@ -44,6 +45,7 @@ import { LoginComponent } from './auth/login-component/login-component';
 import { DialogComponent } from './dialog/dialog.component';
 
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
+import { TabResolver } from '../app/tab.resolver';
 
 @NgModule({
   declarations: [
@@ -76,10 +78,13 @@ import { DynamicFormsModule } from './UI/dynamic.froms.module';
     },
     ApiService,
     AuthService,
+    TabResolver,
   ],
   entryComponents: [
     DialogComponent,
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+
+}

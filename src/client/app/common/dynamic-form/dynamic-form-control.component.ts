@@ -1,4 +1,5 @@
-import { Component, Input, AfterViewInit } from '@angular/core';
+import { EventEmitter } from 'events';
+import { Component, Input, AfterViewInit, Output } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { BaseDynamicControl } from './dynamic-form-base';
 
@@ -13,6 +14,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA
 export class DynamicFormControlComponent implements AfterViewInit {
   @Input() control: BaseDynamicControl<any>;
   @Input() form: FormGroup;
+
   get isValid() { return this.form.controls[this.control.key].valid; }
 
   ngAfterViewInit() {

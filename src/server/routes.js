@@ -23,13 +23,33 @@ router.get('/documents', async (req, res, next) => {
   }
 })
 
-function ExecuteScript(doc, scripts) {
-  if (!(scripts && scripts['post'])) return;
-  var postF = new Function('doc', scripts.post)
-  postF(doc);
+async function ExecuteScript(doc, script, t) {
+  const Registers = { Account: [], Accumulation: [], Info: [] };
+  var func = new Function('doc, Registers', script);
+  const result = func(doc, Registers);
+  if (Registers.Account.length) {
+    const rec = Registers.Account[0];
+    let arr = [];
+    for (let key in rec) { if (rec.hasOwnProperty(key)) { arr.push(rec[key]) } }
+    const d = await t.none(`
+      INSERT INTO "Register.Account" 
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)`, arr);
+  };
+  if (Registers.Accumulation.length) {
+    const rec = Registers.Accumulation[0];
+    let arr = [];
+    for (let key in rec) { if (rec.hasOwnProperty(key)) { arr.push(rec[key]) } }
+    const d = await t.none(`
+      INSERT INTO "Register.Accumulation" VALUES ($1,$2,$3,$4)`, arr);
+  };
+  if (Registers.Info.length) {
+    const rec = Registers.Info[0];
+    let arr = [];
+    for (let key in rec) { if (rec.hasOwnProperty(key)) { arr.push(rec[key]) } }
+    const d = await t.none(`
+      INSERT INTO "Register.Info" VALUES ($1,$2,$3,$4)`, arr);
+  };
   return doc;
-  //const newData = data.map(doc => { return ExecuteScript(doc, schema.scripts)});
-  //const newDoc = ExecuteScript(data[0], schema.scripts);
 }
 
 // Select documents list for UI (grids/list etc)
@@ -148,8 +168,13 @@ router.get('/raw/:id', async (req, res, next) => {
 // Delete document
 router.delete('/:id', async (req, res, next) => {
   try {
-    let id = req.params;
-    await db.none('UPDATE "Documents" SET deleted = not deleted WHERE id = $1', [id]);
+    const t = await db.tx('my-transaction', async t => {
+      const scripts = (await t.one(`SELECT "scripts" FROM config_schema WHERE type = $1`, [doc.type])).scripts;      
+      if (scripts && scripts['before-delete']) await ExecuteScript(doc, scripts['before-delete'], t);
+      let id = req.params;
+      await t.none('UPDATE "Documents" SET deleted = not deleted WHERE id = $1', [id]);
+      if (scripts && scripts['after-delete']) await ExecuteScript(data, scripts['after-delete'], t);
+    });
   } catch (err) {
     next(err.message);
   }
@@ -158,32 +183,35 @@ router.delete('/:id', async (req, res, next) => {
 // Upsert document
 router.post('/', async (req, res, next) => {
   try {
-    let doc = req.body,
-      id = doc.id;
-    let data = await db.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]);
-    if (data == null) {
-      data = await db.one(`
-              INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1);
-              SELECT * FROM "Documents" WHERE id = $2`, [doc, id]);
+    const t = await db.tx('my-transaction', async t => {
+      const doc = req.body, id = doc.id;
+      const scripts = (await t.one(`SELECT "scripts" FROM config_schema WHERE type = $1`, [doc.type])).scripts;
+      if (scripts && scripts['before-post']) await ExecuteScript(doc, scripts['before-post'], t);
+      let data = await t.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]);
+      if (data === null) {
+        data = await t.one(`
+      INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1);
+      SELECT * FROM "Documents" WHERE id = $2`, [doc, id]);
+      } else {
+        data = await t.one(`
+        UPDATE "Documents" d  
+          SET
+            type = i.type,
+            parent = i.parent,
+            date = i.date,
+            code = i.code,
+            description = i.description,
+            posted = i.posted, 
+            deleted = i.deleted,
+            isfolder = i.isfolder,
+            doc = i.doc
+          FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
+          WHERE d.Id = i.Id;
+          SELECT * FROM "Documents" WHERE id = $2`, [doc, id]);
+      }
+      if (scripts && scripts['after-post']) await ExecuteScript(data, scripts['after-post'], t);
       res.json(data);
-    } else {
-      let data = await db.one(`
-              UPDATE "Documents" d  
-              SET
-                type = i.type,
-                parent = i.parent,
-                date = i.date,
-                code = i.code,
-                description = i.description,
-                posted = i.posted, 
-                deleted = i.deleted,
-                isfolder = i.isfolder,
-                doc = i.doc
-              FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
-              WHERE d.Id = i.Id;
-              SELECT * FROM "Documents" WHERE id = $2`, [doc, id]);
-      res.json(data);
-    }
+    });
   } catch (err) {
     next(err.message);
   }

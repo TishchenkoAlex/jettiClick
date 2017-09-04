@@ -3,22 +3,27 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 import { MaterialModule } from './../material.module';
-import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
 
-import { DocumentService } from './../common/dynamic-component/document.service';
 import { DynamicComponentDirective } from './../common/dynamic-component/dynamic-component.directive';
 import { DynamicComponent } from './../common/dynamic-component/dynamic-component';
+import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
 
-import { DynamicFormControlService } from './../common/dynamic-form/dynamic-form-control.service';
 import { DynamicFormService } from './../common/dynamic-form/dynamic-form.service';
+import { DynamicFormControlService } from './../common/dynamic-form/dynamic-form-control.service';
 import { DynamicFormControlComponent } from './../common/dynamic-form/dynamic-form-control.component';
 
+import { DocumentService } from './../common/dynamic-component/document.service';
 import { CommonDataTableComponent } from './../common/datatable/datatable.component';
-import { CommonFromComponent } from './../common/form/form.component';
+import { CommonFormComponent } from './../common/form/form.component';
 
-import { HomeComponent } from './../home/home.component';
 import { TabControllerComponent } from './../common/tabcontroller/tabcontroller.component';
-import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
+import { TabControllerService } from './../common/tabcontroller/tabcontroller.service';
+import { HomeComponent } from './../home/home.component';
+
+import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
+import { CommonFormHeaderComponent } from './../common/form/form.base.components/form.header';
+import { CommonFormActionsComponent } from './../common/form/form.base.components/form.actions';
+import { BaseFormComponent } from './../common/form/form.base.components/form.base.component';
 
 @NgModule({
   declarations: [
@@ -26,10 +31,13 @@ import { AutocompleteComponent } from './../common/autocomplete/autocomplete.com
     HomeComponent,
     TabControllerComponent,
     CommonDataTableComponent,
-    CommonFromComponent,
+    CommonFormComponent,
     DynamicComponentDirective,
     DynamicComponent,
     DynamicFormControlComponent,
+    CommonFormHeaderComponent,
+    CommonFormActionsComponent,
+    BaseFormComponent,
 
     CashRegisterForm, // add user froms above
   ],
@@ -42,14 +50,15 @@ import { AutocompleteComponent } from './../common/autocomplete/autocomplete.com
   exports: [
   ],
   providers: [
-    DocumentService,
+    TabControllerService,
     DynamicFormControlService,
     DynamicFormService,
+    DocumentService,
   ],
   entryComponents: [
     HomeComponent,
     CommonDataTableComponent,
-    CommonFromComponent,
+    CommonFormComponent,
 
     CashRegisterForm, // add user froms above
   ]

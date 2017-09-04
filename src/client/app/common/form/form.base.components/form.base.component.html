@@ -1,0 +1,14 @@
+<j-form-header [model]="viewModel.model"></j-form-header>
+<md-card>
+  <md-card-content>
+    <form novalidate [formGroup]="viewModel.formGroup" fxLayout="row" fxLayout.xs="column" fxLayoutGap.gt-xs="35px">
+      <ng-container *ngTemplateOutlet="userTepmlate; context: {viewModel: viewModel}"></ng-container>
+    </form>
+  </md-card-content>
+  <md-card-actions fxLayoutAlign="center center" fxLayoutGap="25px">
+    <j-form-actions [formGroup]="viewModel.formGroup" 
+      (cmdCancel)="handleOnCancel()"
+      (cmdPost)="onSubmit()">
+    </j-form-actions>
+  </md-card-actions>
+</md-card>

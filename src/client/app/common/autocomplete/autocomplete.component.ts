@@ -1,15 +1,8 @@
 import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
-import {
-    AbstractControl,
-    ControlValueAccessor,
-    NG_VALIDATORS,
-    NG_VALUE_ACCESSOR,
-    Validator,
-    ValidationErrors,
-} from '@angular/forms';
+import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validator, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ApiService } from '../../services/api.service';
 import { Observable } from 'rxjs/Observable';
+import { ApiService } from '../../services/api.service';
 import { MdAutocompleteSelectedEvent } from '@angular/material';
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 
@@ -87,7 +80,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
     return c.valid ? null : {'not valid': true}
   };
 
-  constructor(private http: ApiService, private router: Router) { }
+  constructor(private api: ApiService, private router: Router) { }
 
   ngOnInit() {
     this.suggests$ = Observable.fromEvent(this.control.nativeElement, 'keyup')
@@ -111,7 +104,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   }
 
   getSuggests(type, text): Observable<any[]> {
-    return this.http.getSuggests(type, text || '');
+    return this.api.getSuggests(type, text || '');
   }
 
   handleReset(event) {
@@ -123,7 +116,6 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
     event.stopPropagation();
     this.router.navigate([this.value.type, this.value.id]);
   }
-
 
 }
 
