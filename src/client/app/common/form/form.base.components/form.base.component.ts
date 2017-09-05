@@ -1,11 +1,13 @@
 import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { Subscription } from 'rxjs/Subscription';
 
-import { DocumentComponent } from '../../dynamic-component/document.component';
 import { ViewModel } from '../../dynamic-form/dynamic-form.service';
 import { ApiService } from '../../../services/api.service';
 import { DocModel } from '../../../common/_doc.model';
+import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
+import { TabControllerService } from '../../../common/tabcontroller/tabcontroller.service';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -18,25 +20,27 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
   viewModel: ViewModel;
+  private _onPostSubscription: Subscription = Subscription.EMPTY;
 
-  constructor(private route: ActivatedRoute, private api: ApiService, private location: Location) { }
+  constructor(
+    private route: ActivatedRoute, private api: ApiService, private location: Location) { }
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
   }
 
   Save() {
-    console.log('CHILD SAVE');
-    this.onSubmit();
+    console.log('BASE SAVE', this.viewModel);
+    // this.onSubmit();
   }
 
   Cancel() {
-    console.log('CHILD CANCEL');
+    console.log('BASE CANCEL');
     this.location.back();
   }
 
   onSubmit() {
-    console.log('POST');
+    console.log('BASE POST');
     const formDoc = this.viewModel.formGroup.value;
     const newDoc: DocModel = {
       id: this.viewModel.model.id,
@@ -69,8 +73,8 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
     }
     process(formDoc, newDoc);
     if (!newDoc.date) { newDoc.date = new Date(); }
-    this.api.postDoc(newDoc)
-      .share()
+    this._onPostSubscription = this.api.postDoc(newDoc)
+      .first()
       .subscribe((posted: DocModel) => {
         this.viewModel.model = posted;
         this.viewModel.formGroup.patchValue(posted);

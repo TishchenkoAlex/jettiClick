@@ -7,7 +7,7 @@ import { DataSource } from '@angular/cdk/table';
 import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
 import { DialogComponent } from './../../dialog/dialog.component';
-import { DocumentComponent } from '../dynamic-component/document.component';
+import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
 
 interface ColDef {
   field: string;

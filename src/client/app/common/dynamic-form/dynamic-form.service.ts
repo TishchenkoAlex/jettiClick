@@ -37,16 +37,12 @@ export class DynamicFormService {
         model.date = new Date(model.date);
         const view = viewModel['view'];
 
-        const process = (v, f, m) => {
+        const process = (v, f) => {
           Object.keys(v).map((property) => {
             if (exclude.indexOf(property) > -1) { return; }
             if (v[property].constructor === Array) {
               const value = [];
-              (m[property] as any[]).forEach(el => {
-                const val = [];
-                process(v[property][0], val, el);
-                value.push(val);
-              });
+              process(v[property][0], value);
               f.push(new TableDynamicControl({ key: property, label: property, value: value }));
               return;
             };
@@ -57,15 +53,9 @@ export class DynamicFormService {
             const dataType = prop['type'] || 'string';
             const required = prop['required'] || false;
             const readOnly = prop['readOnly'] || false;
-            // Корректировки даты и логических данных
-            // tslint:disable-next-line:max-line-length
-            if (dataType === 'date' || dataType === 'datetime') {
-              m[property] = m[property] ? new Date(m[property]) : null;
-            }
-            if (dataType === 'boolean') { m[property] = m[property] === undefined ? false : m[property] }
             let newControl: BaseDynamicControl<any>;
             const controlOptions: ControlOptions<any> = {
-              key: property, value: m[property],
+              key: property,
               label: label, type: dataType, required: required, readOnly: readOnly, order: order, hidden: hidden
             };
             switch (dataType) {
@@ -94,14 +84,15 @@ export class DynamicFormService {
           });
         };
 
-        process(view, fields, model);
+        process(view, fields);
         const controlsByKey: any = {};
         fields.map(c => { controlsByKey[c.key] = c });
-
+        const formGroup = this.fc.toFormGroup(fields);
+        formGroup.patchValue(model);
         return {
           view: fields.sort((a, b) => a.order - b.order),
           model: model,
-          formGroup: this.fc.toFormGroup(fields),
+          formGroup: formGroup,
           controlsByKey: controlsByKey
         }
       });

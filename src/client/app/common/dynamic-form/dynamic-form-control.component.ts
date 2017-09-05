@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { Component, Input, AfterViewInit, Output } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl, FormArray } from '@angular/forms';
 import { BaseDynamicControl } from './dynamic-form-base';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -18,7 +18,7 @@ export class DynamicFormControlComponent implements AfterViewInit {
   get isValid() { return this.form.controls[this.control.key].valid; }
 
   ngAfterViewInit() {
-    setTimeout(() => {
+    Promise.resolve().then(() => {
       if (this.control.controlType === 'autocomplete') {
         this.form.controls[this.control.key].setValidators(this.validateAutoComplete.bind(this));
       }
@@ -30,6 +30,8 @@ export class DynamicFormControlComponent implements AfterViewInit {
     if (result) { return { 'value is required': result }; };
     return null;
   }
+
+  get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
 
 }
 

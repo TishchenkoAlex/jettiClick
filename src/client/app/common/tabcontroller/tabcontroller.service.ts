@@ -4,10 +4,10 @@ import { Router } from '@angular/router/';
 import { Observable } from 'rxjs/Observable';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
 
-import { BaseDynamicCompoment } from '../dynamic-component/dynamic-base.component';
 import { HomeComponent } from '../../home/home.component';
 
 import { getDocListComponent, getDocObjectComponent } from '../../UI/userForms';
+import { BaseDynamicCompoment } from '../../common/dynamic-component/dynamic-component';
 
 export interface TabDef {
   header: string;

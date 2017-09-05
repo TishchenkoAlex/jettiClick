@@ -4,8 +4,7 @@ import { CommonModule } from '@angular/common';
 
 import { MaterialModule } from './../material.module';
 
-import { DynamicComponentDirective } from './../common/dynamic-component/dynamic-component.directive';
-import { DynamicComponent } from './../common/dynamic-component/dynamic-component';
+import { DynamicComponent, DynamicComponentDirective } from './../common/dynamic-component/dynamic-component';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
 
 import { DynamicFormService } from './../common/dynamic-form/dynamic-form.service';
@@ -19,7 +18,6 @@ import { TabControllerService } from './../common/tabcontroller/tabcontroller.se
 import { HomeComponent } from './../home/home.component';
 
 import { BaseFormComponent } from './../common/form/form.base.components/form.base.component';
-import { CommonFormComponent } from './../common/form/form.component';
 
 import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
 
@@ -29,7 +27,6 @@ import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form
     HomeComponent,
     TabControllerComponent,
     CommonDataTableComponent,
-    CommonFormComponent,
     DynamicComponentDirective,
     DynamicComponent,
     DynamicFormControlComponent,
@@ -53,7 +50,7 @@ import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form
   entryComponents: [
     HomeComponent,
     CommonDataTableComponent,
-    CommonFormComponent,
+    BaseFormComponent,
 
     CashRegisterForm, // add user froms above
   ]
