@@ -1,35 +1,65 @@
-{
-    "Tax": 20,
-    "Items": [
-        {
-            "Qty": 21,
-            "SKU": "be01a212-666e-11e7-84c6-7be710a256c4",
-            "PriceType": null,
-            "Price": 4,
-            "Tax": 0.5
+[
+    {
+        "Qty": 21,
+        "SKU": {
+            "id": "be01a212-666e-11e7-84c6-7be710a256c4",
+            "code": "1",
+            "type": "Catalog.Products",
+            "value": "Печенька"
         },
-        {
-            "Qty": 6,
-            "SKU": "2a7b4c26-6751-11e7-9c49-db1644eddd24",
-            "PriceType": null,
-            "Price": 8,
-            "Tax": 0.5
+        "Price": 4,
+        "PriceType": {
+            "id": null,
+            "code": null,
+            "type": "Catalog.PriceTypes",
+            "value": null
         }
-    ],
-    "Comments": [
-        {
-            "Date": "2017-08-24 13:20:23",
-            "User": "02266efa-690d-11e7-abd7-5fad3be4e5a7",
-            "Comment": "Test33"
+    },
+    {
+        "Qty": 6,
+        "SKU": {
+            "id": "2a7b4c26-6751-11e7-9c49-db1644eddd24",
+            "code": "2b-S-AU",
+            "type": "Catalog.Products",
+            "value": "Мороженое"
         },
-        {
-            "Date": "2017-08-23 13:20:23",
-            "User": "d5baebd6-6af4-11e7-875b-1789d7649e6c",
-            "Comment": "Test22"
+        "Price": 8,
+        "PriceType": {
+            "id": null,
+            "code": null,
+            "type": "Catalog.PriceTypes",
+            "value": null
         }
-    ],    
-    "Amount": 1000,
-    "Status": "Pending",
-    "Manager": "033795cc-664b-11e7-9a40-175649f79056",
-    "Customer": "7ab6bafa-8cb7-11e7-b66d-d7cb5362ac55"
-}
+    },
+    null,
+    null,
+    {
+        "id": "",
+        "value": "",
+        "code": "",
+        "type": "Catalog.PriceTypes"
+    }
+]
+[
+    {
+        "Date": "2017-08-24T13:20:23",
+        "User": {
+            "id": "02266efa-690d-11e7-abd7-5fad3be4e5a7",
+            "code": "3",
+            "type": "Catalog.Managers",
+            "value": "Вася"
+        },
+        "Comment": "Test33"
+    },
+    {
+        "Date": "2017-08-23T13:20:23",
+        "User": {
+            "id": "d5baebd6-6af4-11e7-875b-1789d7649e6c",
+            "code": "4",
+            "type": "Catalog.Managers",
+            "value": "Федоров"
+        },
+        "Comment": "Test22"
+    },
+    null
+]

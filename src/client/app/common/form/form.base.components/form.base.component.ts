@@ -8,6 +8,7 @@ import { ApiService } from '../../../services/api.service';
 import { DocModel } from '../../../common/_doc.model';
 import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
 import { TabControllerService } from '../../../common/tabcontroller/tabcontroller.service';
+import { TableDynamicControl } from '../../../common/dynamic-form/dynamic-form-base';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -20,6 +21,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
   viewModel: ViewModel;
+
   private _onPostSubscription: Subscription = Subscription.EMPTY;
 
   constructor(

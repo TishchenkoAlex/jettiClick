@@ -11,10 +11,13 @@ export class DynamicFormControlService {
 
     controls.forEach(control => {
       if (control.controlType === 'table') {
-        const arr: AbstractControl[] = [];
-        control.value.forEach(item => {
-          arr.push(new FormControl(item.value));
+        const Row = {};
+        const arr: FormGroup[] = [];
+        (control.value as BaseDynamicControl<any>[]).forEach(item => {
+          Row[item.key] = item.required ?
+            new FormControl(item.value, Validators.required) : new FormControl(item.value);
         });
+        arr.push(new FormGroup(Row));
         group[control.key] = new FormArray(arr);
       } else {
         group[control.key] = control.required ?

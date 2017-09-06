@@ -64,7 +64,7 @@ export class DateDynamicControl extends BaseDynamicControl<Date> {
 
 export class DateTimeDynamicControl extends BaseDynamicControl<Date> {
   controlType = 'datetime';
-  type = 'date';
+  type = 'datetime';
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);

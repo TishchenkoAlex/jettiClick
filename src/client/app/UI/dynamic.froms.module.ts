@@ -20,6 +20,7 @@ import { HomeComponent } from './../home/home.component';
 import { BaseFormComponent } from './../common/form/form.base.components/form.base.component';
 
 import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
+import { TablePartsComponent } from '../common/datatable/table-parts.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form
     DynamicComponent,
     DynamicFormControlComponent,
     BaseFormComponent,
+    TablePartsComponent,
 
     CashRegisterForm, // add user froms above
   ],

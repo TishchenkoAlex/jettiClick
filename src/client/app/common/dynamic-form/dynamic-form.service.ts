@@ -1,4 +1,4 @@
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { DynamicFormControlService } from './dynamic-form-control.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -15,7 +15,8 @@ export interface ViewModel {
   view: BaseDynamicControl<any>[];
   model: DocModel,
   formGroup: FormGroup,
-  controlsByKey: any
+  controlsByKey: any,
+  tableParts: any;
 }
 
 @Injectable()
@@ -23,7 +24,7 @@ export class DynamicFormService {
 
   constructor(private apiService: ApiService, private fc: DynamicFormControlService) { };
 
-  getControls(docType: string, docID = ''): Observable<ViewModel> {
+  getViewModel(docType: string, docID = ''): Observable<ViewModel> {
 
     const fields: BaseDynamicControl<any>[] = [];
     const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent'];
@@ -37,12 +38,12 @@ export class DynamicFormService {
         model.date = new Date(model.date);
         const view = viewModel['view'];
 
-        const process = (v, f) => {
+        const processRecursive = (v, f) => {
           Object.keys(v).map((property) => {
             if (exclude.indexOf(property) > -1) { return; }
             if (v[property].constructor === Array) {
               const value = [];
-              process(v[property][0], value);
+              processRecursive(v[property][0], value);
               f.push(new TableDynamicControl({ key: property, label: property, value: value }));
               return;
             };
@@ -53,6 +54,12 @@ export class DynamicFormService {
             const dataType = prop['type'] || 'string';
             const required = prop['required'] || false;
             const readOnly = prop['readOnly'] || false;
+
+            if ((dataType === 'date') || (dataType === 'datetime')) {
+              try { model[property] = new Date(model[property]); } catch (err) { model[property] = null; }
+            };
+            if (dataType === 'boolean') { model[property] = Boolean(model[property]); };
+
             let newControl: BaseDynamicControl<any>;
             const controlOptions: ControlOptions<any> = {
               key: property,
@@ -84,16 +91,35 @@ export class DynamicFormService {
           });
         };
 
-        process(view, fields);
+        processRecursive(view, fields);
         const controlsByKey: any = {};
         fields.map(c => { controlsByKey[c.key] = c });
         const formGroup = this.fc.toFormGroup(fields);
+        fields.sort((a, b) => a.order - b.order);
+        const tableParts = [];
+
+        Object.keys(view).forEach(property => { // multiply "sample" row by count of model array rows
+          const sample = view[property][0]; // sample row will be deleted in code below
+          if ((view[property].constructor === Array)
+            && (model[property] && model[property].constructor === Array)) {
+            tableParts.push({id: fields.findIndex(i => i.key === property), value: property});
+            const formArray = formGroup.controls[property] as FormArray;
+            model[property].forEach(element => {
+              const Row = {}; const arr: FormGroup[] = [];
+              Object.keys(sample).forEach(item => Row[item] = new FormControl(null));
+              formArray.push(new FormGroup(Row));
+            });
+            formArray.removeAt(0); // delete sample row
+          }
+        });
+
         formGroup.patchValue(model);
         return {
-          view: fields.sort((a, b) => a.order - b.order),
+          view: fields,
           model: model,
           formGroup: formGroup,
-          controlsByKey: controlsByKey
+          controlsByKey: controlsByKey,
+          tableParts: tableParts
         }
       });
 

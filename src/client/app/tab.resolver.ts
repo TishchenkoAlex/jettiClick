@@ -14,7 +14,7 @@ export class TabResolver implements Resolve<any> {
             return Observable.of([]);
         } else {
             if (route.params['id']) {
-                return this.dfs.getControls(route.params['type'], route.params['id'])
+                return this.dfs.getViewModel(route.params['type'], route.params['id'])
             } else {
                 return this.api.getView(route.params['type'])
             }

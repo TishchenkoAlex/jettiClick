@@ -28,32 +28,12 @@
   </md-form-field>
 
   <md-checkbox *ngSwitchCase="'checkbox'" [required]="control.required" [formControlName]="control.key" [id]="control.key"
-    fxFlex>{{control.label}}
+  fxFlex>{{control.label}}
   </md-checkbox>
 
   <div *ngSwitchCase="'table'">
     <div [formArrayName]="control.key">
-      <div *ngFor="let row of getControls.controls; index as i;" [formGroupName]="i">
-        <div *ngFor="let column of control.value" fxFlex>
-          <div [ngSwitch]="column.controlType">
-
-            <md-form-field *ngSwitchCase="'textbox'" fxFlex>
-              <input [required]="column.required" mdInput [placeholder]="column.label" [formControlName]="column.key" [readOnly]="column.readOnly"
-                autocomplete="off">
-            </md-form-field>
-
-            <md-form-field *ngSwitchCase="'number'" fxFlex>
-              <input [required]="column.required" mdInput [placeholder]="column.label" [formControlName]="column.key" style="text-align: right"
-                [readOnly]="column.readOnly" type="number" autocomplete="off">
-              <button md-icon-button mdSuffix><md-icon>attach_money</md-icon></button>
-            </md-form-field>
-
-            <j-autocomplete *ngSwitchCase="'autocomplete'" fxFlex [required]="column.required" [formControlName]="column.key" [placeholder]="column.label">
-            </j-autocomplete>
-
-          </div>
-        </div>
-      </div>
+        <j-table-part [data]="form.controls[control.key].value" [view]= "control.value"></j-table-part>
     </div>
   </div>
 </div>
