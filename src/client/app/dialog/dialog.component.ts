@@ -5,7 +5,8 @@ import { FormGroup } from '@angular/forms';
 import { BaseDynamicControl } from '../common/dynamic-form/dynamic-form-base';
 
 @Component({
-  templateUrl: './dialog.component.html'
+  templateUrl: './dialog.component.html',
+  styles: [``]
 })
 export class DialogComponent {
 

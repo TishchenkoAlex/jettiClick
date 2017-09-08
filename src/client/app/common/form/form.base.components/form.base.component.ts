@@ -31,8 +31,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
   }
 
   Save() {
-    console.log('BASE SAVE', this.viewModel);
-    // this.onSubmit();
+    this.onSubmit();
   }
 
   Cancel() {
@@ -42,7 +41,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
 
   onSubmit() {
     console.log('BASE POST');
-    const formDoc = this.viewModel.formGroup.value;
+    const formDoc = this.viewModel.formGroup.getRawValue();
     const newDoc: DocModel = {
       id: this.viewModel.model.id,
       type: this.viewModel.model.type,
@@ -58,12 +57,18 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
 
     const exclude = ['id', 'code', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'date', 'description'];
 
-    const process = (s, d) => {
+    const mapDoc = (s, d) => {
       for (const property in s) {
         if (exclude.indexOf(property) > -1) { continue; }
         if (s[property] && typeof s[property] === 'object') {
           if (s[property].constructor === Array) {
-            //
+            const copy = JSON.parse(JSON.stringify(s[property])) as any[];
+            copy.forEach(element => {
+              for (const p in element) {
+                if (element[p] && typeof element[p] === 'object') { element[p] = element[p].id; }
+              };
+            });
+            d.doc[property] = copy;
           } else {
             d.doc[property] = s[property]['id'] || null;
           }
@@ -72,14 +77,15 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
         }
       }
     }
-    process(formDoc, newDoc);
+    mapDoc(formDoc, newDoc);
     if (!newDoc.date) { newDoc.date = new Date(); }
-    this._onPostSubscription = this.api.postDoc(newDoc)
-      .first()
-      .subscribe((posted: DocModel) => {
-        this.viewModel.model = posted;
-        this.viewModel.formGroup.patchValue(posted);
-      });
+    console.log('RESULT', newDoc);
+    /*     this._onPostSubscription = this.api.postDoc(newDoc)
+          .first()
+          .subscribe((posted: DocModel) => {
+            this.viewModel.model = posted;
+            this.viewModel.formGroup.patchValue(posted);
+          }); */
   }
 
 }

@@ -57,7 +57,8 @@ export class DynamicFormService {
             const style = prop['style'] || false;
 
             if ((dataType === 'date') || (dataType === 'datetime')) {
-              try { model[property] = new Date(model[property]); } catch (err) { model[property] = null; }
+              model[property] = new Date(model[property]);
+              if (isNaN(model[property].getTime())) { model[property] = null; }
             };
             if (dataType === 'boolean') { model[property] = Boolean(model[property]); };
 
@@ -109,10 +110,17 @@ export class DynamicFormService {
             const formArray = formGroup.controls[property] as FormArray;
             model[property].forEach(element => {
               const Row = {}; const arr: FormGroup[] = [];
-              Object.keys(sample).forEach(item => Row[item] = new FormControl(null));
+              Object.keys(sample).forEach(item => {
+                if (['date', 'datetime'].indexOf(sample[item]['type'] && sample[item]['type']) > -1) {
+                  element[item] = new Date(element[item]);
+                }
+                Row[item] = new FormControl(null);
+              });
               formArray.push(new FormGroup(Row));
             });
-            formArray.removeAt(0); // delete sample row
+
+            if (docID === 'new') { formArray.controls = [];
+            } else { formArray.removeAt(0); } // delete sample row
           }
         });
 

@@ -9,9 +9,9 @@
     </div>
   </form>
 </md-card-content>
-<md-card-actions fxLayoutAlign="center center" fxLayoutGap="25px">
+<div fxLayoutAlign="center center" fxLayoutGap="25px">
   <ng-container *ngTemplateOutlet="actionTepmlateDefault; context: {viewModel: formGroup}"></ng-container>
-</md-card-actions>
+</div>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
   <button md-raised-button color="warn" (click)="dialogRef.close(formGroup.value)">Save</button>

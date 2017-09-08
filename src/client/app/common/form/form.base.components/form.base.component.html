@@ -25,18 +25,23 @@
 
     <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px">
       <div fxLayoutGap.gt-xs="column" fxFlex>
-        <div *ngFor="let control of v.view; let odd = odd">
-          <j-control *ngIf="!odd && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
+        <div *ngFor="let control of v.view; let i = index">
+          <j-control *ngIf="(i%3+1) === 1 && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
         </div>
       </div>
       <div fxLayoutGap.gt-xs="column" fxFlex>
-        <div *ngFor="let control of v.view; let odd = odd">
-          <j-control *ngIf="odd && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
+        <div *ngFor="let control of v.view; let i = index">
+          <j-control *ngIf="(i%3+1) === 2 && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
+        </div>
+      </div>
+      <div fxLayoutGap.gt-xs="column" fxFlex>
+        <div *ngFor="let control of v.view; let i = index">
+          <j-control *ngIf="(i%3+1) === 3 && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
         </div>
       </div>
     </div>
 
-    <div fxLayoutGap.gt-xs="column" *ngIf="v.tableParts">
+    <div fxLayoutGap.gt-xs="column" *ngIf="v.tableParts?.length">
       <md-tab-group #tg dynamicHeight="true">
         <md-tab *ngFor="let tab of v.tableParts">
           <ng-template md-tab-label>{{ tab.value }}</ng-template>
@@ -50,8 +55,6 @@
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
-  <button md-raised-button color="warn" (click)="Save()">Save</button>
+  <button md-raised-button color="warn" [disabled]="!v.formGroup.valid" (click)="Save()">Save</button>
   <button md-raised-button type="button" (click)="Cancel()">Cancel</button>
 </ng-template>
-
-{{ viewModel.formGroup.value | json }}
