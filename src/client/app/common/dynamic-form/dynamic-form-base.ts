@@ -7,7 +7,8 @@ export interface ControlOptions<T> {
   readOnly?: boolean,
   hidden?: boolean,
   order?: number,
-  controlType?: string
+  controlType?: string,
+  style?: any
 }
 
 export class BaseDynamicControl<T> {
@@ -20,6 +21,7 @@ export class BaseDynamicControl<T> {
   hidden: boolean;
   order: number;
   controlType: string;
+  style: any;
 
   constructor(options: ControlOptions<T> = {}) {
     this.value = options.value;
@@ -31,6 +33,7 @@ export class BaseDynamicControl<T> {
     this.hidden = !!options.hidden;
     this.order = options.order === undefined ? 999 : options.order;
     this.controlType = options.controlType || '';
+    this.style = options.style || {};
   }
 }
 
@@ -46,28 +49,34 @@ export class TextboxDynamicControl extends BaseDynamicControl<string> {
 export class BooleanDynamicControl extends BaseDynamicControl<boolean> {
   controlType = 'checkbox';
   type = 'boolean';
+  style = { 'max-width': '50px', 'text-align' : 'center' };
 
   constructor(options: ControlOptions<boolean> = {}) {
     super(options);
     if (typeof this.value !== 'boolean') { this.value = false; }
+    if (options.style) { this.style = options.style };
   }
 }
 
 export class DateDynamicControl extends BaseDynamicControl<Date> {
   controlType = 'date';
   type = 'date';
+  style = { 'max-width' : '90px' };
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);
+    if (options.style) { this.style = options.style };
   }
 }
 
 export class DateTimeDynamicControl extends BaseDynamicControl<Date> {
   controlType = 'datetime';
   type = 'datetime';
+  style = { 'max-width' : '110px' };
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);
+    if (options.style) { this.style = options.style };
   }
 }
 
@@ -89,9 +98,11 @@ export class DropdownDynamicControl extends BaseDynamicControl<JettiComplexObjec
 export class NumberDynamicControl extends BaseDynamicControl<number> {
   controlType = 'number';
   type = 'number';
+  style = { 'max-width' : '110px' };
 
   constructor(options: ControlOptions<number> = {}) {
     super(options);
+    if (options.style) { this.style = options.style };
   }
 }
 

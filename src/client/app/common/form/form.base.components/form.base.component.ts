@@ -24,8 +24,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
 
   private _onPostSubscription: Subscription = Subscription.EMPTY;
 
-  constructor(
-    private route: ActivatedRoute, private api: ApiService, private location: Location) { }
+  constructor(private route: ActivatedRoute, private api: ApiService, private location: Location) { }
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;

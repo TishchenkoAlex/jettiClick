@@ -9,14 +9,7 @@ import { ApiService } from '../../services/api.service';
 import { DialogComponent } from './../../dialog/dialog.component';
 import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
 
-interface ColDef {
-  field: string;
-  type: string;
-  label: string;
-  hidden: boolean;
-  order: number;
-  style: string;
-};
+interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -139,8 +132,8 @@ export class ApiDataSource extends DataSource<any> {
       .distinctUntilChanged()
       .switchMap((stream) => {
         this.isLoadingResults = true;
-        // tslint:disable-next-line:max-line-length
-        const filter = this._filterChange.value ? `(d.description ILIKE '${this._filterChange.value}*' OR d.code ILIKE '${this._filterChange.value}*')` : '';
+        const filter = !this._filterChange.value ? '' :
+          `(d.description ILIKE '${this._filterChange.value}*' OR d.code ILIKE '${this._filterChange.value}*')`;
         return this.apiService.getDocList(this.docType,
           (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
           this._sort.active ? '"' + this._sort.active + '" ' + this._sort.direction : '', filter)

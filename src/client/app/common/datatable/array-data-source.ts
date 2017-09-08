@@ -70,7 +70,6 @@ export class MdTableDataSource<T> implements DataSource<T> {
       let pagedData = this._orderedDataChange.value.slice();
 
       if (this._paginator) {
-        console.log('Paging data');
         const startIndex = this._paginator.pageIndex * this._paginator.pageSize;
         pagedData = pagedData.splice(startIndex, this._paginator.pageSize);
       }
@@ -80,7 +79,6 @@ export class MdTableDataSource<T> implements DataSource<T> {
   }
 
   _sortData(data: T[], active: string, direction: SortDirection): T[] {
-    console.log('Sorting data');
     if (!active || direction === '') { return data; }
 
     return data.sort((a, b) => {

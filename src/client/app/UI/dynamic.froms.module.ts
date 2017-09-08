@@ -21,6 +21,7 @@ import { BaseFormComponent } from './../common/form/form.base.components/form.ba
 
 import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
+import { DialogComponent } from '../dialog/dialog.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { TablePartsComponent } from '../common/datatable/table-parts.component';
     DynamicFormControlComponent,
     BaseFormComponent,
     TablePartsComponent,
+    DialogComponent,
 
     CashRegisterForm, // add user froms above
   ],
@@ -50,6 +52,7 @@ import { TablePartsComponent } from '../common/datatable/table-parts.component';
     DynamicFormService,
   ],
   entryComponents: [
+    DialogComponent,
     HomeComponent,
     CommonDataTableComponent,
     BaseFormComponent,

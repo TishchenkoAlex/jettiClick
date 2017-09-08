@@ -18,18 +18,20 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/merge';
+import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/observable/empty';
+import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/skip';
 import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/startWith';
-import 'rxjs/add/observable/merge';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/share';
+import 'rxjs/add/operator/combineLatest';
 
 import { environment } from '../environments/environment';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
@@ -42,17 +44,13 @@ import { ApiService } from './services/api.service';
 import { AuthService } from './auth/auth.service';
 import { LoginComponent } from './auth/login-component/login-component';
 
-import { DialogComponent } from './dialog/dialog.component';
-
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
 import { TabResolver } from '../app/tab.resolver';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DialogComponent,
-    LoginComponent,
-
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -81,7 +79,6 @@ import { TabResolver } from '../app/tab.resolver';
     TabResolver,
   ],
   entryComponents: [
-    DialogComponent,
   ],
   bootstrap: [AppComponent]
 })

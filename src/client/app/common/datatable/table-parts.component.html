@@ -1,5 +1,5 @@
-<div class="mat-container" fxLayout="column">
   <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
+
     <ng-container cdkColumnDef="select">
       <md-header-cell *cdkHeaderCellDef>
           <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
@@ -9,59 +9,43 @@
           <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
           </md-checkbox>
       </md-cell>
+    </ng-container>
 
-  </ng-container>
     <ng-container *ngFor="let col of columns" [cdkColumnDef]="col.field">
-      <span [ngSwitch]="col.type">
+      <div [ngSwitch]="col.type" *ngIf="!col.hidden">
         <span *ngSwitchCase = "'textbox'">
-          <md-header-cell *cdkHeaderCellDef md-sort-header style="margin-left: 16px;">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" style="margin-left: 16px">
-              {{row[col.field]}}
-          </md-cell>
+          <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
         </span>
         <span *ngSwitchCase="'datetime'">
-          <md-header-cell *cdkHeaderCellDef md-sort-header  style="margin-left: 16px; max-width: 110px">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" style="margin-left: 16px; max-width: 110px">
-            {{row[col.field] | date:'dd.MM.yyyy mm:ss'}} 
-          </md-cell>
+          <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy mm:ss'}} </md-cell>
         </span>
         <span *ngSwitchCase="'date'">
-          <md-header-cell *cdkHeaderCellDef md-sort-header style="margin-left: 16px;  max-width: 80px">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" style="margin-left: 16px; max-width: 80px">
-            {{row[col.field] | date:'dd.MM.yyyy'}} 
-          </md-cell>
+          <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy'}} </md-cell>
         </span>
         <span *ngSwitchCase="'number'">
-          <md-header-cell *cdkHeaderCellDef md-sort-header style="margin-left: 16px; max-width: 90px">
-            {{ col.label }}
-          </md-header-cell>
-          <md-cell *cdkCellDef="let row" style="margin-left: 16px; font-weight: bold; max-width: 90px">
-            {{row[col.field] | number:'1.2-2' }}
-          </md-cell>
+          <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | number:'1.2-2' }}</md-cell>
         </span>
         <span *ngSwitchCase="'checkbox'">
-          <md-header-cell *cdkHeaderCellDef md-sort-header style="margin-left: 16px;max-width: 50px">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row"  style="margin-left: 16px; max-width: 50px;text-align: center">
+          <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">
             <md-checkbox [checked]="row[col.field]" disabled="true"></md-checkbox>
           </md-cell>
         </span>
         <span *ngSwitchCase="'autocomplete'">
-            <md-header-cell *cdkHeaderCellDef md-sort-header style="margin-left: 16px;">{{ col.label }}</md-header-cell>
-            <md-cell *cdkCellDef="let row" style="margin-left: 16px">
-              {{row[col.field].value}}
-            </md-cell>
+            <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
+            <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field].value}}</md-cell>
         </span>        
         <span *ngSwitchDefault>
-          <md-header-cell *cdkHeaderCellDef md-sort-header style="margin-left: 16px;">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" style="margin-left: 16px">
-            {{row[col.field]}}
-          </md-cell>
+          <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
         </span>
-      </span>
+      </div>
     </ng-container>
 
     <md-header-row *cdkHeaderRowDef="displayedColumns" style="font-weight: bold"></md-header-row>
-    <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
+    <md-row *cdkRowDef="let row; columns: displayedColumns; let i = index" (click)="openDialog(row)"></md-row>
   </md-table>
-  <md-paginator #paginator [length]="this.data.length" [pageIndex]="0" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
-</div>

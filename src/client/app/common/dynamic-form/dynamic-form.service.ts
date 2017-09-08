@@ -54,6 +54,7 @@ export class DynamicFormService {
             const dataType = prop['type'] || 'string';
             const required = prop['required'] || false;
             const readOnly = prop['readOnly'] || false;
+            const style = prop['style'] || false;
 
             if ((dataType === 'date') || (dataType === 'datetime')) {
               try { model[property] = new Date(model[property]); } catch (err) { model[property] = null; }
@@ -63,7 +64,7 @@ export class DynamicFormService {
             let newControl: BaseDynamicControl<any>;
             const controlOptions: ControlOptions<any> = {
               key: property,
-              label: label, type: dataType, required: required, readOnly: readOnly, order: order, hidden: hidden
+              label: label, type: dataType, required: required, readOnly: readOnly, order: order, hidden: hidden, style: style
             };
             switch (dataType) {
               case 'boolean':
@@ -92,17 +93,19 @@ export class DynamicFormService {
         };
 
         processRecursive(view, fields);
+        fields.sort((a, b) => a.order - b.order);
         const controlsByKey: any = {};
         fields.map(c => { controlsByKey[c.key] = c });
         const formGroup = this.fc.toFormGroup(fields);
-        fields.sort((a, b) => a.order - b.order);
         const tableParts = [];
-
+        // Create formArray's for table parts of document
         Object.keys(view).forEach(property => { // multiply "sample" row by count of model array rows
           const sample = view[property][0]; // sample row will be deleted in code below
           if ((view[property].constructor === Array)
             && (model[property] && model[property].constructor === Array)) {
-            tableParts.push({id: fields.findIndex(i => i.key === property), value: property});
+            const indexOfTable = fields.findIndex(i => i.key === property);
+            fields[indexOfTable].value.sort((a, b) => a.order - b.order);
+            tableParts.push({id: indexOfTable, value: property});
             const formArray = formGroup.controls[property] as FormArray;
             model[property].forEach(element => {
               const Row = {}; const arr: FormGroup[] = [];
