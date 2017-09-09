@@ -78,61 +78,24 @@ router.get('/:type/list', async (req, res, next) => {
   }
 });
 
-clearObjectValues = (obj) => {
-  for (let key in obj) {
-    if (obj[key] && typeof obj[key] === "object") {
-      clearObjectValues(obj[key]);
-    } else {
-      switch (typeof obj[key]) {
-        case "boolean":
-          obj[key] = false;
-          break
-        case "number":
-          obj[key] = 0;
-          break
-        default: if (key !== 'type') obj[key] = ''
-      }
-    }
-  }
-}
-
 router.get('/:type/view/*', async (req, res, next) => {
   try {
     const config_schema = await db.one(`
-          select uuid_generate_v1mc() id, now() date, "schemaFull", "queryObject"  
+          select "schemaFull", "queryObject", "queryNewObject"  
           from config_schema_helper where type = $1`, [req.params.type]);
     const view = config_schema.schemaFull;
     let model;
     if (req.params['0']) {
       model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [req.params['0']]);
     } else {
-      model = await db.many(`
-        ${config_schema.queryObject} LIMIT 1;
-        SELECT 
-          (select max(code) from "Documents" where type = $1) as "nextCode",
-          (select description from config_schema where type = $1) as "nextDescription"
-      `, [req.params.type]);
-      const code = ((parseInt(model[1].nextCode, 36) + 1).toString(36));
-      const description = `${model[1].nextDescription} #${code}`;
-      model = model[0];
-      clearObjectValues(model);
-      model.id = config_schema.id;
-      model.date = config_schema.date;
-      model.type = req.params.type;
-      model.posted = false;
-      model.deleted = false;
-      model.isfolder = false;
-      model.code = code;
-      model.description = description;
-      delete model.nextCode;
-      delete model.nextDescription;
+      model = await db.one(`${config_schema.queryNewObject}`);
       const result = { view: view, model: model };
       res.json(result);
       return;
     }
-    const newModel = { ...model, ...model['doc'] };
-    delete newModel['doc'];
-    const result = { view: view, model: newModel };
+    model = { ...model, ...model['doc'] };
+    delete model['doc'];
+    const result = { view: view, model: model };
     res.json(result);
   } catch (err) {
     next(err.message);

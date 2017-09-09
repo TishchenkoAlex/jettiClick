@@ -13,7 +13,7 @@ export class ApiService {
   getDocList(type: string, skip = 0, top = 50, order = '', filter = ''): Observable<Object> {
     // tslint:disable-next-line:max-line-length
     const query = `${this.url}${type}/list?$top=${top}&$skip=${skip}&$filter=${filter}&$order=${order}`;
-    console.log(query);
+    console.log('LIS API', query);
     return (this.http.get(query))
       .catch(err => {
         return Observable.of(null);
@@ -22,7 +22,7 @@ export class ApiService {
 
   getView(type: string): Observable<any[]> {
     const query = `${this.url}${type}/view/`;
-    console.log(query);
+    console.log('VIEW API', query);
     return (this.http.get(query) as Observable<any[]>)
       .map(data => data['view'])
       .catch(err => {
@@ -33,7 +33,7 @@ export class ApiService {
   getViewModel(type: string, id = ''): Observable<Object> {
     if (id === 'new') { id = ''; }
     const query = `${this.url}${type}/view/${id}`;
-    console.log(query);
+    console.log('VIEWMODEL API', query);
     return (this.http.get(query))
       .catch(err => {
         return Observable.of(null);
@@ -42,6 +42,7 @@ export class ApiService {
 
   getSuggests(docType: string, filter = ''): Observable<any[]> {
     const query = `${this.url}suggest/${docType}/${filter}`;
+    console.log('SUGGEST API', query);
     return (this.http.get(query) as Observable<any[]>)
       .catch(err => {
         return Observable.of<any[]>([]);
@@ -50,6 +51,7 @@ export class ApiService {
 
   postDoc(doc): Observable<Object> {
     const query = `${this.url}`;
+    console.log('POST API', query, doc);
     return (this.http.post(query, doc))
       .catch(err => {
         return Observable.of<Object>();
@@ -58,6 +60,7 @@ export class ApiService {
 
   deleteDoc(id: string): Observable<Object> {
     const query = `${this.url}${id}`;
+    console.log('DELETE', query, id);
     return (this.http.delete(query))
       .catch(err => {
         return Observable.of<Object>();

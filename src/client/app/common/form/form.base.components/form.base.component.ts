@@ -59,33 +59,32 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
 
     const mapDoc = (s, d) => {
       for (const property in s) {
-        if (exclude.indexOf(property) > -1) { continue; }
-        if (s[property] && typeof s[property] === 'object') {
-          if (s[property].constructor === Array) {
+        if (s.hasOwnProperty(property)) {
+          if (exclude.indexOf(property) > -1) { continue; }
+          if (s[property] instanceof Array) {
             const copy = JSON.parse(JSON.stringify(s[property])) as any[];
             copy.forEach(element => {
               for (const p in element) {
-                if (element[p] && typeof element[p] === 'object') { element[p] = element[p].id; }
-              };
+                if (element.hasOwnProperty(p)) {
+                  element[p] = element[p] ? element[p]['id'] || element[p] : element[p] || null;
+                }
+              }
             });
             d.doc[property] = copy;
-          } else {
-            d.doc[property] = s[property]['id'] || null;
+            return;
           }
-        } else {
-          d.doc[property] = s[property];
+          d.doc[property] = s[property] ? s[property]['id'] || s[property] : s[property] || null;
         }
       }
     }
     mapDoc(formDoc, newDoc);
     if (!newDoc.date) { newDoc.date = new Date(); }
-    console.log('RESULT', newDoc);
-    /*     this._onPostSubscription = this.api.postDoc(newDoc)
-          .first()
-          .subscribe((posted: DocModel) => {
-            this.viewModel.model = posted;
-            this.viewModel.formGroup.patchValue(posted);
-          }); */
+    this._onPostSubscription = this.api.postDoc(newDoc)
+      .take(1)
+      .subscribe((posted: DocModel) => {
+        this.viewModel.model = posted;
+        this.viewModel.formGroup.patchValue(posted);
+      });
   }
 
 }

@@ -8,23 +8,26 @@
   max-width: 32px;
 }
 
+.mat-header-cell {
+  display: flex;
+}
+
+.mat-cell-date {
+  display: flex;
+  justify-content: center;
+}
 
 .mat-column-date {
   min-width: 130px;
   max-width: 130px;
+  justify-content: center;
 }
 
 .mat-column-code {
-  min-width: 100px;
-  max-width: 100px;
+  min-width: 130px;
+  max-width: 130px;
+  justify-content: center;  
 }
-
-
-.mat-column-description {
-  min-width: 120px;
-  max-width: 250px;
-}
-
 
 .mat-input-container {
   font-size: 14px;
