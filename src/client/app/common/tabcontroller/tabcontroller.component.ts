@@ -13,7 +13,7 @@ import { DocService } from './../../common/doc.service';
 export class TabControllerComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private router: Router,
-    private tc: TabControllerService, private ds: DocService) {
+    public tc: TabControllerService, private ds: DocService) {
   }
 
   ngOnInit() {
