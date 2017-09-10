@@ -146,8 +146,7 @@ router.post('/', async (req, res, next) => {
       const data = await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]);
       if (data === null) {
         doc = await tx.one(`
-      INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1);
-      SELECT * FROM "Documents" WHERE id = $2`, [doc, id]);
+      INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1) RETURNING *;`, [doc]);
       } else {
         doc = await tx.one(`
         UPDATE "Documents" d  
@@ -162,11 +161,11 @@ router.post('/', async (req, res, next) => {
             isfolder = i.isfolder,
             doc = i.doc
           FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
-          WHERE d.Id = i.Id;
-          SELECT * FROM "Documents" WHERE id = $2`, [doc, id]);
+          WHERE d.Id = i.Id
+          RETURNING *;`, [doc]);
       }
       if (scripts && scripts['after-post']) await ExecuteScript(doc, scripts['after-post'], tx);
-      await doSubscriptions(doc, 'after update', tx);
+      await doSubscriptions(Object.assign({}, doc), 'after update', tx);
       res.json(doc);
     });
   } catch (err) {
@@ -180,7 +179,7 @@ async function doSubscriptions(doc, script, db) {
   const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
   for (let i = 0; i < scripts.length; i++) {
     const func = new AsyncFunction('doc, db', scripts[i].then);
-    const result = await func(doc, db);
+    await func(doc, db);
   };
 }
 
@@ -197,8 +196,7 @@ router.get('/raw/:id', async (req, res, next) => {
 // Get document by id
 async function DocById(id, db) {
   const query = `select * from "Documents" WHERE id = $1`;
-  const result = await db.oneOrNone(query, [id]);
-  return result;
+  return await db.oneOrNone(query, [id]);
 }
 
 module.exports = router;

@@ -1,16 +1,16 @@
-<md-tab-group #tg [(selectedIndex)]="tc.index" (selectChange)="tc.onChange($event)" dynamicHeight="true">
+<md-tab-group #tg [(selectedIndex)]="tc.index" (selectChange)="onChange($event)" dynamicHeight="true">
     <md-tab *ngFor="let tab of tc.tabs">
         <ng-template md-tab-label>
             <div style="display: flex; flex-direction: column; align-items: center; width:100%">
                 <md-icon md-tab-icon color="primary">{{ tab.icon }}</md-icon>
                 <span>{{ tab.description || tab.header }}</span>
             </div>
-            <md-icon color="primary" style="font-size: 10pt; width: 0px;height: 100%" *ngIf="tab?.docType !== tc.HOME" md-tab-icon (click)="tc.handleClose(tab)">close
+            <md-icon color="primary" style="font-size: 10pt; width: 0px;height: 100%" *ngIf="tab?.docType !== tc.HOME" md-tab-icon (click)="handleClose(tab)">close
             </md-icon>
         </ng-template>
         <dynamic-component [component]="tc.component"></dynamic-component>
     </md-tab>
 </md-tab-group>
-<button md-mini-fab *ngIf="tc.index !== 0 && !tc.tabs[tc.index].docID" (click)="tc.handleClose()" class="fab-bottom-right">
+<button md-mini-fab *ngIf="tc.index !== 0 && !tc.tabs[tc.index].docID" (click)="handleClose()" class="fab-bottom-right">
     <md-icon mdTooltip="close tab" [mdTooltipShowDelay]="1000">close</md-icon>
 </button>

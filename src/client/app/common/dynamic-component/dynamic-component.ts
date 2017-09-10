@@ -1,7 +1,6 @@
 import { Component, Input, AfterViewInit, ViewChild, ComponentFactoryResolver } from '@angular/core';
 import { Directive, ViewContainerRef } from '@angular/core';
 import { Type } from '@angular/core';
-import { TabControllerService } from '../../common/tabcontroller/tabcontroller.service';
 
 export interface DocumentComponent {
   data: any;

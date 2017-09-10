@@ -1,14 +1,13 @@
 import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ViewModel } from '../../dynamic-form/dynamic-form.service';
 import { ApiService } from '../../../services/api.service';
 import { DocModel } from '../../../common/_doc.model';
 import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
-import { TabControllerService } from '../../../common/tabcontroller/tabcontroller.service';
 import { TableDynamicControl } from '../../../common/dynamic-form/dynamic-form-base';
+import { DocService } from '../../../common/doc.service';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -24,7 +23,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
 
   private _onPostSubscription: Subscription = Subscription.EMPTY;
 
-  constructor(private route: ActivatedRoute, private api: ApiService, private location: Location) { }
+  constructor(private route: ActivatedRoute, private api: ApiService, private ds: DocService) { }
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
@@ -32,11 +31,12 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
 
   Save() {
     this.onSubmit();
+    this.ds.closeDoc(this.viewModel.model);
   }
 
   Cancel() {
     console.log('BASE CANCEL');
-    this.location.back();
+    this.ds.closeDoc(this.viewModel.model);
   }
 
   onSubmit() {

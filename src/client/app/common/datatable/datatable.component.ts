@@ -52,9 +52,10 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
       const prop = view[property];
       const order = prop['order'] * 1 || 99;
       const hidden = prop['hidden'] === 'true';
-      const label = prop['label'] || property.toString();
+      const label = (prop['label'] || property.toString()).toLowerCase();
       const dataType = prop['type'] || 'string';
-      this.columns.push({ field: property, type: dataType, label: label, hidden: hidden, order: order, style: null });
+      const style = prop['style'] || '';
+      this.columns.push({ field: property, type: dataType, label: label, hidden: hidden, order: order, style: style });
     });
     this.columns.sort((a, b) => a.order - b.order);
     this.displayedColumns = this.columns.map((c) => c.field);

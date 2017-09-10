@@ -22,6 +22,7 @@ import { BaseFormComponent } from './../common/form/form.base.components/form.ba
 import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
 import { DialogComponent } from '../dialog/dialog.component';
+import { DocService } from './../common/doc.service';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { DialogComponent } from '../dialog/dialog.component';
     TabControllerService,
     DynamicFormControlService,
     DynamicFormService,
+    DocService,
   ],
   entryComponents: [
     DialogComponent,
