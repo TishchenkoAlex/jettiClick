@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events';
-import { Component, Input, AfterViewInit, Output } from '@angular/core';
-import { FormGroup, FormControl, FormArray } from '@angular/forms';
+import { AfterViewInit, Component, Input } from '@angular/core';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
+
 import { BaseDynamicControl } from './dynamic-form-base';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;

@@ -1,11 +1,19 @@
-import { DocModel } from '../_doc.model';
-import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validator, ValidationErrors } from '@angular/forms';
+import { Component, ElementRef, forwardRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+    AbstractControl,
+    ControlValueAccessor,
+    NG_VALIDATORS,
+    NG_VALUE_ACCESSOR,
+    ValidationErrors,
+    Validator,
+} from '@angular/forms';
+import { MdAutocomplete, MdDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { ApiService } from '../../services/api.service';
-import { MdAutocompleteSelectedEvent, MdDialog, MdAutocomplete } from '@angular/material';
+
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
+import { ApiService } from '../../services/api.service';
+import { DocModel } from '../_doc.model';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
 @Component({

@@ -1,6 +1,7 @@
-import { DocModel } from './_doc.model';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
+
+import { DocModel } from './_doc.model';
 
 @Injectable()
 export class DocService {

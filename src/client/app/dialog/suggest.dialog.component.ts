@@ -1,10 +1,10 @@
-import { Component, Inject, Input, ElementRef, ViewChild, OnInit } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { MD_DIALOG_DATA, SelectionModel, MdPaginator, MdSort } from '@angular/material';
 import { DataSource } from '@angular/cdk/table';
+import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { MD_DIALOG_DATA, MdPaginator, MdSort, SelectionModel } from '@angular/material';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+
 import { ApiService } from '../services/api.service';
-import { ViewModel } from '../common/dynamic-form/dynamic-form.service';
 
 @Component({
   templateUrl: './suggest.dialog.component.html',

@@ -1,15 +1,14 @@
 import { ViewChild } from '@angular/core';
 import { AfterViewInit, Component, Input, OnInit, TemplateRef } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { MdTabGroup } from '@angular/material';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
-import { ViewModel } from '../../dynamic-form/dynamic-form.service';
-import { ApiService } from '../../../services/api.service';
 import { DocModel } from '../../../common/_doc.model';
-import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
-import { TableDynamicControl } from '../../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../../../common/doc.service';
-import { MdTabGroup } from '@angular/material';
+import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
+import { ApiService } from '../../../services/api.service';
+import { ViewModel } from '../../dynamic-form/dynamic-form.service';
 
 @Component({
   // tslint:disable-next-line:component-selector

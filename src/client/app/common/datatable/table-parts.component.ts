@@ -1,9 +1,9 @@
-import { Component, ViewChild, OnInit, Input, AfterViewInit } from '@angular/core';
-import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material';
-import { DataSource } from '@angular/cdk/table';
-import { BaseDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
-import { MdTableDataSource } from '../../common/datatable/array-data-source';
+import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
+import { MdDialog, MdSort, SelectionModel } from '@angular/material';
+
+import { MdTableDataSource } from '../../common/datatable/array-data-source';
+import { BaseDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };

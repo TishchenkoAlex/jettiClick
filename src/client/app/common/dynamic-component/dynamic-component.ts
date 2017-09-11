@@ -1,4 +1,4 @@
-import { Component, Input, AfterViewInit, ViewChild, ComponentFactoryResolver } from '@angular/core';
+import { AfterViewInit, Component, ComponentFactoryResolver, Input, ViewChild } from '@angular/core';
 import { Directive, ViewContainerRef } from '@angular/core';
 import { Type } from '@angular/core';
 

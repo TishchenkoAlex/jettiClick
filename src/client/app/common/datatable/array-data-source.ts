@@ -1,9 +1,9 @@
-import { MdSort, MdPaginator, Sort, PageEvent, SortDirection } from '@angular/material';
 import { DataSource } from '@angular/cdk/table';
+import { MdPaginator, MdSort, PageEvent, Sort, SortDirection } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { merge } from 'rxjs/observable/merge';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
-import { merge } from 'rxjs/observable/merge';
 
 export class MdTableDataSource<T> implements DataSource<T> {
   private _renderDataChange = new BehaviorSubject<T[]>([]);

@@ -1,10 +1,7 @@
-import { CashRegisterForm } from './UI/Catalog/CashRegister/CashRegister.form';
-import { LoginComponent } from './auth/login-component/login-component';
-import { HomeComponent } from './home/home.component';
-import { RouterModule, Routes } from '@angular/router';
-import { AppComponent } from './app.component';
-import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
+import { Routes } from '@angular/router';
+
 import { TabResolver } from '../app/tab.resolver';
+import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
 
 export const appRoutes: Routes = [
     // { path: 'login', component: LoginComponent },

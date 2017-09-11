@@ -1,9 +1,10 @@
+import { Injectable } from '@angular/core';
+import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+
+import { DynamicFormService, ViewModel } from './common/dynamic-form/dynamic-form.service';
 import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
-import { Injectable } from '@angular/core';
-import { DynamicFormService, ViewModel } from './common/dynamic-form/dynamic-form.service';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class TabResolver implements Resolve<any> {

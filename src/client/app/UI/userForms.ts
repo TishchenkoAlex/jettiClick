@@ -1,6 +1,6 @@
 import { CommonDataTableComponent } from '../common/datatable/datatable.component';
-import { CashRegisterForm } from './Catalog/CashRegister/CashRegister.form';
 import { BaseFormComponent } from '../common/form/form.base.components/form.base.component';
+import { CashRegisterForm } from './Catalog/CashRegister/CashRegister.form';
 
 const userForms = [
     { type: 'Catalog.Products', objectComponent: CashRegisterForm, listComponent: CommonDataTableComponent }

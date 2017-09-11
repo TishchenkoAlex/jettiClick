@@ -1,6 +1,7 @@
 import { Component, Inject } from '@angular/core';
-import { MD_DIALOG_DATA } from '@angular/material';
 import { FormGroup } from '@angular/forms';
+import { MD_DIALOG_DATA } from '@angular/material';
+
 import { BaseDynamicControl } from '../common/dynamic-form/dynamic-form-base';
 
 @Component({

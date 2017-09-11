@@ -1,15 +1,20 @@
-import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
-import { DynamicFormControlService } from './dynamic-form-control.service';
 import { Injectable } from '@angular/core';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
 import { DocModel } from '../_doc.model';
-
 import {
-  BaseDynamicControl, BooleanDynamicControl, DateDynamicControl,
-  NumberDynamicControl, DropdownDynamicControl, TextboxDynamicControl, ControlOptions, TableDynamicControl
+    BaseDynamicControl,
+    BooleanDynamicControl,
+    ControlOptions,
+    DateDynamicControl,
+    DropdownDynamicControl,
+    NumberDynamicControl,
+    TableDynamicControl,
+    TextboxDynamicControl,
 } from './dynamic-form-base';
+import { DynamicFormControlService } from './dynamic-form-control.service';
 
 export interface ViewModel {
   view: BaseDynamicControl<any>[];

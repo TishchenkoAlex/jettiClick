@@ -1,53 +1,45 @@
 import 'hammerjs';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Injector, LOCALE_ID, NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouteReuseStrategy, RouterModule, Routes } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
-import { LocationStrategy } from '@angular/common';
-import { HashLocationStrategy } from '@angular/common';
-
-import { MaterialModule } from './material.module';
-
-import { AngularFireModule } from 'angularfire2';
-import { AngularFireDatabaseModule } from 'angularfire2/database';
-import { AngularFireAuthModule } from 'angularfire2/auth';
-
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/merge';
-import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/empty';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/skip';
-import 'rxjs/add/operator/take';
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/operator/first';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/share';
+import 'rxjs/add/observable/fromEvent';
+import 'rxjs/add/observable/merge';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/combineLatest';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/first';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/share';
+import 'rxjs/add/operator/skip';
+import 'rxjs/add/operator/startWith';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/toPromise';
 
+import { HttpClientModule } from '@angular/common/http';
+import { LOCALE_ID, NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DateAdapter } from '@angular/material';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouteReuseStrategy, RouterModule } from '@angular/router';
+import { AngularFireModule } from 'angularfire2';
+import { AngularFireAuthModule } from 'angularfire2/auth';
+import { AngularFireDatabaseModule } from 'angularfire2/database';
+
+import { TabResolver } from '../app/tab.resolver';
 import { environment } from '../environments/environment';
-import { AppRouteReuseStrategy } from './route-reuse.strategy';
-import { appRoutes } from './app.routes';
-
 import { AppComponent } from './app.component';
-
-import { ApiService } from './services/api.service';
-
+import { appRoutes } from './app.routes';
 import { AuthService } from './auth/auth.service';
 import { LoginComponent } from './auth/login-component/login-component';
-
-import { DynamicFormsModule } from './UI/dynamic.froms.module';
-import { TabResolver } from '../app/tab.resolver';
-import { DateAdapter } from '@angular/material';
 import { CustomDateAdapter } from './custom-date-adapter';
+import { MaterialModule } from './material.module';
+import { AppRouteReuseStrategy } from './route-reuse.strategy';
+import { ApiService } from './services/api.service';
+import { DynamicFormsModule } from './UI/dynamic.froms.module';
 
 @NgModule({
   declarations: [
