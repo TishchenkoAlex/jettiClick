@@ -4,7 +4,7 @@ import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { ApiService } from '../../services/api.service';
-import { MdAutocompleteSelectedEvent, MdDialog } from '@angular/material';
+import { MdAutocompleteSelectedEvent, MdDialog, MdAutocomplete } from '@angular/material';
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
@@ -53,6 +53,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   }
   get value() { return this._value; }
   @ViewChild('control') control: ElementRef;
+  @ViewChild('auto') auto: MdAutocomplete;
 
   suggests$: Observable<any[]>;
   showSearchSpinner = false;
@@ -91,8 +92,11 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
       .debounceTime(400)
       .map((event) => this.control.nativeElement.value)
       .distinctUntilChanged()
+      .filter(text => text !== this.value.value)
       .do(() => { this.showSearchSpinner = true; })
-      .switchMap(text => this.getSuggests(this.value.type, text))
+      .switchMap(text => {
+        return this.getSuggests(this.value.type, text)
+      })
       .catch(err => { this.showSearchSpinner = false; return Observable.of<any[]>([]) })
       .do(() => { this.showSearchSpinner = false; });
   }
@@ -101,6 +105,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
     if (this.control.nativeElement.value !== this.value.value) {
       this.value = Object.assign({}, this._value);
     }
+    this.auto.options.reset([]);
   }
 
   displayFn(value: any): string {

@@ -106,7 +106,6 @@ export class DynamicFormService {
             && (model[property] && model[property].constructor === Array)) {
             const indexOfTable = fields.findIndex(i => i.key === property);
             fields[indexOfTable].value.sort((a, b) => a.order - b.order);
-            tableParts.push({id: indexOfTable, value: property});
             const formArray = formGroup.controls[property] as FormArray;
             model[property].forEach(element => {
               const Row = {}; const arr: FormGroup[] = [];
@@ -118,7 +117,7 @@ export class DynamicFormService {
               });
               formArray.push(new FormGroup(Row));
             });
-
+            tableParts.push({id: indexOfTable, value: property, sampleRow: formArray.controls[0]});
             if (docID === 'new') { formArray.controls = [];
             } else { formArray.removeAt(0); } // delete sample row
           }

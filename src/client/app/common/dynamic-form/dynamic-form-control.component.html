@@ -33,7 +33,7 @@
 
   <div *ngSwitchCase="'table'">
     <div [formArrayName]="control.key">
-        <j-table-part [view]= "control.value" [formGroup]="form.controls[control.key]"></j-table-part>
+        <j-table-part [view]= "control.value" [formGroup]="form.controls[control.key]" [tab]="tab"></j-table-part>
     </div>
   </div>
 </div>

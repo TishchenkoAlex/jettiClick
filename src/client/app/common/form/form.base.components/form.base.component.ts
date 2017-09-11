@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, TemplateRef } from '@angular/core';
+import { ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -8,17 +9,20 @@ import { DocModel } from '../../../common/_doc.model';
 import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
 import { TableDynamicControl } from '../../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../../../common/doc.service';
+import { MdTabGroup } from '@angular/material';
 
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'j-form',
   templateUrl: './form.base.component.html',
 })
-export class BaseFormComponent implements DocumentComponent, OnInit {
+export class BaseFormComponent implements DocumentComponent, OnInit, AfterViewInit {
 
   @Input() data;
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
+  @ViewChild('tg') tg: MdTabGroup;
+
   viewModel: ViewModel;
 
   private _onPostSubscription: Subscription = Subscription.EMPTY;
@@ -27,6 +31,10 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
+  }
+
+  ngAfterViewInit() {
+
   }
 
   Save() {
@@ -71,7 +79,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
               }
             });
             d.doc[property] = copy;
-            return;
+            continue;
           }
           d.doc[property] = s[property] ? s[property]['id'] || s[property] : s[property] || null;
         }
@@ -83,6 +91,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit {
       .take(1)
       .subscribe((posted: DocModel) => {
         this.viewModel.model = posted;
+        console.log(newDoc, posted);
         this.viewModel.formGroup.patchValue(posted);
       });
   }

@@ -3,7 +3,7 @@ import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material
 import { DataSource } from '@angular/cdk/table';
 import { BaseDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
 import { MdTableDataSource } from '../../common/datatable/array-data-source';
-import { FormGroup } from '@angular/forms';
+import { FormArray, FormGroup } from '@angular/forms';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };
@@ -31,7 +31,8 @@ const properties = ['id', 'name', 'progress', 'color'];
 export class TablePartsComponent implements OnInit, AfterViewInit {
   @Input() pageSize = 5;
   @Input() view: BaseDynamicControl<any>[];
-  @Input() formGroup: FormGroup;
+  @Input() formGroup: FormArray;
+  @Input() tab: any;
 
   @ViewChild(MdSort) sort: MdSort;
 
@@ -81,10 +82,46 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   Add() {
+    const sampleRow: FormGroup = (this.tab.sampleRow as FormGroup);
+    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: sampleRow } })
+      .afterClosed()
+      .subscribe(data => {
+        if (data) {
+          this.formGroup.push(sampleRow);
+          this.dataSource.data.push(data);
+          this.dataSource.data = this.dataSource.data;
+        }
+      });
+  }
 
+  Delete() {
+      this.selection.selected.forEach(element => {
+          const index = this.formGroup.value.findIndex(el => JSON.stringify(el) === JSON.stringify(element));
+          this.formGroup.removeAt(index);
+          this.dataSource.data = this.formGroup.value;
+        }
+      );
+      this.selection.clear();
+  }
+
+  Copy() {
+    const index = this.formGroup.value.findIndex(el => JSON.stringify(el) === JSON.stringify(this.selection.selected[0]));
+    const sampleRow: FormGroup = this.formGroup.at(index) as FormGroup;
+    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: sampleRow } })
+      .afterClosed()
+      .subscribe(data => {
+        if (data) {
+          this.formGroup.push(sampleRow);
+          this.dataSource.data.push(data);
+          this.dataSource.data = this.dataSource.data;
+          this.selection.clear();
+        }
+      });
   }
 
   Up() {
+  }
 
+  Down() {
   }
 }

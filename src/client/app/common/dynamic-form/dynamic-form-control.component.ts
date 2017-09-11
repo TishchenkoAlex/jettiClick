@@ -14,6 +14,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA
 export class DynamicFormControlComponent implements AfterViewInit {
   @Input() control: BaseDynamicControl<any>;
   @Input() form: FormGroup;
+  @Input() tab: any;
 
   get isValid() { return this.form.controls[this.control.key].valid; }
 
