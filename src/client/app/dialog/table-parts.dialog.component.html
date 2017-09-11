@@ -10,10 +10,6 @@
   </form>
 </md-card-content>
 <div fxLayoutAlign="center center" fxLayoutGap="25px">
-  <ng-container *ngTemplateOutlet="actionTepmlateDefault; context: {viewModel: formGroup}"></ng-container>
+    <button md-raised-button color="warn" [disabled]="!formGroup.valid" [md-dialog-close]="formGroup.value">Save</button>
+    <button md-raised-button type="button" [md-dialog-close]>Cancel</button>
 </div>
-
-<ng-template #actionTepmlateDefault let-v="viewModel">
-  <button md-raised-button color="warn" (click)="dialogRef.close(formGroup.value)">Save</button>
-  <button md-raised-button type="button" (click)="dialogRef.close()">Cancel</button>
-</ng-template>

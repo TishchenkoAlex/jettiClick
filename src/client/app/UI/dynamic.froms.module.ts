@@ -21,8 +21,9 @@ import { BaseFormComponent } from './../common/form/form.base.components/form.ba
 
 import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
-import { DialogComponent } from '../dialog/dialog.component';
 import { DocService } from './../common/doc.service';
+import { SuggestDialogComponent } from './../dialog/suggest.dialog.component';
+import { TablePartsDialogComponent } from './../dialog/table-parts.dialog.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { DocService } from './../common/doc.service';
     DynamicFormControlComponent,
     BaseFormComponent,
     TablePartsComponent,
-    DialogComponent,
+    TablePartsDialogComponent,
+    SuggestDialogComponent,
 
     CashRegisterForm, // add user froms above
   ],
@@ -54,7 +56,8 @@ import { DocService } from './../common/doc.service';
     DocService,
   ],
   entryComponents: [
-    DialogComponent,
+    TablePartsDialogComponent,
+    SuggestDialogComponent,
     HomeComponent,
     CommonDataTableComponent,
     BaseFormComponent,

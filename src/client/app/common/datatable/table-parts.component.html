@@ -1,4 +1,17 @@
-  <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
+<div class="mat-container" fxLayout="column"> 
+  <div class="search-header" fxLayout="row">
+    <div fxLayout="row" fxLayoutGap="10px">
+      <button md-mini-fab color="primary" (click)="Add()" mdTooltip="create new" [mdTooltipShowDelay]="1000"><md-icon>add</md-icon></button>
+      <button md-mini-fab color="default" (click)="Up()" mdTooltip="refresh" [mdTooltipShowDelay]="1000"><md-icon>refresh</md-icon></button>
+      <button *ngIf="selection.selected.length===1" md-mini-fab color="default"><md-icon>content_copy</md-icon></button>
+      <button *ngIf="selection.selected.length" md-mini-fab color="accent"><md-icon>remove</md-icon></button>
+    </div>
+    <md-input-container fxFlex=30>
+      <input mdInput #filter placeholder="Filter">
+    </md-input-container>
+  </div>
+
+ <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
 
     <ng-container cdkColumnDef="select">
       <md-header-cell *cdkHeaderCellDef>
@@ -49,3 +62,5 @@
     <md-header-row *cdkHeaderRowDef="displayedColumns" style="font-weight: bold"></md-header-row>
     <md-row *cdkRowDef="let row; columns: displayedColumns; let i = index" (click)="openDialog(row)"></md-row>
   </md-table>
+
+</div>

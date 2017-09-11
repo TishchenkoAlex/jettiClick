@@ -41,8 +41,7 @@
     <ng-container cdkColumnDef="code">
       <md-header-cell *cdkHeaderCellDef md-sort-header>code</md-header-cell>
       <md-cell *cdkCellDef="let row">
-        <a md-button color="primary" style="min-width: 130px; padding-left: 0px; padding-right: 0px;"
-          (click)="$event.stopPropagation();openDoc(row);false"> {{row.code}}</a>
+        <a md-button color="primary" style="min-width: 130px; padding-left: 0px; padding-right: 0px;" (click)="$event.stopPropagation();openDoc(row);false"> {{row.code}}</a>
       </md-cell>
     </ng-container>
 
@@ -78,8 +77,7 @@
           style="margin-left: 16px; text-align: right; max-width: 90px; min-width: 90px;  justify-content: flex-end">
           <span> {{ col.label }} </span>
       </md-header-cell>
-      <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style"
-        style="margin-left: 16px; font-weight: bold; text-align: right; max-width: 90px;  min-width: 90px; ">
+      <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px; font-weight: bold; text-align: right; max-width: 90px;  min-width: 90px; ">
         {{row[col.field] | number:'1.2-2' }}
       </md-cell>
       </span>

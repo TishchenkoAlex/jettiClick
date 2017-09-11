@@ -1,35 +1,29 @@
-import { Component, ElementRef, ViewChild, OnInit, Input, NgModule } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, Inject, Input, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { MdPaginator, MdSort, SelectionModel } from '@angular/material';
+import { MD_DIALOG_DATA, SelectionModel, MdPaginator, MdSort } from '@angular/material';
 import { DataSource } from '@angular/cdk/table';
-import { ApiService } from '../../services/api.service';
-import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
-
-interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
+import { ApiService } from '../services/api.service';
+import { ViewModel } from '../common/dynamic-form/dynamic-form.service';
 
 @Component({
-  // tslint:disable-next-line:component-selector
-  selector: 'common-datatable',
-  styleUrls: ['./datatable.component.scss'],
-  templateUrl: './datatable.component.html',
+  templateUrl: './suggest.dialog.component.html',
+  styleUrls: ['./suggest.dialog.component.scss']
 })
-export class CommonDataTableComponent implements DocumentComponent, OnInit {
+export class SuggestDialogComponent implements OnInit {
 
-  displayedColumns = [];
-  selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
+  selection = new SelectionModel<string>(true, []);
 
-  @Input() data;
   totalRecords = 0;
-  columns: ColDef[] = [];
+  columns = ['select', 'posted', 'code', 'description'];
 
   @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild('filter') filter: ElementRef;
 
-  constructor(private route: ActivatedRoute, private apiService: ApiService, private router: Router) { };
+  constructor(@Inject(MD_DIALOG_DATA) public data: any,
+    private apiService: ApiService) { }
 
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.data.pageSize, this.paginator, this.sort);
@@ -41,27 +35,6 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
         if (!this.dataSource) { return; }
         this.dataSource.filter = this.filter.nativeElement.value;
       });
-
-    const view = (this.route.data['value'].detail);
-    Object.keys(view).map((property) => {
-      // tslint:disable-next-line:curly
-      if (['id', 'date', 'code', 'description', 'type', 'posted', 'deleted', 'isfolder', 'parent'].indexOf(property) > -1
-        || (view[property].constructor === Array)) return;
-      const prop = view[property];
-      const order = prop['order'] * 1 || 99;
-      const hidden = prop['hidden'] === 'true';
-      const label = (prop['label'] || property.toString()).toLowerCase();
-      const dataType = prop['type'] || 'string';
-      const style = prop['style'] || '';
-      this.columns.push({ field: property, type: dataType, label: label, hidden: hidden, order: order, style: style });
-    });
-    this.columns.sort((a, b) => a.order - b.order);
-    this.displayedColumns = this.columns.map((c) => c.field);
-    if (this.data.docType.startsWith('Document')) {
-      this.displayedColumns.unshift('select', 'posted', 'date', 'code', 'description');
-    } else {
-      this.displayedColumns.unshift('select', 'posted', 'code', 'description');
-    }
   }
 
   isAllSelected(): boolean {
@@ -79,17 +52,6 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
     }
   }
 
-  Refresh() {
-    this.dataSource.Refresh();
-  }
-
-  addDoc() {
-    this.router.navigate([this.data.docType, 'new'])
-  }
-
-  openDoc(row) {
-    this.router.navigate([this.data.docType, row.id])
-  }
 }
 
 export class ApiDataSource extends DataSource<any> {
@@ -149,3 +111,4 @@ export class ApiDataSource extends DataSource<any> {
     this._doRefresh.next(Math.random().toString());
   }
 }
+

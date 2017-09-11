@@ -3,8 +3,8 @@ import { MdPaginator, MdSort, SelectionModel, MdDialog } from '@angular/material
 import { DataSource } from '@angular/cdk/table';
 import { BaseDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
 import { MdTableDataSource } from '../../common/datatable/array-data-source';
-import { DialogComponent } from '../../dialog/dialog.component';
 import { FormGroup } from '@angular/forms';
+import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };
 const properties = ['id', 'name', 'progress', 'color'];
@@ -20,6 +20,10 @@ const properties = ['id', 'name', 'progress', 'color'];
     .mat-table {
       max-height: 240px;
       overflow: auto;
+    }
+    .search-header {
+      min-height: 46px;
+      margin-top: 10px;
     }`
   ],
   templateUrl: './table-parts.component.html',
@@ -36,7 +40,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   displayedColumns: any[] = [];
   columns: ColDef[] = [];
 
-  constructor(private dialog: MdDialog) {
+  constructor(public dialog: MdDialog) {
   }
 
   ngOnInit() {
@@ -68,10 +72,19 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   openDialog(row) {
     const index = this.formGroup.value.findIndex(el => JSON.stringify(el) === JSON.stringify(row));
     const formGroup = this.formGroup.controls[index];
-    this.dialog.open(DialogComponent, { data: { view: this.view, formGroup: formGroup } })
+    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: formGroup } })
       .afterClosed()
       .subscribe(data => {
-        if (data) { Object.assign(row, data) } else { formGroup.patchValue(row) }
+        if (data) { Object.assign(row, data)
+        } else { formGroup.patchValue(row) }
       });
+  }
+
+  Add() {
+
+  }
+
+  Up() {
+
   }
 }

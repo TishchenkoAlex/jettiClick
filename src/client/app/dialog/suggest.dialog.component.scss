@@ -1,0 +1,41 @@
+.mat-dialog-container {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  background: rebeccapurple;
+}
+
+.mat-column-select {
+  min-width: 32px;
+  max-width: 32px;
+  margin-left: -20px;
+}
+
+.mat-column-posted {
+  min-width: 32px;
+  max-width: 32px;
+}
+
+.mat-header-cell {
+  display: flex;
+}
+
+.mat-cell-date {
+  display: flex;
+  justify-content: center;
+}
+
+.mat-column-date {
+  min-width: 115px;
+  max-width: 115px;
+}
+
+.mat-column-code {
+  min-width: 130px;
+  max-width: 130px;
+  justify-content: center;  
+}
+
+.mat-table {
+  max-height: 340px;
+  overflow: auto;
+}

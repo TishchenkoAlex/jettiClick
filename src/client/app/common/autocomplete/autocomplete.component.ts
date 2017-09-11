@@ -1,10 +1,12 @@
+import { DocModel } from '../_doc.model';
 import { Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validator, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { ApiService } from '../../services/api.service';
-import { MdAutocompleteSelectedEvent } from '@angular/material';
+import { MdAutocompleteSelectedEvent, MdDialog } from '@angular/material';
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
+import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -15,10 +17,12 @@ import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base'
         [placeholder]="placeholder" [mdAutocomplete]="auto" [readOnly]="readOnly"
         [disabled]="disabled" (blur)="onBlur()">
       <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer"
-        (click)="handleOpen($event)" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer"
-      (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open search dialog" [mdTooltipShowDelay]="1000"
+        (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon></button>
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open item card" [mdTooltipShowDelay]="1000"
+        (click)="handleOpen($event)" [tabIndex]=-1 autocomplete="off"><md-icon>visibility</md-icon></button>
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="clear this field" [mdTooltipShowDelay]="1000"
+        (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
     </md-form-field>
 
     <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
@@ -80,7 +84,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
     return c.valid ? null : {'not valid': true}
   };
 
-  constructor(private api: ApiService, private router: Router) { }
+  constructor(private api: ApiService, private router: Router, public dialog: MdDialog) { }
 
   ngOnInit() {
     this.suggests$ = Observable.fromEvent(this.control.nativeElement, 'keyup')
@@ -115,6 +119,16 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   handleOpen(event) {
     event.stopPropagation();
     this.router.navigate([this.value.type, this.value.id]);
+  }
+
+  handleSearch(event) {
+    event.stopPropagation();
+    this.dialog.open(SuggestDialogComponent, { hasBackdrop: true, data: { docType: this.value.type, docID: this.value.id } })
+    .afterClosed()
+    .filter(result => !!result)
+    .subscribe((data: DocModel) => {
+      this.value = {id: data.id, value: data.description, code: data.code, type: data.type};
+    });
   }
 
 }

@@ -58,3 +58,5 @@
   <button md-raised-button color="warn" [disabled]="!v.formGroup.valid" (click)="Save()">Save</button>
   <button md-raised-button type="button" (click)="Cancel()">Cancel</button>
 </ng-template>
+
+{{ viewModel.formGroup.value | json }}

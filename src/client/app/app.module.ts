@@ -46,6 +46,8 @@ import { LoginComponent } from './auth/login-component/login-component';
 
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
 import { TabResolver } from '../app/tab.resolver';
+import { DateAdapter } from '@angular/material';
+import { CustomDateAdapter } from './custom-date-adapter';
 
 @NgModule({
   declarations: [
@@ -54,7 +56,7 @@ import { TabResolver } from '../app/tab.resolver';
   ],
   imports: [
     BrowserModule,
-    NoopAnimationsModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -70,6 +72,7 @@ import { TabResolver } from '../app/tab.resolver';
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
+    { provide: DateAdapter, useClass: CustomDateAdapter },
     {
       provide: RouteReuseStrategy,
       useClass: AppRouteReuseStrategy
