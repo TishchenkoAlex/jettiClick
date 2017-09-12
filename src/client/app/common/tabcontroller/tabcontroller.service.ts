@@ -25,7 +25,7 @@ export class TabControllerService {
   tabs: TabDef[] = [];
   tabid: string;
   docID: string;
-  private HOME = HOME;
+  HOME = HOME;
   component = new BaseDynamicCompoment(HomeComponent, {});
 
   constructor(public db: AngularFireDatabase) {

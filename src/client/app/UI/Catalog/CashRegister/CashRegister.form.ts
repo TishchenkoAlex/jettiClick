@@ -9,7 +9,7 @@ import { BaseFormComponent } from '../../../common/form/form.base.components/for
 export class CashRegisterForm extends BaseFormComponent  {
 
   Save() {
-    console.log('Master SAVE');
+    console.log('CHILD SAVE');
     super.Save();
   }
 

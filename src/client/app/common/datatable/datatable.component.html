@@ -1,10 +1,11 @@
 <div class="mat-container" fxLayout="column">
+  
   <div class="search-header" fxLayout="row" style="margin-left: 16px; margin-right: 70px">
     <div fxLayout="row" fxLayoutGap="10px">
-      <button md-mini-fab color="primary" (click)="addDoc()" mdTooltip="create new" [mdTooltipShowDelay]="1000"><md-icon>add</md-icon></button>
-      <button md-mini-fab color="default" (click)="Refresh()" mdTooltip="refresh" [mdTooltipShowDelay]="1000"><md-icon>refresh</md-icon></button>
+      <button md-mini-fab color="primary" (click)="addDoc()" mdTooltip="create new"><md-icon>add</md-icon></button>
+      <button md-mini-fab color="default" (click)="Refresh()" mdTooltip="refresh"><md-icon>refresh</md-icon></button>
       <button *ngIf="selection.selected.length===1" md-mini-fab color="default"><md-icon>content_copy</md-icon></button>
-      <button *ngIf="selection.selected.length" md-mini-fab color="accent"><md-icon>remove</md-icon></button>
+      <button *ngIf="selection.selected.length" (click)="Delete()" md-mini-fab color="accent"><md-icon>remove</md-icon></button>
     </div>
     <md-input-container fxFlex=20>
       <input mdInput #filter placeholder="Filter">
@@ -28,7 +29,7 @@
       <md-header-cell *cdkHeaderCellDef></md-header-cell>
       <md-cell *cdkCellDef="let row" style="margin-top: 4px">
         <md-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</md-icon>
-        <md-icon *ngIf="row['posted']" color="primary">check_box</md-icon>
+        <md-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</md-icon>
         <md-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</md-icon>
       </md-cell>
     </ng-container>
@@ -41,7 +42,7 @@
     <ng-container cdkColumnDef="code">
       <md-header-cell *cdkHeaderCellDef md-sort-header>code</md-header-cell>
       <md-cell *cdkCellDef="let row">
-        <a md-button color="primary" style="min-width: 130px; padding-left: 0px; padding-right: 0px;" (click)="$event.stopPropagation();openDoc(row);false"> {{row.code}}</a>
+        <a md-button color="primary" style="min-width: 130px; padding-left: 0px; padding-right: 0px;" (click)="$event.stopPropagation();openDoc(row);"> {{row.code}}</a>
       </md-cell>
     </ng-container>
 

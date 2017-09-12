@@ -1,3 +1,4 @@
+import { Host } from '@angular/cli/lib/ast-tools';
 import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { MdDialog, MdSort, SelectionModel } from '@angular/material';
@@ -15,7 +16,7 @@ const properties = ['id', 'name', 'progress', 'color'];
     .mat-column-select {
       min-width: 32px;
       max-width: 32px;
-      margin-left: -20px;
+      margin-left: -14px;
     }
     .mat-table {
       max-height: 240px;
@@ -24,6 +25,9 @@ const properties = ['id', 'name', 'progress', 'color'];
     .search-header {
       min-height: 46px;
       margin-top: 10px;
+    }
+    .mat-row:hover {
+      background: #f5f5f5;
     }`
   ],
   templateUrl: './table-parts.component.html',
@@ -75,17 +79,24 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     const formGroup = this.formGroup.controls[index];
     this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: formGroup } })
       .afterClosed()
+      .take(1)
       .subscribe(data => {
-        if (data) { Object.assign(row, data)
-        } else { formGroup.patchValue(row) }
+        console.log(data);
+        if (data) {
+          Object.assign(row, data)
+        } else {
+          formGroup.patchValue(row);
+        }
       });
   }
 
-  Add() {
+  AddRow() {
     const sampleRow: FormGroup = (this.tab.sampleRow as FormGroup);
     this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: sampleRow } })
       .afterClosed()
+      .take(1)
       .subscribe(data => {
+        console.log(data);
         if (data) {
           this.formGroup.push(sampleRow);
           this.dataSource.data.push(data);
@@ -95,20 +106,21 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   Delete() {
-      this.selection.selected.forEach(element => {
-          const index = this.formGroup.value.findIndex(el => JSON.stringify(el) === JSON.stringify(element));
-          this.formGroup.removeAt(index);
-          this.dataSource.data = this.formGroup.value;
-        }
-      );
-      this.selection.clear();
+    this.selection.selected.forEach(element => {
+      const index = this.formGroup.value.findIndex(el => JSON.stringify(el) === JSON.stringify(element));
+      this.formGroup.removeAt(index);
+      this.dataSource.data = this.formGroup.value;
+    }
+    );
+    this.selection.clear();
   }
 
-  Copy() {
+  CopyRow() {
     const index = this.formGroup.value.findIndex(el => JSON.stringify(el) === JSON.stringify(this.selection.selected[0]));
     const sampleRow: FormGroup = this.formGroup.at(index) as FormGroup;
     this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: sampleRow } })
       .afterClosed()
+      .take(1)
       .subscribe(data => {
         if (data) {
           this.formGroup.push(sampleRow);

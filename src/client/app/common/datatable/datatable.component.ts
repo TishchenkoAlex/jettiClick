@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
 import { ApiService } from '../../services/api.service';
+import { DocService } from '../doc.service';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
 
@@ -30,10 +31,10 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild('filter') filter: ElementRef;
 
-  constructor(private route: ActivatedRoute, private apiService: ApiService, private router: Router) { };
+  constructor(private route: ActivatedRoute, private router: Router, private ds: DocService) { };
 
   ngOnInit() {
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.data.pageSize, this.paginator, this.sort);
+    this.dataSource = new ApiDataSource(this.ds.api, this.data.docType, this.data.pageSize, this.paginator, this.sort);
 
     Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .debounceTime(300)
@@ -63,6 +64,19 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
     } else {
       this.displayedColumns.unshift('select', 'posted', 'code', 'description');
     }
+
+    this.ds.delete$
+      .filter(doc => doc.type === this.data.docType)
+      .subscribe(doc => {
+        this.Refresh();
+      });
+
+    this.ds.save$
+    .filter(doc => doc.type === this.data.docType)
+    .subscribe(doc => {
+      this.Refresh();
+    });
+
   }
 
   isAllSelected(): boolean {
@@ -90,6 +104,12 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
 
   openDoc(row) {
     this.router.navigate([this.data.docType, row.id])
+  }
+
+  Delete() {
+    this.selection.selected.forEach(element => {
+      this.ds.delete(element);
+    });
   }
 }
 

@@ -1,13 +1,19 @@
-<div fxLayoutAlign="start space-between" class="mat-card" style="height: 50px">
-  <div fxLayout="row" fxFlex>
-    <md-card-title fxLayout="row" fxLayoutAlign="start center" style="color:dimgray">
+<div fxLayoutAlign="start space-between" fxLayout.xs="column" class="mat-card" style="height: 52px" style.xs="height: 120px"
+  fxLayoutAlign.xs="center space-between">
+  <div fxLayout="row" fxFlex fxLayoutAlign="start center" fxLayoutAlign.xs="center center">
+    <div fxLayout="row" fxLayoutAlign="start center">
       <md-icon *ngIf="viewModel.model.deleted" color="warn">indeterminate_check_box</md-icon>
-      <md-icon *ngIf="viewModel.model.posted" color="primary">check_box</md-icon>
-      <md-icon *ngIf="!viewModel.model.posted && !viewModel.model.deleted" color="accent">check_box_outline_blank</md-icon>
+      <md-icon *ngIf="viewModel.model.posted && !viewModel.model.deleted" color="primary">check_box</md-icon>
+      <md-icon *ngIf="!(viewModel.model.posted) && !(viewModel.model.deleted)" color="accent">check_box_outline_blank</md-icon>
       <span style="margin-left: 10px">{{ viewModel.model.description }}</span>
-    </md-card-title>
+    </div>
   </div>
-  <md-card-subtitle style="font-size: 9pt">{{ viewModel.model.date | date:'medium' }}</md-card-subtitle>
+  <div fxLayoutAlign="center center">
+    <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
+    <button md-mini-fab color="accent" (click)="Close()" mdTooltip="close" style="margin-left: 22px; margin-right: -12px">
+      <md-icon>close</md-icon>
+    </button>
+  </div>
 </div>
 <md-card>
   <md-card-content>
@@ -15,9 +21,6 @@
       <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
     </form>
   </md-card-content>
-  <md-card-actions fxLayoutAlign="center center" fxLayoutGap="25px">
-    <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
-  </md-card-actions>
 </md-card>
 
 <ng-template #formTepmlateDefault let-v="viewModel">
@@ -43,8 +46,10 @@
 
     <div fxLayoutGap.gt-xs="column" *ngIf="v.tableParts?.length">
       <md-tab-group #tg dynamicHeight="true">
-        <md-tab *ngFor="let tab of v.tableParts; index as i" [tabindex]="i">
-          <ng-template md-tab-label>{{ tab.value }}</ng-template>
+        <md-tab #ta *ngFor="let tab of v.tableParts; index as i" [tabindex]="i">
+          <ng-template md-tab-label>
+            <div>{{ tab.value }}</div>
+          </ng-template>
           <j-control [control]="v.view[tab.id]" [form]="v.formGroup" [tab]="tab"></j-control>
         </md-tab>
       </md-tab-group>
@@ -55,6 +60,21 @@
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
-  <button md-raised-button color="warn" [disabled]="!v.formGroup.valid" (click)="Save()">Save</button>
-  <button md-raised-button type="button" (click)="Cancel()">Cancel</button>
+  <div fxLayoutGap="2px">
+  <button md-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="PostClose()" mdTooltip="post & close" *ngIf="!v.model.deleted">
+    <md-icon>done_all</md-icon>
+  </button>
+  <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="Post()" mdTooltip="post" *ngIf="!v.model.deleted">
+    <md-icon>done</md-icon>
+  </button>
+  <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="unPost()" mdTooltip="unPost" *ngIf="!v.model.deleted && v.model.posted">
+    <md-icon>undo</md-icon>
+  </button>
+  <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="Save()" mdTooltip="save" *ngIf="!v.model.deleted && !v.model.posted">
+    <md-icon>save</md-icon>
+  </button>
+  <button md-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="Delete()" [mdTooltip]="v.model.deleted ? 'undelete': 'delete'">
+    <md-icon>delete</md-icon>
+  </button>
+  </div>
 </ng-template>

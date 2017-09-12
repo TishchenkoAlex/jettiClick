@@ -23,7 +23,7 @@ import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component'
     <md-form-field fxFlex>
       <input #control mdInput [(ngModel)]="value" [required]="required"
         [placeholder]="placeholder" [mdAutocomplete]="auto" [readOnly]="readOnly"
-        [disabled]="disabled" (blur)="onBlur()">
+        [disabled]="disabled" (blur)="onBlur()" [tabIndex]="tabIndex">
       <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
       <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open search dialog" [mdTooltipShowDelay]="1000"
         (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon></button>
@@ -51,6 +51,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   @Input() placeholder = '';
   @Input() required = false;
   @Input() disabled = false;
+  @Input() tabIndex = false;
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {

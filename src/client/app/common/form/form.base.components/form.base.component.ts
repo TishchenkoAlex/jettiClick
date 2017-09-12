@@ -1,8 +1,7 @@
 import { ViewChild } from '@angular/core';
-import { AfterViewInit, Component, Input, OnInit, TemplateRef } from '@angular/core';
+import { Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { MdTabGroup } from '@angular/material';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
 
 import { DocModel } from '../../../common/_doc.model';
 import { DocService } from '../../../common/doc.service';
@@ -15,39 +14,65 @@ import { ViewModel } from '../../dynamic-form/dynamic-form.service';
   selector: 'j-form',
   templateUrl: './form.base.component.html',
 })
-export class BaseFormComponent implements DocumentComponent, OnInit, AfterViewInit {
+export class BaseFormComponent implements DocumentComponent, OnInit {
 
   @Input() data;
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
-  @ViewChild('tg') tg: MdTabGroup;
 
   viewModel: ViewModel;
-
-  private _onPostSubscription: Subscription = Subscription.EMPTY;
 
   constructor(private route: ActivatedRoute, private api: ApiService, private ds: DocService) { }
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
-  }
 
-  ngAfterViewInit() {
+    this.ds.save$
+    .filter(doc => doc.id === this.viewModel.model.id)
+    .subscribe((savedDoc: DocModel) => {
+      this.viewModel.model = savedDoc;
+      this.viewModel.formGroup.patchValue(savedDoc);
+    });
+
+    this.ds.delete$
+    .filter(doc => doc.id === this.viewModel.model.id)
+    .subscribe((deletedDoc: DocModel) => {
+      this.viewModel.model = deletedDoc;
+      this.viewModel.formGroup.patchValue(deletedDoc);
+    });
 
   }
 
   Save() {
+    console.log('BASE SAVE');
     this.onSubmit();
-    this.ds.closeDoc(this.viewModel.model);
   }
 
-  Cancel() {
-    console.log('BASE CANCEL');
-    this.ds.closeDoc(this.viewModel.model);
+  PostClose() {
+    this.Post();
+    this.Close()
+  }
+
+  Post() {
+    this.viewModel.model.posted = true;
+    this.onSubmit();
+  }
+
+  unPost() {
+    this.viewModel.model.posted = false;
+    this.onSubmit();
+  }
+
+  Delete() {
+    this.ds.delete(this.viewModel.model.id);
+  }
+
+  Close() {
+    console.log('BASE CLOSE');
+    this.ds.close(this.viewModel.model);
   }
 
   onSubmit() {
-    console.log('BASE POST');
     const formDoc = this.viewModel.formGroup.getRawValue();
     const newDoc: DocModel = {
       id: this.viewModel.model.id,
@@ -55,7 +80,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit, AfterViewIn
       date: formDoc.date,
       code: formDoc.code,
       description: formDoc.description || this.viewModel.model.description,
-      posted: true,
+      posted: this.viewModel.model.posted,
       deleted: false,
       parent: '',
       isfolder: false,
@@ -78,21 +103,15 @@ export class BaseFormComponent implements DocumentComponent, OnInit, AfterViewIn
               }
             });
             d.doc[property] = copy;
-            continue;
+          } else {
+            d.doc[property] = s[property] ? s[property]['id'] || s[property] : s[property] || null;
           }
-          d.doc[property] = s[property] ? s[property]['id'] || s[property] : s[property] || null;
         }
       }
     }
     mapDoc(formDoc, newDoc);
     if (!newDoc.date) { newDoc.date = new Date(); }
-    this._onPostSubscription = this.api.postDoc(newDoc)
-      .take(1)
-      .subscribe((posted: DocModel) => {
-        this.viewModel.model = posted;
-        console.log(newDoc, posted);
-        this.viewModel.formGroup.patchValue(posted);
-      });
+    this.ds.save(newDoc);
   }
 
 }

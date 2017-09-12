@@ -121,14 +121,15 @@ router.get('/suggest/:type/*', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
   try {
     const t = await db.tx(async tx => {
-      const id = req.params;
-      const doc = await DocById(id, tx)
+      const id = req.params.id;
+      let doc = await DocById(id, tx)
       await doSubscriptions(doc, 'before detele', tx);
       const scripts = (await tx.one(`SELECT "scripts" FROM config_schema WHERE type = $1`, [doc.type])).scripts;
       if (scripts && scripts['before-delete']) await ExecuteScript(doc, scripts['before-delete'], tx);
-      await tx.none('UPDATE "Documents" SET deleted = not deleted WHERE id = $1', [id]);
-      if (scripts && scripts['after-delete']) await ExecuteScript(data, scripts['after-delete'], tx);
+      doc = await tx.one('UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;', [id]);
+      if (scripts && scripts['after-delete']) await ExecuteScript(doc, scripts['after-delete'], tx);
       await doSubscriptions(doc, 'after detele', tx);
+      res.json(doc);
     });
   } catch (err) {
     next(err.message);
@@ -196,7 +197,8 @@ router.get('/raw/:id', async (req, res, next) => {
 // Get document by id
 async function DocById(id, db) {
   const query = `select * from "Documents" WHERE id = $1`;
-  return await db.oneOrNone(query, [id]);
+  const doc = await db.oneOrNone(query, [id]);
+  return doc;
 }
 
 module.exports = router;

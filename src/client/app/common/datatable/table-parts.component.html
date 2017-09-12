@@ -1,13 +1,16 @@
-<div class="mat-container" fxLayout="column">
+<div fxLayout="column">
   <div class="search-header" fxLayout="row">
-    <div fxLayout="row" fxLayoutGap="10px">
-      <button md-mini-fab color="primary" (click)="Add()" mdTooltip="add row"><md-icon>add</md-icon></button>
-      <div *ngIf="selection.selected.length===1">
+    <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="center center" fxFlex>
+      <div *ngIf="selection.selected.length === 0">
+        <button md-mini-fab color="accent" (click)="AddRow()" mdTooltip="add row"><md-icon>add</md-icon></button>
+      </div>
+      <div *ngIf="selection.selected.length === 1">
         <button md-mini-fab color="default" (click)="Up()" mdTooltip="move up"><md-icon>arrow_upward</md-icon></button>
         <button md-mini-fab color="default" (click)="Down()" mdTooltip="move down"><md-icon>arrow_downward</md-icon></button>
-        <button md-mini-fab color="default" (click)="Copy()" mdTooltip="copy"><md-icon>content_copy</md-icon></button>
+        <button md-mini-fab color="warn" (click)="CopyRow()" mdTooltip="copy" color="primary"><md-icon>content_copy</md-icon></button>
       </div>
-      <button *ngIf="selection.selected.length" (click)="Delete()" md-mini-fab color="accent" mdTooltip="delete"><md-icon>remove</md-icon></button>
+      <button *ngIf="selection.selected.length" (click)="Delete()" md-mini-fab color="warn" mdTooltip="delete">
+        <md-icon>remove</md-icon></button>
     </div>
   </div>
 
@@ -28,7 +31,8 @@
       <div [ngSwitch]="col.type" *ngIf="!col.hidden">
         <span *ngSwitchCase="'textbox'">
           <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}
+          </md-cell>
         </span>
         <span *ngSwitchCase="'datetime'">
           <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
@@ -50,17 +54,21 @@
         </span>
         <span *ngSwitchCase="'autocomplete'">
             <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-            <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field].value}}</md-cell>
+            <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field].value}}
+            </md-cell>
         </span>
         <span *ngSwitchDefault>
           <md-header-cell *cdkHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">
+            {{row[col.field]}}
+          </md-cell>
         </span>
       </div>
     </ng-container>
 
-    <md-header-row *cdkHeaderRowDef="displayedColumns" style="font-weight: bold"></md-header-row>
-    <md-row *cdkRowDef="let row; columns: displayedColumns; let i = index" (click)="openDialog(row)"></md-row>
+    <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
+    <md-row *cdkRowDef="let row; columns: displayedColumns; let i = index" style="cursor: pointer;"
+      (click)="openDialog(row)"></md-row>
   </md-table>
 
 </div>

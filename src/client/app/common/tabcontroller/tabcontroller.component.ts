@@ -1,6 +1,7 @@
 import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
+import {Location} from '@angular/common';
 
 import { TabControllerService, TabDef, HOME } from '../../common/tabcontroller/tabcontroller.service';
 import { DocService } from './../../common/doc.service';
@@ -12,7 +13,7 @@ import { DocService } from './../../common/doc.service';
 })
 export class TabControllerComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute, private router: Router,
+  constructor(private route: ActivatedRoute, private router: Router, private location: Location,
     public tc: TabControllerService, private ds: DocService) {
   }
 
@@ -40,12 +41,14 @@ export class TabControllerComponent implements OnInit {
       }
     });
 
-    this.ds.closeDoc$.subscribe(doc => {
-      this.handleClose(null);
+    this.ds.close$.subscribe(doc => {
+      this.tc.tabs.splice(this.tc.index, 1);
+      if (this.tc.index === this.tc.tabs.length) { this.tc.index-- };
+      this.location.back();
     });
   }
 
-  handleClose(event) {
+  private handleClose(event) {
     if (event) { // если есть евент - значит нажали на крестик закрытия таба
       const index = this.tc.tabs.findIndex(i => (i.docType === event.docType) && (i.docID === event.docID));
       this.tc.index = index;
@@ -56,7 +59,7 @@ export class TabControllerComponent implements OnInit {
     this.onChange(event);
   }
 
-  onChange(event) {
+  private onChange(event) {
     const docType = this.tc.tabs[this.tc.index].docType;
     const docID = this.tc.tabs[this.tc.index].docID;
     this.router.navigate([docType, docID]);
