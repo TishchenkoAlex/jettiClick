@@ -1,106 +1,122 @@
-<div class="mat-container" fxLayout="column">
-  
-  <div class="search-header" fxLayout="row" style="margin-left: 16px; margin-right: 70px">
-    <div fxLayout="row" fxLayoutGap="10px">
-      <button md-mini-fab color="primary" (click)="addDoc()" mdTooltip="create new"><md-icon>add</md-icon></button>
-      <button md-mini-fab color="default" (click)="Refresh()" mdTooltip="refresh"><md-icon>refresh</md-icon></button>
-      <button *ngIf="selection.selected.length===1" md-mini-fab color="default"><md-icon>content_copy</md-icon></button>
-      <button *ngIf="selection.selected.length" (click)="Delete()" md-mini-fab color="accent"><md-icon>remove</md-icon></button>
+<div fxLayout="column">
+
+  <div class="mat-card" fxLayoutAlign="start space-between" fxLayout.xs="column" style="height: 65px" style.xs="height: 120px"
+    fxLayoutAlign.xs="center space-between">
+    <div fxLayout="row" fxFlex fxLayoutAlign="start center" fxLayoutAlign.xs="center center">
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <span>{{ data?.docType }}</span>
+      </div>
     </div>
-    <md-input-container fxFlex=20>
-      <input mdInput #filter placeholder="Filter">
-    </md-input-container>
+    <div fxLayoutAlign="center center">
+      <md-input-container style="margin-top: 16px; margin-right: 16px">
+        <input mdInput #filter placeholder="Filter" [tabindex]="0" autofocus>
+      </md-input-container>
+      <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table}"></ng-container>
+      <button md-mini-fab color="accent" (click)="close()" mdTooltip="close" style="margin-left: 22px; margin-right: -12px">
+          <md-icon>close</md-icon>
+      </button>
+    </div>
   </div>
+  <md-card style="padding: 0px; margin-top: 1px">
+    <md-table #table [dataSource]="dataSource" mdSort>
 
-  <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
+      <ng-container cdkColumnDef="select">
+        <md-header-cell *cdkHeaderCellDef>
+          <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
+          </md-checkbox>
+        </md-header-cell>
+        <md-cell *cdkCellDef="let row">
+          <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row.id) : null" [checked]="selection.isSelected(row.id)">
+          </md-checkbox>
+        </md-cell>
+      </ng-container>
 
-    <ng-container cdkColumnDef="select">
-      <md-header-cell *cdkHeaderCellDef>
-        <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
-        </md-checkbox>
-      </md-header-cell>
-      <md-cell *cdkCellDef="let row">
-        <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row.id) : null" [checked]="selection.isSelected(row.id)">
-        </md-checkbox>
-      </md-cell>
-    </ng-container>
+      <ng-container cdkColumnDef="posted">
+        <md-header-cell *cdkHeaderCellDef></md-header-cell>
+        <md-cell *cdkCellDef="let row" style="margin-top: 4px">
+          <md-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</md-icon>
+          <md-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</md-icon>
+          <md-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</md-icon>
+        </md-cell>
+      </ng-container>
 
-    <ng-container cdkColumnDef="posted">
-      <md-header-cell *cdkHeaderCellDef></md-header-cell>
-      <md-cell *cdkCellDef="let row" style="margin-top: 4px">
-        <md-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</md-icon>
-        <md-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</md-icon>
-        <md-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</md-icon>
-      </md-cell>
-    </ng-container>
+      <ng-container *ngIf="data.docType.startsWith('Document')" cdkColumnDef="date">
+        <md-header-cell *cdkHeaderCellDef md-sort-header>date</md-header-cell>
+        <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
+      </ng-container>
 
-    <ng-container *ngIf="data.docType.startsWith('Document')" cdkColumnDef="date">
-      <md-header-cell *cdkHeaderCellDef md-sort-header>date</md-header-cell>
-      <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
-    </ng-container>
+      <ng-container cdkColumnDef="code">
+        <md-header-cell *cdkHeaderCellDef md-sort-header>code</md-header-cell>
+        <md-cell *cdkCellDef="let row">
+          <a md-button color="primary" style="min-width: 130px; padding-left: 0px; padding-right: 0px;" (click)="$event.stopPropagation();open(row);"> {{row.code}}</a>
+        </md-cell>
+      </ng-container>
 
-    <ng-container cdkColumnDef="code">
-      <md-header-cell *cdkHeaderCellDef md-sort-header>code</md-header-cell>
-      <md-cell *cdkCellDef="let row">
-        <a md-button color="primary" style="min-width: 130px; padding-left: 0px; padding-right: 0px;" (click)="$event.stopPropagation();openDoc(row);"> {{row.code}}</a>
-      </md-cell>
-    </ng-container>
+      <ng-container cdkColumnDef="description">
+        <md-header-cell *cdkHeaderCellDef md-sort-header>description</md-header-cell>
+        <md-cell *cdkCellDef="let row">
+          {{row.description}}
+        </md-cell>
+      </ng-container>
 
-    <ng-container cdkColumnDef="description">
-      <md-header-cell *cdkHeaderCellDef md-sort-header>description</md-header-cell>
-      <md-cell *cdkCellDef="let row">
-        {{row.description}}
-      </md-cell>
-    </ng-container>
-
-    <ng-container *ngFor="let col of columns" [cdkColumnDef]="col.field">
-      <span [ngSwitch]="col.type">
+      <ng-container *ngFor="let col of columns" [cdkColumnDef]="col.field">
+        <span [ngSwitch]="col.type">
                 <span *ngSwitchCase="'string'">
                     <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px">
                         {{row[col.field]}}
                     </md-cell>
                 </span>
-      <span *ngSwitchCase="'datetime'">
+        <span *ngSwitchCase="'datetime'">
                     <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px">
                         {{row[col.field] | date:'dd.MM.yyyy mm:ss'}} 
                     </md-cell>
                 </span>
-      <span *ngSwitchCase="'date'">
+        <span *ngSwitchCase="'date'">
                     <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px">
                         {{row[col.field] | date:'dd.MM.yyyy'}} 
                     </md-cell>
                 </span>
-      <span *ngSwitchCase="'number'">
+        <span *ngSwitchCase="'number'">
         <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style"
           style="margin-left: 16px; text-align: right; max-width: 90px; min-width: 90px;  justify-content: flex-end">
           <span> {{ col.label }} </span>
-      </md-header-cell>
-      <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px; font-weight: bold; text-align: right; max-width: 90px;  min-width: 90px; ">
-        {{row[col.field] | number:'1.2-2' }}
-      </md-cell>
-      </span>
-      <span *ngSwitchCase="'boolean'">
+        </md-header-cell>
+        <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px; font-weight: bold; text-align: right; max-width: 90px;  min-width: 90px; ">
+          {{row[col.field] | number:'1.2-2' }}
+        </md-cell>
+        </span>
+        <span *ngSwitchCase="'boolean'">
                     <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" 
                     style="margin-left: 16px; justify-content: center; max-width: 50px;">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px; max-width: 50px;text-align: center">
                         <md-checkbox [checked]="row[col.field]" disabled="true"></md-checkbox>
                     </md-cell>
                 </span>
-      <span *ngSwitchDefault>
+        <span *ngSwitchDefault>
                     <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px">
                         {{row[col.field]}}
                     </md-cell>
                 </span>
-      </span>
-    </ng-container>
+        </span>
+      </ng-container>
 
-    <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
-    <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
-  </md-table>
-  <md-paginator #paginator [length]="data.pageSize" [pageIndex]="0" [pageSize]="data.pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
-  <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
+      <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
+      <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
+    </md-table>
+    <md-paginator #paginator [length]="data.pageSize" [pageIndex]="0" [pageSize]="data.pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
+    <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
+  </md-card>
 </div>
+
+<ng-template #actionTepmlateDefault let-d="data">
+  <div fxLayoutGap="2px">
+    <button md-mini-fab color="primary" (click)="add()" mdTooltip="create new"><md-icon>add</md-icon></button>
+    <button md-mini-fab color="default" (click)="refresh()" mdTooltip="refresh"><md-icon>refresh</md-icon></button>
+    <button *ngIf="selection.selected.length===1" (click)="copy()" md-mini-fab color="default"><md-icon>content_copy</md-icon></button>
+    <button *ngIf="selection.selected.length" (click)="delete()" md-mini-fab color="accent"><md-icon>remove</md-icon></button>
+  </div>
+</ng-template>

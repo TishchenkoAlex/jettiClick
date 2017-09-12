@@ -85,8 +85,21 @@ router.get('/:type/view/*', async (req, res, next) => {
           from config_schema_helper where type = $1`, [req.params.type]);
     const view = config_schema.schemaFull;
     let model;
-    if (req.params['0']) {
-      model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [req.params['0']]);
+    let id = req.params['0'];
+    if (id) {
+      if (id.startsWith('copy-')) {
+        id = id.slice(5);
+        model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+        newDoc = await db.one('SELECT uuid_generate_v1mc() id, now() date');
+        model.id = newDoc.id;
+        model.date = newDoc.date;
+        model.code = '';
+        model.posted = false;
+        model.deleted = false;
+        model.description = 'Copy: ' + model.description;
+      } else {
+        model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+      }
     } else {
       model = await db.one(`${config_schema.queryNewObject}`);
       const result = { view: view, model: model };

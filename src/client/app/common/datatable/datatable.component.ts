@@ -1,9 +1,10 @@
 import { DataSource } from '@angular/cdk/table';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MdPaginator, MdSort, SelectionModel } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
 import { ApiService } from '../../services/api.service';
@@ -17,13 +18,18 @@ interface ColDef { field: string; type: string; label: string; hidden: boolean; 
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
 })
-export class CommonDataTableComponent implements DocumentComponent, OnInit {
+export class CommonDataTableComponent implements DocumentComponent, OnInit, AfterViewInit, OnDestroy {
+
+  private _delete$: Subscription = Subscription.EMPTY;
+  private _save$: Subscription = Subscription.EMPTY;
 
   displayedColumns = [];
   selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
 
   @Input() data;
+  @Input() actionTepmlate: TemplateRef<any>;
+
   totalRecords = 0;
   columns: ColDef[] = [];
 
@@ -65,18 +71,26 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
       this.displayedColumns.unshift('select', 'posted', 'code', 'description');
     }
 
-    this.ds.delete$
+    this._delete$ = this.ds.delete$
       .filter(doc => doc.type === this.data.docType)
       .subscribe(doc => {
-        this.Refresh();
+        this.refresh();
       });
 
-    this.ds.save$
+    this._save$ = this.ds.save$
     .filter(doc => doc.type === this.data.docType)
     .subscribe(doc => {
-      this.Refresh();
+      this.refresh();
     });
+  }
 
+  ngOnDestroy() {
+    this._delete$.unsubscribe();
+    this._save$.unsubscribe();
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => this.filter.nativeElement.focus(), 1000);
   }
 
   isAllSelected(): boolean {
@@ -94,22 +108,31 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit {
     }
   }
 
-  Refresh() {
+  refresh() {
     this.dataSource.Refresh();
   }
 
-  addDoc() {
+  add() {
     this.router.navigate([this.data.docType, 'new'])
   }
 
-  openDoc(row) {
+  copy() {
+    this.router.navigate([this.data.docType, 'copy-' + this.selection.selected[0]])
+  }
+
+  open(row) {
     this.router.navigate([this.data.docType, row.id])
   }
 
-  Delete() {
+  delete() {
     this.selection.selected.forEach(element => {
       this.ds.delete(element);
     });
+  }
+
+  close() {
+    console.log('BASE CLOSE');
+    this.ds.close(this.data);
   }
 }
 

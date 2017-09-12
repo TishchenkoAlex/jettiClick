@@ -1,4 +1,4 @@
-<div fxLayoutAlign="start space-between" fxLayout.xs="column" class="mat-card" style="height: 52px" style.xs="height: 120px"
+<div class="mat-card" fxLayoutAlign="start space-between" fxLayout.xs="column" style="height: 65px" style.xs="height: 120px"
   fxLayoutAlign.xs="center space-between">
   <div fxLayout="row" fxFlex fxLayoutAlign="start center" fxLayoutAlign.xs="center center">
     <div fxLayout="row" fxLayoutAlign="start center">
@@ -15,7 +15,7 @@
     </button>
   </div>
 </div>
-<md-card>
+<md-card style="margin-top: 1px">
   <md-card-content>
     <form novalidate [formGroup]="viewModel.formGroup">
       <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
@@ -61,20 +61,20 @@
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
   <div fxLayoutGap="2px">
-  <button md-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="PostClose()" mdTooltip="post & close" *ngIf="!v.model.deleted">
-    <md-icon>done_all</md-icon>
-  </button>
-  <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="Post()" mdTooltip="post" *ngIf="!v.model.deleted">
-    <md-icon>done</md-icon>
-  </button>
-  <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="unPost()" mdTooltip="unPost" *ngIf="!v.model.deleted && v.model.posted">
-    <md-icon>undo</md-icon>
-  </button>
-  <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="Save()" mdTooltip="save" *ngIf="!v.model.deleted && !v.model.posted">
-    <md-icon>save</md-icon>
-  </button>
-  <button md-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="Delete()" [mdTooltip]="v.model.deleted ? 'undelete': 'delete'">
-    <md-icon>delete</md-icon>
-  </button>
+    <button md-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="PostClose()" mdTooltip="post & close" *ngIf="!v.model.deleted">
+      <md-icon>done_all</md-icon>
+    </button>
+    <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="Post()" mdTooltip="post" *ngIf="!v.model.deleted">
+      <md-icon>done</md-icon>
+    </button>
+    <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="unPost()" mdTooltip="unPost" *ngIf="!v.model.deleted && v.model.posted">
+      <md-icon>undo</md-icon>
+    </button>
+    <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="Save()" mdTooltip="save" *ngIf="!v.model.deleted && !v.model.posted">
+      <md-icon>save</md-icon>
+    </button>
+    <button md-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="Delete()" [mdTooltip]="v.model.deleted ? 'undelete': 'delete'">
+      <md-icon>delete</md-icon>
+    </button>
   </div>
 </ng-template>

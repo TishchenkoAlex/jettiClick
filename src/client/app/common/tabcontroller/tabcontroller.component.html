@@ -11,6 +11,3 @@
         <dynamic-component [component]="tc.component"></dynamic-component>
     </md-tab>
 </md-tab-group>
-<button md-mini-fab *ngIf="tc.index !== 0 && !tc.tabs[tc.index].docID" (click)="handleClose()" class="fab-bottom-right">
-    <md-icon mdTooltip="close tab" [mdTooltipShowDelay]="1000">close</md-icon>
-</button>

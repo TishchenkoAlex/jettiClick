@@ -1,7 +1,7 @@
 import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 
 import { TabControllerService, TabDef, HOME } from '../../common/tabcontroller/tabcontroller.service';
 import { DocService } from './../../common/doc.service';
@@ -19,33 +19,36 @@ export class TabControllerComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap
-    .subscribe((params: ParamMap) => {
-      this.tc.tabid = params.get('type') || HOME;
-      this.tc.docID = params.get('id') || '';
-      const index = this.tc.tabs.findIndex(i => (i.docType === this.tc.tabid) && (i.docID === this.tc.docID));
-      if (index === -1) {
-        const menuItem = this.tc.db.list('/Menu/main/', { query: { orderByChild: 'link', equalTo: '/' + this.tc.tabid } })
-        .take(1)
-        .subscribe(item => {
-          let description = this.tc.docID  && this.route.data['value'].detail
-            ? (this.route.data['value'].detail as ViewModel).model.description : '';
-          description = description.length > 25 ?  description.slice(0, 22) + '...' : description;
-          const newTab: TabDef = { header: item[0].label, docType: this.tc.tabid,
-              icon: item[0].icon, docID: this.tc.docID, description: description};
-            const lastTabIndex = this.tc.tabs.push(newTab);
-            this.tc.index = lastTabIndex - 1;
-            this.tc.component = this.tc.GetComponent(newTab);
-          });
-      } else {
-        this.tc.index = index;
-      }
-    });
+      .subscribe((params: ParamMap) => {
+        this.tc.tabid = params.get('type') || HOME;
+        this.tc.docID = params.get('id') || '';
+        const index = this.tc.tabs.findIndex(i => (i.docType === this.tc.tabid) && (i.docID === this.tc.docID));
+        if (index === -1) {
+          const menuItem = this.tc.db.list('/Menu/main/', { query: { orderByChild: 'link', equalTo: '/' + this.tc.tabid } })
+            .take(1)
+            .subscribe(item => {
+              let description = this.tc.docID && this.route.data['value'].detail
+                ? (this.route.data['value'].detail as ViewModel).model.description : '';
+              description = description.length > 25 ? description.slice(0, 22) + '...' : description;
+              const newTab: TabDef = {
+                header: item[0].label, docType: this.tc.tabid,
+                icon: item[0].icon, docID: this.tc.docID, description: description
+              };
+              const lastTabIndex = this.tc.tabs.push(newTab);
+              this.tc.index = lastTabIndex - 1;
+              this.tc.component = this.tc.GetComponent(newTab);
+            });
+        } else {
+          this.tc.index = index;
+        }
+      });
 
-    this.ds.close$.subscribe(doc => {
-      this.tc.tabs.splice(this.tc.index, 1);
-      if (this.tc.index === this.tc.tabs.length) { this.tc.index-- };
-      this.location.back();
-    });
+    this.ds.close$
+      .subscribe(doc => {
+        this.tc.tabs.splice(this.tc.index, 1);
+        if (this.tc.index === this.tc.tabs.length) { this.tc.index-- };
+        this.location.back();
+      });
   }
 
   private handleClose(event) {
