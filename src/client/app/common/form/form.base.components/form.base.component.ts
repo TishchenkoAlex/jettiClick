@@ -1,6 +1,6 @@
-import { Subscription } from 'rxjs/Subscription';
 import { Component, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 
 import { DocModel } from '../../../common/_doc.model';
 import { DocService } from '../../../common/doc.service';

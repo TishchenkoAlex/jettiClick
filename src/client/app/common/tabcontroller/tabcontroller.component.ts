@@ -62,7 +62,7 @@ export class TabControllerComponent implements OnInit {
     this.onChange(event);
   }
 
-  private onChange(event) {
+  onChange(event) {
     const docType = this.tc.tabs[this.tc.index].docType;
     const docID = this.tc.tabs[this.tc.index].docID;
     this.router.navigate([docType, docID]);
