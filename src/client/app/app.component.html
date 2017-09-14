@@ -6,23 +6,24 @@
         <button md-icon-button [mdMenuTriggerFor]="themeMenu"><md-icon>more_vert</md-icon></button>
         <app-login></app-login>
     </md-toolbar>
+    <md-progress-bar *ngIf="(loading$ | async)" color="accent"  mode="indeterminate"></md-progress-bar>
     <md-sidenav-container style="height: 100%">
         <md-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
             <md-nav-list>
                 <md-list-item *ngFor="let item of menuItems | async" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
-                    [routerLink]="item.link" [routerLinkActive]="['active-route']">
-                    <md-icon md-list-icon color="primary">{{ item.icon }}</md-icon>
-                    <span md-line color="primary">{{ item.label }}</span>
-                </md-list-item>
-            </md-nav-list>
-        </md-sidenav>
-        <div class="content">
-            <div class="mat-elevation-z10">
-                <router-outlet></router-outlet>
-            </div>
+                [routerLink]="item.link" [routerLinkActive]="['active-route']">
+                <md-icon md-list-icon color="primary">{{ item.icon }}</md-icon>
+                <span md-line color="primary">{{ item.label }}</span>
+            </md-list-item>
+        </md-nav-list>
+    </md-sidenav>
+    <div class="content">
+        <div class="mat-elevation-z10">
+            <router-outlet></router-outlet>
         </div>
-    </md-sidenav-container>
-    <!--     <md-toolbar class="md-medium-tall" color="primary"></md-toolbar> -->
+    </div>
+</md-sidenav-container>
+<!--     <md-toolbar class="md-medium-tall" color="primary"></md-toolbar> -->
 </div>
 <md-menu #themeMenu x-position="before">
     <button md-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>

@@ -3,6 +3,7 @@
       <md-input-container fxFlex>
         <input mdInput #filter placeholder="select items in list OR type here to filter by code/description ...">
       </md-input-container>
+      <button md-mini-fab color="accent" md-dialog-close mdTooltip="close" style="margin-left: 22px; margin-right: -12px"><md-icon>close</md-icon></button>
     </div>
   
     <md-table #table [dataSource]="dataSource" mdSort class="mat-table">

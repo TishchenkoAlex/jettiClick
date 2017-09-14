@@ -1,10 +1,10 @@
-import { Host } from '@angular/cli/lib/ast-tools';
+import { SelectionModel } from '@angular/cdk/collections';
 import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { MdDialog, MdSort, SelectionModel } from '@angular/material';
+import { MdDialog, MdSort } from '@angular/material';
 
 import { MdTableDataSource } from '../../common/datatable/array-data-source';
-import { BaseDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
+import { BaseJettiFromControl } from '../../common/dynamic-form/dynamic-form-base';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };
@@ -34,7 +34,7 @@ const properties = ['id', 'name', 'progress', 'color'];
 })
 export class TablePartsComponent implements OnInit, AfterViewInit {
   @Input() pageSize = 5;
-  @Input() view: BaseDynamicControl<any>[];
+  @Input() view: BaseJettiFromControl<any>[];
   @Input() formGroup: FormArray;
   @Input() tab: any;
 

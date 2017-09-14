@@ -1,4 +1,4 @@
-import { DocModel } from '../_doc.model';
+import { DocModel } from '../doc.model';
 import { Subject } from 'rxjs/Subject';
 import { Component, Injectable } from '@angular/core';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';

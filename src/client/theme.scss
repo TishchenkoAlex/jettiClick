@@ -18,3 +18,8 @@ $theme: mat-light-theme($primary, $accent, $warn);
 
   @include angular-material-theme($dark-theme);
 }
+
+.data-table-select { 
+  color : mat-color($primary, default);
+}
+

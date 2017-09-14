@@ -21,7 +21,7 @@ import 'rxjs/add/operator/toPromise';
 import { HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DateAdapter } from '@angular/material';
+import { DateAdapter, MAT_DATE_LOCALE, MD_DATE_FORMATS } from '@angular/material';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
@@ -35,7 +35,8 @@ import { AppComponent } from './app.component';
 import { appRoutes } from './app.routes';
 import { AuthService } from './auth/auth.service';
 import { LoginComponent } from './auth/login-component/login-component';
-import { CustomDateAdapter } from './custom-date-adapter';
+import { MomentDateAdapter } from './material-moment-adapter/moment-date-adapter';
+import { MD_MOMENT_DATE_FORMATS } from './material-moment-adapter/moment-date-formats';
 import { MaterialModule } from './material.module';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
@@ -64,7 +65,8 @@ import { DynamicFormsModule } from './UI/dynamic.froms.module';
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
-    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MD_DATE_FORMATS, useValue: MD_MOMENT_DATE_FORMATS },
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
     {
       provide: RouteReuseStrategy,
       useClass: AppRouteReuseStrategy

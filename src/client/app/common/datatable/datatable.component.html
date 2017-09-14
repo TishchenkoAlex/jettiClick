@@ -1,22 +1,40 @@
 <div fxLayout="column">
 
-  <div class="mat-card" fxLayoutAlign="start space-between" fxLayout.xs="column" style="height: 65px" style.xs="height: 120px"
-    fxLayoutAlign.xs="center space-between">
-    <div fxLayout="row" fxFlex fxLayoutAlign="start center" fxLayoutAlign.xs="center center">
-      <div fxLayout="row" fxLayoutAlign="start center">
-        <span>{{ data?.docType }}</span>
-      </div>
-    </div>
-    <div fxLayoutAlign="center center">
-      <md-input-container style="margin-top: 16px; margin-right: 16px">
-        <input mdInput #filter placeholder="Filter" [tabindex]="0" autofocus>
+  <md-expansion-panel>
+    <md-expansion-panel-header style="min-height: 65px;">
+      <md-panel-title>
+        <div fxFlex fxLayoutAlign="end center" fxLayoutAlign.xs="center center" fxLayoutGap="24px" style="height: 65px">
+          <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table}"></ng-container>
+          <button md-mini-fab color="accent" (click)="$event.stopPropagation(); close()" mdTooltip="close"><md-icon>close</md-icon></button>
+        </div>
+      </md-panel-title>
+    </md-expansion-panel-header>
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutAlign.xs="center center" fxLayoutGap="24px">
+
+      <md-input-container>
+        <input mdInput #filter placeholder="filter by code or descr" [tabindex]="0" autofocus autocomplete="false">
       </md-input-container>
-      <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table}"></ng-container>
-      <button md-mini-fab color="accent" (click)="close()" mdTooltip="close" style="margin-left: 22px; margin-right: -12px">
-          <md-icon>close</md-icon>
-      </button>
+
+      <div fxLayoutGap="2px">
+        <md-form-field style="max-width: 100px">
+          <input mdInput [mdDatepicker]="picker" placeholder="from">
+          <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+          <md-datepicker #picker></md-datepicker>
+        </md-form-field>
+        <md-form-field  style="max-width: 100px">
+          <input mdInput [mdDatepicker]="picker1" placeholder="to">
+          <md-datepicker-toggle mdSuffix [for]="picker1"></md-datepicker-toggle>
+          <md-datepicker #picker1></md-datepicker>
+        </md-form-field>
+      </div>
+
+      <md-slide-toggle color="warn">
+        Show deleted
+      </md-slide-toggle>
+
     </div>
-  </div>
+  </md-expansion-panel>
+
   <md-card style="padding: 0px; margin-top: 1px">
     <md-table #table [dataSource]="dataSource" mdSort>
 
@@ -41,28 +59,30 @@
       </ng-container>
 
       <ng-container *ngIf="data.docType.startsWith('Document')" cdkColumnDef="date">
-        <md-header-cell *cdkHeaderCellDef md-sort-header>date</md-header-cell>
-        <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
+        <md-header-cell *cdkHeaderCellDef md-sort-header style="min-width: 72px;max-width: 72px; ">date</md-header-cell>
+        <md-cell *cdkCellDef="let row" style="min-width: 72px;max-width: 72px; text-align: center;">
+          <span class="data-table-select" (click)="open(row)" style="cursor: pointer"> {{row.date | date:'dd.MM.yyyy hh:mm:ss'}}</span>
+        </md-cell>
       </ng-container>
 
       <ng-container cdkColumnDef="code">
         <md-header-cell *cdkHeaderCellDef md-sort-header>code</md-header-cell>
         <md-cell *cdkCellDef="let row">
-          <a md-button color="primary" style="min-width: 130px; padding-left: 0px; padding-right: 0px;" (click)="$event.stopPropagation();open(row);"> {{row.code}}</a>
+          {{row.code}}
         </md-cell>
       </ng-container>
 
       <ng-container cdkColumnDef="description">
-        <md-header-cell *cdkHeaderCellDef md-sort-header>description</md-header-cell>
-        <md-cell *cdkCellDef="let row">
-          {{row.description}}
+        <md-header-cell *cdkHeaderCellDef md-sort-header style="margin-left: 16px; min-width: 140px">description</md-header-cell>
+        <md-cell *cdkCellDef="let row" style="margin-left: 16px; min-width: 140px">
+          <span class="data-table-select" (click)="open(row)" style="cursor: pointer">{{row.description}}</span>
         </md-cell>
       </ng-container>
 
       <ng-container *ngFor="let col of columns" [cdkColumnDef]="col.field">
         <span [ngSwitch]="col.type">
                 <span *ngSwitchCase="'string'">
-                    <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
+                    <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px">
                         {{row[col.field]}}
                     </md-cell>
@@ -70,7 +90,7 @@
         <span *ngSwitchCase="'datetime'">
                     <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 16px">
-                        {{row[col.field] | date:'dd.MM.yyyy mm:ss'}} 
+                        {{row[col.field] | date:'dd.MM.yyyy hh:mm:ss'}} 
                     </md-cell>
                 </span>
         <span *ngSwitchCase="'date'">
@@ -96,7 +116,7 @@
                     </md-cell>
                 </span>
         <span *ngSwitchDefault>
-                    <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px;">{{ col.label }}</md-header-cell>
+                    <md-header-cell *cdkHeaderCellDef md-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style"  style="margin-left: 16px">{{ col.label }}</md-header-cell>
                     <md-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="margin-left: 16px">
                         {{row[col.field]}}
                     </md-cell>
@@ -113,10 +133,10 @@
 </div>
 
 <ng-template #actionTepmlateDefault let-d="data">
-  <div fxLayoutGap="2px">
-    <button md-mini-fab color="primary" (click)="add()" mdTooltip="create new"><md-icon>add</md-icon></button>
-    <button md-mini-fab color="default" (click)="refresh()" mdTooltip="refresh"><md-icon>refresh</md-icon></button>
-    <button *ngIf="selection.selected.length===1" (click)="copy()" md-mini-fab color="default"><md-icon>content_copy</md-icon></button>
-    <button *ngIf="selection.selected.length" (click)="delete()" md-mini-fab color="accent"><md-icon>remove</md-icon></button>
+  <div>
+    <button md-mini-fab color="primary" (click)="$event.stopPropagation(); add()" mdTooltip="create new"><md-icon>add</md-icon></button>
+    <button md-mini-fab color="default" (click)="$event.stopPropagation(); refresh()" mdTooltip="refresh"><md-icon>refresh</md-icon></button>
+    <button *ngIf="selection.selected.length===1" (click)="$event.stopPropagation(); copy()" md-mini-fab color="default" mdTooltip="copy"><md-icon>content_copy</md-icon></button>
+    <button *ngIf="selection.selected.length" (click)="$event.stopPropagation(); delete()" md-mini-fab color="warn" mdTooltip="delete"><md-icon>remove</md-icon></button>
   </div>
 </ng-template>

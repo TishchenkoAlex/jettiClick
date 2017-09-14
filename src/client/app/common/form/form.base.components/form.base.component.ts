@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
-import { DocModel } from '../../../common/_doc.model';
+import { DocModel } from '../../doc.model';
 import { DocService } from '../../../common/doc.service';
 import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
 import { ViewModel } from '../../dynamic-form/dynamic-form.service';
@@ -22,25 +22,24 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
 
   viewModel: ViewModel;
 
-  constructor(private route: ActivatedRoute, private ds: DocService) { }
+  constructor(private route: ActivatedRoute, private docService: DocService) { }
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
 
-    this._save$ = this.ds.save$
+    this._save$ = this.docService.save$
     .filter(doc => doc.id === this.viewModel.model.id)
     .subscribe((savedDoc: DocModel) => {
       this.viewModel.model = savedDoc;
       this.viewModel.formGroup.patchValue(savedDoc);
     });
 
-    this._delete$ = this.ds.delete$
+    this._delete$ = this.docService.delete$
     .filter(doc => doc.id === this.viewModel.model.id)
     .subscribe((deletedDoc: DocModel) => {
       this.viewModel.model = deletedDoc;
       this.viewModel.formGroup.patchValue(deletedDoc);
     });
-
   }
 
   ngOnDestroy() {
@@ -69,18 +68,18 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   }
 
   Delete() {
-    this.ds.delete(this.viewModel.model.id);
+    this.docService.delete(this.viewModel.model.id);
   }
 
   Close() {
     console.log('BASE CLOSE');
-    this.ds.close(this.viewModel.model);
+    this.docService.close(this.viewModel.model);
   }
 
   onSubmit() {
     const formDoc = this.viewModel.formGroup.getRawValue();
-    const newDoc = this.ds.createNewDoc(this.viewModel.model, formDoc);
-    this.ds.save(newDoc);
+    const newDoc = this.docService.createNewDoc(this.viewModel.model, formDoc);
+    this.docService.save(newDoc);
   }
 
 }

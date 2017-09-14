@@ -30,6 +30,7 @@ import {
     MdTabsModule,
     MdToolbarModule,
     MdTooltipModule,
+    MdExpansionModule
 } from '@angular/material';
 
 @NgModule({
@@ -62,6 +63,7 @@ import {
     MdPaginatorModule,
     MdSortModule,
     MdTableModule,
+    MdExpansionModule,
     MdNativeDateModule,
     FlexLayoutModule,
   ]

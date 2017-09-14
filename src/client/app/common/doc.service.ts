@@ -1,22 +1,24 @@
-import { ApiService } from '../services/api.service';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 
-import { DocModel } from './_doc.model';
+import { AuthService } from '../auth/auth.service';
+import { ApiService } from '../services/api.service';
+import { DocModel, JETTI_DOC_PROP } from './doc.model';
+import { MdSnackBar } from '@angular/material';
 
 @Injectable()
 export class DocService {
 
-  private _closeDoc = new Subject<DocModel>();
+  protected _closeDoc = new Subject<DocModel>();
   close$ = this._closeDoc.asObservable();
 
-  private _saveDoc = new Subject<DocModel>();
+  protected _saveDoc = new Subject<DocModel>();
   save$ = this._saveDoc.asObservable();
 
-  private _deleteDoc = new Subject<DocModel>();
+  protected _deleteDoc = new Subject<DocModel>();
   delete$ = this._deleteDoc.asObservable();
 
-  constructor(public api: ApiService) { };
+  constructor(public api: ApiService, private authService: AuthService, public snackBar: MdSnackBar) { };
 
   close(doc: DocModel) {
     this._closeDoc.next(doc);
@@ -26,8 +28,8 @@ export class DocService {
     this.api.postDoc(doc)
       .share()
       .subscribe((savedDoc: DocModel) => {
-        savedDoc.date = new Date(savedDoc.date);
         this._saveDoc.next(savedDoc);
+        this.openSnackBar(savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
       });
   }
 
@@ -35,8 +37,8 @@ export class DocService {
     this.api.deleteDoc(id)
       .share()
       .subscribe((deletedDoc: DocModel) => {
-        deletedDoc.date = new Date(deletedDoc.date);
         this._saveDoc.next(deletedDoc);
+        this.openSnackBar(deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       });
   }
 
@@ -44,38 +46,41 @@ export class DocService {
     const newDoc: DocModel = {
       id: model.id,
       type: model.type,
-      date: formDoc.date || new Date(model.date),
-      code: formDoc.code,
+      date: formDoc.date || model.date,
+      code: formDoc.code || model.code,
       description: formDoc.description || model.description,
       posted: model.posted,
       deleted: model.deleted,
       parent: model.parent,
       isfolder: model.isfolder,
+      company: formDoc.company ? formDoc.company['id'] : model.company['id'],
+      user: formDoc.user ? formDoc.user['id'] : model.user['id'] ||  this.authService.user ? this.authService.user.email : null,
       doc: {}
     };
 
-    const mapDoc = (s, d) => {
-      const exclude = Object.keys(newDoc);
-      for (const property in s) {
-        if (s.hasOwnProperty(property)) {
-          if (exclude.indexOf(property) > -1) { continue; }
-          if (s[property] instanceof Array) {
-            const copy = JSON.parse(JSON.stringify(s[property])) as any[];
-            copy.forEach(element => {
-              for (const p in element) {
-                if (element.hasOwnProperty(p)) {
-                  element[p] = element[p] ? element[p]['id'] || element[p] : element[p] || null;
-                }
-              }
-            });
-            d.doc[property] = copy;
-          } else {
-            d.doc[property] = s[property] ? s[property]['id'] || s[property] : s[property] || null;
+    for (const property in formDoc) {
+      if (!formDoc.hasOwnProperty(property)) { continue };
+      if (JETTI_DOC_PROP.indexOf(property) > -1) { continue; }
+      if ((formDoc[property] instanceof Array)) {
+        const copy = JSON.parse(JSON.stringify(formDoc[property])) as any[];
+        copy.forEach(element => {
+          for (const p in element) {
+            if (element.hasOwnProperty(p)) {
+              element[p] = element[p] ? element[p]['id'] || element[p] : element[p] || null;
+            }
           }
-        }
+        });
+        newDoc.doc[property] = copy;
+      } else {
+        newDoc.doc[property] = formDoc[property] ? formDoc[property]['id'] || formDoc[property] : formDoc[property] || null;
       }
     }
-    mapDoc(formDoc, newDoc);
     return newDoc;
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 3000,
+    });
   }
 }

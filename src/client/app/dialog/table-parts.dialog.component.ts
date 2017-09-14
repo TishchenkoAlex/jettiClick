@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MD_DIALOG_DATA } from '@angular/material';
 
-import { BaseDynamicControl } from '../common/dynamic-form/dynamic-form-base';
+import { BaseJettiFromControl } from '../common/dynamic-form/dynamic-form-base';
 
 @Component({
   templateUrl: './table-parts.dialog.component.html',
@@ -11,7 +11,7 @@ import { BaseDynamicControl } from '../common/dynamic-form/dynamic-form-base';
 export class TablePartsDialogComponent {
 
   formGroup: FormGroup;
-  controls: BaseDynamicControl<any>[];
+  controls: BaseJettiFromControl<any>[];
 
   constructor(@Inject(MD_DIALOG_DATA) public data: any) {
     this.formGroup = data.formGroup;

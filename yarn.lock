@@ -30,19 +30,19 @@
     tslib "^1.7.1"
 
 "@angular/cdk@angular/cdk-builds":
-  version "2.0.0-beta.11-9545427"
-  resolved "https://codeload.github.com/angular/cdk-builds/tar.gz/ef194b6b15d2b3be3fabc97a74b1817a60dd18cf"
+  version "2.0.0-beta.11-1cb8907"
+  resolved "https://codeload.github.com/angular/cdk-builds/tar.gz/3c5f56a5dddcad7d2b9cd508a1236ff0537c4211"
   dependencies:
     tslib "^1.7.1"
 
-"@angular/cli@1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@angular/cli/-/cli-1.4.1.tgz#3999b93385c87b7c8d1511131c21280ba0e2cf12"
+"@angular/cli@1.4.2":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@angular/cli/-/cli-1.4.2.tgz#220a54c7e12303157cc289f4306fa46d080705ac"
   dependencies:
     "@angular-devkit/build-optimizer" "~0.0.18"
     "@angular-devkit/schematics" "~0.0.21"
     "@ngtools/json-schema" "1.1.0"
-    "@ngtools/webpack" "1.7.0"
+    "@ngtools/webpack" "1.7.1"
     "@schematics/angular" "~0.0.30"
     autoprefixer "^6.5.3"
     chalk "^2.0.1"
@@ -147,8 +147,8 @@
   resolved "https://registry.yarnpkg.com/@angular/language-service/-/language-service-4.4.0-RC.0.tgz#4566f961b780b95b89160bce10775ef72b1ee0b2"
 
 "@angular/material@angular/material2-builds":
-  version "2.0.0-beta.11-9545427"
-  resolved "https://codeload.github.com/angular/material2-builds/tar.gz/572ada043d31d1368187a55b999583574fc847df"
+  version "2.0.0-beta.11-1cb8907"
+  resolved "https://codeload.github.com/angular/material2-builds/tar.gz/4fcd530dab6d5f61298875ca765fd624d554e19b"
   dependencies:
     tslib "^1.7.1"
 
@@ -180,9 +180,9 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@ngtools/json-schema/-/json-schema-1.1.0.tgz#c3a0c544d62392acc2813a42c8a0dc6f58f86922"
 
-"@ngtools/webpack@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@ngtools/webpack/-/webpack-1.7.0.tgz#100b4ba370b3b9f991936f3d5db09cebffe11583"
+"@ngtools/webpack@1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@ngtools/webpack/-/webpack-1.7.1.tgz#383ddd689845cf42fc755975f6440f75535f5016"
   dependencies:
     enhanced-resolve "^3.1.0"
     loader-utils "^1.0.2"
@@ -3468,9 +3468,9 @@ pg-pool@1.*:
     generic-pool "2.4.3"
     object-assign "4.1.0"
 
-pg-promise@^6.5.2:
-  version "6.5.2"
-  resolved "https://registry.yarnpkg.com/pg-promise/-/pg-promise-6.5.2.tgz#84d18d8f14bd5a60bf8415d96c3c634e0d1745a2"
+pg-promise@^6.5.4:
+  version "6.5.4"
+  resolved "https://registry.yarnpkg.com/pg-promise/-/pg-promise-6.5.4.tgz#500888043d3643001b357b2a0ca51ae9e324a0a5"
   dependencies:
     manakin "~0.5.1"
     pg "~6.4.2"

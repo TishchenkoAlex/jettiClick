@@ -11,7 +11,7 @@ export interface ControlOptions<T> {
   style?: any
 }
 
-export class BaseDynamicControl<T> {
+export class BaseJettiFromControl<T> {
   value: T;
   type: string;
   key: string;
@@ -37,7 +37,7 @@ export class BaseDynamicControl<T> {
   }
 }
 
-export class TextboxDynamicControl extends BaseDynamicControl<string> {
+export class TextboxJettiFormControl extends BaseJettiFromControl<string> {
   controlType = 'textbox';
   type = 'string';
 
@@ -46,7 +46,7 @@ export class TextboxDynamicControl extends BaseDynamicControl<string> {
   }
 }
 
-export class BooleanDynamicControl extends BaseDynamicControl<boolean> {
+export class BooleanJettiFormControl extends BaseJettiFromControl<boolean> {
   controlType = 'checkbox';
   type = 'boolean';
   style = { 'max-width': '50px', 'text-align' : 'center' };
@@ -58,7 +58,7 @@ export class BooleanDynamicControl extends BaseDynamicControl<boolean> {
   }
 }
 
-export class DateDynamicControl extends BaseDynamicControl<Date> {
+export class DateJettiFormControl extends BaseJettiFromControl<Date> {
   controlType = 'date';
   type = 'date';
   style = { 'max-width' : '90px' };
@@ -69,7 +69,7 @@ export class DateDynamicControl extends BaseDynamicControl<Date> {
   }
 }
 
-export class DateTimeDynamicControl extends BaseDynamicControl<Date> {
+export class DateTimeDynamicControl extends BaseJettiFromControl<Date> {
   controlType = 'datetime';
   type = 'datetime';
   style = { 'max-width' : '110px' };
@@ -84,7 +84,7 @@ export interface JettiComplexObject {
   id: string, value: string, code: string, type: string
 }
 
-export class DropdownDynamicControl extends BaseDynamicControl<JettiComplexObject> {
+export class AutocompleteJettiFormControl extends BaseJettiFromControl<JettiComplexObject> {
   controlType = 'autocomplete';
 
   constructor(options: ControlOptions<JettiComplexObject> = {}) {
@@ -95,7 +95,7 @@ export class DropdownDynamicControl extends BaseDynamicControl<JettiComplexObjec
   }
 }
 
-export class NumberDynamicControl extends BaseDynamicControl<number> {
+export class NumberJettiFormControl extends BaseJettiFromControl<number> {
   controlType = 'number';
   type = 'number';
   style = { 'max-width' : '110px' };
@@ -106,7 +106,7 @@ export class NumberDynamicControl extends BaseDynamicControl<number> {
   }
 }
 
-export class TableDynamicControl extends BaseDynamicControl<Object> {
+export class TableDynamicControl extends BaseJettiFromControl<Object> {
   controlType = 'table';
   type = 'table';
 

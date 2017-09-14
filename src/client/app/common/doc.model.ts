@@ -2,17 +2,20 @@ import { v1 } from 'uuid';
 
 export class DocModel {
     id = '';
-    date = new Date();
+    date = new Date().toJSON();
     code = '';
-    description = ''
+    description = '';
     posted = false;
     deleted = false;
     isfolder = false;
     parent: string = null;
+    company = '';
+    user = '';
     doc: {}
 
     constructor (public type: string) {
-        this.date = new Date();
         this.id = v1();
     }
 }
+
+export const JETTI_DOC_PROP = Object.keys(new DocModel(''));

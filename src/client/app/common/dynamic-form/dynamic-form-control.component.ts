@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, Input } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
-import { BaseDynamicControl } from './dynamic-form-base';
+import { BaseJettiFromControl } from './dynamic-form-base';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -12,7 +12,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA
   styles: [`md-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`]
 })
 export class DynamicFormControlComponent implements AfterViewInit {
-  @Input() control: BaseDynamicControl<any>;
+  @Input() control: BaseJettiFromControl<any>;
   @Input() form: FormGroup;
   @Input() tab: any;
 

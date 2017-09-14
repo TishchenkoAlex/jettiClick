@@ -3,21 +3,21 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
-import { DocModel } from '../_doc.model';
+import { DocModel } from '../doc.model';
 import {
-    BaseDynamicControl,
-    BooleanDynamicControl,
+    BaseJettiFromControl,
+    BooleanJettiFormControl,
     ControlOptions,
-    DateDynamicControl,
-    DropdownDynamicControl,
-    NumberDynamicControl,
+    DateJettiFormControl,
+    AutocompleteJettiFormControl,
+    NumberJettiFormControl,
     TableDynamicControl,
-    TextboxDynamicControl,
+    TextboxJettiFormControl,
 } from './dynamic-form-base';
 import { DynamicFormControlService } from './dynamic-form-control.service';
 
 export interface ViewModel {
-  view: BaseDynamicControl<any>[];
+  view: BaseJettiFromControl<any>[];
   model: DocModel,
   formGroup: FormGroup,
   controlsByKey: any,
@@ -31,16 +31,15 @@ export class DynamicFormService {
 
   getViewModel(docType: string, docID = ''): Observable<ViewModel> {
 
-    const fields: BaseDynamicControl<any>[] = [];
-    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent'];
+    const fields: BaseJettiFromControl<any>[] = [];
+    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'user'];
 
-    if (docType.startsWith('Catalog.')) { exclude.push('date'); }
+    if (docType.startsWith('Catalog.')) { exclude.push('date', 'company'); }
     if (docType.startsWith('Document.')) { exclude.push('description'); }
 
     return this.apiService.getViewModel(docType, docID)
       .map(viewModel => {
         const model = viewModel['model'];
-        model.date = new Date(model.date);
         const view = viewModel['view'];
 
         const processRecursive = (v, f) => {
@@ -60,38 +59,32 @@ export class DynamicFormService {
             const required = prop['required'] || false;
             const readOnly = prop['readOnly'] || false;
             const style = prop['style'] || false;
-
-            if ((dataType === 'date') || (dataType === 'datetime')) {
-              model[property] = new Date(model[property]);
-              if (isNaN(model[property].getTime())) { model[property] = null; }
-            };
-            if (dataType === 'boolean') { model[property] = Boolean(model[property]); };
-
-            let newControl: BaseDynamicControl<any>;
+            if (dataType === 'boolean') { model[property] = !!model[property]; }
+            let newControl: BaseJettiFromControl<any>;
             const controlOptions: ControlOptions<any> = {
               key: property,
               label: label, type: dataType, required: required, readOnly: readOnly, order: order, hidden: hidden, style: style
             };
             switch (dataType) {
               case 'boolean':
-                newControl = new BooleanDynamicControl(controlOptions);
+                newControl = new BooleanJettiFormControl(controlOptions);
                 break;
               case 'date':
-                newControl = new DateDynamicControl(controlOptions);
+                newControl = new DateJettiFormControl(controlOptions);
                 break;
               case 'datetime':
-                newControl = new DateDynamicControl(controlOptions);
+                newControl = new DateJettiFormControl(controlOptions);
                 break;
               case 'number':
-                newControl = new NumberDynamicControl(controlOptions);
+                newControl = new NumberJettiFormControl(controlOptions);
                 break;
               default:
                 if (dataType.includes('.')) {
                   controlOptions.type = dataType; // здесь нужен тип ссылки
-                  newControl = new DropdownDynamicControl(controlOptions);
+                  newControl = new AutocompleteJettiFormControl(controlOptions);
                   break;
                 };
-                newControl = new TextboxDynamicControl(controlOptions);
+                newControl = new TextboxJettiFormControl(controlOptions);
                 break;
             }
             f.push(newControl);
@@ -115,9 +108,6 @@ export class DynamicFormService {
             model[property].forEach(element => {
               const Row = {}; const arr: FormGroup[] = [];
               Object.keys(sample).forEach(item => {
-                if (['date', 'datetime'].indexOf(sample[item]['type'] && sample[item]['type']) > -1) {
-                  element[item] = new Date(element[item]);
-                }
                 Row[item] = new FormControl(null);
               });
               formArray.push(new FormGroup(Row));
@@ -129,13 +119,7 @@ export class DynamicFormService {
         });
 
         formGroup.patchValue(model);
-        return {
-          view: fields,
-          model: model,
-          formGroup: formGroup,
-          controlsByKey: controlsByKey,
-          tableParts: tableParts
-        }
+        return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, tableParts: tableParts }
       });
 
   }

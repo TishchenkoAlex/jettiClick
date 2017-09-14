@@ -13,7 +13,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
-import { DocModel } from '../_doc.model';
+import { DocModel } from '../doc.model';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
 @Component({
@@ -51,6 +51,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   @Input() placeholder = '';
   @Input() required = false;
   @Input() disabled = false;
+  @Input() hidden = false;
   @Input() tabIndex = false;
 
   private _value: JettiComplexObject;

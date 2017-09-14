@@ -12,26 +12,8 @@
   display: flex;
 }
 
-.mat-cell-date {
-  display: flex;
-  justify-content: center;
-}
-
 .mat-column-date {
-  min-width: 115px;
-  max-width: 115px;
-}
-
-.mat-column-code {
-  min-width: 130px;
-  max-width: 130px;
-  justify-content: center;  
-}
-
-.mat-input-container {
-  font-size: 14px;
-  flex-grow: 1;
-  margin-left: 32px;
+  margin-right: 16px;
 }
 
 .mat-table {
@@ -39,13 +21,7 @@
   overflow: auto;
 }
 
-.search-header {
-  min-height: 46px;
-  margin-top: 10px;
-  font-size: 30pt;
-}
-/* 
 .mat-row:hover {
   background: #f5f5f5;
 }
- */
+

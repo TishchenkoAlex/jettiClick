@@ -1,11 +1,13 @@
+import { SelectionModel } from '@angular/cdk/collections';
 import { DataSource } from '@angular/cdk/table';
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { MdPaginator, MdSort, SelectionModel } from '@angular/material';
+import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { MdPaginator, MdSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
+import { JETTI_DOC_PROP } from '../../common/doc.model';
 import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
@@ -13,15 +15,15 @@ import { DocService } from '../doc.service';
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
 
 @Component({
-  // tslint:disable-next-line:component-selector
   selector: 'common-datatable',
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
 })
-export class CommonDataTableComponent implements DocumentComponent, OnInit, AfterViewInit, OnDestroy {
+export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDestroy {
 
-  private _delete$: Subscription = Subscription.EMPTY;
-  private _save$: Subscription = Subscription.EMPTY;
+  protected _delete$: Subscription = Subscription.EMPTY;
+  protected _save$: Subscription = Subscription.EMPTY;
+  protected _filter$: Subscription = Subscription.EMPTY;
 
   displayedColumns = [];
   selection = new SelectionModel<string>(true, []);
@@ -42,8 +44,8 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, Afte
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.ds.api, this.data.docType, this.data.pageSize, this.paginator, this.sort);
 
-    Observable.fromEvent(this.filter.nativeElement, 'keyup')
-      .debounceTime(300)
+    this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
+      .debounceTime(500)
       .distinctUntilChanged()
       .subscribe(() => {
         if (!this.dataSource) { return; }
@@ -52,9 +54,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, Afte
 
     const view = (this.route.data['value'].detail);
     Object.keys(view).map((property) => {
-      // tslint:disable-next-line:curly
-      if (['id', 'date', 'code', 'description', 'type', 'posted', 'deleted', 'isfolder', 'parent'].indexOf(property) > -1
-        || (view[property].constructor === Array)) return;
+      if (JETTI_DOC_PROP.indexOf(property) > -1 || (view[property].constructor === Array)) { return; }
       const prop = view[property];
       const order = prop['order'] * 1 || 99;
       const hidden = prop['hidden'] === 'true';
@@ -65,8 +65,8 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, Afte
     });
     this.columns.sort((a, b) => a.order - b.order);
     this.displayedColumns = this.columns.map((c) => c.field);
-    if (this.data.docType.startsWith('Document')) {
-      this.displayedColumns.unshift('select', 'posted', 'date', 'code', 'description');
+    if (this.data.docType.startsWith('Document.')) {
+      this.displayedColumns.unshift('select', 'posted', 'date', 'code');
     } else {
       this.displayedColumns.unshift('select', 'posted', 'code', 'description');
     }
@@ -87,10 +87,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, Afte
   ngOnDestroy() {
     this._delete$.unsubscribe();
     this._save$.unsubscribe();
-  }
-
-  ngAfterViewInit() {
-    setTimeout(() => this.filter.nativeElement.focus(), 1000);
+    this._filter$.unsubscribe();
   }
 
   isAllSelected(): boolean {
@@ -163,7 +160,6 @@ export class ApiDataSource extends DataSource<any> {
       this._paginator.page,
       this._doRefresh,
     ])
-      .distinctUntilChanged()
       .switchMap((stream) => {
         this.isLoadingResults = true;
         const filter = !this._filterChange.value ? '' :
@@ -179,6 +175,7 @@ export class ApiDataSource extends DataSource<any> {
       })
       .map(data => data['data'])
       .catch(err => {
+        this.isLoadingResults = false;
         return Observable.of<any[]>([]);
       });
   }
