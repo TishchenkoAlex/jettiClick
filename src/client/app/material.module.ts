@@ -1,4 +1,3 @@
-import { CdkTableModule } from '@angular/cdk/table';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import {
@@ -35,7 +34,6 @@ import {
 
 @NgModule({
   exports: [
-    CdkTableModule,
     MdAutocompleteModule,
     MdButtonModule,
     MdButtonToggleModule,

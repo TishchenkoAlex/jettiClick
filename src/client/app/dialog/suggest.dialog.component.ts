@@ -1,5 +1,4 @@
-import { SelectionModel } from '@angular/cdk/collections';
-import { DataSource } from '@angular/cdk/table';
+import { SelectionModel, DataSource } from '@angular/cdk/collections';
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { MD_DIALOG_DATA, MdPaginator, MdSort } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';

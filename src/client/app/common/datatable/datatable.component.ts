@@ -1,5 +1,4 @@
-import { SelectionModel } from '@angular/cdk/collections';
-import { DataSource } from '@angular/cdk/table';
+import { DataSource, SelectionModel } from '@angular/cdk/collections';
 import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MdPaginator, MdSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
