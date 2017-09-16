@@ -3,12 +3,11 @@ import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/cor
 import { FormArray, FormGroup } from '@angular/forms';
 import { MdDialog, MdSort } from '@angular/material';
 
-import { MdTableDataSource } from '../../common/datatable/array-data-source';
 import { BaseJettiFromControl } from '../../common/dynamic-form/dynamic-form-base';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
+import { MdTableDataSource } from './md-table-datasource';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };
-const properties = ['id', 'name', 'progress', 'color'];
 
 @Component({
   selector: 'j-table-part',
@@ -96,7 +95,6 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
       .afterClosed()
       .take(1)
       .subscribe(data => {
-        console.log(data);
         if (data) {
           this.formGroup.push(sampleRow);
           this.dataSource.data.push(data);

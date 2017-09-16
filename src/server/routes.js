@@ -67,8 +67,8 @@ router.get('/:type/list', async (req, res, next) => {
     const filter = req.query.$filter ? ' AND ' + decodeURI(req.query.$filter).replace(/\*/g, '%') : ' ';
     const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [req.params.type]);
     const order = req.query.$order ? `ORDER BY ${req.query.$order}` : 'ORDER BY d.type, d.date, d.code';
-    const query = `
-      ${config_schema.queryList}
+    const query = `SELECT * FROM (
+      ${config_schema.queryList} ) d WHERE true 
       ${filter}
       ${order} 
       OFFSET ${skip} LIMIT ${top};

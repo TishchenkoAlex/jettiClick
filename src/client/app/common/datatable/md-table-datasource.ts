@@ -1,4 +1,4 @@
-import { DataSource } from '@angular/cdk/table';
+import { DataSource } from '@angular/cdk/collections';
 import { MdPaginator, MdSort, PageEvent, Sort, SortDirection } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { merge } from 'rxjs/observable/merge';

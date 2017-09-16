@@ -4,6 +4,8 @@ import { Observable } from 'rxjs/Observable';
 
 import { environment } from '../../environments/environment';
 
+export interface DocListResponse { data: any[], total_count: number };
+
 @Injectable()
 export class ApiService {
 
@@ -11,14 +13,10 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  getDocList(type: string, skip = 0, top = 50, order = '', filter = ''): Observable<Object> {
-    // tslint:disable-next-line:max-line-length
+  getDocList(type: string, skip = 0, top = 50, order = '', filter = ''): Observable<DocListResponse> {
     const query = `${this.url}${type}/list?$top=${top}&$skip=${skip}&$filter=${filter}&$order=${order}`;
     console.log('LIS API', query);
-    return (this.http.get(query))
-      .catch(err => {
-        return Observable.of(null);
-      });
+    return this.http.get(query) as Observable<DocListResponse>;
   }
 
   getView(type: string): Observable<any[]> {

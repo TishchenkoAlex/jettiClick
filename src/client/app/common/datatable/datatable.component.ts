@@ -2,6 +2,7 @@ import { DataSource, SelectionModel } from '@angular/cdk/collections';
 import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MdPaginator, MdSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
+import * as moment from 'moment';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
@@ -12,6 +13,7 @@ import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
+interface FilterObject { startDate: Date, endDate: Date, columnFilter: string };
 
 @Component({
   selector: 'common-datatable',
@@ -24,15 +26,93 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   protected _save$: Subscription = Subscription.EMPTY;
   protected _filter$: Subscription = Subscription.EMPTY;
 
-  displayedColumns = [];
   selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
 
   @Input() data;
   @Input() actionTepmlate: TemplateRef<any>;
 
-  totalRecords = 0;
+  private _filterObject: FilterObject;
+  @Input() set filterObject(value: FilterObject) {
+    this._filterObject = value;
+    if (!this.dataSource) { return; }
+    this.dataSource.filterObjext = value;
+  };
+  get filterObject(): FilterObject {
+    return this._filterObject;
+  };
+
+  private _selectedPeriod = '';
+  get selectedPeriod() { return this._selectedPeriod; }
+  set selectedPeriod(value) {
+    const columnFilter = this.filter.nativeElement.value;
+    if (!this.dataSource) { return; }
+    switch (value) {
+      case 'td': {
+        this.filterObject = { startDate: moment().startOf('day').toDate(), endDate: new Date(), columnFilter: columnFilter };
+        break;
+      }
+      case '7d': {
+        this.filterObject = { startDate: moment().add(-7, 'day').toDate(), endDate: new Date(), columnFilter: columnFilter };
+        break;
+      }
+      case 'tw': {
+        this.filterObject = { startDate: moment().startOf('week').toDate(), endDate: new Date(), columnFilter: columnFilter };
+        break;
+      }
+      case 'lw': {
+        this.filterObject = {
+          startDate: moment().startOf('week').add(-1, 'week').toDate(),
+          endDate: moment().endOf('week').add(-1, 'week').toDate(), columnFilter: columnFilter
+        };
+        break;
+      }
+      case 'tm': {
+        this.filterObject = { startDate: moment().startOf('month').toDate(), endDate: new Date(), columnFilter: columnFilter };
+        break;
+      }
+      case 'lm': {
+        this.filterObject = {
+          startDate: moment().startOf('month').add(-1, 'month').toDate(),
+          endDate: new Date(), columnFilter: columnFilter
+        };
+        break;
+      }
+      case 'ty': {
+        this.filterObject = { startDate: moment().startOf('year').toDate(), endDate: new Date(), columnFilter: columnFilter };
+        break;
+      }
+      case 'ly': {
+        this.filterObject = {
+          startDate: moment().startOf('year').add(-1, 'year').toDate(),
+          endDate: moment().endOf('year').add(-1, 'year').toDate(), columnFilter: columnFilter
+        };
+        break;
+      }
+      default: {
+        this.filterObject = { startDate: moment().startOf('week').toDate(), endDate: new Date(), columnFilter: columnFilter };
+      }
+    }
+    this._selectedPeriod = value;
+  }
+
   columns: ColDef[] = [];
+  displayedColumns = [];
+
+  private _selectedColumn = 'code';
+  set selectedColumn(value) {
+    this._selectedColumn = value;
+    if (!this.dataSource) { return; }
+    this.filter.nativeElement.value = '';
+    this.dataSource.selectedColumn = this.selectedColumn;
+    this.dataSource.filterObjext = {
+      startDate: this.filterObject.startDate,
+      endDate: this.filterObject.endDate,
+      columnFilter: this.filter.nativeElement.value
+    };
+  };
+  get selectedColumn() { return this._selectedColumn; }
+
 
   @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild(MdSort) sort: MdSort;
@@ -44,11 +124,15 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     this.dataSource = new ApiDataSource(this.ds.api, this.data.docType, this.data.pageSize, this.paginator, this.sort);
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
-      .debounceTime(500)
+      .debounceTime(1000)
       .distinctUntilChanged()
       .subscribe(() => {
         if (!this.dataSource) { return; }
-        this.dataSource.filter = this.filter.nativeElement.value;
+        this.dataSource.filterObjext = {
+          startDate: this.filterObject.startDate,
+          endDate: this.filterObject.endDate,
+          columnFilter: this.filter.nativeElement.value
+        };
       });
 
     const view = (this.route.data['value'].detail);
@@ -69,6 +153,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     } else {
       this.displayedColumns.unshift('select', 'posted', 'code', 'description');
     }
+    this.selectedPeriod = 'tm';
 
     this._delete$ = this.ds.delete$
       .filter(doc => doc.type === this.data.docType)
@@ -77,16 +162,20 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
       });
 
     this._save$ = this.ds.save$
-    .filter(doc => doc.type === this.data.docType)
-    .subscribe(doc => {
-      this.refresh();
-    });
+      .filter(doc => doc.type === this.data.docType)
+      .subscribe(doc => {
+        this.refresh();
+      });
   }
 
   ngOnDestroy() {
     this._delete$.unsubscribe();
     this._save$.unsubscribe();
     this._filter$.unsubscribe();
+  }
+
+  onPeriodChange() {
+    this.selectedPeriod = Object.assign({}, this.selectedPeriod);
   }
 
   isAllSelected(): boolean {
@@ -135,9 +224,11 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
 export class ApiDataSource extends DataSource<any> {
   _doRefresh = new BehaviorSubject('');
 
-  _filterChange = new BehaviorSubject('');
-  get filter(): string { return this._filterChange.value; }
-  set filter(filter: string) { this._filterChange.next(filter); }
+  selectedColumn = 'code';
+
+  _filterObjextChange = new BehaviorSubject<FilterObject>(null);
+  get filterObjext(): FilterObject { return this._filterObjextChange.value; }
+  set filterObjext(filterObjext: FilterObject) { this._filterObjextChange.next(filterObjext); }
 
   renderedData: any[];
   isLoadingResults = true;
@@ -151,32 +242,38 @@ export class ApiDataSource extends DataSource<any> {
     super();
 
     this._paginator.pageSize = pageSize;
-    this._filterChange.subscribe(() => this._paginator.pageIndex = 0);
+    this._filterObjextChange.subscribe(() => this._paginator.pageIndex = 0);
 
     this.result$ = Observable.merge(...[
       this._sort.mdSortChange,
-      this._filterChange,
+      this._filterObjextChange,
       this._paginator.page,
       this._doRefresh,
     ])
+      .distinctUntilChanged()
+      .filter(stream => stream !== null)
       .switchMap((stream) => {
+        console.log(stream);
         this.isLoadingResults = true;
-        const filter = !this._filterChange.value ? '' :
-          `(d.description ILIKE '${this._filterChange.value}*' OR d.code ILIKE '${this._filterChange.value}*')`;
+        const filter = !this.filterObjext.columnFilter ? '' :
+          ` (d."${this.selectedColumn}" ILIKE '${this.filterObjext.columnFilter}*') `;
         return this.apiService.getDocList(this.docType,
           (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
           this._sort.active ? '"' + this._sort.active + '" ' + this._sort.direction : '', filter)
           .do(data => {
-            this._paginator.length = data['total_count'];
-            this.renderedData = data['data'];
+            this._paginator.length = data.total_count;
+            this.renderedData = data.data;
             this.isLoadingResults = false;
+          })
+          .catch(err => {
+            console.log(err);
+            this._paginator.length = 0;
+            this.renderedData = [];
+            this.isLoadingResults = false;
+            return Observable.of();
           });
       })
       .map(data => data['data'])
-      .catch(err => {
-        this.isLoadingResults = false;
-        return Observable.of<any[]>([]);
-      });
   }
 
   connect(): Observable<any[]> {

@@ -8,20 +8,20 @@
   
     <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
   
-      <ng-container mdColumnDef="select">
-        <md-header-cell *mdHeaderCellDef>
+      <ng-container cdkColumnDef="select">
+        <md-header-cell *cdkHeaderCellDef>
           <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
           </md-checkbox>
         </md-header-cell>
-        <md-cell *mdCellDef="let row">
+        <md-cell *cdkCellDef="let row">
           <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row.id) : null" [checked]="selection.isSelected(row.id)">
           </md-checkbox>
         </md-cell>
       </ng-container>
   
-      <ng-container mdColumnDef="posted">
-        <md-header-cell *mdHeaderCellDef></md-header-cell>
-        <md-cell *mdCellDef="let row" style="margin-top: 4px">
+      <ng-container cdkColumnDef="posted">
+        <md-header-cell *cdkHeaderCellDef></md-header-cell>
+        <md-cell *cdkCellDef="let row" style="margin-top: 4px">
           <md-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</md-icon>
           <md-icon *ngIf="row['posted']" color="primary">check_box</md-icon>
           <md-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</md-icon>
@@ -29,28 +29,29 @@
       </ng-container>
   
       <ng-container *ngIf="data.docType.startsWith('Document')" mdColumnDef="date">
-        <md-header-cell *mdHeaderCellDef md-sort-header>date</md-header-cell>
-        <md-cell *mdCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
+        <md-header-cell *cdkHeaderCellDef md-sort-header>date</md-header-cell>
+        <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
       </ng-container>
   
-      <ng-container mdColumnDef="code">
-        <md-header-cell *mdHeaderCellDef md-sort-header>code</md-header-cell>
-        <md-cell *mdCellDef="let row">
+      <ng-container cdkColumnDef="code">
+        <md-header-cell *cdkHeaderCellDef md-sort-header>code</md-header-cell>
+        <md-cell *cdkCellDef="let row">
           <button md-button [md-dialog-close]="row" color="primary" 
             style="min-width: 130px; padding-left: 0px; padding-right: 0px;">{{row.code}}
           </button>
         </md-cell>
       </ng-container>
   
-      <ng-container mdColumnDef="description">
-        <md-header-cell *mdHeaderCellDef md-sort-header>description</md-header-cell>
-        <md-cell *mdCellDef="let row">
+      <ng-container cdkColumnDef="description">
+        <md-header-cell *cdkHeaderCellDef md-sort-header>description</md-header-cell>
+        <md-cell *cdkCellDef="let row">
           {{row.description}}
         </md-cell>
       </ng-container>
   
-      <md-header-row *mdHeaderRowDef="columns"></md-header-row>
-      <md-row *mdRowDef="let row; columns: columns;"></md-row>
+      <md-header-row *cdkHeaderRowDef="columns"></md-header-row>
+      <md-row *cdkRowDef="let row; columns: columns;"></md-row>
+
     </md-table>
     <md-paginator #paginator [length]="data.pageSize" [pageIndex]="0" [pageSize]="data.pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
     <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
