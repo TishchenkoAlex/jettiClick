@@ -15,7 +15,7 @@ export class ApiService {
 
   getDocList(type: string, skip = 0, top = 50, order = '', filter = ''): Observable<DocListResponse> {
     const query = `${this.url}${type}/list?$top=${top}&$skip=${skip}&$filter=${filter}&$order=${order}`;
-    console.log('LIS API', query);
+    console.log('LIST API', query);
     return this.http.get(query) as Observable<DocListResponse>;
   }
 
@@ -66,5 +66,10 @@ export class ApiService {
       });
   }
 
+  getDocAccountMovementsView(id: string): Observable<any[]> {
+    const query = `${this.url}register/account/movements/view/${id}`;
+    console.log('getDocAccountMovements', query);
+    return this.http.get(query) as Observable<any[]>;
+  }
 }
 

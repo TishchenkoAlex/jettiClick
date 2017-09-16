@@ -25,11 +25,11 @@ import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component'
         [placeholder]="placeholder" [mdAutocomplete]="auto" [readOnly]="readOnly"
         [disabled]="disabled" (blur)="onBlur()" [tabIndex]="tabIndex">
       <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open search dialog" [mdTooltipShowDelay]="1000"
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open search dialog"
         (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open item card" [mdTooltipShowDelay]="1000"
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open item card"
         (click)="handleOpen($event)" [tabIndex]=-1 autocomplete="off"><md-icon>visibility</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="clear this field" [mdTooltipShowDelay]="1000"
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="clear this field"
         (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
     </md-form-field>
 
@@ -128,7 +128,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
 
   handleReset(event) {
     event.stopPropagation();
-    this.value = { id: '', code: '', value: '', type: this.value.type };
+    this.value = { id: '', code: '', type: this.value.type, value: ''};
   }
 
   handleOpen(event) {
@@ -142,7 +142,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
     .afterClosed()
     .filter(result => !!result)
     .subscribe((data: DocModel) => {
-      this.value = {id: data.id, value: data.description, code: data.code, type: data.type};
+      this.value = {id: data.id, code: data.code, type: data.type, value: data.description};
     });
   }
 

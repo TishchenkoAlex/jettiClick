@@ -74,13 +74,15 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   openDialog(row) {
-    const index = this.formGroup.value.findIndex(el => JSON.stringify(el) === JSON.stringify(row));
+    const index = this.formGroup.value.findIndex(el => {
+      return JSON.stringify(el) === JSON.stringify(row);
+    });
+    if (index === -1) { return; }
     const formGroup = this.formGroup.controls[index];
     this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: formGroup } })
       .afterClosed()
       .take(1)
       .subscribe(data => {
-        console.log(data);
         if (data) {
           Object.assign(row, data)
         } else {

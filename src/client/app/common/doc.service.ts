@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
+import { MdSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 
 import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
 import { DocModel, JETTI_DOC_PROP } from './doc.model';
-import { MdSnackBar } from '@angular/material';
 
 @Injectable()
 export class DocService {

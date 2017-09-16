@@ -1,13 +1,11 @@
 <div fxLayout="column">
 
   <md-expansion-panel>
-
     <md-expansion-panel-header style="min-height: 65px;">
-
       <md-panel-title>
-        <div fxFlex fxLayoutAlign="space-between center" >
+        <div fxFlex fxLayoutAlign="space-between center">
           <div style="font-size: 8pt; width: 100px">
-            <span>description of the filter should be here</span> 
+            <span>description of the filter should be here</span>
           </div>
           <div fxFlex fxLayoutAlign="end center" fxLayoutGap="12px" style="height: 65px">
             <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table}"></ng-container>
@@ -18,8 +16,7 @@
         </div>
       </md-panel-title>
     </md-expansion-panel-header>
-    <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" 
-      fxLayoutAlign.xs="center center" fxLayoutGap="24px">
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutAlign.xs="center center" fxLayoutGap="24px">
 
       <div fxLayoutGap="4px">
         <md-select placeholder="period" [(ngModel)]="selectedPeriod">
@@ -49,12 +46,12 @@
       </div>
 
       <div fxLayoutGap="2px">
-        <md-select placeholder="filter column" [(ngModel)]="selectedColumn">
+        <md-select placeholder="filter column" [(ngModel)]="selectedColumn" style="max-width: 120px">
           <md-option *ngFor="let column of displayedColumns" [value]="column">
             {{column}}
           </md-option>
         </md-select>
-        <md-input-container>
+        <md-input-container style="max-width: 120px">
           <input mdInput #filter placeholder="filter" [tabindex]="0" autofocus autocomplete="false">
         </md-input-container>
       </div>
@@ -176,4 +173,12 @@
       <md-icon>remove</md-icon>
     </button>
   </div>
+</ng-template>
+
+<ng-template #sideNavTepmlate>
+  <md-card>
+    TABLE DATA: {{ data | json }}
+    <br>
+    <button md-button (click)="selectedPeriod='td'">Close</button>
+  </md-card>
 </ng-template>

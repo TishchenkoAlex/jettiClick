@@ -90,7 +90,7 @@ export class AutocompleteJettiFormControl extends BaseJettiFromControl<JettiComp
   constructor(options: ControlOptions<JettiComplexObject> = {}) {
     super(options);
     if (!this.value) {
-      this.value = {id: '', value: '' , code: '', type: this.type}
+      this.value = {id: '',  code: '', type: this.type, value: ''}
     }
   }
 }

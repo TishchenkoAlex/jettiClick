@@ -20,6 +20,26 @@
     </form>
   </md-card-content>
 </md-card>
+<br>
+
+<md-accordion class="panel-headers-align"  displayMode="flat">
+  <md-expansion-panel hideToggle="true">
+    <md-expansion-panel-header>
+      <md-panel-title>Additonal Info</md-panel-title>
+      <md-panel-description>Details<md-icon>map</md-icon></md-panel-description>
+    </md-expansion-panel-header>
+  </md-expansion-panel>
+
+  <md-expansion-panel hideToggle="true" *ngIf="viewModel.model.type.startsWith('Document.')">
+    <md-expansion-panel-header>
+      <md-panel-title>Account register movements</md-panel-title>
+      <md-panel-description>6<md-icon>account_circle</md-icon></md-panel-description>
+    </md-expansion-panel-header>
+
+    <j-register-movement [docID]="viewModel.model.id"></j-register-movement>
+
+  </md-expansion-panel>
+</md-accordion>
 
 <ng-template #formTepmlateDefault let-v="viewModel">
   <div fxLayout="column">
@@ -75,4 +95,12 @@
       <md-icon>delete</md-icon>
     </button>
   </div>
+</ng-template>
+
+<ng-template #sideNavTepmlate let-v="viewModel">
+  <md-card>
+    FORM DATA: {{ viewModel?.model | json }}
+    <br>
+    <button md-button>Close</button>
+  </md-card>
 </ng-template>

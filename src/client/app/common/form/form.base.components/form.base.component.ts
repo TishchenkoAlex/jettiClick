@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -6,9 +6,11 @@ import { DocModel } from '../../doc.model';
 import { DocService } from '../../../common/doc.service';
 import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
 import { ViewModel } from '../../dynamic-form/dynamic-form.service';
+import { SideNavService } from './../../../services/side-nav.service';
 
 @Component({
   selector: 'j-form',
+  styleUrls: ['./form.base.component.scss'],
   templateUrl: './form.base.component.html',
 })
 export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
@@ -19,17 +21,21 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   @Input() data;
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
+  @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
   viewModel: ViewModel;
 
-  constructor(private route: ActivatedRoute, private docService: DocService) { }
+  constructor(private route: ActivatedRoute, private docService: DocService,
+    private sideNavService: SideNavService) { }
 
   ngOnInit() {
+    this.sideNavService.templateRef = this.sideNavTepmlate;
     this.viewModel = this.route.data['value'].detail;
 
     this._save$ = this.docService.save$
     .filter(doc => doc.id === this.viewModel.model.id)
     .subscribe((savedDoc: DocModel) => {
+      console.log('SAVED DOC', savedDoc)
       this.viewModel.model = savedDoc;
       this.viewModel.formGroup.patchValue(savedDoc);
     });

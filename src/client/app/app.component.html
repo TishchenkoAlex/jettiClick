@@ -3,28 +3,51 @@
         <button md-icon-button (click)="sideNav.opened = !sideNav.opened"><md-icon>menu</md-icon></button>
         <span>Jetti - ClickSales</span>
         <span fxFlex></span>
-        <button md-icon-button [mdMenuTriggerFor]="themeMenu"><md-icon>more_vert</md-icon></button>
         <app-login></app-login>
+        <button md-icon-button (click)="end.toggle()"><md-icon>more_vert</md-icon></button>
     </md-toolbar>
-    <md-progress-bar *ngIf="(loading$ | async)" color="accent"  mode="indeterminate"></md-progress-bar>
+    <md-progress-bar *ngIf="(loading$ | async)" color="accent" mode="indeterminate"></md-progress-bar>
     <md-sidenav-container style="height: 100%">
         <md-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
             <md-nav-list>
                 <md-list-item *ngFor="let item of menuItems | async" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
-                [routerLink]="item.link" [routerLinkActive]="['active-route']">
-                <md-icon md-list-icon color="primary">{{ item.icon }}</md-icon>
-                <span md-line color="primary">{{ item.label }}</span>
-            </md-list-item>
-        </md-nav-list>
-    </md-sidenav>
-    <div class="content">
-        <div class="mat-elevation-z10">
-            <router-outlet></router-outlet>
+                    [routerLink]="item.link" [routerLinkActive]="['active-route']">
+                    <md-icon md-list-icon color="primary">{{ item.icon }}</md-icon>
+                    <span md-line color="primary">{{ item.label }}</span>
+                </md-list-item>
+            </md-nav-list>
+        </md-sidenav>
+        <md-sidenav #end position="end" mode="over" style="height: 100%;width: 350px;" class="mat-elevation-z10">
+            <div fxLayout="column" fxLayoutGap="8px">
+                <md-card>
+                    <div>End Side Drawer</div>
+                    <button md-button (click)="end.close()">Close</button>
+                </md-card>
+                <ng-container *ngTemplateOutlet="sideNavService.templateRef ? sideNavService.templateRef : sideNavTepmlateDefault"></ng-container>
+
+            </div>
+        </md-sidenav>
+        <div class="content">
+            <div class="mat-elevation-z10">
+                <router-outlet></router-outlet>
+            </div>
         </div>
-    </div>
-</md-sidenav-container>
-<!--     <md-toolbar class="md-medium-tall" color="primary"></md-toolbar> -->
+    </md-sidenav-container>
+    <!--     <md-toolbar class="md-medium-tall" color="primary"></md-toolbar> -->
 </div>
 <md-menu #themeMenu x-position="before">
     <button md-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
 </md-menu>
+
+<ng-template #sideNavTepmlateDefault>
+<md-card >
+        End Side Drawer
+        <br>
+        <button md-button (click)="end.close()">Close</button>
+    </md-card>
+    <md-card >
+        End Side Drawer
+        <br>
+        <button md-button (click)="end.close()">Close</button>
+    </md-card>
+</ng-template>

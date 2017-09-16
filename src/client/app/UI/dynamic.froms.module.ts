@@ -11,6 +11,7 @@ import { DynamicFormControlComponent } from './../common/dynamic-form/dynamic-fo
 import { DynamicFormControlService } from './../common/dynamic-form/dynamic-form-control.service';
 import { DynamicFormService } from './../common/dynamic-form/dynamic-form.service';
 import { BaseFormComponent } from './../common/form/form.base.components/form.base.component';
+import { RegisterMovementComponent } from './../common/register-movements/register-movement.component';
 import { TabControllerComponent } from './../common/tabcontroller/tabcontroller.component';
 import { TabControllerService } from './../common/tabcontroller/tabcontroller.service';
 import { SuggestDialogComponent } from './../dialog/suggest.dialog.component';
@@ -32,6 +33,7 @@ import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form
     TablePartsComponent,
     TablePartsDialogComponent,
     SuggestDialogComponent,
+    RegisterMovementComponent,
 
     CashRegisterForm, // add user froms above
   ],

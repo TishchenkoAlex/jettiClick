@@ -1,5 +1,5 @@
 import { DataSource, SelectionModel } from '@angular/cdk/collections';
-import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild, DoCheck } from '@angular/core';
 import { MdPaginator, MdSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as moment from 'moment';
@@ -11,6 +11,7 @@ import { JETTI_DOC_PROP } from '../../common/doc.model';
 import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
+import { SideNavService } from './../../services/side-nav.service';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
 interface FilterObject { startDate: Date, endDate: Date, columnFilter: string };
@@ -20,7 +21,7 @@ interface FilterObject { startDate: Date, endDate: Date, columnFilter: string };
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
 })
-export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDestroy {
+export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDestroy, DoCheck {
 
   protected _delete$: Subscription = Subscription.EMPTY;
   protected _save$: Subscription = Subscription.EMPTY;
@@ -49,7 +50,10 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     if (!this.dataSource) { return; }
     switch (value) {
       case 'td': {
-        this.filterObject = { startDate: moment().startOf('day').toDate(), endDate: new Date(), columnFilter: columnFilter };
+        this.filterObject = {
+          startDate: moment().startOf('day').toDate(),
+          endDate: moment().endOf('day').toDate(), columnFilter: columnFilter
+        };
         break;
       }
       case '7d': {
@@ -113,14 +117,16 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   };
   get selectedColumn() { return this._selectedColumn; }
 
-
   @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild('filter') filter: ElementRef;
+  @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
-  constructor(private route: ActivatedRoute, private router: Router, private ds: DocService) { };
+  constructor(private route: ActivatedRoute, private router: Router,
+    private ds: DocService, private sideNavService: SideNavService) { };
 
   ngOnInit() {
+
     this.dataSource = new ApiDataSource(this.ds.api, this.data.docType, this.data.pageSize, this.paginator, this.sort);
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
@@ -166,6 +172,12 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
       .subscribe(doc => {
         this.refresh();
       });
+  }
+
+  ngDoCheck() {
+    if (this.sideNavService.templateRef !== this.sideNavTepmlate) {
+      this.sideNavService.templateRef = this.sideNavTepmlate;
+    }
   }
 
   ngOnDestroy() {
@@ -219,6 +231,10 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     console.log('BASE CLOSE');
     this.ds.close(this.data);
   }
+
+  jjs() {
+    console.log(this.dataSource.renderedData)
+  }
 }
 
 export class ApiDataSource extends DataSource<any> {
@@ -253,7 +269,6 @@ export class ApiDataSource extends DataSource<any> {
       .distinctUntilChanged()
       .filter(stream => stream !== null)
       .switchMap((stream) => {
-        console.log(stream);
         this.isLoadingResults = true;
         const filter = !this.filterObjext.columnFilter ? '' :
           ` (d."${this.selectedColumn}" ILIKE '${this.filterObjext.columnFilter}*') `;
@@ -266,7 +281,6 @@ export class ApiDataSource extends DataSource<any> {
             this.isLoadingResults = false;
           })
           .catch(err => {
-            console.log(err);
             this._paginator.length = 0;
             this.renderedData = [];
             this.isLoadingResults = false;
@@ -285,4 +299,5 @@ export class ApiDataSource extends DataSource<any> {
   Refresh() {
     this._doRefresh.next(Math.random().toString());
   }
+
 }

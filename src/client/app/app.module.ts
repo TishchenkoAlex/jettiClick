@@ -42,6 +42,7 @@ import { MaterialModule } from './material.module';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
+import { SideNavService } from './services/side-nav.service';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { DynamicFormsModule } from './UI/dynamic.froms.module';
     ApiService,
     AuthService,
     TabResolver,
+    SideNavService,
   ],
   entryComponents: [
   ],

@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
 import { NavigationEnd, NavigationStart, Router, RoutesRecognized } from '@angular/router';
 import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
+import { SideNavService } from './services/side-nav.service';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,8 @@ export class AppComponent implements OnInit {
     opened: true
   };
 
-  constructor(media: ObservableMedia, private db: AngularFireDatabase, private router: Router) {
+  constructor(media: ObservableMedia, private db: AngularFireDatabase, private router: Router,
+    public sideNavService: SideNavService) {
 
     media.asObservable().subscribe((change: MediaChange) => this.switchMedia(change));
 

@@ -107,9 +107,7 @@ export class DynamicFormService {
             const formArray = formGroup.controls[property] as FormArray;
             model[property].forEach(element => {
               const Row = {}; const arr: FormGroup[] = [];
-              Object.keys(sample).forEach(item => {
-                Row[item] = new FormControl(null);
-              });
+              Object.keys(sample).forEach(item => Row[item] = new FormControl(null));
               formArray.push(new FormGroup(Row));
             });
             tableParts.push({id: indexOfTable, value: property, sampleRow: formArray.controls[0]});
@@ -121,6 +119,5 @@ export class DynamicFormService {
         formGroup.patchValue(model);
         return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, tableParts: tableParts }
       });
-
   }
 }
