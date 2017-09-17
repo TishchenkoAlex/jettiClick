@@ -24,6 +24,7 @@ export class DynamicFormControlService {
           new FormControl(control.value, Validators.required) : new FormControl(control.value);
       }
     });
-    return new FormGroup(group);
+    const result = new FormGroup(group);
+    return result;
   }
 }

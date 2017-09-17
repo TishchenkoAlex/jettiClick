@@ -8,7 +8,8 @@ export interface ControlOptions<T> {
   hidden?: boolean,
   order?: number,
   controlType?: string,
-  style?: any
+  style?: any,
+  change?: string,
 }
 
 export class BaseJettiFromControl<T> {
@@ -22,6 +23,7 @@ export class BaseJettiFromControl<T> {
   order: number;
   controlType: string;
   style: any;
+  change: string;
 
   constructor(options: ControlOptions<T> = {}) {
     this.value = options.value;
@@ -34,6 +36,7 @@ export class BaseJettiFromControl<T> {
     this.order = options.order === undefined ? 999 : options.order;
     this.controlType = options.controlType || '';
     this.style = options.style || {};
+    this.change = options.change || '';
   }
 }
 

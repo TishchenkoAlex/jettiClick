@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { MdSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 
@@ -89,5 +90,12 @@ export class DocService {
     this.snackBar.open(message, action, {
       duration: 3000,
     });
+  }
+
+  OnClientScript(control: FormGroup, data: any, script: string) {
+    const func = new Function('doc, value', script);
+    const patch = func(control.parent.value, data);
+    console.log('OnClientScript', data, script, patch);
+    (control.parent as FormGroup).patchValue(patch, {onlySelf: true, emitEvent: false});
   }
 }

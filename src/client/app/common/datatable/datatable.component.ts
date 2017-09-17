@@ -1,5 +1,5 @@
 import { DataSource, SelectionModel } from '@angular/cdk/collections';
-import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild, DoCheck } from '@angular/core';
+import { Component, DoCheck, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MdPaginator, MdSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as moment from 'moment';
@@ -121,6 +121,8 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   @ViewChild('filter') filter: ElementRef;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
+  get isDoc(): boolean { return this.data.docType.startsWith('Document.') }
+
   constructor(private route: ActivatedRoute, private router: Router,
     private ds: DocService, private sideNavService: SideNavService) { };
 
@@ -142,7 +144,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
 
     const view = (this.route.data['value'].detail);
     Object.keys(view).map((property) => {
-      if (JETTI_DOC_PROP.indexOf(property) > -1 || (view[property].constructor === Array)) { return; }
+      if (JETTI_DOC_PROP.indexOf(property) > -1 || (view[property] && view[property]['type'] === 'table')) { return; }
       const prop = view[property];
       const order = prop['order'] * 1 || 99;
       const hidden = prop['hidden'] === 'true';
@@ -225,7 +227,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   }
 
   jjs() {
-    console.log(this.dataSource.renderedData)
+    console.log('jss', this.dataSource.renderedData)
   }
 }
 

@@ -7,7 +7,7 @@
           <div style="font-size: 8pt; width: 100px">
             <span>description of the filter should be here</span>
           </div>
-          <div fxFlex fxLayoutAlign="end center" fxLayoutGap="3px" style="height: 65px">
+          <div fxFlex fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px">
             <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table}"></ng-container>
             <button md-mini-fab color="accent" (click)="$event.stopPropagation(); close()" mdTooltip="close">
             <md-icon>close</md-icon>
@@ -18,7 +18,7 @@
     </md-expansion-panel-header>
     <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutAlign.xs="center center" fxLayoutGap="24px">
 
-      <div fxLayoutGap="4px" *ngIf="data.docType.startsWith('Document.')">
+      <div fxLayoutGap="4px" *ngIf="isDoc">
         <md-select placeholder="period" [(ngModel)]="selectedPeriod">
           <md-option value="custom">custom</md-option>
           <md-option value="td">today</md-option>

@@ -5,14 +5,14 @@ import { Observable } from 'rxjs/Observable';
 import { ApiService } from '../../services/api.service';
 import { DocModel } from '../doc.model';
 import {
-    AutocompleteJettiFormControl,
-    BaseJettiFromControl,
-    BooleanJettiFormControl,
-    ControlOptions,
-    DateJettiFormControl,
-    NumberJettiFormControl,
-    TableDynamicControl,
-    TextboxJettiFormControl,
+  AutocompleteJettiFormControl,
+  BaseJettiFromControl,
+  BooleanJettiFormControl,
+  ControlOptions,
+  DateJettiFormControl,
+  NumberJettiFormControl,
+  TableDynamicControl,
+  TextboxJettiFormControl,
 } from './dynamic-form-base';
 import { DynamicFormControlService } from './dynamic-form-control.service';
 
@@ -42,15 +42,9 @@ export class DynamicFormService {
         const model = viewModel['model'];
         const view = viewModel['view'];
 
-        const processRecursive = (v, f) => {
+        const processRecursive = (v, f: BaseJettiFromControl<any>[]) => {
           Object.keys(v).map((property) => {
             if (exclude.indexOf(property) > -1) { return; }
-            if (v[property].constructor === Array) {
-              const value = [];
-              processRecursive(v[property][0], value);
-              f.push(new TableDynamicControl({ key: property, label: property, value: value }));
-              return;
-            };
             const prop = v[property];
             const order = prop['order'] * 1 || 99;
             const hidden = prop['hidden'] === 'true';
@@ -59,13 +53,20 @@ export class DynamicFormService {
             const required = prop['required'] || false;
             const readOnly = prop['readOnly'] || false;
             const style = prop['style'] || false;
+            const change = prop['change'];
             if (dataType === 'boolean') { model[property] = !!model[property]; }
             let newControl: BaseJettiFromControl<any>;
             const controlOptions: ControlOptions<any> = {
-              key: property,
-              label: label, type: dataType, required: required, readOnly: readOnly, order: order, hidden: hidden, style: style
+              key: property, label: label, type: dataType, required: required, readOnly: readOnly,
+              order: order, hidden: hidden, style: style, change: change,
             };
             switch (dataType) {
+              case 'table':
+                const value = [];
+                processRecursive(v[property][property], value);
+                controlOptions.value = value;
+                newControl = new TableDynamicControl(controlOptions);
+                break;
               case 'boolean':
                 newControl = new BooleanJettiFormControl(controlOptions);
                 break;
@@ -98,23 +99,19 @@ export class DynamicFormService {
         const formGroup = this.fc.toFormGroup(fields);
         const tableParts = [];
         // Create formArray's for table parts of document
-        Object.keys(view).forEach(property => { // multiply "sample" row by count of model array rows
-          const sample = view[property][0]; // sample row will be deleted in code below
-          if ((view[property].constructor === Array)
-            && (model[property] && model[property].constructor === Array)) {
+        Object.keys(formGroup.controls)
+          .filter(property => formGroup.controls[property] instanceof FormArray)
+          .forEach(property => {
+            const sample = (formGroup.controls[property] as FormArray).controls[0];
             const indexOfTable = fields.findIndex(i => i.key === property);
             fields[indexOfTable].value.sort((a, b) => a.order - b.order);
             const formArray = formGroup.controls[property] as FormArray;
-            model[property].forEach(element => {
-              const Row = {}; const arr: FormGroup[] = [];
-              Object.keys(sample).forEach(item => Row[item] = new FormControl(null));
-              formArray.push(new FormGroup(Row));
-            });
-            tableParts.push({id: indexOfTable, value: property, sampleRow: formArray.controls[0]});
-            if (docID === 'new') { formArray.controls = [];
+            tableParts.push({ id: indexOfTable, value: fields[indexOfTable].label, sampleRow: sample });
+            model[property].forEach(element => formArray.push(sample));
+            if (docID === 'new') {
+              formArray.controls = [];
             } else { formArray.removeAt(0); } // delete sample row
-          }
-        });
+          });
 
         formGroup.patchValue(model);
         return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, tableParts: tableParts }

@@ -4,6 +4,7 @@ import { FormArray, FormGroup } from '@angular/forms';
 import { MdDialog, MdSort } from '@angular/material';
 
 import { BaseJettiFromControl } from '../../common/dynamic-form/dynamic-form-base';
+import { DocService } from '../doc.service';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
 import { MdTableDataSource } from './md-table-datasource';
 
@@ -44,7 +45,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   displayedColumns: any[] = [];
   columns: ColDef[] = [];
 
-  constructor(public dialog: MdDialog) {
+  constructor(public dialog: MdDialog, private ds: DocService) {
   }
 
   ngOnInit() {
@@ -58,6 +59,17 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     Promise.resolve().then(() => this.dataSource = new MdTableDataSource(this.formGroup.value, this.sort));
+    this.view.filter(v => v.change).forEach(v => {
+      this.formGroup.controls.forEach(f => {
+      const control = (f as FormGroup).controls[v.key];
+        (f as FormGroup).controls[v.key].valueChanges
+          .subscribe(data => this.ds.OnClientScript(control as FormGroup, data, v.change));
+      });
+    });
+
+    this.formGroup.valueChanges.subscribe(data => {
+      console.log('formGroup.valueChanges', data, this.view, this.formGroup);
+    });
   }
 
   isAllSelected(): boolean {
@@ -84,9 +96,9 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
       .take(1)
       .subscribe(data => {
         if (data) {
-          Object.assign(row, data)
+          Object.assign(row, data);
         } else {
-          formGroup.patchValue(row);
+          formGroup.patchValue(row, {onlySelf: true, emitEvent: false});
         }
       });
   }
