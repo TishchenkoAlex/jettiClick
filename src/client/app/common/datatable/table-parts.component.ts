@@ -15,7 +15,7 @@ interface ColDef { field: string; type: string; label: string; hidden: boolean; 
     .mat-column-select {
       min-width: 32px;
       max-width: 32px;
-      margin-left: -14px;
+      margin-left: -23px;
     }
     .mat-table {
       max-height: 240px;

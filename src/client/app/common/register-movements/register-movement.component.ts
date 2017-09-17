@@ -1,7 +1,9 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
+import { DocModel } from '../doc.model';
+import { DocService } from '../doc.service';
 import { AccountRegister } from './../../models/account.register';
 
 @Component({
@@ -9,18 +11,26 @@ import { AccountRegister } from './../../models/account.register';
   styleUrls: ['./register-movement.component.scss'],
   templateUrl: './register-movement.component.html',
 })
-export class RegisterMovementComponent implements OnInit, OnDestroy {
+export class RegisterMovementComponent implements OnInit, AfterViewInit {
 
   movements$: Observable<AccountRegister[]>;
-  @Input() docID: string;
+  @Input() doc: DocModel;
 
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService, private docService: DocService) { }
 
   ngOnInit() {
-    this.movements$ = this.apiService.getDocAccountMovementsView(this.docID).take(1);
+
+    this.movements$ = Observable.merge(...[
+      this.docService.save$,
+      this.docService.delete$,
+      this.docService.do$]
+    ).filter(doc => doc.id === this.doc.id)
+      .switchMap(doc => this.apiService.getDocAccountMovementsView(this.doc.id));
+
   }
 
-  ngOnDestroy() {
-
+  ngAfterViewInit() {
+    Promise.resolve().then(() => this.docService.do(this.doc));
   }
+
 }

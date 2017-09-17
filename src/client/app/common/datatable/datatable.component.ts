@@ -23,8 +23,7 @@ interface FilterObject { startDate: Date, endDate: Date, columnFilter: string };
 })
 export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDestroy, DoCheck {
 
-  protected _delete$: Subscription = Subscription.EMPTY;
-  protected _save$: Subscription = Subscription.EMPTY;
+  protected _subscription$: Subscription = Subscription.EMPTY;
   protected _filter$: Subscription = Subscription.EMPTY;
 
   selection = new SelectionModel<string>(true, []);
@@ -161,17 +160,11 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     }
     this.selectedPeriod = 'tm';
 
-    this._delete$ = this.ds.delete$
+    this._subscription$ = Observable.merge(...[
+      this.ds.save$,
+      this.ds.delete$])
       .filter(doc => doc.type === this.data.docType)
-      .subscribe(doc => {
-        this.refresh();
-      });
-
-    this._save$ = this.ds.save$
-      .filter(doc => doc.type === this.data.docType)
-      .subscribe(doc => {
-        this.refresh();
-      });
+      .subscribe(doc => this.refresh());
   }
 
   ngDoCheck() {
@@ -181,8 +174,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   }
 
   ngOnDestroy() {
-    this._delete$.unsubscribe();
-    this._save$.unsubscribe();
+    this._subscription$.unsubscribe();
     this._filter$.unsubscribe();
   }
 

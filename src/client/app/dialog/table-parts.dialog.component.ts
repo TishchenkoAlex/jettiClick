@@ -15,7 +15,9 @@ export class TablePartsDialogComponent {
 
   constructor(@Inject(MD_DIALOG_DATA) public data: any) {
     this.formGroup = data.formGroup;
+
     this.controls = data.view;
+    this.controls.forEach(el => el.order += 10000);
   }
 
 }

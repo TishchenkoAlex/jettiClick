@@ -18,7 +18,14 @@ export class DocService {
   protected _deleteDoc = new Subject<DocModel>();
   delete$ = this._deleteDoc.asObservable();
 
+  protected _do = new Subject<DocModel>();
+  do$ = this._do.asObservable();
+
   constructor(public api: ApiService, private authService: AuthService, public snackBar: MdSnackBar) { };
+
+  do(doc: DocModel) {
+    this._do.next(doc);
+  }
 
   close(doc: DocModel) {
     this._closeDoc.next(doc);

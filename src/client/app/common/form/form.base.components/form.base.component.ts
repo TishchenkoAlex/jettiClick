@@ -7,6 +7,7 @@ import { DocService } from '../../../common/doc.service';
 import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
 import { ViewModel } from '../../dynamic-form/dynamic-form.service';
 import { SideNavService } from './../../../services/side-nav.service';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'j-form',
@@ -15,8 +16,7 @@ import { SideNavService } from './../../../services/side-nav.service';
 })
 export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
 
-  private _delete$: Subscription = Subscription.EMPTY;
-  private _save$: Subscription = Subscription.EMPTY;
+  private _subscription$: Subscription = Subscription.EMPTY;
 
   @Input() data;
   @Input() formTepmlate: TemplateRef<any>;
@@ -32,25 +32,18 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
     this.sideNavService.templateRef = this.sideNavTepmlate;
     this.viewModel = this.route.data['value'].detail;
 
-    this._save$ = this.docService.save$
-    .filter(doc => doc.id === this.viewModel.model.id)
-    .subscribe((savedDoc: DocModel) => {
-      console.log('SAVED DOC', savedDoc)
-      this.viewModel.model = savedDoc;
-      this.viewModel.formGroup.patchValue(savedDoc);
-    });
-
-    this._delete$ = this.docService.delete$
-    .filter(doc => doc.id === this.viewModel.model.id)
-    .subscribe((deletedDoc: DocModel) => {
-      this.viewModel.model = deletedDoc;
-      this.viewModel.formGroup.patchValue(deletedDoc);
-    });
+    this._subscription$ = Observable.merge(...[
+      this.docService.save$,
+      this.docService.delete$])
+      .filter(doc => doc.id === this.viewModel.model.id)
+      .subscribe(savedDoc => {
+        this.viewModel.model = savedDoc;
+        this.viewModel.formGroup.patchValue(savedDoc);
+      });
   }
 
   ngOnDestroy() {
-    this._delete$.unsubscribe();
-    this._save$.unsubscribe();
+    this._subscription$.unsubscribe();
   }
 
   Save() {
