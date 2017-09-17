@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { environment } from '../../environments/environment';
+import { AccountRegister } from './../models/account.register';
 
 export interface DocListResponse { data: any[], total_count: number };
 
@@ -66,10 +67,10 @@ export class ApiService {
       });
   }
 
-  getDocAccountMovementsView(id: string): Observable<any[]> {
+  getDocAccountMovementsView(id: string): Observable<AccountRegister[]> {
     const query = `${this.url}register/account/movements/view/${id}`;
     console.log('getDocAccountMovements', query);
-    return this.http.get(query) as Observable<any[]>;
+    return this.http.get(query) as Observable<AccountRegister[]>;
   }
 }
 

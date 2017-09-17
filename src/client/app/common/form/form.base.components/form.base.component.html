@@ -13,27 +13,44 @@
     <button md-mini-fab color="accent" (click)="Close()" mdTooltip="close" style="margin-left: 22px; margin-right: -12px"><md-icon>close</md-icon></button>
   </div>
 </div>
-<md-card style="margin-top: 1px">
-  <md-card-content>
-    <form novalidate [formGroup]="viewModel.formGroup">
-      <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
-    </form>
-  </md-card-content>
-</md-card>
-<br>
 
-<md-accordion class="panel-headers-align"  displayMode="flat">
+
+<md-accordion class="panel-headers-align" displayMode="flat">
+
+  <md-expansion-panel hideToggle="true">
+    <md-expansion-panel-header>
+      <md-panel-title>Main</md-panel-title>
+      <md-panel-description>&nbsp;
+        <md-icon>map</md-icon>
+      </md-panel-description>
+    </md-expansion-panel-header>
+    <md-card style="margin-top: 1px">
+        <md-card-content>
+          <form novalidate [formGroup]="viewModel.formGroup">
+            <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
+          </form>
+        </md-card-content>
+      </md-card>
+
+
+  </md-expansion-panel>
+
+
   <md-expansion-panel hideToggle="true">
     <md-expansion-panel-header>
       <md-panel-title>Additonal Info</md-panel-title>
-      <md-panel-description>Details<md-icon>map</md-icon></md-panel-description>
+      <md-panel-description>Details
+        <md-icon>map</md-icon>
+      </md-panel-description>
     </md-expansion-panel-header>
   </md-expansion-panel>
 
   <md-expansion-panel hideToggle="true" *ngIf="viewModel.model.type.startsWith('Document.')">
     <md-expansion-panel-header>
       <md-panel-title>Account register movements</md-panel-title>
-      <md-panel-description>6<md-icon>account_circle</md-icon></md-panel-description>
+      <md-panel-description>&nbsp;
+        <md-icon>account_circle</md-icon>
+      </md-panel-description>
     </md-expansion-panel-header>
 
     <j-register-movement [docID]="viewModel.model.id"></j-register-movement>

@@ -1,3 +1,84 @@
-<div *ngIf="movements$ | async as movements">
-  {{ movements | json }}
+<div *ngFor="let item of (movements$ | async) as movements">
+  <div fxFlex="100px" fxLayoutAlign="center center">
+    <div fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+      {{ item.date | date }}
+    </div>
+  </div>
+
+  <div fxFlex fxLayoutAlign="center center">
+
+    <div fxLayout="column" fxFlex=30 fxFill style="border: 1px; border-color: gray; border-style: dotted;">
+      <div fxLayoutAlign="center center" fxFlex="30px" fxFill style="font-size: 16pt">
+        {{ item.debet.account }}
+      </div>
+      <div fxLayoutAlign="center center" fxFlex="20px" fxFill style="font-size: 8pt; text-align: center; padding: 0px; line-height: 8px;">
+        {{ item.debet.description }}
+      </div>
+    </div>
+
+    <div fxLayout="column" fxFill fxFlex=50 style="border: 1px; border-color: gray; border-style: dotted;">
+      <div fxFill fxLayoutAlign="center center">
+        {{ item.debet.subcount1 }}
+      </div>
+      <div fxFill fxLayoutAlign="center center">
+        {{ item.debet.subcount2 }}
+      </div>
+      <div fxFill fxLayoutAlign="center center">
+        {{ item.debet.subcount3 }}
+      </div>
+      <div fxFill fxLayoutAlign="center center">
+        {{ item.debet.subcount4 }}
+      </div>
+    </div>
+
+    <div fxFlex fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+      {{ item.debet.currency }}
+    </div>
+
+    <div fxFlex fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+      {{ item.debet.qty | number }}
+    </div>
+  </div>
+
+  <div fxFlex fxLayoutAlign="center center">
+
+    <div fxLayout="column" fxFlex="30" fxFill style="border: 1px; border-color: gray; border-style: dotted;">
+      <div fxLayoutAlign="center center" fxFlex="30px" fxFill style="font-size: 16pt">
+        {{ item.kredit.account }}
+      </div>
+      <div fxLayoutAlign="center center" fxFlex="20px" fxFill style="font-size: 8pt; text-align: center; padding: 0px; line-height: 8px;">
+        {{ item.kredit.description }}
+      </div>
+    </div>
+
+    <div fxLayout="column" fxFill fxFlex=50 style="border: 1px; border-color: gray; border-style: dotted;">
+      <div fxFill fxLayoutAlign="center center">
+        {{ item.kredit.subcount1 }}
+      </div>
+      <div fxFill fxLayoutAlign="center center">
+        {{ item.kredit.subcount2 }}
+      </div>
+      <div fxFill fxLayoutAlign="center center">
+        {{ item.kredit.subcount3 }}
+      </div>
+      <div fxFill fxLayoutAlign="center center">
+        {{ item.kredit.subcount4 }}
+      </div>
+    </div>
+
+    <div fxFlex fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+      {{ item.kredit.currency }}
+    </div>
+
+    <div fxFlex fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+      {{ item.kredit.qty | number }}
+    </div>
+  </div>
+
+  <div fxFlex="100px" fxLayoutAlign="center center">
+    <div fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+      {{ item.sum | number }}
+    </div>
+  </div>
+
 </div>

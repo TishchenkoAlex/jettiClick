@@ -5,11 +5,11 @@ import { Observable } from 'rxjs/Observable';
 import { ApiService } from '../../services/api.service';
 import { DocModel } from '../doc.model';
 import {
+    AutocompleteJettiFormControl,
     BaseJettiFromControl,
     BooleanJettiFormControl,
     ControlOptions,
     DateJettiFormControl,
-    AutocompleteJettiFormControl,
     NumberJettiFormControl,
     TableDynamicControl,
     TextboxJettiFormControl,
