@@ -9,18 +9,16 @@
               <md-icon *ngIf="viewModel.model.deleted" color="warn">indeterminate_check_box</md-icon>
               <md-icon *ngIf="viewModel.model.posted && !viewModel.model.deleted" color="primary">check_box</md-icon>
               <md-icon *ngIf="!(viewModel.model.posted) && !(viewModel.model.deleted)" color="accent">check_box_outline_blank</md-icon>
-              <span [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 10px">{{ viewModel.model.description }}</span>
+              <span [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 10px; font-weight: bold">{{ viewModel.model.description.split(',')[0] }}</span>
             </div>
           </div>
         </div>
       </md-panel-title>
       <md-panel-description>
-        <span [fxShow]="false" [fxShow.gt-xs]="true">Main</span>
+        <span [fxShow]="false" [fxShow.gt-xs]="true"></span>
         <div fxFlex fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; margin-right: 6px">
           <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
-          <button md-mini-fab color="accent" (click)="$event.stopPropagation(); Close()" mdTooltip="close">
-                <md-icon>close</md-icon>
-          </button>
+          <button md-mini-fab color="accent" (click)="$event.stopPropagation(); Close()" mdTooltip="close"><md-icon>close</md-icon></button>
         </div>
       </md-panel-description>
     </md-expansion-panel-header>

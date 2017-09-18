@@ -6,6 +6,7 @@ import { Subject } from 'rxjs/Subject';
 import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
 import { DocModel, JETTI_DOC_PROP } from './doc.model';
+import { patchOptions } from './dynamic-form/dynamic-form.service';
 
 @Injectable()
 export class DocService {
@@ -77,6 +78,7 @@ export class DocService {
               element[p] = element[p] ? element[p]['id'] || element[p] : element[p] || null;
             }
           }
+          delete element.index;
         });
         newDoc.doc[property] = copy;
       } else {
@@ -96,6 +98,6 @@ export class DocService {
     const func = new Function('doc, value', script);
     const patch = func(control.parent.value, data);
     console.log('OnClientScript', data, script, patch);
-    (control.parent as FormGroup).patchValue(patch, {onlySelf: true, emitEvent: false});
+    (control.parent as FormGroup).patchValue(patch, patchOptions);
   }
 }

@@ -1,5 +1,5 @@
 import { DataSource, SelectionModel } from '@angular/cdk/collections';
-import { Component, DoCheck, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MdPaginator, MdSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as moment from 'moment';
@@ -169,7 +169,6 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
       .filter(doc => doc.type === this.data.docType)
       .subscribe(doc => this.refresh());
 
-    this.sideNavService.templateRef = this.sideNavTepmlate;
     this._sideNavService$ = this.sideNavService.do$
       .filter(data => data.type === this.data.docType)
       .subscribe(data => this.sideNavService.templateRef = this.sideNavTepmlate);

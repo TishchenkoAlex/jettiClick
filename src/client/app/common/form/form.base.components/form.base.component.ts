@@ -1,13 +1,12 @@
 import { Component, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
-import { DocModel } from '../../doc.model';
 import { DocService } from '../../../common/doc.service';
 import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
-import { ViewModel } from '../../dynamic-form/dynamic-form.service';
+import { ViewModel, patchOptions } from '../../dynamic-form/dynamic-form.service';
 import { SideNavService } from './../../../services/side-nav.service';
-import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'j-form',
@@ -15,18 +14,15 @@ import { Observable } from 'rxjs/Observable';
   templateUrl: './form.base.component.html',
 })
 export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
-
-  private _subscription$: Subscription = Subscription.EMPTY;
-
   @Input() data;
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
   viewModel: ViewModel;
+  private _subscription$: Subscription = Subscription.EMPTY;
 
-  constructor(private route: ActivatedRoute, private docService: DocService,
-    private sideNavService: SideNavService) { }
+  constructor(private route: ActivatedRoute, private docService: DocService, private sideNavService: SideNavService) { }
 
   ngOnInit() {
     this.sideNavService.templateRef = this.sideNavTepmlate;
@@ -38,12 +34,18 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
       .filter(doc => doc.id === this.viewModel.model.id)
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
-        this.viewModel.formGroup.patchValue(savedDoc, {onlySelf: true, emitEvent: false});
+        this.viewModel.formGroup.patchValue(savedDoc, patchOptions);
       });
   }
 
   ngOnDestroy() {
     this._subscription$.unsubscribe();
+  }
+
+  private onSubmit() {
+    const formDoc = this.viewModel.formGroup.value;
+    const newDoc = this.docService.createNewDoc(this.viewModel.model, formDoc);
+    this.docService.save(newDoc);
   }
 
   Save() {
@@ -73,12 +75,6 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   Close() {
     console.log('BASE CLOSE');
     this.docService.close(this.viewModel.model);
-  }
-
-  onSubmit() {
-    const formDoc = this.viewModel.formGroup.getRawValue();
-    const newDoc = this.docService.createNewDoc(this.viewModel.model, formDoc);
-    this.docService.save(newDoc);
   }
 
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
@@ -23,11 +23,24 @@ export interface ViewModel {
   controlsByKey: any,
   tableParts: any;
 }
+export const patchOptions = { onlySelf: true, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
 @Injectable()
 export class DynamicFormService {
 
   constructor(private apiService: ApiService, private fc: DynamicFormControlService) { };
+
+  copyFormGroup(formGroup: FormGroup): FormGroup {
+    const newFormGroup = new FormGroup({});
+    Object.keys(formGroup.controls).forEach(key => {
+      const newFormControl = formGroup.controls[key].validator ?
+        new FormControl(formGroup.controls[key].value, Validators.required) :
+        new FormControl(formGroup.controls[key].value);
+      newFormGroup.addControl(key, newFormControl);
+    });
+    return newFormGroup;
+  }
+
 
   getViewModel(docType: string, docID = ''): Observable<ViewModel> {
 
@@ -90,10 +103,11 @@ export class DynamicFormService {
             }
             f.push(newControl);
           });
+          f.sort((a, b) => a.order - b.order);
         };
 
         processRecursive(view, fields);
-        fields.sort((a, b) => a.order - b.order);
+
         const controlsByKey: any = {};
         fields.map(c => { controlsByKey[c.key] = c });
         const formGroup = this.fc.toFormGroup(fields);
@@ -102,18 +116,23 @@ export class DynamicFormService {
         Object.keys(formGroup.controls)
           .filter(property => formGroup.controls[property] instanceof FormArray)
           .forEach(property => {
-            const sample = (formGroup.controls[property] as FormArray).controls[0];
+            const sample = (formGroup.controls[property] as FormArray).controls[0] as FormGroup;
+            sample.addControl('index', new FormControl(0));
             const indexOfTable = fields.findIndex(i => i.key === property);
             fields[indexOfTable].value.sort((a, b) => a.order - b.order);
             const formArray = formGroup.controls[property] as FormArray;
             tableParts.push({ id: indexOfTable, value: fields[indexOfTable].label, sampleRow: sample });
-            model[property].forEach(element => formArray.push(sample));
-            if (docID === 'new') {
-              formArray.controls = [];
-            } else { formArray.removeAt(0); } // delete sample row
+            if (docID !== 'new') {
+              for (let i = 0; i < model[property].length; i++) {
+                const newFormGroup = this.copyFormGroup(sample);
+                newFormGroup.controls['index'].setValue(i);
+                formArray.push(newFormGroup);
+              }
+            }
+            formArray.removeAt(0);  // delete sample row
           });
 
-        formGroup.patchValue(model, {onlySelf: true, emitEvent: false});
+        formGroup.patchValue(model, patchOptions);
         return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, tableParts: tableParts }
       });
   }
