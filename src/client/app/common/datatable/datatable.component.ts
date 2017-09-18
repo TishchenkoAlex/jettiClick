@@ -21,10 +21,11 @@ interface FilterObject { startDate: Date, endDate: Date, columnFilter: string };
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
 })
-export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDestroy, DoCheck {
+export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDestroy {
 
   protected _subscription$: Subscription = Subscription.EMPTY;
   protected _filter$: Subscription = Subscription.EMPTY;
+  protected _sideNavService$: Subscription = Subscription.EMPTY;
 
   selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
@@ -167,17 +168,17 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
       this.ds.delete$])
       .filter(doc => doc.type === this.data.docType)
       .subscribe(doc => this.refresh());
-  }
 
-  ngDoCheck() {
-    if (this.sideNavService.templateRef !== this.sideNavTepmlate) {
-      this.sideNavService.templateRef = this.sideNavTepmlate;
-    }
+    this.sideNavService.templateRef = this.sideNavTepmlate;
+    this._sideNavService$ = this.sideNavService.do$
+      .filter(data => data.type === this.data.docType)
+      .subscribe(data => this.sideNavService.templateRef = this.sideNavTepmlate);
   }
 
   ngOnDestroy() {
     this._subscription$.unsubscribe();
     this._filter$.unsubscribe();
+    this._sideNavService$.unsubscribe();
   }
 
   onPeriodChange() {

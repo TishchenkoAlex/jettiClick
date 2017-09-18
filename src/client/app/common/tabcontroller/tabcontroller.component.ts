@@ -1,9 +1,9 @@
-import { ViewModel } from '../dynamic-form/dynamic-form.service';
-import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
-import { TabControllerService, TabDef, HOME } from '../../common/tabcontroller/tabcontroller.service';
+import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';
+import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { DocService } from './../../common/doc.service';
 
 @Component({

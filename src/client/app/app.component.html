@@ -19,12 +19,7 @@
         </md-sidenav>
         <md-sidenav #end position="end" mode="over" style="height: 100%;width: 350px;" class="mat-elevation-z10">
             <div fxLayout="column" fxLayoutGap="8px">
-                <md-card>
-                    <div>End Side Drawer</div>
-                    <button md-button (click)="end.close()">Close</button>
-                </md-card>
-                <ng-container *ngTemplateOutlet="sideNavService.templateRef ? sideNavService.templateRef : sideNavTepmlateDefault"></ng-container>
-
+                <ng-container *ngTemplateOutlet="sideNavService.templateRef ? sideNavService.templateRef : sideNavTepmlateDefault; context: {sidenav: end}"></ng-container>
             </div>
         </md-sidenav>
         <div class="content">
@@ -39,15 +34,10 @@
     <button md-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
 </md-menu>
 
-<ng-template #sideNavTepmlateDefault>
+<ng-template #sideNavTepmlateDefault let-sidenav="sidenav">
 <md-card >
         End Side Drawer
         <br>
-        <button md-button (click)="end.close()">Close</button>
-    </md-card>
-    <md-card >
-        End Side Drawer
-        <br>
-        <button md-button (click)="end.close()">Close</button>
+        <button md-button (click)="sidenav.close()">Close</button>
     </md-card>
 </ng-template>

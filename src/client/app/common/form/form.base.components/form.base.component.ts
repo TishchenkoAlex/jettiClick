@@ -38,7 +38,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
       .filter(doc => doc.id === this.viewModel.model.id)
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
-        this.viewModel.formGroup.patchValue(savedDoc);
+        this.viewModel.formGroup.patchValue(savedDoc, {onlySelf: true, emitEvent: false});
       });
   }
 

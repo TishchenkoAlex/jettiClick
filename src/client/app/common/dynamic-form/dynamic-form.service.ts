@@ -113,7 +113,7 @@ export class DynamicFormService {
             } else { formArray.removeAt(0); } // delete sample row
           });
 
-        formGroup.patchValue(model);
+        formGroup.patchValue(model, {onlySelf: true, emitEvent: false});
         return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, tableParts: tableParts }
       });
   }
