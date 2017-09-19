@@ -2,12 +2,12 @@
 
   <md-form-field *ngSwitchCase="'textbox'" fxFlex>
     <input [required]="control.required" mdInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
-      [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order">
+      [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
   </md-form-field>
 
   <md-form-field *ngSwitchCase="'number'" fxFlex>
     <input [required]="control.required" mdInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
-      style="text-align: right" [readOnly]="control.readOnly" type="number" autocomplete="off" [tabIndex]="control.order">
+      style="text-align: right" [readOnly]="control.readOnly" type="number" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
     <button md-icon-button mdSuffix [disabled]="true" [tabindex]="-1"><md-icon>attach_money</md-icon></button>
   </md-form-field>
 
@@ -17,23 +17,25 @@
 
   <md-form-field *ngSwitchCase="'date'" fxFlex>
     <input [required]="control.required" mdInput [mdDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
-      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" >
+      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
     <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
   </md-form-field>
 
   <md-form-field *ngSwitchCase="'datetime'" fxFlex>
     <input [required]="control.required" mdInput [mdDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
-      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order">
+      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
     <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
   </md-form-field>
 
   <md-checkbox *ngSwitchCase="'checkbox'" [required]="control.required" [formControlName]="control.key" [id]="control.key"
-  fxFlex [tabIndex]="control.order">{{control.label}}
+  fxFlex [tabIndex]="control.order" (change)="onChange($event)">{{control.label}}
   </md-checkbox>
 
   <div *ngSwitchCase="'table'">
     <div [formArrayName]="control.key">
-        <j-table-part [view]= "control.value" [formGroup]="form.controls[control.key]" [tab]="tab"></j-table-part>
+        <j-table-part [view]= "control.value" [formGroup]="form.controls[control.key]" [tab]="tab" [control]="control"
+        (onChange)="onChange($event)"
+        ></j-table-part>
     </div>
   </div>
 </div>

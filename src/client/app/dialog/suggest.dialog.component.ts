@@ -76,7 +76,7 @@ export class ApiDataSource extends DataSource<any> {
     this._filterChange.subscribe(() => this._paginator.pageIndex = 0);
 
     this.result$ = Observable.merge(...[
-      this._sort.mdSortChange,
+      this._sort.sortChange,
       this._filterChange,
       this._paginator.page,
       this._doRefresh,

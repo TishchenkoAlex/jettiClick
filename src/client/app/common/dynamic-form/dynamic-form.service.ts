@@ -5,14 +5,14 @@ import { Observable } from 'rxjs/Observable';
 import { ApiService } from '../../services/api.service';
 import { DocModel } from '../doc.model';
 import {
-  AutocompleteJettiFormControl,
-  BaseJettiFromControl,
-  BooleanJettiFormControl,
-  ControlOptions,
-  DateJettiFormControl,
-  NumberJettiFormControl,
-  TableDynamicControl,
-  TextboxJettiFormControl,
+    AutocompleteJettiFormControl,
+    BaseJettiFromControl,
+    BooleanJettiFormControl,
+    ControlOptions,
+    DateJettiFormControl,
+    NumberJettiFormControl,
+    TableDynamicControl,
+    TextboxJettiFormControl,
 } from './dynamic-form-base';
 import { DynamicFormControlService } from './dynamic-form-control.service';
 
@@ -23,7 +23,7 @@ export interface ViewModel {
   controlsByKey: any,
   tableParts: any;
 }
-export const patchOptions = { onlySelf: true, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
+export const patchOptionsNoEvents = { onlySelf: true, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
 @Injectable()
 export class DynamicFormService {
@@ -125,14 +125,14 @@ export class DynamicFormService {
             if (docID !== 'new') {
               for (let i = 0; i < model[property].length; i++) {
                 const newFormGroup = this.copyFormGroup(sample);
-                newFormGroup.controls['index'].setValue(i);
+                newFormGroup.controls['index'].setValue(i, patchOptionsNoEvents);
                 formArray.push(newFormGroup);
               }
             }
             formArray.removeAt(0);  // delete sample row
           });
 
-        formGroup.patchValue(model, patchOptions);
+        formGroup.patchValue(model, patchOptionsNoEvents);
         return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, tableParts: tableParts }
       });
   }

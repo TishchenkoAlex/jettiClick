@@ -2,6 +2,7 @@ import { AfterViewInit, Component, Input } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
 import { BaseJettiFromControl } from './dynamic-form-base';
+import { patchOptionsNoEvents } from './dynamic-form.service';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -33,6 +34,14 @@ export class DynamicFormControlComponent implements AfterViewInit {
   }
 
   get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
+
+  onChange(event) {
+    if (this.control.change) {
+      const func = new Function('doc, value', this.control.change);
+      const patch = func(this.form.value, this.form.controls[this.control.key].value);
+      (this.form as FormGroup).patchValue(patch, patchOptionsNoEvents);
+    }
+  }
 
 }
 

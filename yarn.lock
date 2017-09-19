@@ -30,8 +30,8 @@
     tslib "^1.7.1"
 
 "@angular/cdk@angular/cdk-builds":
-  version "2.0.0-beta.11-df808b8"
-  resolved "https://codeload.github.com/angular/cdk-builds/tar.gz/86ce8a7f420e4e77d38869edf02fc4b611877b25"
+  version "2.0.0-beta.11-244c906"
+  resolved "https://codeload.github.com/angular/cdk-builds/tar.gz/7fbf4ca398ab23eb316a3ffe8efcac063ea8acdd"
   dependencies:
     tslib "^1.7.1"
 
@@ -147,8 +147,8 @@
   resolved "https://registry.yarnpkg.com/@angular/language-service/-/language-service-4.4.1.tgz#f44af998e84ff55653642fd7d7fe795a592074ec"
 
 "@angular/material@angular/material2-builds":
-  version "2.0.0-beta.11-df808b8"
-  resolved "https://codeload.github.com/angular/material2-builds/tar.gz/1f9d28c1951b76e838382d1f94cc293c9dd5a39d"
+  version "2.0.0-beta.11-244c906"
+  resolved "https://codeload.github.com/angular/material2-builds/tar.gz/b3f5d2bd843808bcd7bf4ba6ab6905d270cb3afd"
   dependencies:
     tslib "^1.7.1"
 
@@ -3468,7 +3468,7 @@ pg-pool@1.*:
     generic-pool "2.4.3"
     object-assign "4.1.0"
 
-pg-promise@^6.5.4:
+pg-promise@6.5.4:
   version "6.5.4"
   resolved "https://registry.yarnpkg.com/pg-promise/-/pg-promise-6.5.4.tgz#500888043d3643001b357b2a0ca51ae9e324a0a5"
   dependencies:

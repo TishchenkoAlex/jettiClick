@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { MdSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 
 import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
 import { DocModel, JETTI_DOC_PROP } from './doc.model';
-import { patchOptions } from './dynamic-form/dynamic-form.service';
 
 @Injectable()
 export class DocService {
@@ -94,10 +92,4 @@ export class DocService {
     });
   }
 
-  OnClientScript(control: FormGroup, data: any, script: string) {
-    const func = new Function('doc, value', script);
-    const patch = func(control.parent.value, data);
-    console.log('OnClientScript', data, script, patch);
-    (control.parent as FormGroup).patchValue(patch, patchOptions);
-  }
 }

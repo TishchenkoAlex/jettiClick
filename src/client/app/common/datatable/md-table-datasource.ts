@@ -48,7 +48,7 @@ export class MdTableDataSource<T> implements DataSource<T> {
     }
 
     const orderedDataChanges: Subject<T[] | Sort>[] = [this._data];
-    if (this._sort) { orderedDataChanges.push(this._sort.mdSortChange); }
+    if (this._sort) { orderedDataChanges.push(this._sort.sortChange); }
     this._orderedDataChangeSubscription = merge(...orderedDataChanges).subscribe(() => {
       let orderedData = this.data.slice();
       if (this._sort) {

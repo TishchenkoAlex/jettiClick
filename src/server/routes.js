@@ -145,7 +145,9 @@ router.delete('/:id', async (req, res, next) => {
       doc = await tx.one('UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;', [id]);
       if (scripts && scripts['after-delete']) await ExecuteScript(doc, scripts['after-delete'], tx);
       await doSubscriptions(doc, 'after detele', tx);
-      res.json(doc);
+      const config_schema = (await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]));
+      const model = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+      res.json(model);
     });
   } catch (err) {
     next(err.message);

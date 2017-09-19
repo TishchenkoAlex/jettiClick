@@ -16,6 +16,11 @@
 
   <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
 
+    <ng-container cdkColumnDef="index">
+      <md-header-cell *cdkHeaderCellDef md-sort-header>#</md-header-cell>
+      <md-cell *cdkCellDef="let row">{{row.index+1}}</md-cell>
+    </ng-container>
+
     <ng-container cdkColumnDef="select">
       <md-header-cell *cdkHeaderCellDef>
         <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
@@ -26,6 +31,7 @@
         </md-checkbox>
       </md-cell>
     </ng-container>
+
 
     <ng-container *ngFor="let col of columns" [cdkColumnDef]="col.field">
       <div [ngSwitch]="col.type" *ngIf="!col.hidden">
