@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
@@ -42,6 +43,7 @@ import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
+    CovalentCodeEditorModule,
   ],
   exports: [
   ],

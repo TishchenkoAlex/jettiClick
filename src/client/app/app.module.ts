@@ -8,10 +8,10 @@ import 'rxjs/add/operator/combineLatest';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/onErrorResumeNext';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/onErrorResumeNext';
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/skip';
 import 'rxjs/add/operator/startWith';
@@ -41,8 +41,8 @@ import { MD_MOMENT_DATE_FORMATS } from './material-moment-adapter/moment-date-fo
 import { MaterialModule } from './material.module';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
-import { DynamicFormsModule } from './UI/dynamic.froms.module';
 import { SideNavService } from './services/side-nav.service';
+import { DynamicFormsModule } from './UI/dynamic.froms.module';
 
 @NgModule({
   declarations: [

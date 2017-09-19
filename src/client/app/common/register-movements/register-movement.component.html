@@ -1,4 +1,4 @@
-<div *ngFor="let item of (movements$ | async) as movements">
+<div *ngFor="let item of (movements$ | async) as movements" style="min-height: 50px">
   <div fxFlex="100px" fxLayoutAlign="center center">
     <div fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
       {{ item.date | date }}
@@ -8,26 +8,26 @@
   <div fxFlex fxLayoutAlign="center center">
 
     <div fxLayout="column" fxFlex=30 fxFill style="border: 1px; border-color: gray; border-style: dotted;">
-      <div fxLayoutAlign="center center" fxFlex="30px" fxFill style="font-size: 16pt">
+      <div fxLayoutAlign="center end" fxFlex fxFill style="font-size: 16pt; font-weight: bold;">
         {{ item.debet.account }}
       </div>
-      <div fxLayoutAlign="center center" fxFlex="20px" fxFill style="font-size: 8pt; text-align: center; padding: 0px; line-height: 8px;">
-        {{ item.debet.description }}
+      <div fxLayoutAlign="center start" fxFlex fxFill style="font-size: 8pt; text-align: center; line-height: 8px;">
+        <span style="margin-top: 4px">{{ item.debet.description }} </span>
       </div>
     </div>
 
     <div fxLayout="column" fxFill fxFlex=50 style="border: 1px; border-color: gray; border-style: dotted;">
-      <div fxFill fxLayoutAlign="center center">
-        {{ item.debet.subcount1 }}
+      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt;line-height: 8px; padding: 2px" [mdTooltip]="item.debet.subcount1.code">
+        {{ item.debet.subcount1.value }}
       </div>
-      <div fxFill fxLayoutAlign="center center">
-        {{ item.debet.subcount2 }}
+      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt;line-height: 9px;">
+        {{ item.debet.subcount2.value }}
       </div>
-      <div fxFill fxLayoutAlign="center center">
-        {{ item.debet.subcount3 }}
+      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt;line-height: 9px;">
+        {{ item.debet.subcount3.value }}
       </div>
-      <div fxFill fxLayoutAlign="center center">
-        {{ item.debet.subcount4 }}
+      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt;line-height: 9px;">
+        {{ item.debet.subcount4.value }}
       </div>
     </div>
 
@@ -43,26 +43,26 @@
   <div fxFlex fxLayoutAlign="center center">
 
     <div fxLayout="column" fxFlex="30" fxFill style="border: 1px; border-color: gray; border-style: dotted;">
-      <div fxLayoutAlign="center center" fxFlex="30px" fxFill style="font-size: 16pt">
+      <div fxLayoutAlign="center end" fxFlex fxFill style="font-size: 16pt; font-weight: bold">
         {{ item.kredit.account }}
       </div>
-      <div fxLayoutAlign="center center" fxFlex="20px" fxFill style="font-size: 8pt; text-align: center; padding: 0px; line-height: 8px;">
-        {{ item.kredit.description }}
+      <div fxLayoutAlign="center start" fxFlex fxFill style="font-size: 8pt; text-align: center; line-height: 8px;">
+        <span style="margin-top: 4px">{{ item.kredit.description }} </span>
       </div>
     </div>
 
     <div fxLayout="column" fxFill fxFlex=50 style="border: 1px; border-color: gray; border-style: dotted;">
-      <div fxFill fxLayoutAlign="center center">
-        {{ item.kredit.subcount1 }}
+      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt; padding: 2px; cursor: pointer" [mdTooltip]="item.kredit.subcount1.code">
+        {{ item.kredit.subcount1.value }}
       </div>
-      <div fxFill fxLayoutAlign="center center">
-        {{ item.kredit.subcount2 }}
+      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt; padding: 2px; cursor: pointer" [mdTooltip]="item.kredit.subcount2.code">
+        {{ item.kredit.subcount2.value }}
       </div>
-      <div fxFill fxLayoutAlign="center center">
-        {{ item.kredit.subcount3 }}
+      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt; padding: 2px; cursor: pointer" [mdTooltip]="item.kredit.subcount3.code">
+        {{ item.kredit.subcount3.value }}
       </div>
-      <div fxFill fxLayoutAlign="center center">
-        {{ item.kredit.subcount4 }}
+      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt; padding: 2px; cursor: pointer" [mdTooltip]="item.kredit.subcount4.code">
+        {{ item.kredit.subcount4.value }}
       </div>
     </div>
 

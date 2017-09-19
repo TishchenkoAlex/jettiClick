@@ -1,10 +1,17 @@
+export interface SubCount {
+    id: string,
+    code: string
+    type: string,
+    value: string
+}
+
 export interface Account {
     account: string,
     description: string
-    subcount1: string,
-    subcount2: string,
-    subcount3: string,
-    subcount4: string,
+    subcount1: SubCount,
+    subcount2: SubCount,
+    subcount3: SubCount,
+    subcount4: SubCount,
     currency: string,
     qty: number,
 }

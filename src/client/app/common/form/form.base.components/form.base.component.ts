@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { DocService } from '../../../common/doc.service';
 import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
-import { patchOptionsNoEvents, ViewModel } from '../../dynamic-form/dynamic-form.service';
+import { ViewModel } from '../../dynamic-form/dynamic-form.service';
 import { SideNavService } from './../../../services/side-nav.service';
 
 @Component({
@@ -34,7 +34,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
       .filter(doc => doc.id === this.viewModel.model.id)
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
-        this.viewModel.formGroup.patchValue(savedDoc, {emitEvent: false, onlySelf: true});
+        this.viewModel.formGroup.patchValue(savedDoc);
       });
   }
 

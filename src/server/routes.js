@@ -220,12 +220,22 @@ async function DocById(id, db) {
 
 router.get('/register/account/movements/view/:id', async (req, res, next) => {
   try {
-    const query = `SELECT * FROM "Register.Account.View1" where document_id = $1`;
+    const query = `SELECT * FROM "Register.Account.View" where document_id = $1`;
     const data = await db.manyOrNone(query, [req.params.id]);
     res.json(data);
   } catch (err) {
     next(err.message);
   }
 })
+
+router.post('/query', async (req, res, next) => {
+  try {
+    const data = await db.manyOrNone(req.body);
+    res.json(data);
+  } catch (err) {
+    next(err.message);
+  }
+})
+
 
 module.exports = router;

@@ -176,6 +176,12 @@
   dependencies:
     tsickle "^0.21.0"
 
+"@covalent/code-editor@^1.0.0-beta.2":
+  version "1.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@covalent/code-editor/-/code-editor-1.0.0-beta.2.tgz#b678fb2bd4fcf59d917c17971ab5a6a7ea0bff29"
+  dependencies:
+    monaco-editor "^0.8.0"
+
 "@ngtools/json-schema@1.1.0", "@ngtools/json-schema@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@ngtools/json-schema/-/json-schema-1.1.0.tgz#c3a0c544d62392acc2813a42c8a0dc6f58f86922"
@@ -3021,6 +3027,10 @@ mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0, mkd
 moment@2.x.x, moment@^2.18.1:
   version "2.18.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
+
+monaco-editor@^0.8.0:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.8.3.tgz#523bdf2d1524db2c2dfc3cae0a7b6edc48d6dea6"
 
 ms@2.0.0, ms@^2.0.0:
   version "2.0.0"
