@@ -86,7 +86,7 @@
         </md-cell>
       </ng-container>
 
-      <ng-container *ngIf="data.docType.startsWith('Document')" cdkColumnDef="date">
+      <ng-container *ngIf="isDoc" cdkColumnDef="date">
         <md-header-cell *cdkHeaderCellDef md-sort-header style="min-width: 72px;max-width: 72px; ">date</md-header-cell>
         <md-cell *cdkCellDef="let row" style="min-width: 72px;max-width: 72px; text-align: center;">
           <span class="data-table-select" (click)="open(row)" style="cursor: pointer"> {{row.date | date:'dd.MM.yyyy hh:mm:ss'}}</span>

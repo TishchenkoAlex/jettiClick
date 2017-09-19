@@ -7,7 +7,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
-import { JETTI_DOC_PROP } from '../../common/doc.model';
+import { DocModel, JETTI_DOC_PROP } from '../../common/doc.model';
 import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
@@ -27,7 +27,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   protected _filter$: Subscription = Subscription.EMPTY;
   protected _sideNavService$: Subscription = Subscription.EMPTY;
 
-  selection = new SelectionModel<string>(true, []);
+  selection = new SelectionModel<DocModel>(true, []);
   dataSource: ApiDataSource | null;
 
   @Input() data;
@@ -122,7 +122,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   @ViewChild('filter') filter: ElementRef;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
-  get isDoc(): boolean { return this.data.docType.startsWith('Document.') }
+  get isDoc(): boolean { return this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.') }
 
   constructor(private route: ActivatedRoute, private router: Router,
     private ds: DocService, private sideNavService: SideNavService) { };
@@ -159,7 +159,11 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     if (this.data.docType.startsWith('Document.')) {
       this.displayedColumns.unshift('select', 'posted', 'date', 'code');
     } else {
-      this.displayedColumns.unshift('select', 'posted', 'code', 'description');
+      if (this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.')) {
+        this.displayedColumns.unshift('select', 'posted', 'date', 'code');
+      } else {
+        this.displayedColumns.unshift('select', 'posted', 'code', 'description');
+      }
     }
     this.selectedPeriod = 'tm';
 
@@ -195,7 +199,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
-      this.dataSource.renderedData.forEach(data => this.selection.select(data.id));
+      this.dataSource.renderedData.forEach(data => this.selection.select(data));
     }
   }
 
@@ -204,20 +208,26 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   }
 
   add() {
-    this.router.navigate([this.data.docType, 'new'])
+    if (this.selection.selected.length === 1) {
+      this.router.navigate([this.selection.selected[0].type, 'new']);
+      return;
+    }
+    if (this.data.docType.startsWith('Document.')) {
+      this.router.navigate([this.data.docType, 'new']);
+    }
   }
 
   copy() {
-    this.router.navigate([this.data.docType, 'copy-' + this.selection.selected[0]])
+    this.router.navigate([this.selection.selected[0].type, 'copy-' + this.selection.selected[0].id])
   }
 
-  open(row) {
-    this.router.navigate([this.data.docType, row.id])
+  open(row: DocModel) {
+    this.router.navigate([row.type, row.id])
   }
 
   delete() {
     this.selection.selected.forEach(element => {
-      this.ds.delete(element);
+      this.ds.delete(element.id);
     });
   }
 
@@ -226,9 +236,6 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     this.ds.close(this.data);
   }
 
-  jjs() {
-    console.log('jss', this.dataSource.renderedData)
-  }
 }
 
 export class ApiDataSource extends DataSource<any> {

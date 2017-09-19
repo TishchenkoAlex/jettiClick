@@ -74,6 +74,7 @@ router.get('/:type/list', async (req, res, next) => {
       OFFSET ${skip} LIMIT ${top};
       SELECT to_jsonb(COUNT(*)) count FROM ${config_schema.queryList.split('FROM')[1]}
       ${filter}`;
+    console.log(query);
     const data = await db.manyOrNone(query);
     const total_count = data[data.length - 1].count;
     data.length--;
@@ -104,7 +105,7 @@ router.get('/:type/view/*', async (req, res, next) => {
         model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
       }
     } else {
-      model = await db.one(`${config_schema.queryNewObject}`);
+      model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
       const result = { view: view, model: model };
       res.json(result);
       return;

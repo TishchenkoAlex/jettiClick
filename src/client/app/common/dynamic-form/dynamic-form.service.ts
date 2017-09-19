@@ -49,6 +49,7 @@ export class DynamicFormService {
 
     if (docType.startsWith('Catalog.')) { exclude.push('date', 'company'); }
     if (docType.startsWith('Document.')) { exclude.push('description'); }
+    if (docType.startsWith('Journal.')) { exclude.push('description'); }
 
     return this.apiService.getViewModel(docType, docID)
       .map(viewModel => {
