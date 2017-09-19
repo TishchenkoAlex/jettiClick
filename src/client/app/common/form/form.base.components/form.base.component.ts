@@ -20,6 +20,8 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
   viewModel: ViewModel;
+  isDoc: boolean;
+
   private _subscription$: Subscription = Subscription.EMPTY;
 
   constructor(private route: ActivatedRoute, private docService: DocService, private sideNavService: SideNavService) { }
@@ -27,6 +29,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   ngOnInit() {
     this.sideNavService.templateRef = this.sideNavTepmlate;
     this.viewModel = this.route.data['value'].detail;
+    this.isDoc = this.viewModel.model.type.startsWith('Document.');
 
     this._subscription$ = Observable.merge(...[
       this.docService.save$,
@@ -34,7 +37,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
       .filter(doc => doc.id === this.viewModel.model.id)
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
-        this.viewModel.formGroup.patchValue(savedDoc);
+        this.viewModel.formGroup.patchValue(savedDoc, { emitEvent: false });
       });
   }
 

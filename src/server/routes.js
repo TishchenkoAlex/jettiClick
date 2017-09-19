@@ -24,7 +24,7 @@ router.get('/documents', async (req, res, next) => {
 async function ExecuteScript(doc, script, db) {
   const Registers = { Account: [], Accumulation: [], Info: [] };
   const func = new Function('doc, Registers', script);
-  const result = func(doc, Registers);
+  func(doc, Registers);
   if (Registers.Account.length) {
     for (let i = 0; i < Registers.Account.length; i++) {
       const rec = Registers.Account[i];
@@ -140,12 +140,11 @@ router.delete('/:id', async (req, res, next) => {
       const id = req.params.id;
       let doc = await DocById(id, tx)
       await doSubscriptions(doc, 'before detele', tx);
-      const scripts = (await tx.one(`SELECT "scripts" FROM config_schema WHERE type = $1`, [doc.type])).scripts;
-      if (scripts && scripts['before-delete']) await ExecuteScript(doc, scripts['before-delete'], tx);
+      const config_schema = (await tx.one(`SELECT "queryObject", "beforeDelete", "afterDelete" FROM config_schema WHERE type = $1`, [doc.type]));
+      if (config_schema['beforeDelete']) await ExecuteScript(doc, config_schema['beforeDelete'], tx);
       doc = await tx.one('UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;', [id]);
-      if (scripts && scripts['after-delete']) await ExecuteScript(doc, scripts['after-delete'], tx);
+      if (config_schema['afterDelete']) await ExecuteScript(doc, config_schema['afterDelete'], tx);
       await doSubscriptions(doc, 'after detele', tx);
-      const config_schema = (await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]));
       const model = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
       res.json(model);
     });
@@ -161,13 +160,12 @@ router.post('/', async (req, res, next) => {
       let doc = req.body, id = doc.id;
       const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
       await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
-      const config_schema = (await tx.one(`SELECT "scripts", "queryObject" FROM config_schema WHERE type = $1`, [doc.type]));
-      const scripts = config_schema.scripts;
+      const config_schema = (await tx.one(`SELECT "queryObject", "beforePost", "afterPost" FROM config_schema WHERE type = $1`, [doc.type]));
       await tx.none(`
         DELETE FROM "Register.Account" WHERE document = $1;
         DELETE FROM "Register.Info" WHERE document = $1;
-        DELETE FROM "Register.Accumulation" WHERE document = $1;`, [doc.id]);
-      if ((doc.posted === true) && scripts && scripts['before-post']) await ExecuteScript(doc, scripts['before-post'], tx);
+        DELETE FROM "Register.Accumulation" WHERE document = $1;`, id);
+      if (!!doc.posted && config_schema['beforePost']) await ExecuteScript(doc, config_schema['beforePost'], tx);
       if (isNew) doc = await tx.one(`INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1) RETURNING *;`, [doc]);
       else {
         doc = await tx.one(`
@@ -181,7 +179,7 @@ router.post('/', async (req, res, next) => {
           FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
           WHERE d.Id = i.Id RETURNING *;`, [doc]);
       }
-      if ((doc.posted === true) && scripts && scripts['after-post']) await ExecuteScript(doc, scripts['after-post'], tx);
+      if (!!doc.posted && config_schema['afterPost']) await ExecuteScript(doc, config_schema['afterPost'], tx);
       await doSubscriptions(Object.assign({}, doc), isNew ? 'after insert' : 'after update', tx);
       const model = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
       res.json(model);

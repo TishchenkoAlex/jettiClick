@@ -1,0 +1,25 @@
+doc.Items.forEach(row => {
+    let record = {
+        operation: 'SALES',
+        sum: row.Price * row.Qty,
+        dt: '90.01',
+        dt_cur: 'RUR',
+        kt: '41.01',
+        kt_subcount2: row.SKU,
+        kt_subcount1: doc.Storehouse,
+        kt_qty: row.Qty,
+        kt_cur: 'RUR',
+    };
+    Registers.Account.push(record);
+});
+let record = {
+    operation: 'SALES',
+    sum: doc.Amount,
+    dt: '62.01',
+    dt_cur: 'RUR',
+    dt_subcount1: doc.Customer,
+    kt: '90.01',
+    kt_cur: 'RUR',
+};
+Registers.Account.push(record);
+return doc;

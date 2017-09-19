@@ -37,10 +37,10 @@
         <md-icon>map</md-icon>
       </md-panel-description>
     </md-expansion-panel-header>
-    <td-code-editor style="height: 300px" theme="vs" flex language="javascript"></td-code-editor>
+    <td-code-editor style="height: 300px" theme="vs" fxFlex language="javascript"></td-code-editor>
   </md-expansion-panel>
 
-  <md-expansion-panel hideToggle="true" *ngIf="viewModel.model.type.startsWith('Document.') && viewModel.model.posted">
+  <md-expansion-panel hideToggle="true" *ngIf="this.isDoc && viewModel.model.posted">
     <md-expansion-panel-header>
       <md-panel-title>Register movements</md-panel-title>
       <md-panel-description>Account
