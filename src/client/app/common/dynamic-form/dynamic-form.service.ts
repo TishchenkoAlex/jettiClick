@@ -25,6 +25,12 @@ export interface ViewModel {
 }
 export const patchOptionsNoEvents = { onlySelf: true, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
+export function validateAutoComplete(control: FormControl): { [s: string]: boolean } {
+  const result = !(control.value && control.value.value);
+  if (result) { return { 'value is required': result }; };
+  return null;
+}
+
 @Injectable()
 export class DynamicFormService {
 
@@ -33,14 +39,17 @@ export class DynamicFormService {
   copyFormGroup(formGroup: FormGroup): FormGroup {
     const newFormGroup = new FormGroup({});
     Object.keys(formGroup.controls).forEach(key => {
-      const newFormControl = formGroup.controls[key].validator ?
-        new FormControl(formGroup.controls[key].value, Validators.required) :
-        new FormControl(formGroup.controls[key].value);
+      const sourceFormControl = formGroup.controls[key];
+      const newFormControl = sourceFormControl.validator ?
+        new FormControl(sourceFormControl.value, Validators.required) :
+        new FormControl(sourceFormControl.value);
+      if (newFormControl.value && newFormControl.value.type && (newFormControl.validator !== null)) {
+        newFormControl.setValidators(validateAutoComplete.bind(this));
+      }
       newFormGroup.addControl(key, newFormControl);
     });
     return newFormGroup;
   }
-
 
   getViewModel(docType: string, docID = ''): Observable<ViewModel> {
 
