@@ -1,15 +1,17 @@
-<md-card-content>
-  <form novalidate [formGroup]="formGroup">
-    <div fxLayout="column" fxLayoutGap="35px">
-      <div fxFlex>
-        <div *ngFor="let control of controls;">
-          <j-control [control]="control" [form]="formGroup"></j-control>
+<div>
+  <md-card-content>
+    <form novalidate [formGroup]="formGroup">
+      <div fxLayout="column" fxLayoutGap="35px">
+        <div fxFlex>
+          <div *ngFor="let control of controls;">
+            <j-control [control]="control" [form]="formGroup"></j-control>
+          </div>
         </div>
       </div>
-    </div>
-  </form>
-</md-card-content>
-<div fxLayoutAlign="center center" fxLayoutGap="25px">
-  <button md-raised-button type="submit" color="warn" [disabled]="!formGroup.valid" [md-dialog-close]="formGroup.value">Save</button>
-  <button md-raised-button type="button" md-dialog-close>Cancel</button>
+    </form>
+  </md-card-content>
+  <div fxLayoutAlign="center center" fxLayoutGap="25px">
+    <button md-raised-button type="submit" color="warn" [disabled]="!formGroup.valid" [md-dialog-close]="formGroup.value">Save</button>
+    <button md-raised-button type="button" md-dialog-close>Cancel</button>
+  </div>
 </div>

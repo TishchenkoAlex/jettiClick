@@ -90,7 +90,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
 
   EditRow(row, index) {
     const formGroup = this.formGroup.controls[index] as FormGroup;
-    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: this.copyFormGroup(formGroup) } })
+    this.dialog.open(TablePartsDialogComponent, {data: { view: this.view, formGroup: this.copyFormGroup(formGroup) } })
       .afterClosed()
       .take(1)
       .subscribe(data => {

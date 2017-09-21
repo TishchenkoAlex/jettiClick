@@ -21,8 +21,7 @@ async function ExecuteScript(doc, script, tx) {
   const Registers = { Account: [], Accumulation: [], Info: [] };
   const func = new Function('doc, Registers', script);
   await func(doc, Registers);
-  for(let i = 0; i < Registers.Account.length; i++ ) {
-    rec = Registers.Account[i];
+  Registers.Account.forEach(async rec => {
     await tx.none(`
         INSERT INTO "Register.Account" (
           datetime, document, operation, sum, company,
@@ -36,7 +35,7 @@ async function ExecuteScript(doc, script, tx) {
         rec.kt, rec.kt_subcount1, rec.kt_subcount2, rec.kt_subcount3, rec.kt_subcount4, rec.kt_qty, rec.kt_cur
       ]
     );
-  };
+  });
 
   if (Registers.Accumulation.length) {
     const rec = Registers.Accumulation[0];

@@ -34,7 +34,7 @@ import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component'
     </md-form-field>
 
     <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
-     <md-option *ngFor="let value of suggests$ | async " [value]="value">
+     <md-option *ngFor="let value of suggests$ | async" [value]="value">
       <span>{{ value.value }}</span>
       <span> ({{value.code}}) </span>
     </md-option>
@@ -138,8 +138,9 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
 
   handleSearch(event) {
     event.stopPropagation();
-    this.dialog.open(SuggestDialogComponent, { hasBackdrop: true, data: { docType: this.value.type, docID: this.value.id } })
+    this.dialog.open(SuggestDialogComponent, {data: { docType: this.value.type, docID: this.value.id } })
     .afterClosed()
+    .take(1)
     .filter(result => !!result)
     .subscribe((data: DocModel) => {
       this.value = {id: data.id, code: data.code, type: data.type, value: data.description};
