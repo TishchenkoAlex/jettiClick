@@ -13,8 +13,8 @@ import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
 import { SideNavService } from './../../services/side-nav.service';
 
-interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
-interface FilterObject { startDate: Date, endDate: Date, columnFilter: string };
+export interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
+export interface FilterObject { startDate: Date, endDate: Date, columnFilter: string };
 
 @Component({
   selector: 'common-datatable',
@@ -205,6 +205,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
 
   refresh() {
     this.dataSource.Refresh();
+    this.selection.clear();
   }
 
   add() {
@@ -212,7 +213,8 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
       this.router.navigate([this.selection.selected[0].type, 'new']);
       return;
     }
-    if (this.data.docType.startsWith('Document.')) {
+    if (this.data.docType.startsWith('Document.') ||
+      this.data.docType.startsWith('Catalog.')) {
       this.router.navigate([this.data.docType, 'new']);
     }
   }
@@ -226,16 +228,27 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   }
 
   delete() {
-    this.selection.selected.forEach(element => {
-      this.ds.delete(element.id);
+    this.selection.selected.forEach(el => {
+      this.ds.delete(el.id);
     });
+  }
+
+  post() {
+    const tasks$ = [];
+    this.selection.selected
+      .filter(el => !el.deleted)
+      .forEach(el => tasks$.push(this.ds.post(el).take(1)));
+    Observable.forkJoin(...tasks$)
+      .subscribe(results => {
+        this.refresh();
+        this.ds.openSnackBar('Multiple parallel tasks', 'complete')
+      });
   }
 
   close() {
     console.log('BASE CLOSE');
     this.ds.close(this.data);
   }
-
 }
 
 export class ApiDataSource extends DataSource<any> {
@@ -268,7 +281,7 @@ export class ApiDataSource extends DataSource<any> {
       this._doRefresh,
     ])
       .distinctUntilChanged()
-      .filter(stream => stream !== null)
+      .filter(stream => !!stream)
       .switchMap((stream) => {
         this.isLoadingResults = true;
         const filter = !this.filterObjext.columnFilter ? '' :

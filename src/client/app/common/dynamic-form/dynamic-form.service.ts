@@ -104,6 +104,8 @@ export class DynamicFormService {
             }
             f.push(newControl);
           });
+          let i = -100;
+          f.sort((a, b) => a.order - b.order).filter(el => !(el instanceof TableDynamicControl)).forEach(el => el.order = i++);
           f.sort((a, b) => a.order - b.order);
         };
 

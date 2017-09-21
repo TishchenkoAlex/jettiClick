@@ -33,26 +33,17 @@
         <md-cell *cdkCellDef="let row"> {{row.date | date:'dd.MM.yyyy mm:ss'}} </md-cell>
       </ng-container>
   
-      <ng-container cdkColumnDef="code">
-        <md-header-cell *cdkHeaderCellDef md-sort-header>code</md-header-cell>
-        <md-cell *cdkCellDef="let row">
-          <button md-button [md-dialog-close]="row" color="primary" 
-            style="min-width: 130px; padding-left: 0px; padding-right: 0px;">{{row.code}}
-          </button>
-        </md-cell>
-      </ng-container>
-  
       <ng-container cdkColumnDef="description">
         <md-header-cell *cdkHeaderCellDef md-sort-header>description</md-header-cell>
         <md-cell *cdkCellDef="let row">
-          {{row.description}}
+            <span class="data-table-select" (click)="dialogRef.close(row)" style="cursor: pointer">{{row.description}}</span> 
         </md-cell>
       </ng-container>
   
       <md-header-row *cdkHeaderRowDef="columns"></md-header-row>
-      <md-row *cdkRowDef="let row; columns: columns;"></md-row>
+      <md-row *cdkRowDef="let row; columns: columns;" (click)="dialogRef.close(row)" style="cursor: pointer;" ></md-row>
 
     </md-table>
-    <md-paginator #paginator [length]="data.pageSize" [pageIndex]="0" [pageSize]="data.pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
+    <md-paginator #paginator [length]="dataSource.renderedData?.length" [pageSize]="data.pageSize"></md-paginator>
     <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
   </div>

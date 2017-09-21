@@ -1,6 +1,6 @@
+import { CdkTableModule } from '@angular/cdk/table';
 import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { CdkTableModule  } from '@angular/cdk/table';
 import {
     MdAutocompleteModule,
     MdButtonModule,
@@ -10,6 +10,7 @@ import {
     MdChipsModule,
     MdDatepickerModule,
     MdDialogModule,
+    MdExpansionModule,
     MdGridListModule,
     MdIconModule,
     MdInputModule,
@@ -26,11 +27,11 @@ import {
     MdSlideToggleModule,
     MdSnackBarModule,
     MdSortModule,
+    MdStepperModule,
     MdTableModule,
     MdTabsModule,
     MdToolbarModule,
     MdTooltipModule,
-    MdExpansionModule
 } from '@angular/material';
 
 @NgModule({
@@ -63,6 +64,7 @@ import {
     MdSortModule,
     MdTableModule,
     MdExpansionModule,
+    MdStepperModule,
     MdNativeDateModule,
     FlexLayoutModule,
     CdkTableModule,

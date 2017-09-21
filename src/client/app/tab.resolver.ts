@@ -10,10 +10,10 @@ import { ApiService } from './services/api.service';
 @Injectable()
 export class TabResolver implements Resolve<any> {
 
-  constructor(private dfs: DynamicFormService, private api: ApiService, public tc: TabControllerService,  
+  constructor(private dfs: DynamicFormService, private api: ApiService, public tc: TabControllerService,
     private sideNavService: SideNavService) { }
 
-  public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ViewModel> | Observable<any[]> {
+  public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Object> {
     const type: string = route.params['type'];
     const id: string = route.params['id'] || '';
     this.sideNavService.do({id: id, type: type});

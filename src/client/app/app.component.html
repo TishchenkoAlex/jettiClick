@@ -6,7 +6,7 @@
         <app-login></app-login>
         <button md-icon-button (click)="end.toggle()"><md-icon>more_vert</md-icon></button>
     </md-toolbar>
-    <md-progress-bar *ngIf="(loading$ | async)" color="accent" mode="indeterminate"></md-progress-bar>
+    <md-progress-bar *ngIf="(loading$ | async)" color="accent" mode="indeterminate" style="z-index: 2 "></md-progress-bar>
     <md-sidenav-container style="height: 100%">
         <md-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
             <md-nav-list>

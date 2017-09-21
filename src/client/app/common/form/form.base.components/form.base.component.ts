@@ -46,9 +46,8 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   }
 
   private onSubmit() {
-    const formDoc = this.viewModel.formGroup.value;
-    const newDoc = this.docService.createNewDoc(this.viewModel.model, formDoc);
-    this.docService.save(newDoc);
+    this.viewModel.model = Object.assign(this.viewModel.model, this.viewModel.formGroup.value);
+    this.docService.save(this.viewModel.model);
   }
 
   Save() {

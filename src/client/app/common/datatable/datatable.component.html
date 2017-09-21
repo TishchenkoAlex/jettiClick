@@ -72,7 +72,7 @@
           </md-checkbox>
         </md-header-cell>
         <md-cell *cdkCellDef="let row">
-          <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row.id) : null" [checked]="selection.isSelected(row.id)">
+          <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
           </md-checkbox>
         </md-cell>
       </ng-container>
@@ -163,14 +163,17 @@
     <button md-mini-fab color="primary" (click)="$event.stopPropagation(); add()" mdTooltip="create new">
       <md-icon>add</md-icon>
     </button>
-    <button md-mini-fab color="default" (click)="$event.stopPropagation(); refresh()" mdTooltip="refresh">
-      <md-icon>refresh</md-icon>
-    </button>
-    <button *ngIf="selection.selected.length===1" (click)="$event.stopPropagation(); copy()" md-mini-fab color="default" mdTooltip="copy">
+    <button *ngIf="selection.selected.length == 1" md-mini-fab color="default" mdTooltip="copy" (click)="$event.stopPropagation(); copy()" >
       <md-icon>content_copy</md-icon>
     </button>
+    <button *ngIf="selection.selected.length >=1" md-mini-fab color="secondary" mdTooltip="post" (click)="$event.stopPropagation(); post()"  >
+      <md-icon>done</md-icon>
+    </button>    
     <button *ngIf="selection.selected.length" (click)="$event.stopPropagation(); delete()" md-mini-fab color="warn" mdTooltip="delete">
       <md-icon>remove</md-icon>
+    </button>
+    <button md-mini-fab color="default" (click)="$event.stopPropagation(); refresh()" mdTooltip="refresh">
+      <md-icon>refresh</md-icon>
     </button>
   </div>
 </ng-template>

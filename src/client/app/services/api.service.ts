@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { environment } from '../../environments/environment';
+import { mapDocToApiFormat } from '../common/mapping/document.mapping';
 import { AccountRegister } from './../models/account.register';
 
 export interface DocListResponse { data: any[], total_count: number };
@@ -20,14 +21,12 @@ export class ApiService {
     return this.http.get(query) as Observable<DocListResponse>;
   }
 
-  getView(type: string): Observable<any[]> {
+  getView(type: string): Observable<Object> {
     const query = `${this.url}${type}/view/`;
     console.log('VIEW API', query);
-    return (this.http.get(query) as Observable<any[]>)
+    return (this.http.get(query))
       .map(data => data['view'])
-      .catch(err => {
-        return Observable.of<any[]>([]);
-      });
+      .catch(err => Observable.of({}))
   }
 
   getViewModel(type: string, id = ''): Observable<Object> {
@@ -35,36 +34,36 @@ export class ApiService {
     const query = `${this.url}${type}/view/${id}`;
     console.log('VIEWMODEL API', query);
     return (this.http.get(query))
-      .catch(err => {
-        return Observable.of(null);
-      });
+      .catch(err => Observable.of({}))
   }
 
   getSuggests(docType: string, filter = ''): Observable<any[]> {
     const query = `${this.url}suggest/${docType}/${filter}`;
     console.log('SUGGEST API', query);
     return (this.http.get(query) as Observable<any[]>)
-      .catch(err => {
-        return Observable.of<any[]>([]);
-      });
+      .catch(err => Observable.of([]))
   }
 
   postDoc(doc): Observable<Object> {
+    const apiDoc = mapDocToApiFormat(doc);
     const query = `${this.url}`;
-    console.log('POST API', query, doc);
-    return (this.http.post(query, doc))
-      .catch(err => {
-        return Observable.of<Object>();
-      });
+    console.log('POST API', query, apiDoc);
+    return (this.http.post(query, apiDoc))
+      .catch(err => Observable.of(null))
+  }
+
+  postDocById(id: string): Observable<boolean> {
+    const query = `${this.url}post/${id}`;
+    console.log('POST By ID API', query);
+    return (this.http.get(query) as Observable<boolean>)
+      .catch(err => Observable.of(false));
   }
 
   deleteDoc(id: string): Observable<Object> {
     const query = `${this.url}${id}`;
     console.log('DELETE', query, id);
     return (this.http.delete(query))
-      .catch(err => {
-        return Observable.of<Object>();
-      });
+      .catch(err => Observable.of(null))
   }
 
   getDocAccountMovementsView(id: string): Observable<AccountRegister[]> {
@@ -72,5 +71,6 @@ export class ApiService {
     console.log('getDocAccountMovements', query);
     return this.http.get(query) as Observable<AccountRegister[]>;
   }
+
 }
 

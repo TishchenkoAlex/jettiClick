@@ -46,7 +46,6 @@ export class MdTableDataSource<T> implements DataSource<T> {
       this._orderedDataChangeSubscription.unsubscribe();
       this._orderedDataChangeSubscription = null;
     }
-
     const orderedDataChanges: Subject<T[] | Sort>[] = [this._data];
     if (this._sort) { orderedDataChanges.push(this._sort.sortChange); }
     this._orderedDataChangeSubscription = merge(...orderedDataChanges).subscribe(() => {
@@ -63,24 +62,20 @@ export class MdTableDataSource<T> implements DataSource<T> {
       this._renderedDataChangeSubscription.unsubscribe();
       this._renderedDataChangeSubscription = null;
     }
-
     const renderedDataChanges: Subject<T[] | PageEvent>[] = [this._orderedDataChange];
     if (this._paginator) { renderedDataChanges.push(this._paginator.page); }
     this._renderedDataChangeSubscription = merge(...renderedDataChanges).subscribe(() => {
       let pagedData = this._orderedDataChange.value.slice();
-
       if (this._paginator) {
         const startIndex = this._paginator.pageIndex * this._paginator.pageSize;
         pagedData = pagedData.splice(startIndex, this._paginator.pageSize);
       }
-
       this._renderDataChange.next(pagedData);
     });
   }
 
   _sortData(data: T[], active: string, direction: SortDirection): T[] {
     if (!active || direction === '') { return data; }
-
     return data.sort((a, b) => {
       const valueA = this.dataAccessor(a, active);
       const valueB = this.dataAccessor(b, active);
