@@ -24,7 +24,9 @@ export function mapDocToApiFormat(model: DocModel): DocModel {
       copy.forEach(element => {
         for (const p in element) {
           if (element.hasOwnProperty(p)) {
-            element[p] = element[p] ? element[p]['id'] || element[p] : element[p] || null;
+            let value = element[p];
+            if (value && value['type'] && ((value['id'] === '') || (value['id'] === null))) { value = null; }
+            element[p] = value ? value['id'] || value : value || null;
           }
         }
         delete element.index;

@@ -24,7 +24,7 @@ import 'rxjs/add/operator/toPromise';
 import { HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DateAdapter, MD_DATE_FORMATS } from '@angular/material';
+import { DateAdapter, MD_DATE_FORMATS, MdPaginatorIntl } from '@angular/material';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
@@ -40,6 +40,7 @@ import { AuthService } from './auth/auth.service';
 import { LoginComponent } from './auth/login-component/login-component';
 import { JettiDateAdapter } from './jetti-date-adapter/jetti-date-adapter';
 import { JETTI_DATE_FORMATS } from './jetti-date-adapter/jetti-date-formats';
+import { getJettiPaginatorIntl } from './jetti-date-adapter/jetti-paginator';
 import { MaterialModule } from './material.module';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
@@ -75,6 +76,7 @@ import { DynamicFormsModule } from './UI/dynamic.froms.module';
       provide: RouteReuseStrategy,
       useClass: AppRouteReuseStrategy
     },
+    { provide: MdPaginatorIntl, useValue: getJettiPaginatorIntl() },
     ApiService,
     AuthService,
     TabResolver,

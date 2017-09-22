@@ -12,7 +12,7 @@
   </md-form-field>
 
   <j-autocomplete *ngSwitchCase="'autocomplete'" fxFlex [required]="control.required" [formControlName]="control.key" [id]="control.key"
-    [placeholder]="control.label" [hidden]="control.hidden" [tabIndex]="control.order">
+    [placeholder]="control.label" [hidden]="control.hidden" [tabIndex]="control.order" [type]="control.type">
   </j-autocomplete>
 
   <md-form-field *ngSwitchCase="'date'" fxFlex>

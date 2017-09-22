@@ -14,7 +14,7 @@
           </md-checkbox>
         </md-header-cell>
         <md-cell *cdkCellDef="let row">
-          <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row.id) : null" [checked]="selection.isSelected(row.id)">
+          <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
           </md-checkbox>
         </md-cell>
       </ng-container>

@@ -1,17 +1,17 @@
 import { Component, ElementRef, forwardRef, Input, OnInit, ViewChild } from '@angular/core';
 import {
-    AbstractControl,
-    ControlValueAccessor,
-    NG_VALIDATORS,
-    NG_VALUE_ACCESSOR,
-    ValidationErrors,
-    Validator,
+  AbstractControl,
+  ControlValueAccessor,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator,
 } from '@angular/forms';
 import { MdAutocomplete, MdDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 
-import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
+import { AutocompleteJettiFormControl, JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { DocModel } from '../doc.model';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
@@ -53,15 +53,21 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   @Input() disabled = false;
   @Input() hidden = false;
   @Input() tabIndex = false;
+  @Input() type = '';
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
     if (typeof obj !== 'string') {
+      if (((obj.id === null) || (obj.id === '')) && this.type.startsWith('Types.')) {
+        this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.value || '') + ']';
+        Promise.resolve().then(() => { obj.value = '' });
+      };
       this._value = obj;
       this.onChange(this._value);
     }
   }
   get value() { return this._value; }
+
   @ViewChild('control') control: ElementRef;
   @ViewChild('auto') auto: MdAutocomplete;
 
@@ -92,7 +98,13 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   // end of implementation ControlValueAccessor interface
 
   validate(c: AbstractControl): ValidationErrors | null {
-    return c.valid ? null : {'not valid': true}
+    if (this.required === true) {
+      const result = !(c.value && c.value.value);
+      if (result) {
+         return { 'required': result };
+      };
+    }
+    return null;
   };
 
   constructor(private api: ApiService, private router: Router, public dialog: MdDialog) { }
@@ -128,7 +140,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
 
   handleReset(event) {
     event.stopPropagation();
-    this.value = { id: '', code: '', type: this.value.type, value: ''};
+    this.value = { id: '', code: '', type: this.type, value: '' };
   }
 
   handleOpen(event) {
@@ -138,13 +150,13 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
 
   handleSearch(event) {
     event.stopPropagation();
-    this.dialog.open(SuggestDialogComponent, {data: { docType: this.value.type, docID: this.value.id } })
-    .afterClosed()
-    .take(1)
-    .filter(result => !!result)
-    .subscribe((data: DocModel) => {
-      this.value = {id: data.id, code: data.code, type: data.type, value: data.description};
-    });
+    this.dialog.open(SuggestDialogComponent, { data: { docType: this.value.type, docID: this.value.id } })
+      .afterClosed()
+      .take(1)
+      .filter(result => !!result)
+      .subscribe((data: DocModel) => {
+        this.value = { id: data.id, code: data.code, type: data.type, value: data.description };
+      });
   }
 
 }

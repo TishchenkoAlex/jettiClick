@@ -20,16 +20,16 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
   viewModel: ViewModel;
-  isDoc: boolean;
+  get isDoc(): boolean { return this.viewModel.model.type.startsWith('Document.') }
 
   private _subscription$: Subscription = Subscription.EMPTY;
 
-  constructor(private route: ActivatedRoute, private docService: DocService, private sideNavService: SideNavService) { }
+  constructor(private route: ActivatedRoute, private docService: DocService, private sideNavService: SideNavService) {
+    this.viewModel = this.route.data['value'].detail;
+  }
 
   ngOnInit() {
     this.sideNavService.templateRef = this.sideNavTepmlate;
-    this.viewModel = this.route.data['value'].detail;
-    this.isDoc = this.viewModel.model.type.startsWith('Document.');
 
     this._subscription$ = Observable.merge(...[
       this.docService.save$,

@@ -47,7 +47,7 @@ export class SuggestDialogComponent implements OnInit {
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
-      this.dataSource.renderedData.forEach(data => this.selection.select(data.id));
+      this.dataSource.renderedData.forEach(data => this.selection.select(data));
     }
   }
 

@@ -25,12 +25,6 @@ export interface ViewModel {
 }
 export const patchOptionsNoEvents = { onlySelf: true, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
-export function validateAutoComplete(control: FormControl): { [s: string]: boolean } {
-  const result = !(control.value && control.value.value);
-  if (result) { return { 'value is required': result }; };
-  return null;
-}
-
 @Injectable()
 export class DynamicFormService {
 
@@ -43,9 +37,6 @@ export class DynamicFormService {
       const newFormControl = sourceFormControl.validator ?
         new FormControl(sourceFormControl.value, Validators.required) :
         new FormControl(sourceFormControl.value);
-      if (newFormControl.value && newFormControl.value.type && (newFormControl.validator !== null)) {
-        newFormControl.setValidators(validateAutoComplete.bind(this));
-      }
       newFormGroup.addControl(key, newFormControl);
     });
     return newFormGroup;
@@ -114,7 +105,8 @@ export class DynamicFormService {
           });
           let i = -1000;
           f.sort((a, b) => a.order - b.order).filter(el => !(el instanceof TableDynamicControl)).forEach(el => el.order = i++);
-          f.sort((a, b) => a.order - b.order);
+          i = 1;
+          f.sort((a, b) => a.order - b.order).forEach(el => el.order = i++);
         };
 
         processRecursive(view, fields);
