@@ -20,7 +20,7 @@ export interface ViewModel {
   view: BaseJettiFromControl<any>[];
   model: DocModel,
   formGroup: FormGroup,
-  controlsByKey: any,
+  controlsByKey: {[s: string]: BaseJettiFromControl<any>} ,
   tableParts: any;
 }
 export const patchOptionsNoEvents = { onlySelf: true, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
@@ -52,13 +52,13 @@ export class DynamicFormService {
   }
 
   getViewModel(docType: string, docID = ''): Observable<ViewModel> {
-
     const fields: BaseJettiFromControl<any>[] = [];
-    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'user'];
 
-    if (docType.startsWith('Catalog.')) { exclude.push('date', 'company'); }
-    if (docType.startsWith('Document.')) { exclude.push('description'); }
-    if (docType.startsWith('Journal.')) { exclude.push('description'); }
+    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'user'];
+    switch (docType.split('.')[0]) {
+      case 'Catalog': { exclude.push('date', 'company'); break; }
+      case 'Document': case 'Journal': { exclude.push('description'); break; }
+    }
 
     return this.apiService.getViewModel(docType, docID)
       .map(viewModel => {
@@ -66,27 +66,26 @@ export class DynamicFormService {
         const view = viewModel['view'];
 
         const processRecursive = (v, f: BaseJettiFromControl<any>[]) => {
-          Object.keys(v).map((property) => {
-            if (exclude.indexOf(property) > -1) { return; }
-            const prop = v[property];
+          Object.keys(v).filter(key => exclude.indexOf(key) === -1).map(key => {
+            const prop = v[key];
             const order = prop['order'] * 1 || 99;
             const hidden = prop['hidden'] === 'true';
-            const label = prop['label'] || property.toString();
+            const label = prop['label'] || key.toString();
             const dataType = prop['type'] || 'string';
             const required = prop['required'] || false;
             const readOnly = prop['readOnly'] || false;
             const style = prop['style'] || false;
             const change = prop['change'];
-            if (dataType === 'boolean') { model[property] = !!model[property]; }
+            if (dataType === 'boolean') { model[key] = !!model[key]; }
             let newControl: BaseJettiFromControl<any>;
             const controlOptions: ControlOptions<any> = {
-              key: property, label: label, type: dataType, required: required, readOnly: readOnly,
+              key: key, label: label, type: dataType, required: required, readOnly: readOnly,
               order: order, hidden: hidden, style: style, change: change,
             };
             switch (dataType) {
               case 'table':
                 const value = [];
-                processRecursive(v[property][property], value);
+                processRecursive(v[key][key], value);
                 controlOptions.value = value;
                 newControl = new TableDynamicControl(controlOptions);
                 break;
@@ -113,14 +112,14 @@ export class DynamicFormService {
             }
             f.push(newControl);
           });
-          let i = -100;
+          let i = -1000;
           f.sort((a, b) => a.order - b.order).filter(el => !(el instanceof TableDynamicControl)).forEach(el => el.order = i++);
           f.sort((a, b) => a.order - b.order);
         };
 
         processRecursive(view, fields);
 
-        const controlsByKey: any = {};
+        const controlsByKey: {[s: string]: BaseJettiFromControl<any>} = {};
         fields.map(c => { controlsByKey[c.key] = c });
         const formGroup = this.fc.toFormGroup(fields);
         const tableParts = [];
@@ -131,7 +130,6 @@ export class DynamicFormService {
             const sample = (formGroup.controls[property] as FormArray).controls[0] as FormGroup;
             sample.addControl('index', new FormControl(0));
             const indexOfTable = fields.findIndex(i => i.key === property);
-            fields[indexOfTable].value.sort((a, b) => a.order - b.order);
             const formArray = formGroup.controls[property] as FormArray;
             tableParts.push({ id: indexOfTable, value: fields[indexOfTable].label, sampleRow: sample });
             if (docID !== 'new') {

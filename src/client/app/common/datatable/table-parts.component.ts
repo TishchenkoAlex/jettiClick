@@ -67,7 +67,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    Promise.resolve().then(() => this.dataSource = new MdTableDataSource(this.formGroup.value, this.sort));
+    Promise.resolve().then(_ => this.dataSource = new MdTableDataSource(this.formGroup.value, this.sort));
   }
 
   isAllSelected(): boolean {
@@ -88,8 +88,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     return newFormGroup;
   }
 
-  EditRow(row, index) {
-    const formGroup = this.formGroup.controls[index] as FormGroup;
+  EditRow(row) {
+    const formGroup = this.formGroup.controls[row.index] as FormGroup;
     this.dialog.open(TablePartsDialogComponent, {data: { view: this.view, formGroup: this.copyFormGroup(formGroup) } })
       .afterClosed()
       .take(1)

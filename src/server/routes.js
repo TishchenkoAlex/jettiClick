@@ -65,12 +65,11 @@ router.get('/:type/list', async (req, res, next) => {
       ${config_schema.queryList} ) d WHERE true 
       ${filter}
       ${order} 
-      OFFSET ${skip} LIMIT ${top};
-      SELECT to_jsonb(COUNT(*)) count FROM (${config_schema.queryList}) d WHERE true ${filter}`;
-    const data = await db.manyOrNone(query);
-    const total_count = data[data.length - 1].count;
-    data.length--;
-    res.json({ total_count: total_count, data: data });
+      OFFSET ${skip} LIMIT ${top};`;
+      // SELECT to_jsonb(COUNT(*)) count FROM ${config_schema.queryList.split('FROM')[1]}`;
+      const data = await db.manyOrNone(query);
+      const total_count = data.length + skip + (data.length === top ? 1 : 0);
+      res.json({ total_count: total_count, data: data });
   } catch (err) { next(err.message); }
 });
 
@@ -104,7 +103,7 @@ router.get('/suggest/:type/*', async (req, res, next) => {
       SELECT id as id, description as value, code as code, type as type
       FROM "Documents" WHERE type = '${req.params.type}'
       AND (description ILIKE '%${req.params[0]}%' OR code ILIKE '%${req.params[0]}%' OR id = '${req.params[0]}')
-      ORDER BY description LIMIT 10`;
+      ORDER BY type, description LIMIT 10`;
     const data = await db.manyOrNone(query);
     res.json(data);
   } catch (err) { next(err.message); }

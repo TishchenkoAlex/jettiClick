@@ -69,7 +69,7 @@
     </ng-container>
 
     <md-header-row *cdkHeaderRowDef="displayedColumns"></md-header-row>
-    <md-row *cdkRowDef="let row; columns: displayedColumns; let i = index" style="cursor: pointer;" (click)="EditRow(row, i)"></md-row>
+    <md-row *cdkRowDef="let row; columns: displayedColumns; let i = index" style="cursor: pointer;" (click)="EditRow(row)"></md-row>
   </md-table>
 
 </div>
