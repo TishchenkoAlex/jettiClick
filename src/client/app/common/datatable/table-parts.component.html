@@ -18,7 +18,7 @@
 
     <ng-container mdColumnDef="index">
       <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
-      <md-cell *mdCellDef="let row">{{row.index+1}}</md-cell>
+      <md-cell *cdkCellDef="let row">{{row.index+1}}</md-cell>
     </ng-container>
 
     <ng-container mdColumnDef="select">
@@ -26,7 +26,7 @@
         <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
         </md-checkbox>
       </md-header-cell>
-      <md-cell *mdCellDef="let row">
+      <md-cell *cdkCellDef="let row">
         <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
         </md-checkbox>
       </md-cell>
@@ -37,39 +37,39 @@
       <div [ngSwitch]="col.type" *ngIf="!col.hidden">
         <span *ngSwitchCase="'textbox'">
           <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *mdCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
         </span>
         <span *ngSwitchCase="'datetime'">
           <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *mdCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy mm:ss'}} </md-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy mm:ss'}} </md-cell>
         </span>
         <span *ngSwitchCase="'date'">
           <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *mdCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy'}} </md-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy'}} </md-cell>
         </span>
         <span *ngSwitchCase="'number'">
           <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *mdCellDef="let row" [ngStyle]="col.style">{{row[col.field] | number:'1.2-2' }}</md-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | number:'1.2-2' }}</md-cell>
         </span>
         <span *ngSwitchCase="'checkbox'">
           <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *mdCellDef="let row" [ngStyle]="col.style">
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">
             <md-checkbox [checked]="row[col.field]" disabled="true"></md-checkbox>
           </md-cell>
         </span>
         <span *ngSwitchCase="'autocomplete'">
           <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *mdCellDef="let row" [ngStyle]="col.style">{{row[col.field].value}}</md-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field].value}}</md-cell>
         </span>
         <span *ngSwitchDefault>
           <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *mdCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
+          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
         </span>
       </div>
     </ng-container>
 
     <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
-    <md-row *mdRowDef="let row; columns: displayedColumns; let i = index" style="cursor: pointer;" (click)="EditRow(row)"></md-row>
+    <md-row *cdkRowDef="let row; columns: displayedColumns; let i = index" style="cursor: pointer;" (click)="EditRow(row)"></md-row>
   </md-table>
 
 </div>

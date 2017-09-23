@@ -271,12 +271,10 @@ export class ApiDataSource extends DataSource<any> {
 
   constructor(private apiService: ApiService,
     private docType: string, private pageSize: number,
-    private _paginator: MdPaginator,
-    private _sort: MdSort) {
+    private _paginator: MdPaginator, private _sort: MdSort) {
 
     super();
 
-    this._paginator.pageSize = pageSize;
     this._filterObjextChangeSubscription = this._filterObjextChange
       .subscribe(() => this._paginator.pageIndex = 0);
 

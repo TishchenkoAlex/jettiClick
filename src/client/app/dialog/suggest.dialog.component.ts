@@ -13,34 +13,38 @@ import { ApiService } from '../services/api.service';
 })
 export class SuggestDialogComponent implements OnInit, OnDestroy {
 
-  private _subscription$: Subscription = Subscription.EMPTY;
+  private _filter$: Subscription = Subscription.EMPTY;
 
   dataSource: ApiDataSource | null;
   selection = new SelectionModel<string>(true, []);
 
   columns = ['select', 'posted', 'description'];
 
-  @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild(MdSort) sort: MdSort;
+  @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild('filter') filter: ElementRef;
 
   constructor(public dialogRef: MdDialogRef<any>, @Inject(MD_DIALOG_DATA) public data: any, private apiService: ApiService) { }
 
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.data.pageSize, this.paginator, this.sort);
-
-    this._subscription$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
-      .startWith('')
-      .debounceTime(300)
-      .distinctUntilChanged()
-      .subscribe(() => {
-        if (!this.dataSource) { return; }
-        this.dataSource.filterObjext =  {columnFilter: this.filter.nativeElement.value, startDate: null, endDate: null };
-      });
+    this.dataSource.selectedColumn = 'description';
+    this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
+    .startWith('')
+    .debounceTime(1000)
+    .distinctUntilChanged()
+    .subscribe(() => {
+      if (!this.dataSource) { return; }
+      this.dataSource.filterObjext = {
+        startDate: null,
+        endDate: null,
+        columnFilter: this.filter.nativeElement.value
+      };
+    });
   }
 
   ngOnDestroy() {
-    this._subscription$.unsubscribe();
+    this._filter$.unsubscribe();
   }
 
   isAllSelected(): boolean {

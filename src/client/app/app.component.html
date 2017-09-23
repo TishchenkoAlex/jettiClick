@@ -1,12 +1,13 @@
 <div [class.dark-theme]="isDarkTheme" style="height: 100vh;" fxLayout="column">
-    <md-toolbar class="md-medium-tall" color="primary" class="mat-elevation-z8">
+    <md-toolbar color="primary" class="mat-elevation-z8">
         <button md-icon-button (click)="sideNav.opened = !sideNav.opened"><md-icon>menu</md-icon></button>
         <span>Jetti - ClickSales</span>
+        <span fxFlex></span>
+        <md-progress-bar *ngIf="(loading$ | async)" style="position: absolute; bottom: 0; left: 0"  color="accent" mode="indeterminate"></md-progress-bar>
         <span fxFlex></span>
         <app-login></app-login>
         <button md-icon-button (click)="end.toggle()"><md-icon>more_vert</md-icon></button>
     </md-toolbar>
-    <md-progress-bar *ngIf="(loading$ | async)" color="accent" mode="indeterminate" style="z-index: 2 "></md-progress-bar>
     <md-sidenav-container style="height: 100%">
         <md-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
             <md-nav-list>

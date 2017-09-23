@@ -38,7 +38,12 @@ import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component'
       <span> ({{value.code}}) </span>
     </md-option>
   </md-autocomplete>`,
-  styles: [`md-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`],
+  styles: [
+    `md-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`,
+    `.suggestDialog .mat-dialog-container {
+      padding-bottom: 0px;
+    }`
+  ],
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompleteComponent), multi: true },
     { provide: NG_VALIDATORS, useExisting: forwardRef(() => AutocompleteComponent), multi: true, },
@@ -149,7 +154,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
 
   handleSearch(event) {
     event.stopPropagation();
-    this.dialog.open(SuggestDialogComponent, { data: { docType: this.value.type, docID: this.value.id } })
+    this.dialog.open(SuggestDialogComponent, { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
       .afterClosed()
       .filter(result => !!result)
       .take(1)
