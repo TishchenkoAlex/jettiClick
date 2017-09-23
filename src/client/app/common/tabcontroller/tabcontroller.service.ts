@@ -1,12 +1,9 @@
-import { DocModel } from '../doc.model';
-import { Subject } from 'rxjs/Subject';
-import { Component, Injectable } from '@angular/core';
-import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
+import { Injectable } from '@angular/core';
+import { AngularFireDatabase } from 'angularfire2/database';
 
-import { HomeComponent } from '../../home/home.component';
-
-import { getDocListComponent, getDocObjectComponent } from '../../UI/userForms';
 import { BaseDynamicCompoment } from '../../common/dynamic-component/dynamic-component';
+import { HomeComponent } from '../../home/home.component';
+import { getDocListComponent, getDocObjectComponent } from '../../UI/userForms';
 
 export interface TabDef {
   header: string;
@@ -26,7 +23,7 @@ export class TabControllerService {
   tabid: string;
   docID: string;
   HOME = HOME;
-  component = new BaseDynamicCompoment(HomeComponent, {});
+  component = new BaseDynamicCompoment(HomeComponent);
 
   constructor(public db: AngularFireDatabase) {
     const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '' };
@@ -34,12 +31,11 @@ export class TabControllerService {
   }
 
   GetComponent(tab: TabDef) {
-    if (tab.docType === 'HOME') { return new BaseDynamicCompoment(HomeComponent, {}); }
+    if (tab.docType === 'HOME') { return new BaseDynamicCompoment(HomeComponent); }
     if (!tab.docID) {
-        return new BaseDynamicCompoment(getDocListComponent(tab.docType), {docType: tab.docType, pageSize: 10});
+        return new BaseDynamicCompoment(getDocListComponent(tab.docType));
     } else {
-      return new BaseDynamicCompoment(getDocObjectComponent(tab.docType),
-        {docType: tab.docType, docID: tab.docID});
+      return new BaseDynamicCompoment(getDocObjectComponent(tab.docType));
     }
   }
 

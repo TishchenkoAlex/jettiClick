@@ -4,7 +4,6 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DocService } from '../../../common/doc.service';
-import { DocumentComponent } from '../../../common/dynamic-component/dynamic-component';
 import { ViewModel } from '../../dynamic-form/dynamic-form.service';
 import { SideNavService } from './../../../services/side-nav.service';
 
@@ -13,8 +12,7 @@ import { SideNavService } from './../../../services/side-nav.service';
   styleUrls: ['./form.base.component.scss'],
   templateUrl: './form.base.component.html',
 })
-export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
-  @Input() data;
+export class BaseFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
@@ -24,11 +22,12 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
 
   private _subscription$: Subscription = Subscription.EMPTY;
 
-  constructor(private router: Router,  private route: ActivatedRoute,
-    private docService: DocService, private sideNavService: SideNavService) {}
+  constructor(public router: Router,  public route: ActivatedRoute,
+    public docService: DocService, public sideNavService: SideNavService) {}
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
+    console.log('BASE INIT', this.viewModel.model);
     this.isDoc = this.viewModel.model.type.startsWith('Document.')
     this.sideNavService.templateRef = this.sideNavTepmlate;
 
@@ -43,7 +42,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log('DESTROY', this.data);
+    console.log('BASE DESTROY', this.viewModel.model);
     this._subscription$.unsubscribe();
   }
 

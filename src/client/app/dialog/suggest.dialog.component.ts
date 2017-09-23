@@ -27,7 +27,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   constructor(public dialogRef: MdDialogRef<any>, @Inject(MD_DIALOG_DATA) public data: any, private apiService: ApiService) { }
 
   ngOnInit() {
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.data.pageSize, this.paginator, this.sort);
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.paginator, this.sort);
     this.dataSource.selectedColumn = 'description';
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
     .startWith('')

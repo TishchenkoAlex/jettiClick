@@ -153,7 +153,7 @@
       <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
       <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
     </md-table>
-    <md-paginator #paginator [pageSize]="data.pageSize" [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
+    <md-paginator #paginator [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
     <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
   </md-card>
 </div>
@@ -180,7 +180,7 @@
 
 <ng-template #sideNavTepmlate let-sidenav="sidenav">
   <md-card>
-    TABLE DATA: {{ data | json }}
+    TABLE DATA: {{ this.docType  }}
     <br>
     <button md-button (click)="selectedPeriod='td'">Close</button>
     <button md-button (click)="sidenav.close()">Close</button>

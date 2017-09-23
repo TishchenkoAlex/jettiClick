@@ -8,7 +8,6 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DocModel, JETTI_DOC_PROP } from '../../common/doc.model';
-import { DocumentComponent } from '../../common/dynamic-component/dynamic-component';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
 import { SideNavService } from './../../services/side-nav.service';
@@ -21,7 +20,7 @@ export interface FilterObject { startDate: Date, endDate: Date, columnFilter: st
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
 })
-export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDestroy {
+export class CommonDataTableComponent implements OnInit, OnDestroy {
 
   protected _subscription$: Subscription = Subscription.EMPTY;
   protected _filter$: Subscription = Subscription.EMPTY;
@@ -30,7 +29,6 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   selection = new SelectionModel<DocModel>(true, []);
   dataSource: ApiDataSource | null;
 
-  @Input() data;
   @Input() actionTepmlate: TemplateRef<any>;
 
   private _filterObject: FilterObject;
@@ -100,6 +98,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     this._selectedPeriod = value;
   }
 
+  docType = '';
   columns: ColDef[] = [];
   displayedColumns = [];
 
@@ -122,15 +121,16 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   @ViewChild('filter') filter: ElementRef;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
-  get isDoc(): boolean { return this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.') }
+  get isDoc(): boolean { return this.docType.startsWith('Document.') || this.docType.startsWith('Journal.') }
 
   constructor(private route: ActivatedRoute, private router: Router,
     private ds: DocService, private sideNavService: SideNavService) { };
 
   ngOnInit() {
 
-    const view = (this.route.data['value'].detail);
-    this.dataSource = new ApiDataSource(this.ds.api, this.data.docType, this.data.pageSize, this.paginator, this.sort);
+    const view = this.route.data['value'].detail;
+    this.docType = this.route.params['value'].type;
+    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.paginator, this.sort);
 
     Object.keys(view).map((property) => {
       if (JETTI_DOC_PROP.indexOf(property) > -1 || (view[property] && view[property]['type'] === 'table')) { return; }
@@ -144,10 +144,10 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     });
     this.columns.sort((a, b) => a.order - b.order);
     this.displayedColumns = this.columns.filter(c => !c.hidden).map((c) => c.field);
-    if (this.data.docType.startsWith('Document.')) {
+    if (this.docType.startsWith('Document.')) {
       this.displayedColumns.unshift('select', 'posted', 'date', 'code');
     } else {
-      if (this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.')) {
+      if (this.docType.startsWith('Document.') || this.docType.startsWith('Journal.')) {
         this.displayedColumns.unshift('select', 'posted', 'date', 'code');
       } else {
         this.displayedColumns.unshift('select', 'posted', 'code', 'description');
@@ -171,16 +171,16 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
     this._subscription$ = Observable.merge(...[
       this.ds.save$,
       this.ds.delete$])
-      .filter(doc => doc.type === this.data.docType)
+      .filter(doc => doc.type === this.docType)
       .subscribe(doc => this.refresh());
 
     this._sideNavService$ = this.sideNavService.do$
-      .filter(data => data.type === this.data.docType)
+      .filter(data => data.type === this.docType)
       .subscribe(data => this.sideNavService.templateRef = this.sideNavTepmlate);
   }
 
   ngOnDestroy() {
-    console.log('DESTROY', this.data);
+    console.log('DESTROY', this.docType);
     this._subscription$.unsubscribe();
     this._filter$.unsubscribe();
     this._sideNavService$.unsubscribe();
@@ -216,9 +216,9 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
       this.router.navigate([this.selection.selected[0].type, 'new']);
       return;
     }
-    if (this.data.docType.startsWith('Document.') ||
-      this.data.docType.startsWith('Catalog.')) {
-      this.router.navigate([this.data.docType, 'new']);
+    if (this.docType.startsWith('Document.') ||
+      this.docType.startsWith('Catalog.')) {
+      this.router.navigate([this.docType, 'new']);
     }
   }
 
@@ -251,7 +251,9 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
 
   close() {
     console.log('BASE CLOSE');
-    this.ds.close(this.data);
+    const doc = new DocModel('');
+    doc.type = this.docType;
+    this.ds.close(doc);
   }
 }
 
@@ -270,8 +272,7 @@ export class ApiDataSource extends DataSource<any> {
   result$: Observable<any[]>;
 
   constructor(private apiService: ApiService,
-    private docType: string, private pageSize: number,
-    private _paginator: MdPaginator, private _sort: MdSort) {
+    private _docType: string, private _paginator: MdPaginator, private _sort: MdSort) {
 
     super();
 
@@ -290,7 +291,7 @@ export class ApiDataSource extends DataSource<any> {
         this.isLoadingResults = true;
         const filter = !this.filterObjext.columnFilter ? '' :
           ` (d."${this.selectedColumn}" ILIKE '${this.filterObjext.columnFilter}*') `;
-        return this.apiService.getDocList(this.docType,
+        return this.apiService.getDocList(this._docType,
           (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
           this._sort.active ? '"' + this._sort.active + '" ' + this._sort.direction : '', filter)
           .do(data => {

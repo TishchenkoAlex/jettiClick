@@ -10,19 +10,18 @@ import { ApiService } from './services/api.service';
 @Injectable()
 export class TabResolver implements Resolve<any> {
 
-  constructor(private dfs: DynamicFormService, private api: ApiService, public tc: TabControllerService,
-    private sideNavService: SideNavService) { }
+  constructor(private dfs: DynamicFormService, public tcs: TabControllerService, private sns: SideNavService) { }
 
   public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Object> {
     const type: string = route.params['type'];
     const id: string = route.params['id'] || '';
-    this.sideNavService.do({id: id, type: type});
+    this.sns.do({id: id, type: type});
     if (type === 'Home') { return Observable.of(null); }
-    if (this.tc.tabs.findIndex(i => i.docType === type && i.docID === id) === -1) {
+    if (this.tcs.tabs.findIndex(i => i.docType === type && i.docID === id) === -1) {
       if (route.params['id']) {
-        return this.dfs.getViewModel(route.params['type'], route.params['id']);
+        return this.dfs.getViewModel$(route.params['type'], route.params['id']);
       }
-      return this.api.getView(route.params['type']);
+      return this.dfs.getView$(route.params['type']);
     }
   }
 }

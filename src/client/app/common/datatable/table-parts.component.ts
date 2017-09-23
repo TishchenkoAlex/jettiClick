@@ -5,7 +5,8 @@ import { MdDialog, MdSort } from '@angular/material';
 
 import { BaseJettiFromControl, TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../doc.service';
-import { DynamicFormService, patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
+import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
+import { copyFormGroup } from '../utils';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
 import { MdTableDataSource } from './md-table-datasource';
 
@@ -38,7 +39,6 @@ interface ColDef { field: string; type: string; label: string; hidden: boolean; 
   templateUrl: './table-parts.component.html',
 })
 export class TablePartsComponent implements OnInit, AfterViewInit {
-  @Input() pageSize = 5;
   @Input() view: BaseJettiFromControl<any>[];
   @Input() formGroup: FormArray;
   @Input() tab: any;
@@ -54,7 +54,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   columns: ColDef[] = [];
 
 
-  constructor(public dialog: MdDialog, private ds: DocService, private fs: DynamicFormService) {
+  constructor(public dialog: MdDialog, private ds: DocService) {
   }
 
   ngOnInit() {
@@ -84,7 +84,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   private copyFormGroup(formGroup: FormGroup): FormGroup {
-    const newFormGroup = this.fs.copyFormGroup(formGroup);
+    const newFormGroup = copyFormGroup(formGroup);
     return newFormGroup;
   }
 

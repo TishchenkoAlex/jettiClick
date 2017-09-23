@@ -13,4 +13,8 @@ export class CashRegisterForm extends BaseFormComponent  {
     super.Save();
   }
 
+  Close() {
+    console.log('CHILD CLOSE');
+    super.Close();
+  }
 }

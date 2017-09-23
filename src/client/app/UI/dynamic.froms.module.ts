@@ -9,7 +9,6 @@ import { CommonDataTableComponent } from './../common/datatable/datatable.compon
 import { DocService } from './../common/doc.service';
 import { DynamicComponent, DynamicComponentDirective } from './../common/dynamic-component/dynamic-component';
 import { DynamicFormControlComponent } from './../common/dynamic-form/dynamic-form-control.component';
-import { DynamicFormControlService } from './../common/dynamic-form/dynamic-form-control.service';
 import { DynamicFormService } from './../common/dynamic-form/dynamic-form.service';
 import { BaseFormComponent } from './../common/form/form.base.components/form.base.component';
 import { RegisterMovementComponent } from './../common/register-movements/register-movement.component';
@@ -19,7 +18,8 @@ import { SuggestDialogComponent } from './../dialog/suggest.dialog.component';
 import { TablePartsDialogComponent } from './../dialog/table-parts.dialog.component';
 import { HomeComponent } from './../home/home.component';
 import { MaterialModule } from './../material.module';
-import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form';
+import { CashRegisterForm } from './Catalog/CashRegister/CashRegister.form';
+import { OperationFormComponent } from './Operation/operation.form.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +37,7 @@ import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form
     RegisterMovementComponent,
 
     CashRegisterForm, // add user froms above
+    OperationFormComponent,
   ],
   imports: [
     CommonModule,
@@ -49,7 +50,6 @@ import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form
   ],
   providers: [
     TabControllerService,
-    DynamicFormControlService,
     DynamicFormService,
     DocService,
   ],
@@ -61,6 +61,7 @@ import { CashRegisterForm } from './../UI/Catalog/CashRegister/CashRegister.form
     BaseFormComponent,
 
     CashRegisterForm, // add user froms above
+    OperationFormComponent,
   ]
 })
 export class DynamicFormsModule { }

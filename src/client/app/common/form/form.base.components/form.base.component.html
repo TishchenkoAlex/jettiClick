@@ -24,10 +24,11 @@
     </md-expansion-panel-header>
 
     <md-card-content>
-      <form novalidate [formGroup]="viewModel.formGroup">
-        <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
-      </form>
+      <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
+      <ng-content></ng-content>
+      {{ this.viewModel?.formGroup.value | json }}
     </md-card-content>
+  
   </md-expansion-panel>
 
   <md-expansion-panel hideToggle="true">
@@ -54,6 +55,7 @@
 </md-accordion>
 
 <ng-template #formTepmlateDefault let-v="viewModel">
+  <form novalidate [formGroup]="v.formGroup">
   <div fxLayout="column">
 
     <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px">
@@ -86,7 +88,7 @@
     </div>
 
   </div>
-
+  </form>
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
@@ -114,7 +116,7 @@
 
 <ng-template #sideNavTepmlate let-v="viewModel" let-sidenav="sidenav">
   <md-card>
-    FORM DATA: {{ this.data.docType }}
+    FORM DATA: {{ viewModel.model.type }}
     <br>
     <button md-button (click)="sidenav.close()">Close</button>
   </md-card>

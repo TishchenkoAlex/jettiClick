@@ -4,8 +4,6 @@ import { FormArray, FormGroup } from '@angular/forms';
 import { BaseJettiFromControl } from './dynamic-form-base';
 import { patchOptionsNoEvents } from './dynamic-form.service';
 
-const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'j-control',

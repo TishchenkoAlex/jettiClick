@@ -2,12 +2,8 @@ import { AfterViewInit, Component, ComponentFactoryResolver, Input, ViewChild } 
 import { Directive, ViewContainerRef } from '@angular/core';
 import { Type } from '@angular/core';
 
-export interface DocumentComponent {
-  data: any;
-}
-
 export class BaseDynamicCompoment {
-  constructor(public component: Type<any>, public data: any) {}
+  constructor(public component: Type<any>) {}
 }
 
 @Directive({
@@ -36,7 +32,6 @@ export class DynamicComponent implements AfterViewInit {
     const viewContainerRef = this.host.viewContainerRef;
     viewContainerRef.clear();
     const componentRef = viewContainerRef.createComponent(componentFactory);
-    (<DocumentComponent>componentRef.instance).data = this.component.data;
   }
 
 }
