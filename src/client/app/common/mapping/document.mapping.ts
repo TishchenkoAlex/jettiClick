@@ -33,7 +33,9 @@ export function mapDocToApiFormat(model: DocModel): DocModel {
       });
       newDoc.doc[property] = copy;
     } else {
-      newDoc.doc[property] = model[property] ? model[property]['id'] || model[property] : model[property] || null;
+      let value = model[property];
+      if (value && value['type'] && ((value['id'] === '') || (value['id'] === null))) { value = null; }
+      newDoc.doc[property] = value ? value['id'] || value : value || null;
     }
   }
   return newDoc;

@@ -97,6 +97,9 @@
     <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Post()" mdTooltip="post" *ngIf="!v.model.deleted">
       <md-icon>done</md-icon>
     </button>
+    <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Copy()" mdTooltip="copy" *ngIf="!v.model.deleted && !v.model.id.startsWith('copy')">
+      <md-icon>content_copy</md-icon>
+    </button>
     <button md-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); unPost()" mdTooltip="unPost" *ngIf="!v.model.deleted && v.model.posted">
       <md-icon>undo</md-icon>
     </button>

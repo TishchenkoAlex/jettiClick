@@ -1,5 +1,6 @@
+import { Subscription } from 'rxjs/Rx';
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MD_DIALOG_DATA, MdPaginator, MdSort, MdDialogRef } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
 
@@ -10,7 +11,9 @@ import { ApiService } from '../services/api.service';
   templateUrl: './suggest.dialog.component.html',
   styleUrls: ['./suggest.dialog.component.scss']
 })
-export class SuggestDialogComponent implements OnInit {
+export class SuggestDialogComponent implements OnInit, OnDestroy {
+
+  private _subscription$: Subscription = Subscription.EMPTY;
 
   dataSource: ApiDataSource | null;
   selection = new SelectionModel<string>(true, []);
@@ -26,7 +29,7 @@ export class SuggestDialogComponent implements OnInit {
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.data.pageSize, this.paginator, this.sort);
 
-    Observable.fromEvent(this.filter.nativeElement, 'keyup')
+    this._subscription$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .startWith('')
       .debounceTime(300)
       .distinctUntilChanged()
@@ -34,6 +37,10 @@ export class SuggestDialogComponent implements OnInit {
         if (!this.dataSource) { return; }
         this.dataSource.filterObjext =  {columnFilter: this.filter.nativeElement.value, startDate: null, endDate: null };
       });
+  }
+
+  ngOnDestroy() {
+    this._subscription$.unsubscribe();
   }
 
   isAllSelected(): boolean {

@@ -17,7 +17,6 @@ import { DocModel } from '../doc.model';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
 @Component({
-  // tslint:disable-next-line:component-selector
   selector: 'j-autocomplete',
   template: `
     <md-form-field fxFlex>
@@ -25,11 +24,11 @@ import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component'
         [placeholder]="placeholder" [mdAutocomplete]="auto" [readOnly]="readOnly"
         [disabled]="disabled" (blur)="onBlur()" [tabIndex]="tabIndex">
       <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open search dialog"
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer"
         (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="open item card"
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer"
         (click)="handleOpen($event)" [tabIndex]=-1 autocomplete="off"><md-icon>visibility</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" mdTooltip="clear this field"
+      <button md-icon-button mdSuffix type="button" style="cursor: pointer"
         (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
     </md-form-field>
 
@@ -152,8 +151,8 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
     event.stopPropagation();
     this.dialog.open(SuggestDialogComponent, { data: { docType: this.value.type, docID: this.value.id } })
       .afterClosed()
-      .take(1)
       .filter(result => !!result)
+      .take(1)
       .subscribe((data: DocModel) => {
         this.value = { id: data.id, code: data.code, type: data.type, value: data.description };
       });

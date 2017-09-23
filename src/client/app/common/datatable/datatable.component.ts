@@ -129,33 +129,21 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
 
   ngOnInit() {
 
+    const view = (this.route.data['value'].detail);
     this.dataSource = new ApiDataSource(this.ds.api, this.data.docType, this.data.pageSize, this.paginator, this.sort);
 
-    this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
-      .debounceTime(1000)
-      .distinctUntilChanged()
-      .subscribe(() => {
-        if (!this.dataSource) { return; }
-        this.dataSource.filterObjext = {
-          startDate: this.filterObject.startDate,
-          endDate: this.filterObject.endDate,
-          columnFilter: this.filter.nativeElement.value
-        };
-      });
-
-    const view = (this.route.data['value'].detail);
     Object.keys(view).map((property) => {
       if (JETTI_DOC_PROP.indexOf(property) > -1 || (view[property] && view[property]['type'] === 'table')) { return; }
       const prop = view[property];
-      const order = prop['order'] * 1 || 99;
-      const hidden = prop['hidden'] === 'true';
+      const hidden = !!prop['hidden'];
+      const order = hidden ? 1000 : prop['order'] * 1 || 999;
       const label = (prop['label'] || property.toString()).toLowerCase();
       const dataType = prop['type'] || 'string';
       const style = prop['style'] || '';
       this.columns.push({ field: property, type: dataType, label: label, hidden: hidden, order: order, style: style });
     });
     this.columns.sort((a, b) => a.order - b.order);
-    this.displayedColumns = this.columns.map((c) => c.field);
+    this.displayedColumns = this.columns.filter(c => !c.hidden).map((c) => c.field);
     if (this.data.docType.startsWith('Document.')) {
       this.displayedColumns.unshift('select', 'posted', 'date', 'code');
     } else {
@@ -165,7 +153,20 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
         this.displayedColumns.unshift('select', 'posted', 'code', 'description');
       }
     }
+
     this.selectedPeriod = 'tm';
+
+    this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
+    .debounceTime(1000)
+    .distinctUntilChanged()
+    .subscribe(() => {
+      if (!this.dataSource) { return; }
+      this.dataSource.filterObjext = {
+        startDate: this.filterObject.startDate,
+        endDate: this.filterObject.endDate,
+        columnFilter: this.filter.nativeElement.value
+      };
+    });
 
     this._subscription$ = Observable.merge(...[
       this.ds.save$,
@@ -179,9 +180,11 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
   }
 
   ngOnDestroy() {
+    console.log('DESTROY', this.data);
     this._subscription$.unsubscribe();
     this._filter$.unsubscribe();
     this._sideNavService$.unsubscribe();
+    this.dataSource._filterObjextChangeSubscription.unsubscribe();
   }
 
   onPeriodChange() {
@@ -239,6 +242,7 @@ export class CommonDataTableComponent implements DocumentComponent, OnInit, OnDe
       .filter(el => !el.deleted)
       .forEach(el => tasks$.push(this.ds.post(el).take(1)));
     Observable.forkJoin(...tasks$)
+      .take(1)
       .subscribe(results => {
         this.refresh();
         this.ds.openSnackBar('Multiple parallel tasks', 'complete')
@@ -256,6 +260,7 @@ export class ApiDataSource extends DataSource<any> {
 
   selectedColumn = 'code';
 
+  _filterObjextChangeSubscription: Subscription = Subscription.EMPTY;
   _filterObjextChange = new BehaviorSubject<FilterObject>(null);
   get filterObjext(): FilterObject { return this._filterObjextChange.value; }
   set filterObjext(filterObjext: FilterObject) { this._filterObjextChange.next(filterObjext); }
@@ -272,7 +277,8 @@ export class ApiDataSource extends DataSource<any> {
     super();
 
     this._paginator.pageSize = pageSize;
-    this._filterObjextChange.subscribe(() => this._paginator.pageIndex = 0);
+    this._filterObjextChangeSubscription = this._filterObjextChange
+      .subscribe(() => this._paginator.pageIndex = 0);
 
     this.result$ = Observable.merge(...[
       this._sort.sortChange,
@@ -298,7 +304,7 @@ export class ApiDataSource extends DataSource<any> {
             this._paginator.length = 0;
             this.renderedData = [];
             this.isLoadingResults = false;
-            return Observable.of();
+            return Observable.of<any[]>([]);
           });
       })
       .map(data => data['data'])

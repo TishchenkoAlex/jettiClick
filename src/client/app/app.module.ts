@@ -1,21 +1,16 @@
 import 'hammerjs';
-import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/combineLatest';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/operator/onErrorResumeNext';
 import 'rxjs/add/operator/share';
-import 'rxjs/add/operator/skip';
 import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/take';
@@ -40,7 +35,7 @@ import { AuthService } from './auth/auth.service';
 import { LoginComponent } from './auth/login-component/login-component';
 import { JettiDateAdapter } from './jetti-date-adapter/jetti-date-adapter';
 import { JETTI_DATE_FORMATS } from './jetti-date-adapter/jetti-date-formats';
-import { getJettiPaginatorIntl } from './jetti-date-adapter/jetti-paginator';
+import { CustomPaginator } from './jetti-date-adapter/jetti-paginator';
 import { MaterialModule } from './material.module';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
@@ -76,7 +71,7 @@ import { DynamicFormsModule } from './UI/dynamic.froms.module';
       provide: RouteReuseStrategy,
       useClass: AppRouteReuseStrategy
     },
-    { provide: MdPaginatorIntl, useValue: getJettiPaginatorIntl() },
+    { provide: MdPaginatorIntl, useClass: CustomPaginator },
     ApiService,
     AuthService,
     TabResolver,

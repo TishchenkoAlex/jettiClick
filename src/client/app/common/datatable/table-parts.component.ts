@@ -120,7 +120,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
 
   Delete() {
     this.selection.selected.forEach(element => {
-      this.formGroup.removeAt(element.index);
+      this.formGroup.removeAt(this.formGroup.controls.findIndex((el: FormGroup) =>
+      el.controls['index'].value === element.index));
       this.onChange.emit(this.formGroup.value);
     });
     this.selection.clear();

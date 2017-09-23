@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -20,15 +20,16 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
   viewModel: ViewModel;
-  get isDoc(): boolean { return this.viewModel.model.type.startsWith('Document.') }
+  isDoc: boolean;
 
   private _subscription$: Subscription = Subscription.EMPTY;
 
-  constructor(private route: ActivatedRoute, private docService: DocService, private sideNavService: SideNavService) {
-    this.viewModel = this.route.data['value'].detail;
-  }
+  constructor(private router: Router,  private route: ActivatedRoute,
+    private docService: DocService, private sideNavService: SideNavService) {}
 
   ngOnInit() {
+    this.viewModel = this.route.data['value'].detail;
+    this.isDoc = this.viewModel.model.type.startsWith('Document.')
     this.sideNavService.templateRef = this.sideNavTepmlate;
 
     this._subscription$ = Observable.merge(...[
@@ -42,6 +43,7 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    console.log('DESTROY', this.data);
     this._subscription$.unsubscribe();
   }
 
@@ -77,6 +79,11 @@ export class BaseFormComponent implements DocumentComponent, OnInit, OnDestroy {
   Close() {
     console.log('BASE CLOSE');
     this.docService.close(this.viewModel.model);
+  }
+
+  Copy() {
+    console.log('BASE COPY');
+    this.router.navigate([this.viewModel.model.type, 'copy-' + this.viewModel.model.id]);
   }
 
 }

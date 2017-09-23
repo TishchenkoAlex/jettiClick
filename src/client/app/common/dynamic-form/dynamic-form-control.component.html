@@ -1,4 +1,4 @@
-<div [formGroup]="form" [ngSwitch]="control.controlType">
+<div [formGroup]="form" [ngSwitch]="control.controlType" *ngIf="!control.hidden">
 
   <md-form-field *ngSwitchCase="'textbox'" fxFlex>
     <input [required]="control.required" mdInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"

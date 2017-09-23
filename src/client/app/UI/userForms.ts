@@ -6,13 +6,13 @@ const userForms = [
     { type: 'Catalog.Products', objectComponent: CashRegisterForm, listComponent: CommonDataTableComponent }
 ]
 
-export function getDocListComponent(type: string) {
+export function getDocListComponent(type: string): typeof CommonDataTableComponent {
     const index = userForms.findIndex((data) => data.type === type);
     if (index === -1) { return CommonDataTableComponent; }
     return userForms[index].listComponent;
 }
 
-export function getDocObjectComponent(type: string) {
+export function getDocObjectComponent(type: string): typeof BaseFormComponent {
     const index = userForms.findIndex((data) => data.type === type);
     if (index === -1) { return BaseFormComponent; }
     return userForms[index].objectComponent;

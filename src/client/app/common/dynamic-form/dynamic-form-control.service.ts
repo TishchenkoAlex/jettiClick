@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { BaseJettiFromControl } from './dynamic-form-base';
+import { BaseJettiFromControl, TableDynamicControl } from './dynamic-form-base';
 
 @Injectable()
 export class DynamicFormControlService {
@@ -10,7 +10,7 @@ export class DynamicFormControlService {
     const group: any = {};
 
     controls.forEach(control => {
-      if (control.controlType === 'table') {
+      if (control instanceof TableDynamicControl) {
         const Row = {};
         const arr: FormGroup[] = [];
         (control.value as BaseJettiFromControl<any>[]).forEach(item => {
@@ -18,7 +18,8 @@ export class DynamicFormControlService {
             new FormControl(item.value, Validators.required) : new FormControl(item.value);
         });
         arr.push(new FormGroup(Row));
-        group[control.key] = new FormArray(arr);
+        group[control.key] = control.required ?
+          new FormArray(arr, Validators.required) : new FormArray(arr);
       } else {
         group[control.key] = control.required ?
           new FormControl(control.value, Validators.required) : new FormControl(control.value);

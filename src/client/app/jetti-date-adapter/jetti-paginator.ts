@@ -1,6 +1,7 @@
 import { MdPaginatorIntl } from '@angular/material';
+import { Injectable } from '@angular/core';
 
-const russianRangeLabel = (page: number, pageSize: number, length: number) => {
+const RangeLabel = (page: number, pageSize: number, length: number) => {
     if (length === 0 || pageSize === 0) { return `0 of ${length}`; }
 
     length = Math.max(length, 0);
@@ -15,13 +16,8 @@ const russianRangeLabel = (page: number, pageSize: number, length: number) => {
     return `${startIndex + 1} - ${endIndex}`;
 }
 
-export function getJettiPaginatorIntl() {
-    const paginatorIntl = new MdPaginatorIntl();
-
-    paginatorIntl.itemsPerPageLabel = 'page size';
-    paginatorIntl.nextPageLabel = 'next page';
-    paginatorIntl.previousPageLabel = 'prev page';
-    paginatorIntl.getRangeLabel = russianRangeLabel;
-
-    return paginatorIntl;
+@Injectable()
+export class CustomPaginator extends MdPaginatorIntl {
+    itemsPerPageLabel = 'page size';
+    getRangeLabel = RangeLabel;
 }

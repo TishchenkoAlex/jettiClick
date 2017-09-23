@@ -5,19 +5,19 @@ import * as firebase from 'firebase/app';
 @Injectable()
 export class AuthService {
 
-    public user: firebase.User;
+  public user: firebase.User;
 
-    constructor(public afAuth: AngularFireAuth) {
-        afAuth.authState.subscribe(user => {
-            this.user = user;
-        });
-    }
+  constructor(public afAuth: AngularFireAuth) {
+    afAuth.authState.subscribe(user => {
+      this.user = user;
+    });
+  }
 
-    public login() {
-        this.afAuth.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
-    }
+  public login() {
+    this.afAuth.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider());
+  }
 
-    public logout() {
-        this.afAuth.auth.signOut();
-    }
+  public logout() {
+    this.afAuth.auth.signOut();
+  }
 }
