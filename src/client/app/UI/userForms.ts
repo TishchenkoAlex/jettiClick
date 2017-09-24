@@ -4,7 +4,7 @@ import { CashRegisterForm } from './Catalog/CashRegister/CashRegister.form';
 import { OperationFormComponent } from './Operation/operation.form.component';
 
 const userForms = [
-    { type: 'Catalog.Product-----', objectComponent: CashRegisterForm, listComponent: CommonDataTableComponent },
+    { type: 'Catalog.CashRegister', objectComponent: CashRegisterForm, listComponent: CommonDataTableComponent },
     { type: 'Document.Operation', objectComponent: OperationFormComponent, listComponent: CommonDataTableComponent }
 ]
 

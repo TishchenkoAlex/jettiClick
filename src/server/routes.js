@@ -19,8 +19,9 @@ router.get('/documents', async (req, res, next) => {
 
 async function ExecuteScript(doc, script, tx) {
   const Registers = { Account: [], Accumulation: [], Info: [] };
-  const func = new Function('doc, Registers', script);
-  await func(doc, Registers);
+  const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+  const func = new AsyncFunction('doc, Registers, tx', script);
+  await func(doc, Registers, tx);
   Registers.Account.forEach(async rec => {
     await tx.none(`
         INSERT INTO "Register.Account" (
