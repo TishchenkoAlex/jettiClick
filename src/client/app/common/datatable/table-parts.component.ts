@@ -103,15 +103,15 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   AddRow() {
-    const formGroup = this.copyFormGroup(this.tab.sampleRow);
-    formGroup.controls['index'].setValue(this.formGroup.length + 1, patchOptionsNoEvents);
-    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: formGroup } })
+    const newFormGroup = this.copyFormGroup(this.tab.sampleRow);
+    newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
+    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: newFormGroup } })
       .afterClosed()
       .take(1)
       .subscribe(data => {
         if (data) {
-          formGroup.patchValue(data, {emitEvent: false});
-          this.formGroup.push(formGroup);
+          newFormGroup.patchValue(data, {emitEvent: false});
+          this.formGroup.push(newFormGroup);
           this.dataSource.data = this.formGroup.value;
           this.onChange.emit(data);
         }

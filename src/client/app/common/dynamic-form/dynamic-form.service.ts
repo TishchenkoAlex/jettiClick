@@ -14,6 +14,7 @@ import {
     NumberJettiFormControl,
     TableDynamicControl,
     TextboxJettiFormControl,
+    ScriptJettiFormControl,
 } from './dynamic-form-base';
 
 export interface ViewModel {
@@ -30,8 +31,8 @@ export const patchOptionsNoEvents = { onlySelf: true, emitEvent: false, emitMode
 export function getViewModel(view, model, exclude: string[], isExists: boolean) {
   const fields: BaseJettiFromControl<any>[] = [];
 
-  const processRecursive = (v, f: BaseJettiFromControl<any>[]) => {
-    Object.keys(v).filter(key => exclude.indexOf(key) === -1).map(key => {
+  const processRecursive = (v, f: BaseJettiFromControl<any>[], excl: string[]) => {
+    Object.keys(v).filter(key => excl.indexOf(key) === -1).map(key => {
       const prop = v[key];
       const hidden = !!prop['hidden'];
       const order = hidden ? 1000 : prop['order'] * 1 || 999;
@@ -49,7 +50,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       switch (dataType) {
         case 'table':
           const value = [];
-          processRecursive(v[key][key], value);
+          processRecursive(v[key][key], value, []);
           controlOptions.value = value;
           newControl = new TableDynamicControl(controlOptions);
           break;
@@ -64,6 +65,9 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
           break;
         case 'number':
           newControl = new NumberJettiFormControl(controlOptions);
+          break;
+        case 'javascript':
+          newControl = new ScriptJettiFormControl(controlOptions);
           break;
         default:
           if (dataType.includes('.')) {
@@ -80,7 +84,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
     i = 1; f.sort((a, b) => a.order - b.order).forEach(e => e.order = i++);
   };
 
-  processRecursive(view, fields);
+  processRecursive(view, fields, exclude);
 
   const formGroup = toFormGroup(fields);
   const tableParts = [];
@@ -103,7 +107,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       formArray.removeAt(0);  // delete sample row
     });
   const controlsByKey: { [s: string]: BaseJettiFromControl<any> } = {};
-  fields.map(c => { controlsByKey[c.key] = c });
+  fields.forEach(c => { controlsByKey[c.key] = c });
   formGroup.patchValue(model, patchOptionsNoEvents);
   return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, tableParts: tableParts, schema: view }
 }
