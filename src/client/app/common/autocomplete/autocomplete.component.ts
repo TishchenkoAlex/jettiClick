@@ -22,7 +22,7 @@ import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component'
     <md-form-field fxFlex>
       <input #control mdInput [(ngModel)]="value" [required]="required"
         [placeholder]="placeholder" [mdAutocomplete]="auto" [readOnly]="readOnly"
-        [disabled]="disabled" (blur)="onBlur()" [tabIndex]="tabIndex">
+        ([disabled])="disabled" (blur)="onBlur()" [tabIndex]="tabIndex">
       <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
       <button md-icon-button mdSuffix type="button" style="cursor: pointer"
         (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon></button>
@@ -69,6 +69,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
       this._value = obj;
       this.onChange(this._value);
     }
+    this._value = obj;
   }
   get value() { return this._value; }
 
@@ -84,7 +85,7 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
 
   writeValue(obj: any): void {
     if (obj !== this._value) {
-      this.value = obj;
+      this._value = obj;
     }
   }
 

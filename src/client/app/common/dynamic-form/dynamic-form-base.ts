@@ -50,6 +50,17 @@ export class TextboxJettiFormControl extends BaseJettiFromControl<string> {
   }
 }
 
+export class TextareaJettiFormControl extends BaseJettiFromControl<string> {
+  controlType = 'textarea';
+  type = 'string';
+
+  constructor(options: ControlOptions<string> = {}) {
+    super(options);
+
+  }
+}
+
+
 export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
   controlType = 'script';
   type = 'string';
@@ -58,7 +69,6 @@ export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
     super(options);
   }
 }
-
 
 export class BooleanJettiFormControl extends BaseJettiFromControl<boolean> {
   controlType = 'checkbox';

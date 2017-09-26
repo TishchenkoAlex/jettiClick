@@ -32,7 +32,6 @@
       </md-cell>
     </ng-container>
 
-
     <ng-container *ngFor="let col of columns" [mdColumnDef]="col.field">
       <div [ngSwitch]="col.type" *ngIf="!col.hidden">
         <span *ngSwitchCase="'textbox'">

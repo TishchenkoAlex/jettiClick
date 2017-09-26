@@ -4,9 +4,9 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MdDialog, MdSort } from '@angular/material';
 
 import {
-  AutocompleteJettiFormControl,
-  BaseJettiFromControl,
-  TableDynamicControl,
+    AutocompleteJettiFormControl,
+    BaseJettiFromControl,
+    TableDynamicControl,
 } from '../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';

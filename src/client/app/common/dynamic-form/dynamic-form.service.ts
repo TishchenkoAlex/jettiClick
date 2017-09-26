@@ -12,9 +12,10 @@ import {
     ControlOptions,
     DateJettiFormControl,
     NumberJettiFormControl,
-    TableDynamicControl,
-    TextboxJettiFormControl,
     ScriptJettiFormControl,
+    TableDynamicControl,
+    TextareaJettiFormControl,
+    TextboxJettiFormControl,
 } from './dynamic-form-base';
 
 export interface ViewModel {
@@ -68,6 +69,9 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
         case 'javascript':
           newControl = new ScriptJettiFormControl(controlOptions);
           break;
+        case 'textarea':
+          newControl = new TextareaJettiFormControl(controlOptions);
+          break;
         default:
           if (dataType.includes('.')) {
             controlOptions.type = dataType; // здесь нужен тип ссылки
@@ -96,7 +100,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       const formArray = formGroup.controls[property] as FormArray;
       if (isExists) {
         if (!model[property]) { model[property] = [] }
-        for (let i = 0; i < model[property].length; i++) {
+        for (let i = 1; i <= model[property].length; i++) {
           const newFormGroup = copyFormGroup(sample);
           newFormGroup.controls['index'].setValue(i, patchOptionsNoEvents);
           formArray.push(newFormGroup);
