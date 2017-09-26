@@ -78,14 +78,18 @@
       </div>
     </div>
 
-    <div fxLayoutGap.gt-xs="column" *ngIf="v.tableParts?.length">
+    <div fxLayoutGap.gt-xs="column">
       <md-tab-group #tg dynamicHeight="true">
-        <md-tab #ta *ngFor="let tab of v.tableParts; index as i" [tabindex]="i">
-          <ng-template md-tab-label>
-            <div>{{ tab.value }}</div>
-          </ng-template>
-          <j-control [control]="v.view[tab.id]" [form]="v.formGroup" [tab]="tab"></j-control>
-        </md-tab>
+        <div *ngFor="let control of v.view; let i = index">
+          <span *ngIf="control.type === 'table'">
+            <md-tab #ta [tabindex]="i">
+              <ng-template md-tab-label>
+                <div>{{ control.label }}</div>
+              </ng-template>
+              <j-control [control]="control" [form]="v.formGroup"></j-control>
+            </md-tab>
+          </span>
+        </div>
       </md-tab-group>
     </div>
 
@@ -117,8 +121,10 @@
 
 <ng-template #sideNavTepmlate let-v="viewModel" let-sidenav="sidenav">
   <md-card>
-    FORM DATA: {{ viewModel.model.type }}
+    <div>Document: {{ viewModel.model.type }}</div>
+    <div>Id: {{ viewModel.model.id }}</div>
     <br>
+    <button md-button (click)="this.router.navigate([viewModel.model.type]);sidenav.close()">Open list</button>
     <button md-button (click)="sidenav.close()">Close</button>
   </md-card>
 </ng-template>

@@ -33,7 +33,7 @@ export class BaseJettiFromControl<T> {
     this.required = !!options.required;
     this.readOnly = !!options.readOnly;
     this.hidden = !!options.hidden;
-    this.order = options.order === undefined ? 999 : options.order;
+    this.order = options.order === undefined ? 9999999 : options.order;
     this.controlType = options.controlType || '';
     this.style = options.style || {};
     this.change = options.change || '';
@@ -46,6 +46,7 @@ export class TextboxJettiFormControl extends BaseJettiFromControl<string> {
 
   constructor(options: ControlOptions<string> = {}) {
     super(options);
+
   }
 }
 
@@ -115,7 +116,7 @@ export class NumberJettiFormControl extends BaseJettiFromControl<number> {
 
   constructor(options: ControlOptions<number> = {}) {
     super(options);
-    if (options.style) { this.style = options.style };
+    if (options.style) { this.style = options.style }
   }
 }
 

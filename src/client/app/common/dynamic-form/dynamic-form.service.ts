@@ -22,7 +22,6 @@ export interface ViewModel {
   model: DocModel,
   formGroup: FormGroup,
   controlsByKey: { [s: string]: BaseJettiFromControl<any> },
-  tableParts: any;
   schema: any;
 }
 
@@ -32,7 +31,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
   const fields: BaseJettiFromControl<any>[] = [];
 
   const processRecursive = (v, f: BaseJettiFromControl<any>[], excl: string[]) => {
-    Object.keys(v).filter(key => excl.indexOf(key) === -1).map(key => {
+    Object.keys(v).filter(key => excl.indexOf(key) === -1 && !!!v[key]['hidden']).map(key => {
       const prop = v[key];
       const hidden = !!prop['hidden'];
       const order = hidden ? 1000 : prop['order'] * 1 || 999;
@@ -87,29 +86,27 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
   processRecursive(view, fields, exclude);
 
   const formGroup = toFormGroup(fields);
-  const tableParts = [];
+
   // Create formArray's for table parts of document
   Object.keys(formGroup.controls)
     .filter(property => formGroup.controls[property] instanceof FormArray)
     .forEach(property => {
       const sample = (formGroup.controls[property] as FormArray).controls[0] as FormGroup;
       sample.addControl('index', new FormControl(0));
-      const indexOfTable = fields.findIndex(i => i.key === property);
       const formArray = formGroup.controls[property] as FormArray;
-      tableParts.push({ id: indexOfTable, value: fields[indexOfTable].label, sampleRow: sample });
       if (isExists) {
+        if (!model[property]) { model[property] = [] }
         for (let i = 0; i < model[property].length; i++) {
           const newFormGroup = copyFormGroup(sample);
           newFormGroup.controls['index'].setValue(i, patchOptionsNoEvents);
           formArray.push(newFormGroup);
         }
       }
-      formArray.removeAt(0);  // delete sample row
     });
   const controlsByKey: { [s: string]: BaseJettiFromControl<any> } = {};
   fields.forEach(c => { controlsByKey[c.key] = c });
   formGroup.patchValue(model, patchOptionsNoEvents);
-  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, tableParts: tableParts, schema: view }
+  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, schema: view }
 }
 
 @Injectable()

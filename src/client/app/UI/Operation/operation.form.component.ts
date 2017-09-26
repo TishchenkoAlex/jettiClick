@@ -23,26 +23,23 @@ export class OperationFormComponent extends BaseFormComponent implements OnInit 
     });
   }
 
-  Save() {
-    console.log('CHILD SAVE');
-    super.Save();
-  }
-
   addParametersToForm() {
     this.viewModel.view.length = this._countOfControls;
     this.docService.api.getViewModel('Catalog.Operation',
-      this.viewModel.formGroup.controls['Operation'].value.id).subscribe(data => {
-
+      this.viewModel.formGroup.controls['Operation'].value.id)
+      .take(1)
+      .subscribe(data => {
         const Parameters = data['model']['Parameters'] as any[];
-
         const ParametersObject: { [s: string]: any } = {};
         let index = 1; Parameters.forEach(c =>
-          ParametersObject['p' + index++] = { label: c.label, type: c.type.id, required: !!c.required });
+          ParametersObject['p' + index++] = {
+            label: c.label, type: c.type.id, required: !!c.required, ['p' + (index - 1) ]: c.change ? JSON.parse(c.change) : null
+          });
 
         const additionalVM = getViewModel(ParametersObject, this.viewModel.model, [], true);
         Object.keys(additionalVM.formGroup.controls).forEach(c => {
           const additionalControl = additionalVM.formGroup.get(c) as FormControl;
-          if (!additionalControl.value.type) {
+          if (additionalControl.value && additionalControl.value.type === null) {
             additionalControl.patchValue(
               { id: '', value: '', type: ParametersObject[c].type, code: '' },
               { onlySelf: true, emitEvent: false });

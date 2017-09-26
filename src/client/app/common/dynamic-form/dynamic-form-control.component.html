@@ -33,13 +33,11 @@
 
   <div *ngSwitchCase="'table'">
     <div [formArrayName]="control.key">
-        <j-table-part [view]= "control.value" [formGroup]="form.controls[control.key]" [tab]="tab" [control]="control"
-        (onChange)="onChange($event)"
-        ></j-table-part>
+        <j-table-part [formGroup]="form.controls[control.key]" [control]="control" (onChange)="onChange($event)"></j-table-part>
     </div>
   </div>
 
-  <div *ngSwitchCase="'script'" style="height: 300px" fxLayout="column">
+  <div *ngSwitchCase="'script'" style="height: 400px" fxLayout="column">
     <label [for]="control.key">{{ control.label }}:</label>
     <td-code-editor #script theme="vs" fxFill language="javascript" (change)="onChange($event)"
       [tabIndex]="control.order" [id]="control.key" [formControlName]="control.key" [id]="control.key">

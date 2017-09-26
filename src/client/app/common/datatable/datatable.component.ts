@@ -101,6 +101,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   docType = '';
   columns: ColDef[] = [];
   displayedColumns = [];
+  filterColumns: any[] = [];
 
   private _selectedColumn = 'code';
   set selectedColumn(value) {
@@ -121,52 +122,52 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   @ViewChild('filter') filter: ElementRef;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
-  get isDoc(): boolean { return this.docType.startsWith('Document.') || this.docType.startsWith('Journal.') }
+  isDoc: boolean;
 
-  constructor(private route: ActivatedRoute, private router: Router,
-    private ds: DocService, private sideNavService: SideNavService) { };
+  constructor(private route: ActivatedRoute, private router: Router, private ds: DocService, private sns: SideNavService) { };
 
   ngOnInit() {
 
     const view = this.route.data['value'].detail;
     this.docType = this.route.params['value'].type;
+    this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.paginator, this.sort);
 
     Object.keys(view).map((property) => {
-      if (JETTI_DOC_PROP.indexOf(property) > -1 || (view[property] && view[property]['type'] === 'table')) { return; }
+      if (JETTI_DOC_PROP.filter(e => (e !== 'company'))
+        .indexOf(property) > -1 || (view[property] && view[property]['type'] === 'table')) { return; }
       const prop = view[property];
-      const hidden = !!prop['hidden'];
+      const hidden = !!prop['hidden-list'];
       const order = hidden ? 1000 : prop['order'] * 1 || 999;
       const label = (prop['label'] || property.toString()).toLowerCase();
-      const dataType = prop['type'] || 'string';
+      const type = prop['type'] || 'string';
       const style = prop['style'] || '';
-      this.columns.push({ field: property, type: dataType, label: label, hidden: hidden, order: order, style: style });
+      this.columns.push({ field: property, type: type, label: label, hidden: hidden, order: order, style: style });
     });
     this.columns.sort((a, b) => a.order - b.order);
-    this.displayedColumns = this.columns.filter(c => !c.hidden).map((c) => c.field);
-    if (this.docType.startsWith('Document.')) {
+    this.displayedColumns = this.columns.filter(c => !c.hidden && this.isDoc).map((c) => c.field);
+    if (this.docType.startsWith('Document.') || this.docType.startsWith('Journal.')) {
       this.displayedColumns.unshift('select', 'posted', 'date', 'code');
     } else {
-      if (this.docType.startsWith('Document.') || this.docType.startsWith('Journal.')) {
-        this.displayedColumns.unshift('select', 'posted', 'date', 'code');
-      } else {
-        this.displayedColumns.unshift('select', 'posted', 'code', 'description');
-      }
+      this.displayedColumns.unshift('select', 'posted', 'code', 'description');
     }
+    this.filterColumns = this.columns.filter(c => !c.hidden).map(c => {
+      return { key: c.field, value: c.label};
+    });
 
     this.selectedPeriod = 'tm';
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
-    .debounceTime(1000)
-    .distinctUntilChanged()
-    .subscribe(() => {
-      if (!this.dataSource) { return; }
-      this.dataSource.filterObjext = {
-        startDate: this.filterObject.startDate,
-        endDate: this.filterObject.endDate,
-        columnFilter: this.filter.nativeElement.value
-      };
-    });
+      .debounceTime(1000)
+      .distinctUntilChanged()
+      .subscribe(() => {
+        if (!this.dataSource) { return; }
+        this.dataSource.filterObjext = {
+          startDate: this.filterObject.startDate,
+          endDate: this.filterObject.endDate,
+          columnFilter: this.filter.nativeElement.value
+        };
+      });
 
     this._subscription$ = Observable.merge(...[
       this.ds.save$,
@@ -174,9 +175,9 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       .filter(doc => doc.type === this.docType)
       .subscribe(doc => this.refresh());
 
-    this._sideNavService$ = this.sideNavService.do$
-      .filter(data => data.type === this.docType)
-      .subscribe(data => this.sideNavService.templateRef = this.sideNavTepmlate);
+    this._sideNavService$ = this.sns.do$
+      .filter(data => data.type === this.docType && data.id === '')
+      .subscribe(data => this.sns.templateRef = this.sideNavTepmlate);
   }
 
   ngOnDestroy() {
@@ -269,10 +270,9 @@ export class ApiDataSource extends DataSource<any> {
 
   renderedData: any[];
   isLoadingResults = true;
-  result$: Observable<any[]>;
+  private result$: Observable<any[]>;
 
-  constructor(private apiService: ApiService,
-    private _docType: string, private _paginator: MdPaginator, private _sort: MdSort) {
+  constructor(private apiService: ApiService, private _docType: string, private _paginator: MdPaginator, private _sort: MdSort) {
 
     super();
 
@@ -280,8 +280,8 @@ export class ApiDataSource extends DataSource<any> {
       .subscribe(() => this._paginator.pageIndex = 0);
 
     this.result$ = Observable.merge(...[
-      this._sort.sortChange,
       this._filterObjextChange,
+      this._sort.sortChange,
       this._paginator.page,
       this._doRefresh,
     ])

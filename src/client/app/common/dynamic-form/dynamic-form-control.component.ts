@@ -13,7 +13,6 @@ import { patchOptionsNoEvents } from './dynamic-form.service';
 export class DynamicFormControlComponent {
   @Input() control: BaseJettiFromControl<any>;
   @Input() form: FormGroup;
-  @Input() tab: any;
 
   get isValid() { return this.form.controls[this.control.key].valid; }
 

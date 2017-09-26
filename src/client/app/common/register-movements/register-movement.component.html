@@ -1,82 +1,82 @@
 <div *ngFor="let item of (movements$ | async) as movements" style="min-height: 50px">
-  <div fxFlex="100px" fxLayoutAlign="center center">
-    <div fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+  <div fxFlex="105px" fxLayoutAlign="center center">
+    <div fxFill fxLayoutAlign="center center" class="account-box">
       {{ item.date | date }}
     </div>
   </div>
 
   <div fxFlex fxLayoutAlign="center center">
 
-    <div fxLayout="column" fxFlex=30 fxFill style="border: 1px; border-color: gray; border-style: dotted;">
-      <div fxLayoutAlign="center end" fxFlex fxFill style="font-size: 16pt; font-weight: bold;">
+    <div fxLayout="column" fxFlex=30 fxFill class="account-box">
+      <div fxLayoutAlign="center end" fxFlex fxFill class="account">
         {{ item.debet.account }}
       </div>
-      <div fxLayoutAlign="center start" fxFlex fxFill style="font-size: 8pt; text-align: center; line-height: 8px;">
+      <div fxLayoutAlign="center start" fxFlex fxFill class="decription">
         <span style="margin-top: 4px">{{ item.debet.description }} </span>
       </div>
     </div>
 
-    <div fxLayout="column" fxFill fxFlex=50 style="border: 1px; border-color: gray; border-style: dotted;">
-      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt;line-height: 8px; padding: 2px" [mdTooltip]="item.debet.subcount1.code">
+    <div fxLayout="column" fxFill fxFlex=50 class="account-box">
+      <div *ngIf="item.debet.subcount1.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [mdTooltip]="item.debet.subcount1.code">
         {{ item.debet.subcount1.value }}
       </div>
-      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt;line-height: 9px;">
+      <div *ngIf="item.debet.subcount2.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [mdTooltip]="item.debet.subcount2.code">
         {{ item.debet.subcount2.value }}
       </div>
-      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt;line-height: 9px;">
+      <div *ngIf="item.debet.subcount3.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [mdTooltip]="item.debet.subcount3.code">
         {{ item.debet.subcount3.value }}
       </div>
-      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt;line-height: 9px;">
+      <div *ngIf="item.debet.subcount4.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [mdTooltip]="item.debet.subcount4.code">
         {{ item.debet.subcount4.value }}
       </div>
     </div>
-
-    <div fxFlex fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+    
+    <div fxFlex fxFill fxLayoutAlign="center center" class="account-box">
+      {{ item.debet.qty | number }}
+    </div>
+    <div fxFlex fxFill fxLayoutAlign="center center" class="account-box">
       {{ item.debet.currency }}
     </div>
 
-    <div fxFlex fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
-      {{ item.debet.qty | number }}
-    </div>
   </div>
 
   <div fxFlex fxLayoutAlign="center center">
 
-    <div fxLayout="column" fxFlex="30" fxFill style="border: 1px; border-color: gray; border-style: dotted;">
-      <div fxLayoutAlign="center end" fxFlex fxFill style="font-size: 16pt; font-weight: bold">
+    <div fxLayout="column" fxFlex="30" fxFill class="account-box">
+      <div fxLayoutAlign="center end" fxFlex fxFill class="account">
         {{ item.kredit.account }}
       </div>
-      <div fxLayoutAlign="center start" fxFlex fxFill style="font-size: 8pt; text-align: center; line-height: 8px;">
+      <div fxLayoutAlign="center start" fxFlex fxFill class="decription">
         <span style="margin-top: 4px">{{ item.kredit.description }} </span>
       </div>
     </div>
 
-    <div fxLayout="column" fxFill fxFlex=50 style="border: 1px; border-color: gray; border-style: dotted;">
-      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt; padding: 2px; cursor: pointer" [mdTooltip]="item.kredit.subcount1.code">
+    <div fxLayout="column" fxFill fxFlex=50 class="account-box">
+      <div *ngIf="item.kredit.subcount1.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [mdTooltip]="item.kredit.subcount1.code">
         {{ item.kredit.subcount1.value }}
       </div>
-      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt; padding: 2px; cursor: pointer" [mdTooltip]="item.kredit.subcount2.code">
+      <div *ngIf="item.kredit.subcount2.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [mdTooltip]="item.kredit.subcount2.code">
         {{ item.kredit.subcount2.value }}
       </div>
-      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt; padding: 2px; cursor: pointer" [mdTooltip]="item.kredit.subcount3.code">
+      <div *ngIf="item.kredit.subcount3.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [mdTooltip]="item.kredit.subcount3.code">
         {{ item.kredit.subcount3.value }}
       </div>
-      <div fxFlex fxLayoutAlign="center center" style="font-size: 9pt; padding: 2px; cursor: pointer" [mdTooltip]="item.kredit.subcount4.code">
+      <div *ngIf="item.kredit.subcount4.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [mdTooltip]="item.kredit.subcount4.code">
         {{ item.kredit.subcount4.value }}
       </div>
     </div>
 
-    <div fxFlex fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+    <div fxFlex fxFill fxLayoutAlign="center center" class="account-box">
+      {{ item.kredit.qty | number }}
+    </div>
+    <div fxFlex fxFill fxLayoutAlign="center center" class="account-box">
       {{ item.kredit.currency }}
     </div>
 
-    <div fxFlex fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
-      {{ item.kredit.qty | number }}
-    </div>
   </div>
 
   <div fxFlex="100px" fxLayoutAlign="center center">
-    <div fxFill fxLayoutAlign="center center" style="border: 1px; border-color: gray; border-style: dotted;">
+    <div fxFill fxLayoutAlign="center center" class="account-box">
       {{ item.sum | number }}
     </div>
   </div>

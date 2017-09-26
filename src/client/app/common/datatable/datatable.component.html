@@ -47,8 +47,8 @@
 
       <div>
         <md-select placeholder="filter column" [(ngModel)]="selectedColumn" style="max-width: 120px">
-          <md-option *ngFor="let column of displayedColumns" [value]="column">
-            {{column}}
+          <md-option *ngFor="let column of filterColumns" [value]="column.key">
+            {{column.value}}
           </md-option>
         </md-select>
         <md-input-container style="max-width: 120px">

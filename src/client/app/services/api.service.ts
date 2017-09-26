@@ -44,6 +44,13 @@ export class ApiService {
       .catch(err => Observable.of([]))
   }
 
+  getSuggestsById(id: string): Observable<Object> {
+    const query = `${this.url}suggest/${id}`;
+    console.log('SUGGEST BY ID API', query);
+    return (this.http.get(query))
+      .catch(err => Observable.of({}))
+  }
+
   postDoc(doc): Observable<Object> {
     const apiDoc = mapDocToApiFormat(doc);
     const query = `${this.url}`;

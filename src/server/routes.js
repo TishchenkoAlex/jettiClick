@@ -19,6 +19,7 @@ router.get('/documents', async (req, res, next) => {
 
 async function ExecuteScript(doc, script, tx) {
   const Registers = { Account: [], Accumulation: [], Info: [] };
+
   const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
   const func = new AsyncFunction('doc, Registers, tx', script);
   await func(doc, Registers, tx);
@@ -31,19 +32,30 @@ async function ExecuteScript(doc, script, tx) {
         VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
         );`, [
-        new Date(doc.date), doc.id, rec.operation, rec.sum, rec.company,
-        rec.dt, rec.dt_subcount1, rec.dt_subcount2, rec.dt_subcount3, rec.dt_subcount4, rec.dt_qty, rec.dt_cur,
-        rec.kt, rec.kt_subcount1, rec.kt_subcount2, rec.kt_subcount3, rec.kt_subcount4, rec.kt_qty, rec.kt_cur
+        new Date(doc.date), doc.id, rec.operation || doc.doc.Operation, rec.sum, rec.company || doc.company,
+        rec.debit.account, rec.debit.subcounts[0], rec.debit.subcounts[1], rec.debit.subcounts[2], rec.debit.subcounts[3],
+        rec.debit.qty, rec.debit.currency || doc.doc.currency,
+        rec.kredit.account, rec.kredit.subcounts[0], rec.kredit.subcounts[1], rec.kredit.subcounts[2], rec.kredit.subcounts[3],
+        rec.kredit.qty, rec.kredit.currency || doc.doc.currency
       ]
     );
   });
 
-  if (Registers.Accumulation.length) {
-    const rec = Registers.Accumulation[0];
-    let arr = [];
-    for (let key in rec) { if (rec.hasOwnProperty(key)) { arr.push(rec[key]) } }
-    await tx.none(`INSERT INTO "Register.Accumulation" VALUES ($1,$2,$3,$4)`, arr);
-  };
+  Registers.Accumulation.forEach(async rec => {
+    await tx.none(`INSERT INTO "Register.Accumulation" (kind, type, date, document, company, data) 
+    VALUES ($1,$2,$3,$4,$5,$6)`,[ 
+      rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
+    ]);
+  });
+
+  Registers.Info.forEach(async rec => {
+    await tx.none(`INSERT INTO "Register.Info" (type, date, document, company, data) 
+    VALUES ($1,$2,$3,$4,$5,$6)`,[ 
+      rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
+    ]);
+  });
+
+
   if (Registers.Info.length) {
     const rec = Registers.Info[0];
     let arr = [];
@@ -67,10 +79,10 @@ router.get('/:type/list', async (req, res, next) => {
       ${filter}
       ${order} 
       OFFSET ${skip} LIMIT ${top};`;
-      // SELECT to_jsonb(COUNT(*)) count FROM ${config_schema.queryList.split('FROM')[1]}`;
-      const data = await db.manyOrNone(query);
-      const total_count = data.length + skip + (data.length === top ? 1 : 0);
-      res.json({ total_count: total_count, data: data });
+    // SELECT to_jsonb(COUNT(*)) count FROM ${config_schema.queryList.split('FROM')[1]}`;
+    const data = await db.manyOrNone(query);
+    const total_count = data.length + skip + (data.length === top ? 1 : 0);
+    res.json({ total_count: total_count, data: data });
   } catch (err) { next(err.message); }
 });
 
@@ -95,6 +107,17 @@ router.get('/:type/view/*', async (req, res, next) => {
       model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
     const result = { view: view, model: model };
     res.json(result);
+  } catch (err) { next(err.message); }
+})
+
+
+router.get('/suggest/:id', async (req, res, next) => {
+  try {
+    const query = `
+      SELECT id as id, description as value, code as code, type as type
+      FROM "Documents" WHERE id = $1`;
+    const data = await db.oneOrNone(query, req.params.id);
+    res.json(data);
   } catch (err) { next(err.message); }
 })
 
@@ -135,7 +158,9 @@ async function post(req, res, next) {
     let doc = req.body, id = doc.id;
     const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
     await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
-    const config_schema = (await tx.one(`SELECT "queryObject", "beforePost", "afterPost" FROM config_schema WHERE type = $1`, [doc.type]));
+    const config_schema = (await tx.one(`
+      SELECT "queryObject", replace("beforePost", '$.', 'doc.doc.') "beforePost", 
+        replace("afterPost", '$.', 'doc.doc.') "afterPost" FROM config_schema WHERE type = $1`, [doc.type]));
     await tx.none(`
         DELETE FROM "Register.Account" WHERE document = $1;
         DELETE FROM "Register.Info" WHERE document = $1;

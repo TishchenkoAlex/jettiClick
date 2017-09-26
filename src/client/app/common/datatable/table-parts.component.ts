@@ -3,7 +3,11 @@ import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChil
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MdDialog, MdSort } from '@angular/material';
 
-import { BaseJettiFromControl, TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
+import {
+  AutocompleteJettiFormControl,
+  BaseJettiFromControl,
+  TableDynamicControl,
+} from '../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
 import { copyFormGroup } from '../utils';
@@ -39,9 +43,8 @@ interface ColDef { field: string; type: string; label: string; hidden: boolean; 
   templateUrl: './table-parts.component.html',
 })
 export class TablePartsComponent implements OnInit, AfterViewInit {
-  @Input() view: BaseJettiFromControl<any>[];
+  private view: BaseJettiFromControl<any>[];
   @Input() formGroup: FormArray;
-  @Input() tab: any;
   @Input() control: TableDynamicControl;
 
   @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
@@ -52,18 +55,35 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   selection = new SelectionModel<any>(true, []);
   displayedColumns: any[] = [];
   columns: ColDef[] = [];
+  sampleRow: FormGroup;
 
-
-  constructor(public dialog: MdDialog, private ds: DocService) {
-  }
+  constructor(public dialog: MdDialog, private ds: DocService) { }
 
   ngOnInit() {
+    this.view = this.control.value as BaseJettiFromControl<any>[];
     this.columns = this.view.map((el) => {
       const result = { field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, order: el.order, style: el.style };
       return result;
     });
     this.displayedColumns = this.columns.map((c) => c.field);
     this.displayedColumns.unshift('index', 'select');
+    this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
+    this.formGroup.removeAt(this.formGroup.length - 1);
+
+    this.formGroup.controls.filter(c => typeof (c.value) === 'object').forEach((c: FormGroup) => {
+      const value = c.value;
+      // tslint:disable-next-line:forin
+      for (const key in value) {
+        const control = this.view.find(v => v.key === key);
+        if (control instanceof AutocompleteJettiFormControl && typeof value[key] === 'string') {
+          this.ds.api.getSuggestsById(value[key]).take(1)
+            .subscribe(data => {
+              c.controls[key].patchValue(data, { emitEvent: false });
+              this.dataSource.data = this.formGroup.value;
+            });
+        }
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -90,12 +110,12 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
 
   EditRow(row) {
     const formGroup = this.formGroup.controls[row.index] as FormGroup;
-    this.dialog.open(TablePartsDialogComponent, {data: { view: this.view, formGroup: this.copyFormGroup(formGroup) } })
+    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: this.copyFormGroup(formGroup) } })
       .afterClosed()
       .take(1)
       .subscribe(data => {
         if (data) {
-          formGroup.patchValue(data, {emitEvent: false});
+          formGroup.patchValue(data, { emitEvent: false });
           this.dataSource.data = this.formGroup.value;
           this.onChange.emit(data);
         }
@@ -103,14 +123,14 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   AddRow() {
-    const newFormGroup = this.copyFormGroup(this.tab.sampleRow);
+    const newFormGroup = this.copyFormGroup(this.sampleRow);
     newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
     this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: newFormGroup } })
       .afterClosed()
       .take(1)
       .subscribe(data => {
         if (data) {
-          newFormGroup.patchValue(data, {emitEvent: false});
+          newFormGroup.patchValue(data, { emitEvent: false });
           this.formGroup.push(newFormGroup);
           this.dataSource.data = this.formGroup.value;
           this.onChange.emit(data);
@@ -121,13 +141,13 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   Delete() {
     this.selection.selected.forEach(element => {
       this.formGroup.removeAt(this.formGroup.controls.findIndex((el: FormGroup) =>
-      el.controls['index'].value === element.index));
+        el.controls['index'].value === element.index));
       this.onChange.emit(this.formGroup.value);
     });
     this.selection.clear();
     for (let i = 0; i < this.formGroup.length; i++) {
       const formGroup = this.formGroup.controls[i] as FormGroup;
-      (formGroup.controls['index'] as FormControl).patchValue(i, {emitEvent: false} );
+      (formGroup.controls['index'] as FormControl).patchValue(i, { emitEvent: false });
     }
     this.dataSource.data = this.formGroup.value;
   }
