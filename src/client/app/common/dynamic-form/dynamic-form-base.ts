@@ -105,7 +105,7 @@ export class DateTimeDynamicControl extends BaseJettiFromControl<Date> {
 }
 
 export interface JettiComplexObject {
-  id: string, value: string, code: string, type: string
+  id: string, value: string, code: string, type: string, data?: any
 }
 
 export class AutocompleteJettiFormControl extends BaseJettiFromControl<JettiComplexObject> {

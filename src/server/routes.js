@@ -86,6 +86,34 @@ router.get('/:type/list', async (req, res, next) => {
   } catch (err) { next(err.message); }
 });
 
+// Select documents list for UI (grids/list etc)
+router.get('/:type/list2', async (req, res, next) => {
+  try {
+    const id = req.query.$id || '';
+    const count = req.query.$count || '';
+    const skip = (req.query.$skip || req.query.start || 0) * 1;
+    const top = (req.query.$top || req.query.count || 50) * 1;
+    const filter = req.query.$filter ? ' AND ' + decodeURI(req.query.$filter).replace(/\*/g, '%') : ' ';
+    const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [req.params.type]);
+    const order = req.query.$order ? `ORDER BY ${req.query.$order}` : 'ORDER BY d.type, d.date, d.code';
+    const query = `SELECT * FROM (
+      ${config_schema.queryList} ) d WHERE true 
+      ${filter}
+      ${order} 
+      LIMIT ${top}
+      OFFSET (
+          SELECT Rw FROM (SELECT ROW_NUMBER() OVER
+          (${order}) AS Rw, id
+          FROM (${config_schema.queryList}) d
+          WHERE d.type = '${req.params.type}' AND true ${filter}) AS res
+      WHERE id = '${id}' ) - 1`;
+    const data = await db.manyOrNone(query);
+    const total_count = data.length + skip + (data.length === top ? 1 : 0);
+    res.json({ total_count: total_count, data: data });
+  } catch (err) { next(err.message); }
+});
+
+
 router.get('/:type/view/*', async (req, res, next) => {
   try {
     const config_schema = await db.one(`

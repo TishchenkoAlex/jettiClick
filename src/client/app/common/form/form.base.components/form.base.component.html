@@ -18,7 +18,7 @@
         <span [fxShow]="false" [fxShow.gt-xs]="true"></span>
         <div fxFlex fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; margin-right: 6px">
           <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
-          <button md-mini-fab color="accent" (click)="$event.stopPropagation(); Close()" mdTooltip="close"><md-icon>close</md-icon></button>
+          <button type="button" md-mini-fab color="accent" (click)="$event.stopPropagation(); Close()" mdTooltip="close"><md-icon>close</md-icon></button>
         </div>
       </md-panel-description>
     </md-expansion-panel-header>

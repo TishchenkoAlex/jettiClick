@@ -153,7 +153,7 @@
       <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
       <md-row *cdkRowDef="let row; columns: displayedColumns;"></md-row>
     </md-table>
-    <md-paginator #paginator [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
+    <md-paginator #paginator [pageSize]=10 [pageSizeOptions]="[5, 10, 25, 50, 100]"></md-paginator>
     <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
   </md-card>
 </div>

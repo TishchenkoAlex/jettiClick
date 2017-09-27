@@ -21,6 +21,13 @@ export class ApiService {
     return this.http.get(query) as Observable<DocListResponse>;
   }
 
+  getDocList2(type: string, id = '', top = 50, order = '', filter = ''): Observable<DocListResponse> {
+    const query = `${this.url}${type}/list2?$id=${id}&$top=${top}&$filter=${filter}&$order=${order}`;
+    console.log('LIST API', query);
+    return this.http.get(query) as Observable<DocListResponse>;
+  }
+
+
   getView(type: string): Observable<Object> {
     const query = `${this.url}${type}/view/`;
     console.log('VIEW API', query);

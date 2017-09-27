@@ -67,8 +67,9 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     });
     this.displayedColumns = this.columns.map((c) => c.field);
     this.displayedColumns.unshift('index', 'select');
+
     this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
-    this.formGroup.removeAt(this.formGroup.length - 1);
+    Promise.resolve().then(_ => this.formGroup.removeAt(this.formGroup.length - 1));
 
     this.formGroup.controls.filter(c => typeof (c.value) === 'object').forEach((c: FormGroup) => {
       const value = c.value;

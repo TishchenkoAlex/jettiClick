@@ -1,55 +1,36 @@
-import { Component, ElementRef, forwardRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, forwardRef, Input, OnDestroy, ViewChild } from '@angular/core';
 import {
-  AbstractControl,
-  ControlValueAccessor,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator,
+    AbstractControl,
+    ControlValueAccessor,
+    FormControl,
+    FormGroup,
+    NG_VALIDATORS,
+    NG_VALUE_ACCESSOR,
+    ValidationErrors,
+    Validator,
 } from '@angular/forms';
 import { MdAutocomplete, MdDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
-import { AutocompleteJettiFormControl, JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
+import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { DocModel } from '../doc.model';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
 @Component({
   selector: 'j-autocomplete',
-  template: `
-    <md-form-field fxFlex>
-      <input #control mdInput [(ngModel)]="value" [required]="required"
-        [placeholder]="placeholder" [mdAutocomplete]="auto" [readOnly]="readOnly"
-        ([disabled])="disabled" (blur)="onBlur()" [tabIndex]="tabIndex">
-      <button *ngIf="showSearchSpinner" md-icon-button mdSuffix><md-spinner></md-spinner></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer"
-        (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer"
-        (click)="handleOpen($event)" [tabIndex]=-1 autocomplete="off"><md-icon>visibility</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer"
-        (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
-    </md-form-field>
-
-    <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
-     <md-option *ngFor="let value of suggests$ | async" [value]="value">
-      <span>{{ value.value }}</span>
-      <span> ({{value.code}}) </span>
-    </md-option>
-  </md-autocomplete>`,
+  templateUrl: './autocomplete.component.html',
   styles: [
-    `md-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`,
-    `.suggestDialog .mat-dialog-container {
-      padding-bottom: 0px;
-    }`
+    `md-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`
   ],
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompleteComponent), multi: true },
     { provide: NG_VALIDATORS, useExisting: forwardRef(() => AutocompleteComponent), multi: true, },
   ]
 })
-export class AutocompleteComponent implements OnInit, ControlValueAccessor, Validator {
+export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlValueAccessor, Validator {
 
   @Input() readOnly = false;
   @Input() placeholder = '';
@@ -59,34 +40,34 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   @Input() tabIndex = false;
   @Input() type = '';
 
+  form: FormGroup = new FormGroup({
+    suggest: new FormControl('')
+  });
+
+  private _subscription$: Subscription = Subscription.EMPTY;
+
   private _value: JettiComplexObject;
   @Input() set value(obj) {
-    if (typeof obj !== 'string') {
-      if (((obj.id === null) || (obj.id === '')) && this.type.startsWith('Types.')) {
-        this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.value || '') + ']';
-        Promise.resolve().then(() => { obj.value = '' });
-      };
-      this._value = obj;
-      this.onChange(this._value);
+    if (this.type.startsWith('Types.')) {
+      this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']';
     }
+    this.onChange(this._value);
     this._value = obj;
   }
   get value() { return this._value; }
 
-  @ViewChild('control') control: ElementRef;
   @ViewChild('auto') auto: MdAutocomplete;
 
   suggests$: Observable<any[]>;
-  showSearchSpinner = false;
+  originalValue: JettiComplexObject;
 
   // implement ControlValueAccessor interface
-  private onChange = (value: any) => { };
+  private onChange = (value: any) => { }
   private onTouched = () => { };
 
   writeValue(obj: any): void {
-    if (obj !== this._value) {
-      this._value = obj;
-    }
+    if (obj === this._value) { return }
+    this.value = obj;
   }
 
   registerOnChange(fn: any): void {
@@ -102,35 +83,38 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   }
   // end of implementation ControlValueAccessor interface
 
+  // implement Validator interface
   validate(c: AbstractControl): ValidationErrors | null {
-    if (this.required === true) {
-      const result = !(c.value && c.value.value);
-      if (result) {
-         return { 'required': result };
-      };
-    }
-    return null;
+    return this.form.controls['suggest'].errors;
   };
+  // end of implementation Validator interface
 
   constructor(private api: ApiService, private router: Router, public dialog: MdDialog) { }
 
-  ngOnInit() {
-    this.suggests$ = Observable.fromEvent(this.control.nativeElement, 'keyup')
+  ngAfterViewInit() {
+    if (this.value.type.includes('.')) { this.originalValue = Object.assign({}, this.value) }
+
+    this.suggests$ = this.form.controls['suggest'].valueChanges
       .debounceTime(400)
-      .map((event) => this.control.nativeElement.value)
       .distinctUntilChanged()
-      .filter(text => text !== this.value.value)
-      .do(() => { this.showSearchSpinner = true; })
-      .switchMap(text => {
-        return this.getSuggests(this.value.type, text)
-      })
-      .catch(err => { this.showSearchSpinner = false; return Observable.of<any[]>([]) })
-      .do(() => { this.showSearchSpinner = false; });
+      .do(data => { this.value = this.value })
+      .filter(data => this.originalValue.data !== true)
+      .switchMap(text => this.getSuggests(this.value.type || this.type, text))
+      .catch(err => Observable.of([]))
+
+    this._subscription$ = this.auto.optionSelected.subscribe((data) => {
+      this.value = Object.assign({}, data.option.value);
+      this.originalValue = Object.assign({}, data.option.value);
+    })
+  }
+
+  ngOnDestroy() {
+    this._subscription$.unsubscribe();
   }
 
   onBlur() {
-    if (this.control.nativeElement.value !== this.value.value) {
-      this.value = Object.assign({}, this._value);
+    if (this.originalValue) {
+      this.value = Object.assign({}, this.originalValue);
     }
     this.auto.options.reset([]);
   }
@@ -144,8 +128,8 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
   }
 
   handleReset(event) {
-    event.stopPropagation();
-    this.value = { id: '', code: '', type: this.type, value: '' };
+    this.value = { id: '', code: '', type: this.type, value: null };
+    this.originalValue = Object.assign({}, this.value);
   }
 
   handleOpen(event) {
@@ -153,14 +137,20 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor, Vali
     this.router.navigate([this.value.type, this.value.id]);
   }
 
-  handleSearch(event) {
+  handleSearch(event: Event) {
     event.stopPropagation();
     this.dialog.open(SuggestDialogComponent, { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
       .afterClosed()
       .filter(result => !!result)
       .take(1)
       .subscribe((data: DocModel) => {
-        this.value = { id: data.id, code: data.code, type: data.type, value: data.description };
+        this.value = {
+          id: data.id, code: data.code, type: data.type,
+          value: this.value.type.startsWith('Types.') ? null :
+            this.originalValue ? data.description : null,
+            data: true
+        };
+        if (this.originalValue) { this.originalValue = Object.assign({}, this.value); }
       });
   }
 
