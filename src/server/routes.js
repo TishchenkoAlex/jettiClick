@@ -68,7 +68,6 @@ async function ExecuteScript(doc, script, tx) {
 // Select documents list for UI (grids/list etc)
 router.get('/:type/list', async (req, res, next) => {
   try {
-    const count = req.query.$count || '';
     const skip = (req.query.$skip || req.query.start || 0) * 1;
     const top = (req.query.$top || req.query.count || 50) * 1;
     const filter = req.query.$filter ? ' AND ' + decodeURI(req.query.$filter).replace(/\*/g, '%') : ' ';
@@ -78,41 +77,58 @@ router.get('/:type/list', async (req, res, next) => {
       ${config_schema.queryList} ) d WHERE true 
       ${filter}
       ${order} 
-      OFFSET ${skip} LIMIT ${top};`;
-    // SELECT to_jsonb(COUNT(*)) count FROM ${config_schema.queryList.split('FROM')[1]}`;
+      OFFSET ${skip} LIMIT ${top}+1;`;
     const data = await db.manyOrNone(query);
-    const total_count = data.length + skip + (data.length === top ? 1 : 0);
+    const total_count = data.length + skip;
     res.json({ total_count: total_count, data: data });
   } catch (err) { next(err.message); }
 });
 
 // Select documents list for UI (grids/list etc)
-router.get('/:type/list2', async (req, res, next) => {
+router.post('/:type/:id', async (req, res, next) => {
   try {
-    const id = req.query.$id || '';
-    const count = req.query.$count || '';
-    const skip = (req.query.$skip || req.query.start || 0) * 1;
-    const top = (req.query.$top || req.query.count || 50) * 1;
-    const filter = req.query.$filter ? ' AND ' + decodeURI(req.query.$filter).replace(/\*/g, '%') : ' ';
+    const params = req.body;
+    params.order.push({field: 'id', order: 'asc', value: req.params.id});
     const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [req.params.type]);
-    const order = req.query.$order ? `ORDER BY ${req.query.$order}` : 'ORDER BY d.type, d.date, d.code';
-    const query = `SELECT * FROM (
-      ${config_schema.queryList} ) d WHERE true 
-      ${filter}
-      ${order} 
-      LIMIT ${top}
-      OFFSET (
-          SELECT Rw FROM (SELECT ROW_NUMBER() OVER
-          (${order}) AS Rw, id
-          FROM (${config_schema.queryList}) d
-          WHERE d.type = '${req.params.type}' AND true ${filter}) AS res
-      WHERE id = '${id}' ) - 1`;
+    const lastORDER =  params.order[params.order.length - 1].order === 'asc'; 
+    
+    let orderbyBefore = 'ORDER BY '; let orderbyAfter = orderbyBefore;
+    params.order.forEach(o => orderbyBefore += 'd.' + o.field + (o.order === 'asc' ? ' DESC, ' : ' ASC, '))
+    orderbyBefore = orderbyBefore.slice(0, -2);
+    params.order.forEach(o => orderbyAfter += 'd.' + o.field + (o.order === 'asc' ? ' ASC, ' : ' DESC, '))
+    orderbyAfter = orderbyAfter.slice(0, -2);
+   
+    queryBuilder = (orderby, isAfter) => {
+      order = params.order.slice();
+      params.order.forEach(o => {
+        let where = 'TRUE ';
+        order.forEach(_o => where += ` AND d.${_o.field} ${_o !== order[order.length - 1] ? '=' :
+          (lastORDER  && isAfter ? '>' : '<') + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
+        order.length--;
+        query += `\nSELECT * FROM(${config_schema.queryList} AND ${where}\n ${orderby} LIMIT ${params.count}) "tmp${o.field}" \nUNION ALL `;
+      });
+      return query;
+    }
+    let query = ''; 
+    query = queryBuilder(orderbyBefore, false);
+    query = `SELECT * FROM (SELECT * FROM (${query.slice(0, -11)}) d \n${orderbyBefore} LIMIT ${params.offset}) "before" \nUNION ALL `;   
+
+    query = queryBuilder(orderbyAfter, true);
+    query = `SELECT * FROM (${query.slice(0, -11)}) d \n${orderbyAfter}`;
+    query = `SELECT * FROM (${query}) d LIMIT ${params.count+2}`; 
+    const continuation = {first: null, last: null};
     const data = await db.manyOrNone(query);
-    const total_count = data.length + skip + (data.length === top ? 1 : 0);
-    res.json({ total_count: total_count, data: data });
+    if (data.length && data[0].id !== req.params.id) { 
+      continuation.first = data[0];
+      data.shift();
+    }
+    if (data.length && data[data.length - 1].id !== req.params.id) { 
+      continuation.last = data[data.length - 1];
+      data.length--;
+    }
+    res.json({data: data, continuation: continuation});
   } catch (err) { next(err.message); }
 });
-
 
 router.get('/:type/view/*', async (req, res, next) => {
   try {
@@ -137,7 +153,6 @@ router.get('/:type/view/*', async (req, res, next) => {
     res.json(result);
   } catch (err) { next(err.message); }
 })
-
 
 router.get('/suggest/:id', async (req, res, next) => {
   try {

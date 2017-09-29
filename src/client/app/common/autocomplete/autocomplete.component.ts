@@ -113,7 +113,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   }
 
   onBlur() {
-    if (this.originalValue) {
+    if (this.originalValue && this.originalValue.value !== this.value.value) {
       this.value = Object.assign({}, this.originalValue);
     }
     this.auto.options.reset([]);
