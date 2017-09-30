@@ -37,6 +37,11 @@
       <md-row *cdkRowDef="let row; columns: columns;" (click)="dialogRef.close(row)" style="cursor: pointer;" ></md-row>
 
     </md-table>
-    <md-paginator #paginator [pageSize]="data.pageSize"></md-paginator>    
+    <div fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; padding-right: 24px">
+      <button md-icon-button color="default" (click)="first()"><md-icon>first_page</md-icon></button>
+      <button md-icon-button color="default" (click)="prev()"><md-icon>navigate_before</md-icon></button>
+      <button md-icon-button color="default" (click)="next()"><md-icon>navigate_next</md-icon></button>
+      <button md-icon-button color="default" (click)="last()"><md-icon>last_page</md-icon></button>
+    </div>
     <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
   </div>

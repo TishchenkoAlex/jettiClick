@@ -1,3 +1,4 @@
+import { DocModel } from '../common/doc.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -7,6 +8,13 @@ import { mapDocToApiFormat } from '../common/mapping/document.mapping';
 import { AccountRegister } from './../models/account.register';
 
 export interface DocListResponse { data: any[], total_count: number };
+export interface DocListRequest {
+  id: string, type: string, command: string, count: number, offset: number,
+  order: { field: string, order: string, value: string | number | boolean }[],
+  filter: { field: string, operator: 'ge' | 'gt' | 'le' | 'lt' | 'eq' | 'like', value: string | number | boolean }[]
+}
+export interface Continuation { first: DocModel, last: DocModel }
+export interface DocListResponse2 { data: any[], continuation: Continuation };
 
 @Injectable()
 export class ApiService {
@@ -21,10 +29,15 @@ export class ApiService {
     return this.http.get(query) as Observable<DocListResponse>;
   }
 
-  getDocList2(type: string, id = '', top = 50, order = '', filter = ''): Observable<DocListResponse> {
-    const query = `${this.url}${type}/list2?$id=${id}&$top=${top}&$filter=${filter}&$order=${order}`;
-    console.log('LIST API', query);
-    return this.http.get(query) as Observable<DocListResponse>;
+  getDocList2(type: string, id: string, command: string, count = 10, offset = 1, order = '', filter = ''): Observable<DocListResponse2> {
+    const query = `${this.url}list`;
+    const body: DocListRequest = {
+      id: id, type: type, command: command, count: count, offset: offset,
+      order: [],
+      filter: []
+    }
+    console.log('LIST API', query, body);
+    return this.http.post(query, body) as Observable<DocListResponse2>;
   }
 
 

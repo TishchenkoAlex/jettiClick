@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DocModel, JETTI_DOC_PROP } from '../../common/doc.model';
-import { ApiService } from '../../services/api.service';
+import { ApiService, Continuation } from '../../services/api.service';
 import { DocService } from '../doc.service';
 import { SideNavService } from './../../services/side-nav.service';
 
@@ -131,7 +131,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
     const view = this.route.data['value'].detail;
     this.docType = this.route.params['value'].type;
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.paginator, this.sort);
+    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.sort, this.selection);
 
     Object.keys(view).map((property) => {
       if (JETTI_DOC_PROP.filter(e => (e !== 'company'))
@@ -152,7 +152,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       this.displayedColumns.unshift('select', 'posted', 'code', 'description');
     }
     this.filterColumns = this.columns.filter(c => !c.hidden).map(c => {
-      return { key: c.field, value: c.label};
+      return { key: c.field, value: c.label };
     });
 
     this.selectedPeriod = 'tm';
@@ -252,14 +252,30 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
 
   close() {
     console.log('BASE CLOSE');
-    const doc = new DocModel('');
+    const doc = new DocModel(this.docType, '');
     doc.type = this.docType;
     this.ds.close(doc);
+  }
+
+  first() {
+    this.dataSource._paginator.next('first');
+  }
+
+  last() {
+    this.dataSource._paginator.next('last');
+  }
+
+  next() {
+    this.dataSource._paginator.next('next');
+  }
+
+  prev() {
+    this.dataSource._paginator.next('prev');
   }
 }
 
 export class ApiDataSource extends DataSource<any> {
-  _doRefresh = new BehaviorSubject('');
+  _paginator = new BehaviorSubject('');
 
   selectedColumn = 'code';
 
@@ -269,38 +285,48 @@ export class ApiDataSource extends DataSource<any> {
   set filterObjext(filterObjext: FilterObject) { this._filterObjextChange.next(filterObjext); }
 
   renderedData: any[];
+  startDoc = new DocModel(this._docType, 'first');
+  continuation: Continuation = {first: this.startDoc, last: this.startDoc};
   isLoadingResults = true;
   private result$: Observable<any[]>;
 
-  constructor(private apiService: ApiService, private _docType: string, private _paginator: MdPaginator, private _sort: MdSort) {
+  constructor(private apiService: ApiService, private _docType: string,
+    private _sort: MdSort, private _selection: SelectionModel<DocModel>) {
 
     super();
 
     this._filterObjextChangeSubscription = this._filterObjextChange
-      .subscribe(() => this._paginator.pageIndex = 0);
+      .subscribe();
 
     this.result$ = Observable.merge(...[
       this._filterObjextChange,
       this._sort.sortChange,
-      this._paginator.page,
-      this._doRefresh,
+      this._paginator,
     ])
-      .distinctUntilChanged()
       .filter(stream => !!stream)
       .switchMap((stream) => {
+        console.log(stream, this._sort)
         this.isLoadingResults = true;
-        const filter = !this.filterObjext.columnFilter ? '' :
-          ` (d."${this.selectedColumn}" ILIKE '${this.filterObjext.columnFilter}*') `;
-        return this.apiService.getDocList(this._docType,
-          (this._paginator.pageIndex) * this._paginator.pageSize, this._paginator.pageSize,
-          this._sort.active ? '"' + this._sort.active + '" ' + this._sort.direction : '', filter)
+        const filter = '';
+        let continuationID = 'first';
+        switch (this._paginator.value) {
+          case 'first': continuationID = 'first'; break;
+          case 'prev': continuationID = this.continuation.first.id; break;
+          case 'next': continuationID = this.continuation.last.id; break;
+          case 'last': continuationID = 'last'; break;
+          case 'refresh': continuationID = this.renderedData[0].id; break;
+          default: continuationID = 'first';
+        }
+        return this.apiService.getDocList2(this._docType, continuationID, this._paginator.value, 10,
+          this.renderedData && this._selection.selected.length ?
+            this.renderedData.findIndex(s => s.id === this._selection.selected[0].id) : 1,
+          this._sort.active + ' ' + this._sort.direction, filter)
           .do(data => {
-            this._paginator.length = data.total_count;
             this.renderedData = data.data;
+            this.continuation = data.continuation;
             this.isLoadingResults = false;
           })
           .catch(err => {
-            this._paginator.length = 0;
             this.renderedData = [];
             this.isLoadingResults = false;
             return Observable.of<any[]>([]);
@@ -316,7 +342,7 @@ export class ApiDataSource extends DataSource<any> {
   disconnect() { }
 
   Refresh() {
-    this._doRefresh.next(Math.random().toString());
+    this._paginator.next('refresh');
   }
 
 }

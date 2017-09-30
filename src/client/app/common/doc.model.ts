@@ -1,7 +1,6 @@
 import { v1 } from 'uuid';
 
 export class DocModel {
-    id = '';
     date = new Date().toJSON();
     code = '';
     description = '';
@@ -13,9 +12,9 @@ export class DocModel {
     user = '';
     doc: {}
 
-    constructor (public type: string) {
-        this.id = v1();
+    constructor (public type: string, public id: string) {
+        if (!this.id) { this.id = v1() }
     }
 }
 
-export const JETTI_DOC_PROP = Object.keys(new DocModel(''));
+export const JETTI_DOC_PROP = Object.keys(new DocModel('', ''));

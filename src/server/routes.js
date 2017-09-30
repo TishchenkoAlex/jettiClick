@@ -43,16 +43,16 @@ async function ExecuteScript(doc, script, tx) {
 
   Registers.Accumulation.forEach(async rec => {
     await tx.none(`INSERT INTO "Register.Accumulation" (kind, type, date, document, company, data) 
-    VALUES ($1,$2,$3,$4,$5,$6)`,[ 
-      rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
-    ]);
+    VALUES ($1,$2,$3,$4,$5,$6)`, [
+        rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
+      ]);
   });
 
   Registers.Info.forEach(async rec => {
     await tx.none(`INSERT INTO "Register.Info" (type, date, document, company, data) 
-    VALUES ($1,$2,$3,$4,$5,$6)`,[ 
-      rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
-    ]);
+    VALUES ($1,$2,$3,$4,$5,$6)`, [
+        rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
+      ]);
   });
 
 
@@ -85,48 +85,65 @@ router.get('/:type/list', async (req, res, next) => {
 });
 
 // Select documents list for UI (grids/list etc)
-router.post('/:type/:id', async (req, res, next) => {
+router.post('/list', async (req, res, next) => {
   try {
     const params = req.body;
-    params.order.push({field: 'id', order: 'asc', value: req.params.id});
-    const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [req.params.type]);
-    const lastORDER =  params.order[params.order.length - 1].order === 'asc'; 
-    
+    params.command = params.command || 'first';
+    const direction = params.command !== 'prev';
+    params.order.push({ field: 'id', order: 'asc', value: params.id });
+    const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
+    const lastORDER = params.order[params.order.length - 1].order === 'asc';
+
     let orderbyBefore = 'ORDER BY '; let orderbyAfter = orderbyBefore;
     params.order.forEach(o => orderbyBefore += 'd.' + o.field + (o.order === 'asc' ? ' DESC, ' : ' ASC, '))
     orderbyBefore = orderbyBefore.slice(0, -2);
     params.order.forEach(o => orderbyAfter += 'd.' + o.field + (o.order === 'asc' ? ' ASC, ' : ' DESC, '))
     orderbyAfter = orderbyAfter.slice(0, -2);
-   
+
     queryBuilder = (orderby, isAfter) => {
       order = params.order.slice();
       params.order.forEach(o => {
         let where = 'TRUE ';
+        if (direction === true) {
         order.forEach(_o => where += ` AND d.${_o.field} ${_o !== order[order.length - 1] ? '=' :
-          (lastORDER  && isAfter ? '>' : '<') + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
+          (lastORDER && isAfter ? '>' : '<') + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
+        } else {
+          order.forEach(_o => where += ` AND d.${_o.field} ${_o !== order[order.length - 1] ? '=' :
+          (lastORDER && isAfter ? '>' : '<') + ((_o.field === 'id') && isAfter ? '' : '=')} '${_o.value}' `);         
+        }
         order.length--;
-        query += `\nSELECT * FROM(${config_schema.queryList} AND ${where}\n ${orderby} LIMIT ${params.count}) "tmp${o.field}" \nUNION ALL `;
+        query += `\nSELECT * FROM(${config_schema.queryList} AND ${where}\n ${orderby} LIMIT ${params.count + 1}) "tmp${o.field}" \nUNION ALL `;
       });
       return query;
     }
-    let query = ''; 
-    query = queryBuilder(orderbyBefore, false);
-    query = `SELECT * FROM (SELECT * FROM (${query.slice(0, -11)}) d \n${orderbyBefore} LIMIT ${params.offset}) "before" \nUNION ALL `;   
+    let query = '';
+    if (params.id === 'first') {
+      let where = 'TRUE ';
+      query = `SELECT * FROM(${config_schema.queryList} AND ${where}\n ${orderbyAfter} LIMIT ${params.count + 1}) d`;
+    } else {
+      if (params.id === 'last') {
+        let where = 'TRUE ';
+        query = `SELECT * FROM(${config_schema.queryList} AND ${where}\n ${orderbyBefore} LIMIT ${params.count + 1}) d`;
+        query = `SELECT * FROM (${query}) d \n${orderbyAfter}`;
+      } else {
+        query = queryBuilder(direction === true ? orderbyBefore : orderbyAfter, !direction);
+        query = `SELECT * FROM (SELECT * FROM (${query.slice(0, -11)}) d \n${direction === true ? orderbyBefore : orderbyAfter} LIMIT ${params.offset || 1}) "before" \nUNION ALL `;
+        query = queryBuilder(direction === true ? orderbyAfter : orderbyBefore, direction);
+        query = `SELECT * FROM (${query.slice(0, -11)}) d \n${orderbyAfter}`;
+        query = `SELECT * FROM (${query}) d LIMIT ${params.count + 2}`;
+      }
+    }
 
-    query = queryBuilder(orderbyAfter, true);
-    query = `SELECT * FROM (${query.slice(0, -11)}) d \n${orderbyAfter}`;
-    query = `SELECT * FROM (${query}) d LIMIT ${params.count+2}`; 
-    const continuation = {first: null, last: null};
+    const continuation = { first: null, last: null };
     const data = await db.manyOrNone(query);
-    if (data.length && data[0].id !== req.params.id) { 
-      continuation.first = data[0];
-      data.shift();
+    if (direction === true) {
+      if (data.length && data[0].id !== params.id && params.command !== 'first') { continuation.first = data[0]; data.shift() }
+      if (data.length && data.length > params.count && data[data.length - 1].id !== params.id && params.command !== 'last') { continuation.last = data[data.length - 1]; data.length-- }
+    } else {
+      if (data.length && data[data.length - 1].id !== params.id) { continuation.last = data[data.length - 1]; data.length-- }
+      if (data.length && data.length > params.count && data[0].id !== params.id) { continuation.first = data[0]; data.shift() }
     }
-    if (data.length && data[data.length - 1].id !== req.params.id) { 
-      continuation.last = data[data.length - 1];
-      data.length--;
-    }
-    res.json({data: data, continuation: continuation});
+    res.json({ data: data, continuation: continuation });
   } catch (err) { next(err.message); }
 });
 
