@@ -1,40 +1,40 @@
 <div [formGroup]="form" [ngSwitch]="control.controlType" *ngIf="!control.hidden">
 
-  <md-form-field *ngSwitchCase="'textbox'" fxFlex>
-    <input [required]="control.required" mdInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
+  <mat-form-field *ngSwitchCase="'textbox'" fxFlex>
+    <input [required]="control.required" matInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
       [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
-  </md-form-field>
+  </mat-form-field>
 
-  <md-form-field *ngSwitchCase="'textarea'" fxFlex>
-      <textarea [required]="control.required" mdInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
+  <mat-form-field *ngSwitchCase="'textarea'" fxFlex>
+      <textarea [required]="control.required" matInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
         [readOnly]="control.readOnly" [tabIndex]="control.order" (change)="onChange($event)"></textarea>
-  </md-form-field>
+  </mat-form-field>
 
-  <md-form-field *ngSwitchCase="'number'" fxFlex>
-    <input [required]="control.required" mdInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
+  <mat-form-field *ngSwitchCase="'number'" fxFlex>
+    <input [required]="control.required" matInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
       style="text-align: right" [readOnly]="control.readOnly" type="number" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
-    <button md-icon-button mdSuffix [disabled]="true" [tabindex]="-1" type="button"><md-icon>attach_money</md-icon></button>
-  </md-form-field>
+    <button mat-icon-button matSuffix [disabled]="true" [tabindex]="-1" type="button"><mat-icon>attach_money</mat-icon></button>
+  </mat-form-field>
 
   <j-autocomplete *ngSwitchCase="'autocomplete'" fxFlex [required]="control.required" [formControlName]="control.key" [id]="control.key"
     [placeholder]="control.label" [hidden]="control.hidden" [tabIndex]="control.order" [type]="control.type" (change)="onChange($event)">
   </j-autocomplete>
 
-  <md-form-field *ngSwitchCase="'date'" fxFlex>
-    <input [required]="control.required" mdInput [mdDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
+  <mat-form-field *ngSwitchCase="'date'" fxFlex>
+    <input [required]="control.required" matInput [matDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
       [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
-    <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
-  </md-form-field>
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+  </mat-form-field>
 
-  <md-form-field *ngSwitchCase="'datetime'" fxFlex>
-    <input [required]="control.required" mdInput [mdDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
+  <mat-form-field *ngSwitchCase="'datetime'" fxFlex>
+    <input [required]="control.required" matInput [matDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
       [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
-    <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
-  </md-form-field>
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+  </mat-form-field>
 
-  <md-checkbox *ngSwitchCase="'checkbox'" [formControlName]="control.key" [id]="control.key" style="margin-top: 16px"
+  <mat-checkbox *ngSwitchCase="'checkbox'" [formControlName]="control.key" [id]="control.key" style="margin-top: 16px"
     fxFlex [tabIndex]="control.order" (change)="onChange($event)">{{control.label}} 
-  </md-checkbox>
+  </mat-checkbox>
 
   <div *ngSwitchCase="'table'">
     <div [formArrayName]="control.key">
@@ -51,4 +51,4 @@
 
 </div>
 
-<md-datepicker #picker></md-datepicker>
+<mat-datepicker #picker></mat-datepicker>

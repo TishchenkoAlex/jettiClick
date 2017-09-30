@@ -1,51 +1,51 @@
 <form novalidate [formGroup]="form">
 
   <div *ngIf="value?.type?.includes('.')">
-    <md-form-field fxFlex>
-      <input mdInput [(ngModel)]="value.value" [required]="required" [placeholder]="placeholder" [mdAutocomplete]="auto"
+    <mat-form-field fxFlex>
+      <input matInput [(ngModel)]="value.value" [required]="required" [placeholder]="placeholder" [matAutocomplete]="auto"
         [readOnly]="readOnly" ([disabled])="disabled" (blur)="onBlur()" [tabIndex]="tabIndex" formControlName="suggest">
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><md-icon>search</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleOpen($event)" [tabIndex]=-1 autocomplete="off"><md-icon>visibility</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
-    </md-form-field>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><mat-icon>search</mat-icon></button>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleOpen($event)" [tabIndex]=-1 autocomplete="off"><mat-icon>visibility</mat-icon></button>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><mat-icon>clear</mat-icon></button>
+    </mat-form-field>
   </div>
 
   <div *ngIf="value?.type === 'string'">
-    <md-form-field fxFlex>
-      <input mdInput [(ngModel)]="value.value" formControlName="suggest" [required]="required" [placeholder]="placeholder"
+    <mat-form-field fxFlex>
+      <input matInput [(ngModel)]="value.value" formControlName="suggest" [required]="required" [placeholder]="placeholder"
         [readOnly]="readOnly" ([disabled])="disabled" [tabIndex]="tabIndex" autocomplete="off">
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
-    </md-form-field>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><mat-icon>clear</mat-icon></button>
+    </mat-form-field>
   </div>
 
   <div *ngIf="value?.type === 'number'">
-    <md-form-field fxFlex>
-      <input mdInput [(ngModel)]="value.value" [required]="required" [placeholder]="placeholder" [readOnly]="readOnly"
+    <mat-form-field fxFlex>
+      <input matInput [(ngModel)]="value.value" [required]="required" [placeholder]="placeholder" [readOnly]="readOnly"
         ([disabled])="disabled" [tabIndex]="tabIndex" type="number" autocomplete="off" formControlName="suggest">
-      <button md-icon-button mdSuffix [disabled]="true" [tabindex]="-1" type="button"><md-icon>attach_money</md-icon></button>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
-    </md-form-field>
+      <button mat-icon-button matSuffix [disabled]="true" [tabindex]="-1" type="button"><mat-icon>attach_money</mat-icon></button>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><mat-icon>clear</mat-icon></button>
+    </mat-form-field>
   </div>
 
   <div *ngIf="value?.type === 'datetime'">
-    <md-form-field fxFlex>
-      <input mdInput [(ngModel)]="value.value" [required]="required" [placeholder]="placeholder" [readOnly]="readOnly"
-        [mdDatepicker]="picker" ([disabled])="disabled" [tabIndex]="tabIndex" formControlName="suggest">
-      <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
-      <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>
-    </md-form-field>
-    <md-datepicker #picker></md-datepicker>
+    <mat-form-field fxFlex>
+      <input matInput [(ngModel)]="value.value" [required]="required" [placeholder]="placeholder" [readOnly]="readOnly"
+        [matDatepicker]="picker" ([disabled])="disabled" [tabIndex]="tabIndex" formControlName="suggest">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><mat-icon>clear</mat-icon></button>
+    </mat-form-field>
+    <mat-datepicker #picker></mat-datepicker>
   </div>
 
-  <md-checkbox *ngIf="value?.type === 'boolean'" style="margin-top: 36px" [(ngModel)]="value.value" ([disabled])="disabled"
+  <mat-checkbox *ngIf="value?.type === 'boolean'" style="margin-top: 36px" [(ngModel)]="value.value" ([disabled])="disabled"
     [tabIndex]="tabIndex" formControlName="suggest">{{placeholder}}
-    <button md-icon-button mdSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><md-icon>clear</md-icon></button>    
-  </md-checkbox>
+    <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><mat-icon>clear</mat-icon></button>    
+  </mat-checkbox>
 
-  <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
-    <md-option *ngFor="let value of suggests$ | async" [value]="value">
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+    <mat-option *ngFor="let value of suggests$ | async" [value]="value">
       <span>{{ value.value }}</span>
       <span> ({{value.code}}) </span>
-    </md-option>
-  </md-autocomplete>
+    </mat-option>
+  </mat-autocomplete>
 </form>

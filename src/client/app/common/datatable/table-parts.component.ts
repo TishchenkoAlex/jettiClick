@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { MdDialog, MdSort } from '@angular/material';
+import { MatDialog, MatSort } from '@angular/material';
 
 import {
     AutocompleteJettiFormControl,
@@ -12,7 +12,7 @@ import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
 import { copyFormGroup } from '../utils';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
-import { MdTableDataSource } from './md-table-datasource';
+import { MatTableDataSource } from './mat-table-datasource';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };
 
@@ -49,15 +49,15 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
 
   @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
 
-  @ViewChild(MdSort) sort: MdSort;
+  @ViewChild(MatSort) sort: MatSort;
 
-  dataSource: MdTableDataSource<any> | null;
+  dataSource: MatTableDataSource<any> | null;
   selection = new SelectionModel<any>(true, []);
   displayedColumns: any[] = [];
   columns: ColDef[] = [];
   sampleRow: FormGroup;
 
-  constructor(public dialog: MdDialog, private ds: DocService) { }
+  constructor(public dialog: MatDialog, private ds: DocService) { }
 
   ngOnInit() {
     this.view = this.control.value as BaseJettiFromControl<any>[];
@@ -88,7 +88,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    Promise.resolve().then(_ => this.dataSource = new MdTableDataSource(this.formGroup.value, this.sort));
+    Promise.resolve().then(_ => this.dataSource = new MatTableDataSource(this.formGroup.value, this.sort));
   }
 
   isAllSelected(): boolean {

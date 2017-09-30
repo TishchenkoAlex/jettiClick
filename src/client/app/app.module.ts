@@ -19,7 +19,7 @@ import 'rxjs/add/operator/toPromise';
 import { HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DateAdapter, MD_DATE_FORMATS, MdPaginatorIntl } from '@angular/material';
+import { DateAdapter, MAT_DATE_FORMATS, MatPaginatorIntl } from '@angular/material';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
@@ -66,12 +66,12 @@ import { DynamicFormsModule } from './UI/dynamic.froms.module';
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
     { provide: DateAdapter, useClass: JettiDateAdapter },
-    { provide: MD_DATE_FORMATS, useValue: JETTI_DATE_FORMATS },
+    { provide: MAT_DATE_FORMATS, useValue: JETTI_DATE_FORMATS },
     {
       provide: RouteReuseStrategy,
       useClass: AppRouteReuseStrategy
     },
-    { provide: MdPaginatorIntl, useClass: CustomPaginator },
+    { provide: MatPaginatorIntl, useClass: CustomPaginator },
     ApiService,
     AuthService,
     TabResolver,

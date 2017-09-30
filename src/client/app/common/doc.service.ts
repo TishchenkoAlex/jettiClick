@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MdSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 
 import { AuthService } from '../auth/auth.service';
@@ -21,7 +21,7 @@ export class DocService {
   protected _do = new Subject<any>();
   do$ = this._do.asObservable();
 
-  constructor(public api: ApiService, private authService: AuthService, public snackBar: MdSnackBar) { };
+  constructor(public api: ApiService, private authService: AuthService, public snackBar: MatSnackBar) { };
 
   do(doc: DocModel) {
     this._do.next(doc);

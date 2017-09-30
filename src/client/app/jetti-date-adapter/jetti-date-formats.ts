@@ -1,6 +1,6 @@
-import {MdDateFormats} from '@angular/material';
+import {MatDateFormats} from '@angular/material';
 
-export const JETTI_DATE_FORMATS: MdDateFormats = {
+export const JETTI_DATE_FORMATS: MatDateFormats = {
   parse: {
     dateInput: 'DD.MM.YYYY',
   },

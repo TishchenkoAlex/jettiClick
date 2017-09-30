@@ -1,6 +1,6 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MD_DIALOG_DATA, MdDialogRef, MdPaginator, MdSort } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef, MatPaginator, MatSort } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Rx';
 
@@ -21,11 +21,11 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
 
   columns = ['select', 'posted', 'description'];
 
-  @ViewChild(MdSort) sort: MdSort;
-  @ViewChild(MdPaginator) paginator: MdPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild('filter') filter: ElementRef;
 
-  constructor(public dialogRef: MdDialogRef<any>, @Inject(MD_DIALOG_DATA) public data: any, private apiService: ApiService) { }
+  constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any, private apiService: ApiService) { }
 
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.sort, this.selection);

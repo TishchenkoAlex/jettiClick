@@ -1,5 +1,5 @@
 <div style="min-width: 280px">
-  <md-card-content>
+  <mat-card-content>
     <form novalidate [formGroup]="formGroup">
       <div fxLayout="column" fxLayoutGap="35px">
         <div fxFlex>
@@ -9,9 +9,9 @@
         </div>
       </div>
     </form>
-  </md-card-content>
+  </mat-card-content>
   <div fxLayoutAlign="center center" fxLayoutGap="25px">
-    <button md-raised-button type="submit" color="warn" [disabled]="!formGroup.valid" [md-dialog-close]="formGroup.value">Save</button>
-    <button md-raised-button type="button" md-dialog-close>Cancel</button>
+    <button mat-raised-button type="submit" color="warn" [disabled]="!formGroup.valid" [mat-dialog-close]="formGroup.value">Save</button>
+    <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
   </div>
 </div>

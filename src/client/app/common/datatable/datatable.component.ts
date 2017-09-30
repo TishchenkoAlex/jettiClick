@@ -1,6 +1,6 @@
 import { DataSource, SelectionModel } from '@angular/cdk/collections';
 import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { MdPaginator, MdSort } from '@angular/material';
+import { MatPaginator, MatSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as moment from 'moment';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -117,8 +117,8 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   };
   get selectedColumn() { return this._selectedColumn; }
 
-  @ViewChild(MdPaginator) paginator: MdPaginator;
-  @ViewChild(MdSort) sort: MdSort;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
   @ViewChild('filter') filter: ElementRef;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
@@ -291,7 +291,7 @@ export class ApiDataSource extends DataSource<any> {
   private result$: Observable<any[]>;
 
   constructor(private apiService: ApiService, private _docType: string,
-    private _sort: MdSort, private _selection: SelectionModel<DocModel>) {
+    private _sort: MatSort, private _selection: SelectionModel<DocModel>) {
 
     super();
 

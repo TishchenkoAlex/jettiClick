@@ -1,71 +1,71 @@
 <div fxLayout="column">
   <div class="search-header" fxLayout="row">
     <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="center center" fxFlex>
-      <button md-mini-fab color="accent" (click)="AddRow()" mdTooltip="add row" *ngIf="selection.selected.length === 0"><md-icon>add</md-icon></button>
+      <button mat-mini-fab color="accent" (click)="AddRow()" matTooltip="add row" *ngIf="selection.selected.length === 0"><mat-icon>add</mat-icon></button>
       <div *ngIf="dataSource?.data.length > 1 && selection.selected.length === 1" >
-        <button md-mini-fab color="default" (click)="Up()" mdTooltip="move up"><md-icon>arrow_upward</md-icon></button>
-        <button md-mini-fab color="default" (click)="Down()" mdTooltip="move down"><md-icon>arrow_downward</md-icon></button>
+        <button mat-mini-fab color="default" (click)="Up()" matTooltip="move up"><mat-icon>arrow_upward</mat-icon></button>
+        <button mat-mini-fab color="default" (click)="Down()" matTooltip="move down"><mat-icon>arrow_downward</mat-icon></button>
       </div>
-      <button md-mini-fab color="default" (click)="CopyRow()" mdTooltip="copy" *ngIf="selection.selected.length === 1"><md-icon>content_copy</md-icon></button>
-      <button md-mini-fab color="warn" (click)="Delete()" mdTooltip="delete" *ngIf="selection.selected.length"><md-icon>remove</md-icon></button>
+      <button mat-mini-fab color="default" (click)="CopyRow()" matTooltip="copy" *ngIf="selection.selected.length === 1"><mat-icon>content_copy</mat-icon></button>
+      <button mat-mini-fab color="warn" (click)="Delete()" matTooltip="delete" *ngIf="selection.selected.length"><mat-icon>remove</mat-icon></button>
     </div>
   </div>
 
-  <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
+  <mat-table #table [dataSource]="dataSource" matSort class="mat-table">
 
-    <ng-container mdColumnDef="index">
-      <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
-      <md-cell *cdkCellDef="let row">{{row.index+1}}</md-cell>
+    <ng-container matColumnDef="index">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>#</mat-header-cell>
+      <mat-cell *cdkCellDef="let row">{{row.index+1}}</mat-cell>
     </ng-container>
 
-    <ng-container mdColumnDef="select">
-      <md-header-cell *mdHeaderCellDef>
-        <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
-        </md-checkbox>
-      </md-header-cell>
-      <md-cell *cdkCellDef="let row">
-        <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
-        </md-checkbox>
-      </md-cell>
+    <ng-container matColumnDef="select">
+      <mat-header-cell *matHeaderCellDef>
+        <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
+        </mat-checkbox>
+      </mat-header-cell>
+      <mat-cell *cdkCellDef="let row">
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
+        </mat-checkbox>
+      </mat-cell>
     </ng-container>
 
-    <ng-container *ngFor="let col of columns" [mdColumnDef]="col.field">
+    <ng-container *ngFor="let col of columns" [matColumnDef]="col.field">
       <div [ngSwitch]="col.type" *ngIf="!col.hidden">
         <span *ngSwitchCase="'textbox'">
-          <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</mat-cell>
         </span>
         <span *ngSwitchCase="'datetime'">
-          <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy mm:ss'}} </md-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy mm:ss'}} </mat-cell>
         </span>
         <span *ngSwitchCase="'date'">
-          <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy'}} </md-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | date:'dd.MM.yyyy'}} </mat-cell>
         </span>
         <span *ngSwitchCase="'number'">
-          <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | number:'1.2-2' }}</md-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field] | number:'1.2-2' }}</mat-cell>
         </span>
         <span *ngSwitchCase="'checkbox'">
-          <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">
-            <md-checkbox [checked]="row[col.field]" disabled="true"></md-checkbox>
-          </md-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">
+            <mat-checkbox [checked]="row[col.field]" disabled="true"></mat-checkbox>
+          </mat-cell>
         </span>
         <span *ngSwitchCase="'autocomplete'">
-          <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field].value}}</md-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field].value}}</mat-cell>
         </span>
         <span *ngSwitchDefault>
-          <md-header-cell *mdHeaderCellDef md-sort-header [ngStyle]="col.style">{{ col.label }}</md-header-cell>
-          <md-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</md-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]}}</mat-cell>
         </span>
       </div>
     </ng-container>
 
-    <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
-    <md-row *cdkRowDef="let row; columns: displayedColumns; let i = index" style="cursor: pointer;" (click)="EditRow(row)"></md-row>
-  </md-table>
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *cdkRowDef="let row; columns: displayedColumns; let i = index" style="cursor: pointer;" (click)="EditRow(row)"></mat-row>
+  </mat-table>
 
 </div>

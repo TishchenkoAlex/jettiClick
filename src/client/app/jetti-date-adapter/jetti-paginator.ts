@@ -1,4 +1,4 @@
-import { MdPaginatorIntl } from '@angular/material';
+import { MatPaginatorIntl } from '@angular/material';
 import { Injectable } from '@angular/core';
 
 const RangeLabel = (page: number, pageSize: number, length: number) => {
@@ -17,7 +17,7 @@ const RangeLabel = (page: number, pageSize: number, length: number) => {
 }
 
 @Injectable()
-export class CustomPaginator extends MdPaginatorIntl {
+export class CustomPaginator extends MatPaginatorIntl {
     itemsPerPageLabel = 'page size';
     getRangeLabel = RangeLabel;
 }

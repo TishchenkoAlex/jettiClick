@@ -1,11 +1,11 @@
 import { DataSource } from '@angular/cdk/collections';
-import { MdPaginator, MdSort, PageEvent, Sort, SortDirection } from '@angular/material';
+import { MatPaginator, MatSort, PageEvent, Sort, SortDirection } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { merge } from 'rxjs/observable/merge';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 
-export class MdTableDataSource<T> implements DataSource<T> {
+export class MatTableDataSource<T> implements DataSource<T> {
   private _renderDataChange = new BehaviorSubject<T[]>([]);
 
   private _orderedDataChange = new BehaviorSubject<T[]>([]);
@@ -18,12 +18,12 @@ export class MdTableDataSource<T> implements DataSource<T> {
   set data(data: T[]) { this._data.next(data); }
   get data() { return this._data.value; }
 
-  set sort(sort: MdSort) {
+  set sort(sort: MatSort) {
     this._sort = sort;
     this._subscribeToOrderedDataChanges();
   }
 
-  set paginator(paginator: MdPaginator) {
+  set paginator(paginator: MatPaginator) {
     this._paginator = paginator;
     this._subscribeToRenderedDataChanges();
   }
@@ -34,8 +34,8 @@ export class MdTableDataSource<T> implements DataSource<T> {
   }
 
   constructor(initialData: T[] = [],
-    private _sort: MdSort | null = null,
-    private _paginator: MdPaginator | null = null) {
+    private _sort: MatSort | null = null,
+    private _paginator: MatPaginator | null = null) {
     this._data = new BehaviorSubject<T[]>(initialData);
     this._subscribeToOrderedDataChanges();
     this._subscribeToRenderedDataChanges();

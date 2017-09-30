@@ -9,7 +9,7 @@ import {
     ValidationErrors,
     Validator,
 } from '@angular/forms';
-import { MdAutocomplete, MdDialog } from '@angular/material';
+import { MatAutocomplete, MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
@@ -23,7 +23,7 @@ import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component'
   selector: 'j-autocomplete',
   templateUrl: './autocomplete.component.html',
   styles: [
-    `md-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`
+    `mat-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`
   ],
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompleteComponent), multi: true },
@@ -56,7 +56,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   }
   get value() { return this._value; }
 
-  @ViewChild('auto') auto: MdAutocomplete;
+  @ViewChild('auto') auto: MatAutocomplete;
 
   suggests$: Observable<any[]>;
   originalValue: JettiComplexObject;
@@ -89,7 +89,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   };
   // end of implementation Validator interface
 
-  constructor(private api: ApiService, private router: Router, public dialog: MdDialog) { }
+  constructor(private api: ApiService, private router: Router, public dialog: MatDialog) { }
 
   ngAfterViewInit() {
     if (this.value.type.includes('.')) { this.originalValue = Object.assign({}, this.value) }

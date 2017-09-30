@@ -1,47 +1,47 @@
 <div fxLayout="column" style="min-width: 280px">
     <div class="search-header" fxLayout="row">
-      <md-input-container fxFlex>
-        <input mdInput #filter placeholder="filter by description...">
-      </md-input-container>
-      <button md-mini-fab color="accent" md-dialog-close style="margin-left: 22px; margin-right: -12px"><md-icon>close</md-icon></button>
+      <mat-input-container fxFlex>
+        <input matInput #filter placeholder="filter by description...">
+      </mat-input-container>
+      <button mat-mini-fab color="accent" mat-dialog-close style="margin-left: 22px; margin-right: -12px"><mat-icon>close</mat-icon></button>
     </div>
   
-    <md-table #table [dataSource]="dataSource" mdSort class="mat-table">
+    <mat-table #table [dataSource]="dataSource" matSort class="mat-table">
   
-      <ng-container mdColumnDef="select">
-        <md-header-cell *mdHeaderCellDef>
-          <md-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()"></md-checkbox>
-        </md-header-cell>
-        <md-cell *cdkCellDef="let row">
-          <md-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"></md-checkbox>
-        </md-cell>
+      <ng-container matColumnDef="select">
+        <mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+        </mat-header-cell>
+        <mat-cell *cdkCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"></mat-checkbox>
+        </mat-cell>
       </ng-container>
   
-      <ng-container mdColumnDef="posted">
-        <md-header-cell *mdHeaderCellDef></md-header-cell>
-        <md-cell *cdkCellDef="let row" style="margin-top: 4px">
-          <md-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</md-icon>
-          <md-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</md-icon>
-          <md-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</md-icon>
-        </md-cell>
+      <ng-container matColumnDef="posted">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *cdkCellDef="let row" style="margin-top: 4px">
+          <mat-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</mat-icon>
+          <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</mat-icon>
+          <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</mat-icon>
+        </mat-cell>
       </ng-container>
 
-      <ng-container mdColumnDef="description">
-        <md-header-cell *mdHeaderCellDef md-sort-header>description</md-header-cell>
-        <md-cell *cdkCellDef="let row">
+      <ng-container matColumnDef="description">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>description</mat-header-cell>
+        <mat-cell *cdkCellDef="let row">
             <span class="data-table-select" (click)="dialogRef.close(row)" style="cursor: pointer">{{row.description}}</span> 
-        </md-cell>
+        </mat-cell>
       </ng-container>
   
-      <md-header-row *mdHeaderRowDef="columns"></md-header-row>
-      <md-row *cdkRowDef="let row; columns: columns;" (click)="dialogRef.close(row)" style="cursor: pointer;" ></md-row>
+      <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+      <mat-row *cdkRowDef="let row; columns: columns;" (click)="dialogRef.close(row)" style="cursor: pointer;" ></mat-row>
 
-    </md-table>
+    </mat-table>
     <div fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; padding-right: 24px">
-      <button md-icon-button color="default" (click)="first()"><md-icon>first_page</md-icon></button>
-      <button md-icon-button color="default" (click)="prev()"><md-icon>navigate_before</md-icon></button>
-      <button md-icon-button color="default" (click)="next()"><md-icon>navigate_next</md-icon></button>
-      <button md-icon-button color="default" (click)="last()"><md-icon>last_page</md-icon></button>
+      <button mat-icon-button color="default" (click)="first()"><mat-icon>first_page</mat-icon></button>
+      <button mat-icon-button color="default" (click)="prev()"><mat-icon>navigate_before</mat-icon></button>
+      <button mat-icon-button color="default" (click)="next()"><mat-icon>navigate_next</mat-icon></button>
+      <button mat-icon-button color="default" (click)="last()"><mat-icon>last_page</mat-icon></button>
     </div>
-    <md-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></md-progress-bar>
+    <mat-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></mat-progress-bar>
   </div>

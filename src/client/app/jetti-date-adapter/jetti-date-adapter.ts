@@ -1,5 +1,5 @@
 import { Inject, Injectable, Optional } from '@angular/core';
-import { MAT_DATE_LOCALE, MD_DATE_FORMATS, NativeDateAdapter } from '@angular/material';
+import { MAT_DATE_LOCALE, MAT_DATE_FORMATS, NativeDateAdapter } from '@angular/material';
 import * as moment from 'moment';
 
 @Injectable()
@@ -7,7 +7,7 @@ export class JettiDateAdapter extends NativeDateAdapter {
 
   constructor(
     @Optional() @Inject(MAT_DATE_LOCALE) matDateLocale: string,
-    @Optional() @Inject(MD_DATE_FORMATS) private matDateFormats) {
+    @Optional() @Inject(MAT_DATE_FORMATS) private matDateFormats) {
     super(matDateLocale);
   }
 
