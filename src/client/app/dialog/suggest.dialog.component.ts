@@ -34,8 +34,8 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
-      .debounceTime(1000)
       .distinctUntilChanged()
+      .debounceTime(1000)
       .subscribe(() => {
         if (!this.dataSource) { return; }
         this.dataSource.filterObjext = {
@@ -45,7 +45,11 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
         };
       });
 
-    this.dataSource.docID = this.data.docID;
+    if (!this.data.docID || (this.data.docID === this.data.docType)) {
+      this.dataSource.paginator.next('first');
+    } else {
+      this.dataSource.docID = this.data.docID;
+    }
   }
 
   ngOnDestroy() {

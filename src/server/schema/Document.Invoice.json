@@ -1,0 +1,100 @@
+{
+  "Tax": {
+    "type": "number",
+    "order": 13,
+    "style": {
+      "max-width": "40px",
+      "min-width": "40px"
+    },
+    "readOnly": "true"
+  },
+  "Items": {
+    "type": "table",
+    "Items": {
+      "Qty": {
+        "type": "number",
+        "order": 3,
+        "change": "return { Amount: doc.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}",
+        "required": true
+      },
+      "SKU": {
+        "type": "Catalog.Product",
+        "order": 1,
+        "required": true
+      },
+      "Tax": {
+        "type": "number",
+        "order": 9
+      },
+      "Price": {
+        "type": "number",
+        "order": 4,
+        "change": "return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18}",
+        "required": true
+      },
+      "Amount": {
+        "type": "number",
+        "order": 10,
+        "change": "return { Price: value / doc.Qty, Tax: value * 0.18}"
+      },
+      "PriceType": {
+        "type": "Catalog.PriceType",
+        "order": 5,
+        "style": {
+          "max-width": "90px"
+        }
+      }
+    },
+    "order": 1,
+    "change": "let Amount = 0, Tax = 0; value.forEach(el => { Amount += el.Amount; Tax += el.Tax; }); return { Amount: Amount, Tax: Tax };",
+    "required": true
+  },
+  "Amount": {
+    "type": "number",
+    "order": 12,
+    "readOnly": "false"
+  },
+  "Status": {
+    "order": 9,
+    "style": {
+      "max-width": "90px",
+      "min-width": "90px"
+    },
+    "required": true
+  },
+  "Manager": {
+    "type": "Catalog.Manager",
+    "order": 7,
+    "style": {
+      "min-width": "110px"
+    }
+  },
+  "Comments": {
+    "type": "table",
+    "order": 2,
+    "change": "",
+    "Comments": {
+      "Date": {
+        "type": "datetime"
+      },
+      "User": {
+        "type": "Catalog.Manager"
+      },
+      "Comment": {
+        "type": "string"
+      }
+    }
+  },
+  "Customer": {
+    "type": "Catalog.Counterpartie",
+    "order": 6,
+    "style": {
+      "min-width": "110px"
+    },
+    "required": true
+  },
+  "Storehouse": {
+    "type": "Catalog.Storehouse",
+    "order": 8
+  }
+}

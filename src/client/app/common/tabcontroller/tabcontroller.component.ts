@@ -24,9 +24,10 @@ export class TabControllerComponent implements OnInit {
         this.tc.docID = params.get('id') || '';
         const index = this.tc.tabs.findIndex(i => (i.docType === this.tc.tabid) && (i.docID === this.tc.docID));
         if (index === -1) {
-          const menuItem = this.tc.db.list('/Menu/main/', { query: { orderByChild: 'link', equalTo: '/' + this.tc.tabid } })
+          const menuItem = this.tc.db.list('/Menu/main/', ref => ref.orderByChild('link').equalTo('/' + this.tc.tabid))
+            .valueChanges()
             .take(1)
-            .subscribe(item => {
+            .subscribe((item: any) => {
               let description = this.tc.docID && this.route.data['value'].detail
                 ? (this.route.data['value'].detail as ViewModel).model.description : '';
               description = description.length > 25 ? description.slice(0, 22) + '...' : description;

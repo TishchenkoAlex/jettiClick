@@ -2,7 +2,7 @@ import { Observable } from 'rxjs/Observable';
 import { Component, OnInit } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
 import { NavigationEnd, NavigationStart, Router, RoutesRecognized } from '@angular/router';
-import { AngularFireDatabase, FirebaseListObservable } from 'angularfire2/database';
+import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { SideNavService } from './services/side-nav.service';
 
 @Component({
@@ -12,9 +12,9 @@ import { SideNavService } from './services/side-nav.service';
 })
 export class AppComponent implements OnInit {
 
-  menuItems: FirebaseListObservable<any[]>;
+  menuItems: Observable<any[]>;
 
-  docs: FirebaseListObservable<any[]>;
+  docs: AngularFireList<any[]>;
 
   loading$: Observable<boolean>;
 
@@ -30,7 +30,7 @@ export class AppComponent implements OnInit {
 
     media.asObservable().subscribe((change: MediaChange) => this.switchMedia(change));
 
-    this.menuItems = db.list('/Menu/main/');
+    this.menuItems = db.list('/Menu/main/').valueChanges();
   }
 
   ngOnInit() {

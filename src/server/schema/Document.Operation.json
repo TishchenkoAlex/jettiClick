@@ -1,0 +1,14 @@
+{
+    "Amount": {
+        "type": "number"
+    },
+    "currency": {
+        "type": "Catalog.Currency",
+        "required": true
+    },
+    "Operation": {
+        "type": "Catalog.Operation",
+        "order": 4,
+        "required": true
+    }
+}
