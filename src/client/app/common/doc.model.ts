@@ -1,7 +1,6 @@
 import { v1 } from 'uuid';
 
 export class DocModel {
-    date = new Date().toJSON();
     code = '';
     description = '';
     posted = false;
@@ -12,7 +11,7 @@ export class DocModel {
     user = '';
     doc: {}
 
-    constructor (public type: string, public id: string) {
+    constructor (public type: string, public id: string, public date: string = new Date().toJSON()) {
         if (!this.id) { this.id = v1() }
     }
 }

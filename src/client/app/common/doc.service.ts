@@ -49,8 +49,8 @@ export class DocService {
       });
   }
 
-  post(doc: DocModel) {
-    return this.api.postDocById(doc.id)
+  post(doc: string) {
+    return this.api.postDocById(doc);
   }
 
   openSnackBar(message: string, action: string) {

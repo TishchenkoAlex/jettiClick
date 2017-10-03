@@ -26,7 +26,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   protected _filter$: Subscription = Subscription.EMPTY;
   protected _sideNavService$: Subscription = Subscription.EMPTY;
 
-  selection = new SelectionModel<DocModel>(true, []);
+  selection = new SelectionModel<string>(true, []);
   dataSource: ApiDataSource | null;
 
   @Input() actionTepmlate: TemplateRef<any>;
@@ -37,9 +37,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
     if (!this.dataSource) { return; }
     this.dataSource.filterObjext = value;
   };
-  get filterObject(): FilterObject {
-    return this._filterObject;
-  };
+  get filterObject(): FilterObject { return this._filterObject };
 
   private _selectedPeriod = '';
   get selectedPeriod() { return this._selectedPeriod; }
@@ -117,7 +115,6 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   };
   get selectedColumn() { return this._selectedColumn; }
 
-  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('filter') filter: ElementRef;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
@@ -131,13 +128,13 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
     const view = this.route.data['value'].detail;
     this.docType = this.route.params['value'].type;
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.sort, this.selection);
+    this.sort.direction = 'asc'
+    if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
+    this.dataSource = new ApiDataSource(this.ds.api, this.docType, 10, this.sort, this.selection);
 
-    Object.keys(view).map((property) => {
-      if (JETTI_DOC_PROP.filter(e => (e !== 'company'))
-        .indexOf(property) > -1 || (view[property] && view[property]['type'] === 'table')) { return; }
+    Object.keys(view).filter(property => view[property] && view[property]['type'] !== 'table').map((property) => {
       const prop = view[property];
-      const hidden = !!prop['hidden-list'];
+      const hidden = !!prop['hidden-list'] || !!prop['hidden'];
       const order = hidden ? 1000 : prop['order'] * 1 || 999;
       const label = (prop['label'] || property.toString()).toLowerCase();
       const type = prop['type'] || 'string';
@@ -145,14 +142,12 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       this.columns.push({ field: property, type: type, label: label, hidden: hidden, order: order, style: style });
     });
     this.columns.sort((a, b) => a.order - b.order);
-    this.displayedColumns = this.columns.filter(c => !c.hidden && this.isDoc).map((c) => c.field);
-    if (this.docType.startsWith('Document.') || this.docType.startsWith('Journal.')) {
-      this.displayedColumns.unshift('select', 'posted', 'date', 'code');
-    } else {
-      this.displayedColumns.unshift('select', 'posted', 'code', 'description');
-    }
+    this.displayedColumns = this.columns.filter(c => !c.hidden && (this.isDoc ?
+      (c.field !== 'description') :
+      (c.field !== 'company') && (c.field !== 'date'))).map((c) => c.field);
+    this.displayedColumns.unshift('select');
     this.filterColumns = this.columns.filter(c => !c.hidden).map(c => {
-      return { key: c.field, value: c.label };
+      return { key: c.field, value: c.label }
     });
 
     this.selectedPeriod = 'tm';
@@ -173,7 +168,10 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       this.ds.save$,
       this.ds.delete$])
       .filter(doc => doc.type === this.docType)
-      .subscribe(doc => this.refresh());
+      .subscribe(doc => {
+        const offset = this.dataSource.renderedData.findIndex(d => d.id === doc.id) + 1;
+        this.refresh();
+      });
 
     this._sideNavService$ = this.sns.do$
       .filter(data => data.type === this.docType && data.id === '')
@@ -189,7 +187,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   }
 
   onPeriodChange() {
-    this.selectedPeriod = Object.assign({}, this.selectedPeriod);
+    this.selectedPeriod = this.selectedPeriod;
   }
 
   isAllSelected(): boolean {
@@ -203,18 +201,17 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
-      this.dataSource.renderedData.forEach(data => this.selection.select(data));
+      this.dataSource.renderedData.forEach(data => this.selection.select(data.id));
     }
   }
 
   refresh() {
     this.dataSource.Refresh();
-    this.selection.clear();
   }
 
   add() {
     if (this.selection.selected.length === 1) {
-      this.router.navigate([this.selection.selected[0].type, 'new']);
+      this.router.navigate([this.docType, 'new']);
       return;
     }
     if (this.docType.startsWith('Document.') ||
@@ -224,7 +221,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   }
 
   copy() {
-    this.router.navigate([this.selection.selected[0].type, 'copy-' + this.selection.selected[0].id])
+    this.router.navigate([this.docType, 'copy-' + this.selection.selected[0]])
   }
 
   open(row: DocModel) {
@@ -233,14 +230,14 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
 
   delete() {
     this.selection.selected.forEach(el => {
-      this.ds.delete(el.id);
+      this.ds.delete(el);
     });
   }
 
   post() {
     const tasks$ = [];
     this.selection.selected
-      .filter(el => !el.deleted)
+      .filter(el => this.dataSource.renderedData.findIndex(d => d.id === el) > -1)
       .forEach(el => tasks$.push(this.ds.post(el).take(1)));
     Observable.forkJoin(...tasks$)
       .take(1)
@@ -258,24 +255,24 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   }
 
   first() {
-    this.dataSource._paginator.next('first');
+    this.dataSource.paginator.next('first');
   }
 
   last() {
-    this.dataSource._paginator.next('last');
+    this.dataSource.paginator.next('last');
   }
 
   next() {
-    this.dataSource._paginator.next('next');
+    this.dataSource.paginator.next('next');
   }
 
   prev() {
-    this.dataSource._paginator.next('prev');
+    this.dataSource.paginator.next('prev');
   }
 }
 
 export class ApiDataSource extends DataSource<any> {
-  _paginator = new BehaviorSubject('');
+  paginator = new BehaviorSubject('');
 
   selectedColumn = 'code';
 
@@ -284,15 +281,19 @@ export class ApiDataSource extends DataSource<any> {
   get filterObjext(): FilterObject { return this._filterObjextChange.value; }
   set filterObjext(filterObjext: FilterObject) { this._filterObjextChange.next(filterObjext); }
 
-  renderedData: any[];
-  startDoc = new DocModel(this._docType, 'first');
-  continuation: Continuation = {first: this.startDoc, last: this.startDoc};
+  renderedData: DocModel[] = [];
+  private firstDoc = new DocModel(this._docType, 'first');
+  private lastDoc = new DocModel(this._docType, 'last');
+
+  private _docID = '';
+  set docID(value: string) { this._docID = value; this.paginator.next('goto'); }
+
+  continuation: Continuation = { first: this.firstDoc, last: this.lastDoc };
   isLoadingResults = true;
   private result$: Observable<any[]>;
 
-  constructor(private apiService: ApiService, private _docType: string,
-    private _sort: MatSort, private _selection: SelectionModel<DocModel>) {
-
+  constructor(private apiService: ApiService, private _docType: string, private pageSize: number,
+    private _sort: MatSort, private _selection: SelectionModel<string>) {
     super();
 
     this._filterObjextChangeSubscription = this._filterObjextChange
@@ -301,26 +302,40 @@ export class ApiDataSource extends DataSource<any> {
     this.result$ = Observable.merge(...[
       this._filterObjextChange,
       this._sort.sortChange,
-      this._paginator,
+      this.paginator,
     ])
       .filter(stream => !!stream)
       .switchMap((stream) => {
-        console.log(stream, this._sort)
+        console.log('Observable.merge', stream)
         this.isLoadingResults = true;
-        const filter = '';
-        let continuationID = 'first';
-        switch (this._paginator.value) {
-          case 'first': continuationID = 'first'; break;
-          case 'prev': continuationID = this.continuation.first.id; break;
-          case 'next': continuationID = this.continuation.last.id; break;
-          case 'last': continuationID = 'last'; break;
-          case 'refresh': continuationID = this.renderedData[0].id; break;
-          default: continuationID = 'first';
+        let offset = 0;
+        let row: DocModel = this.firstDoc;
+        if (this._selection.selected.length) {
+          offset = this.renderedData.findIndex(s => s.id === this._selection.selected[0]);
+          row = this.renderedData[offset];
         }
-        return this.apiService.getDocList2(this._docType, continuationID, this._paginator.value, 10,
-          this.renderedData && this._selection.selected.length ?
-            this.renderedData.findIndex(s => s.id === this._selection.selected[0].id) : 1,
-          this._sort.active + ' ' + this._sort.direction, filter)
+        switch (stream) {
+          case 'first': row = this.firstDoc; this._selection.clear(); break;
+          case 'prev':  row = this.continuation.first; this._selection.clear(); break;
+          case 'next': row = this.continuation.last; this._selection.clear(); break;
+          case 'last': row = this.lastDoc; this._selection.clear(); break;
+          case 'refresh': row = this.renderedData[offset]; break;
+          case 'goto': row = new DocModel(this._docType, this._docID); break;
+        }
+        let sort = '';
+        let command = this.paginator.value || 'first';
+        if (this._sort.active) {
+          if (stream['active']) {
+            if (row === this.firstDoc) {
+              command = 'first';
+            } else {
+              command = 'sort';
+            }
+          }
+          sort = this._sort.active + '*' + this._sort.direction + '*' + row[this._sort.active] || '0';
+        }
+        const filter = '';
+        return this.apiService.getDocList2(this._docType, row.id, command, this.pageSize, offset, sort, filter)
           .do(data => {
             this.renderedData = data.data;
             this.continuation = data.continuation;
@@ -342,7 +357,7 @@ export class ApiDataSource extends DataSource<any> {
   disconnect() { }
 
   Refresh() {
-    this._paginator.next('refresh');
+    this.paginator.next('refresh');
   }
 
 }

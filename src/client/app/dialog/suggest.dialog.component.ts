@@ -15,23 +15,25 @@ import { ApiService } from '../services/api.service';
 export class SuggestDialogComponent implements OnInit, OnDestroy {
 
   private _filter$: Subscription = Subscription.EMPTY;
+  isDoc: boolean;
 
   dataSource: ApiDataSource | null;
-  selection = new SelectionModel<DocModel>(true, []);
+  selection = new SelectionModel<string>(true, []);
 
-  columns = ['select', 'posted', 'description'];
+  columns = ['select', 'posted', 'description', 'code'];
 
   @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild('filter') filter: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any, private apiService: ApiService) { }
 
   ngOnInit() {
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.sort, this.selection);
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, 7, this.sort, this.selection);
     this.dataSource.selectedColumn = 'description';
+    this.sort.direction = 'asc';
+    this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
+    if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
-      .startWith('')
       .debounceTime(1000)
       .distinctUntilChanged()
       .subscribe(() => {
@@ -42,6 +44,8 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
           columnFilter: this.filter.nativeElement.value
         };
       });
+
+    this.dataSource.docID = this.data.docID;
   }
 
   ngOnDestroy() {
@@ -49,20 +53,21 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   }
 
   first() {
-
+    this.dataSource.paginator.next('first');
   }
 
   last() {
-
+    this.dataSource.paginator.next('last');
   }
 
   next() {
-
+    this.dataSource.paginator.next('next');
   }
 
   prev() {
-
+    this.dataSource.paginator.next('prev');
   }
+
   isAllSelected(): boolean {
     if (!this.dataSource) { return false; }
     if (this.selection.isEmpty()) { return false; }
@@ -74,10 +79,9 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
-      this.dataSource.renderedData.forEach(data => this.selection.select(data));
+      this.dataSource.renderedData.forEach(data => this.selection.select(data.id));
     }
   }
-
 }
 
 

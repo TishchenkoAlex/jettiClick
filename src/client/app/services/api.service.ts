@@ -8,9 +8,10 @@ import { mapDocToApiFormat } from '../common/mapping/document.mapping';
 import { AccountRegister } from './../models/account.register';
 
 export interface DocListResponse { data: any[], total_count: number };
+export interface OrderConfig { field: string, order: string, value: string | number | boolean }
 export interface DocListRequest {
   id: string, type: string, command: string, count: number, offset: number,
-  order: { field: string, order: string, value: string | number | boolean }[],
+  order: OrderConfig [],
   filter: { field: string, operator: 'ge' | 'gt' | 'le' | 'lt' | 'eq' | 'like', value: string | number | boolean }[]
 }
 export interface Continuation { first: DocModel, last: DocModel }
@@ -29,14 +30,19 @@ export class ApiService {
     return this.http.get(query) as Observable<DocListResponse>;
   }
 
-  getDocList2(type: string, id: string, command: string, count = 10, offset = 1, order = '', filter = ''): Observable<DocListResponse2> {
+  getDocList2(type: string, id: string, command: string, count = 10, offset = 0, order = '', filter = ''): Observable<DocListResponse2> {
     const query = `${this.url}list`;
     const body: DocListRequest = {
       id: id, type: type, command: command, count: count, offset: offset,
       order: [],
       filter: []
     }
-    console.log('LIST API', query, body);
+    if (order) {
+      const params = order.split('*');
+      const orderConfig: OrderConfig = {field: params[0], order: params[1] || 'asc', value: params[2]}
+      body.order.push(orderConfig);
+    }
+    // console.log('LIST API', body, order);
     return this.http.post(query, body) as Observable<DocListResponse2>;
   }
 

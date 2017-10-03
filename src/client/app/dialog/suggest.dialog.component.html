@@ -1,47 +1,54 @@
 <div fxLayout="column" style="min-width: 280px">
-    <div class="search-header" fxLayout="row">
-      <mat-input-container fxFlex>
-        <input matInput #filter placeholder="filter by description...">
-      </mat-input-container>
-      <button mat-mini-fab color="accent" mat-dialog-close style="margin-left: 22px; margin-right: -12px"><mat-icon>close</mat-icon></button>
-    </div>
-  
-    <mat-table #table [dataSource]="dataSource" matSort class="mat-table">
-  
-      <ng-container matColumnDef="select">
-        <mat-header-cell *matHeaderCellDef>
-          <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
-        </mat-header-cell>
-        <mat-cell *cdkCellDef="let row">
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"></mat-checkbox>
-        </mat-cell>
-      </ng-container>
-  
-      <ng-container matColumnDef="posted">
-        <mat-header-cell *matHeaderCellDef></mat-header-cell>
-        <mat-cell *cdkCellDef="let row" style="margin-top: 4px">
-          <mat-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</mat-icon>
-          <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</mat-icon>
-          <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</mat-icon>
-        </mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="description">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>description</mat-header-cell>
-        <mat-cell *cdkCellDef="let row">
-            <span class="data-table-select" (click)="dialogRef.close(row)" style="cursor: pointer">{{row.description}}</span> 
-        </mat-cell>
-      </ng-container>
-  
-      <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
-      <mat-row *cdkRowDef="let row; columns: columns;" (click)="dialogRef.close(row)" style="cursor: pointer;" ></mat-row>
-
-    </mat-table>
-    <div fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; padding-right: 24px">
-      <button mat-icon-button color="default" (click)="first()"><mat-icon>first_page</mat-icon></button>
-      <button mat-icon-button color="default" (click)="prev()"><mat-icon>navigate_before</mat-icon></button>
-      <button mat-icon-button color="default" (click)="next()"><mat-icon>navigate_next</mat-icon></button>
-      <button mat-icon-button color="default" (click)="last()"><mat-icon>last_page</mat-icon></button>
-    </div>
-    <mat-progress-bar mode="indeterminate" *ngIf="dataSource.isLoadingResults"></mat-progress-bar>
+  <div class="search-header" fxLayout="row">
+    <mat-input-container fxFlex>
+      <input matInput #filter placeholder="filter by description...">
+    </mat-input-container>
+    <button mat-icon-button color="default" mat-dialog-close style="margin-right: -12px"><mat-icon>close</mat-icon></button>
   </div>
+
+  <mat-table #table [dataSource]="dataSource" matSort class="mat-table">
+
+      <ng-container matColumnDef="select">
+          <mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+          </mat-header-cell>
+          <mat-cell *cdkCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row.id) : null" [checked]="selection.isSelected(row.id)"></mat-checkbox>
+          </mat-cell>
+        </ng-container>
+
+    <ng-container matColumnDef="posted">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *cdkCellDef="let row" style="margin-top: 4px">
+        <mat-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</mat-icon>
+        <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</mat-icon>
+        <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</mat-icon>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="description">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>description</mat-header-cell>
+      <mat-cell *cdkCellDef="let row">
+        <span class="data-table-select" (click)="dialogRef.close(row)" style="cursor: pointer">{{row.description}}</span>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="code">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>code</mat-header-cell>
+      <mat-cell *cdkCellDef="let row">
+        {{row.code}}
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+    <mat-row *cdkRowDef="let row; columns: columns;" (click)="dialogRef.close(row)" style="cursor: pointer;"></mat-row>
+
+  </mat-table>
+  <div fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; padding-right: 0px">
+    <mat-progress-bar *ngIf="dataSource.isLoadingResults" mode="indeterminate"></mat-progress-bar>
+    <button mat-icon-button color="default" (click)="first()" [disabled]="!dataSource.continuation.first"><mat-icon>first_page</mat-icon></button>
+    <button mat-icon-button color="default" (click)="prev()" [disabled]="!dataSource.continuation.first"><mat-icon>navigate_before</mat-icon></button>
+    <button mat-icon-button color="default" (click)="next()" [disabled]="!dataSource.continuation.last"><mat-icon>navigate_next</mat-icon></button>
+    <button mat-icon-button color="default" (click)="last()" [disabled]="!dataSource.continuation.last"><mat-icon>last_page</mat-icon></button>
+  </div>
+</div>

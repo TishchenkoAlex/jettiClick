@@ -90,59 +90,78 @@ router.post('/list', async (req, res, next) => {
     const params = req.body;
     params.command = params.command || 'first';
     const direction = params.command !== 'prev';
-    params.order.push({ field: 'id', order: 'asc', value: params.id });
     const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
-    const lastORDER = params.order[params.order.length - 1].order === 'asc';
+    const lastORDER = params.order.length ? params.order[params.order.length - 1].order === 'asc' : true;
+    params.order.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
 
     let orderbyBefore = 'ORDER BY '; let orderbyAfter = orderbyBefore;
-    params.order.forEach(o => orderbyBefore += 'd.' + o.field + (o.order === 'asc' ? ' DESC, ' : ' ASC, '))
+    params.order.forEach(o => orderbyBefore += '"' + o.field + (o.order === 'asc' ? '" DESC, ' : '" ASC, '))
     orderbyBefore = orderbyBefore.slice(0, -2);
-    params.order.forEach(o => orderbyAfter += 'd.' + o.field + (o.order === 'asc' ? ' ASC, ' : ' DESC, '))
+    params.order.forEach(o => orderbyAfter += '"' + o.field + (o.order === 'asc' ? '" ASC, ' : '" DESC, '))
     orderbyAfter = orderbyAfter.slice(0, -2);
 
-    queryBuilder = (orderby, isAfter) => {
-      order = params.order.slice();
+    queryBuilder = (isAfter) => {
+      let result = '';
+      const order = params.order.slice();
+      const char1 = lastORDER ? isAfter ? '>' : '<' : isAfter ? '<' : '>';
       params.order.forEach(o => {
         let where = 'TRUE ';
-        if (direction === true) {
-        order.forEach(_o => where += ` AND d.${_o.field} ${_o !== order[order.length - 1] ? '=' :
-          (lastORDER && isAfter ? '>' : '<') + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
-        } else {
-          order.forEach(_o => where += ` AND d.${_o.field} ${_o !== order[order.length - 1] ? '=' :
-          (lastORDER && isAfter ? '>' : '<') + ((_o.field === 'id') && isAfter ? '' : '=')} '${_o.value}' `);         
-        }
+        order.forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' : char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
         order.length--;
-        query += `\nSELECT * FROM(${config_schema.queryList} AND ${where}\n ${orderby} LIMIT ${params.count + 1}) "tmp${o.field}" \nUNION ALL `;
+        result += `\nSELECT * FROM(SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n ${lastORDER ?
+          (char1 === '>') ? orderbyAfter : orderbyBefore :
+          (char1 === '<') ? orderbyAfter : orderbyBefore} LIMIT ${params.count + 1}) "tmp${o.field}" \nUNION ALL`;
       });
-      return query;
-    }
-    let query = '';
-    if (params.id === 'first') {
-      let where = 'TRUE ';
-      query = `SELECT * FROM(${config_schema.queryList} AND ${where}\n ${orderbyAfter} LIMIT ${params.count + 1}) d`;
-    } else {
-      if (params.id === 'last') {
-        let where = 'TRUE ';
-        query = `SELECT * FROM(${config_schema.queryList} AND ${where}\n ${orderbyBefore} LIMIT ${params.count + 1}) d`;
-        query = `SELECT * FROM (${query}) d \n${orderbyAfter}`;
-      } else {
-        query = queryBuilder(direction === true ? orderbyBefore : orderbyAfter, !direction);
-        query = `SELECT * FROM (SELECT * FROM (${query.slice(0, -11)}) d \n${direction === true ? orderbyBefore : orderbyAfter} LIMIT ${params.offset || 1}) "before" \nUNION ALL `;
-        query = queryBuilder(direction === true ? orderbyAfter : orderbyBefore, direction);
-        query = `SELECT * FROM (${query.slice(0, -11)}) d \n${orderbyAfter}`;
-        query = `SELECT * FROM (${query}) d LIMIT ${params.count + 2}`;
-      }
+      return result.slice(0, -9);
     }
 
-    const continuation = { first: null, last: null };
-    const data = await db.manyOrNone(query);
-    if (direction === true) {
-      if (data.length && data[0].id !== params.id && params.command !== 'first') { continuation.first = data[0]; data.shift() }
-      if (data.length && data.length > params.count && data[data.length - 1].id !== params.id && params.command !== 'last') { continuation.last = data[data.length - 1]; data.length-- }
+    let query = '';
+    if (params.command === 'first') {
+      let where = 'TRUE ';
+      query = `SELECT * FROM (SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n ${orderbyAfter} LIMIT ${params.count + 1}) d`;
     } else {
-      if (data.length && data[data.length - 1].id !== params.id) { continuation.last = data[data.length - 1]; data.length-- }
-      if (data.length && data.length > params.count && data[0].id !== params.id) { continuation.first = data[0]; data.shift() }
+      if (params.command === 'last') {
+        let where = 'TRUE ';
+        query = `SELECT * FROM (SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n ${orderbyBefore} LIMIT ${params.count + 1}) d`;
+      } else {
+        queryBefore = queryBuilder(true);
+        queryAfter = queryBuilder(false);
+        query = `${queryBefore} \n UNION ALL \n ${queryAfter} `;
+      }
+      query = `SELECT * FROM (${query}) d ${orderbyAfter}`;
     }
+    console.log(query);
+    let data = await db.manyOrNone(query);
+
+    const continuation = { first: null, last: null };
+    const calculateContinuation = () => {
+      let continuationIndex = data.findIndex(d => d.id === params.id);
+      const pageSize = Math.min(data.length, params.count);
+      if (params.command === 'first') {
+        continuation.first = null;
+        continuation.last = data[pageSize];
+        data = data.slice(0, pageSize);
+      } else {
+        if (params.command === 'last') {
+          continuation.first = data[data.length - 1 - params.count];
+          continuation.last = null
+          data = data.slice(-pageSize);
+        }
+        else {
+          if (direction) {
+            continuation.first = data[continuationIndex - params.offset - 1];
+            continuation.last = data[continuationIndex + pageSize - params.offset];
+            data = data.slice(continuation.first ? continuationIndex - params.offset: 0, continuationIndex + pageSize - params.offset);
+          } else {
+            continuation.first = data[continuationIndex - pageSize - params.offset];
+            continuation.last = data[continuationIndex + 1 - params.offset];
+            data = data.slice(continuation.first ? continuationIndex - pageSize + 1 - params.offset: 0, continuationIndex + 1 - params.offset);
+          }
+        }
+      }
+    }
+    calculateContinuation();
+    data.length = Math.min(data.length, params.count);
     res.json({ data: data, continuation: continuation });
   } catch (err) { next(err.message); }
 });
