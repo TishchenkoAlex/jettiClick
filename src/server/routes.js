@@ -91,6 +91,12 @@ router.post('/list', async (req, res, next) => {
     params.command = params.command || 'first';
     const direction = params.command !== 'prev';
     const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
+    const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (SELECT * FROM "Documents" WHERE id = $1) q`, [params.id]);
+    if (params.orderStr) {
+      const orderParams = params.orderStr.split('*');
+      const orderConfig = {field: orderParams[0], order: orderParams[1] || 'asc', value: row ? row['row'][orderParams[0]] : null}
+      params.order.push(orderConfig);
+    }
     const lastORDER = params.order.length ? params.order[params.order.length - 1].order === 'asc' : true;
     params.order.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
 

@@ -60,7 +60,6 @@ export class TextareaJettiFormControl extends BaseJettiFromControl<string> {
   }
 }
 
-
 export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
   controlType = 'script';
   type = 'string';

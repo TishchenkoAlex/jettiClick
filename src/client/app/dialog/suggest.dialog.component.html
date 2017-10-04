@@ -1,7 +1,7 @@
 <div fxLayout="column" style="min-width: 280px">
   <div class="search-header" fxLayout="row">
     <mat-input-container fxFlex>
-      <input matInput #filter placeholder="filter by description...">
+      <input matInput #filter placeholder="filter ...">
     </mat-input-container>
     <button mat-icon-button color="default" mat-dialog-close style="margin-right: -12px"><mat-icon>close</mat-icon></button>
   </div>
@@ -10,10 +10,10 @@
 
       <ng-container matColumnDef="select">
           <mat-header-cell *matHeaderCellDef>
-            <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+            <mat-checkbox (change)="$event ? dataSource.masterToggle() : null" [checked]="dataSource.isAllSelected()" [indeterminate]="dataSource.selection.hasValue() && !dataSource.isAllSelected()"></mat-checkbox>
           </mat-header-cell>
           <mat-cell *cdkCellDef="let row">
-            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row.id) : null" [checked]="selection.isSelected(row.id)"></mat-checkbox>
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? dataSource.selection.toggle(row.id) : null" [checked]="dataSource.selection.isSelected(row.id)"></mat-checkbox>
           </mat-cell>
         </ng-container>
 
@@ -46,9 +46,9 @@
   </mat-table>
   <div fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; padding-right: 0px">
     <mat-progress-bar *ngIf="dataSource.isLoadingResults" mode="indeterminate"></mat-progress-bar>
-    <button mat-icon-button color="default" (click)="first()" [disabled]="!dataSource.continuation.first"><mat-icon>first_page</mat-icon></button>
-    <button mat-icon-button color="default" (click)="prev()" [disabled]="!dataSource.continuation.first"><mat-icon>navigate_before</mat-icon></button>
-    <button mat-icon-button color="default" (click)="next()" [disabled]="!dataSource.continuation.last"><mat-icon>navigate_next</mat-icon></button>
-    <button mat-icon-button color="default" (click)="last()" [disabled]="!dataSource.continuation.last"><mat-icon>last_page</mat-icon></button>
+    <button mat-icon-button color="default" (click)="dataSource.first()" [disabled]="!dataSource.continuation.first"><mat-icon>first_page</mat-icon></button>
+    <button mat-icon-button color="default" (click)="dataSource.prev()" [disabled]="!dataSource.continuation.first"><mat-icon>navigate_before</mat-icon></button>
+    <button mat-icon-button color="default" (click)="dataSource.next()" [disabled]="!dataSource.continuation.last"><mat-icon>navigate_next</mat-icon></button>
+    <button mat-icon-button color="default" (click)="dataSource.last()" [disabled]="!dataSource.continuation.last"><mat-icon>last_page</mat-icon></button>
   </div>
 </div>

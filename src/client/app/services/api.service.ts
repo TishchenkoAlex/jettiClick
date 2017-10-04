@@ -8,10 +8,11 @@ import { mapDocToApiFormat } from '../common/mapping/document.mapping';
 import { AccountRegister } from './../models/account.register';
 
 export interface DocListResponse { data: any[], total_count: number };
-export interface OrderConfig { field: string, order: string, value: string | number | boolean }
+
 export interface DocListRequest {
   id: string, type: string, command: string, count: number, offset: number,
-  order: OrderConfig [],
+  orderStr: string,
+  order: any[],
   filter: { field: string, operator: 'ge' | 'gt' | 'le' | 'lt' | 'eq' | 'like', value: string | number | boolean }[]
 }
 export interface Continuation { first: DocModel, last: DocModel }
@@ -35,12 +36,8 @@ export class ApiService {
     const body: DocListRequest = {
       id: id, type: type, command: command, count: count, offset: offset,
       order: [],
+      orderStr: order,
       filter: []
-    }
-    if (order) {
-      const params = order.split('*');
-      const orderConfig: OrderConfig = {field: params[0], order: params[1] || 'asc', value: params[2]}
-      body.order.push(orderConfig);
     }
     // console.log('LIST API', body, order);
     return this.http.post(query, body) as Observable<DocListResponse2>;

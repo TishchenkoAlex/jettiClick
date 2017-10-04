@@ -1,11 +1,9 @@
-import { SelectionModel } from '@angular/cdk/collections';
 import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatPaginator, MatSort } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef, MatSort } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 
-import { ApiDataSource } from '../common/datatable/datatable.component';
-import { DocModel } from '../common/doc.model';
+import { ApiDataSource } from '../common/datatable/api.datasource';
 import { ApiService } from '../services/api.service';
 
 @Component({
@@ -18,7 +16,6 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   isDoc: boolean;
 
   dataSource: ApiDataSource | null;
-  selection = new SelectionModel<string>(true, []);
 
   columns = ['select', 'posted', 'description', 'code'];
 
@@ -28,7 +25,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any, private apiService: ApiService) { }
 
   ngOnInit() {
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, 7, this.sort, this.selection);
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, 7, this.sort);
     this.dataSource.selectedColumn = 'description';
     this.sort.direction = 'asc';
     this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
@@ -48,7 +45,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     if (!this.data.docID || (this.data.docID === this.data.docType)) {
       this.dataSource.paginator.next('first');
     } else {
-      this.dataSource.docID = this.data.docID;
+      this.dataSource.selectedID = this.data.docID;
     }
   }
 
@@ -56,36 +53,6 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     this._filter$.unsubscribe();
   }
 
-  first() {
-    this.dataSource.paginator.next('first');
-  }
-
-  last() {
-    this.dataSource.paginator.next('last');
-  }
-
-  next() {
-    this.dataSource.paginator.next('next');
-  }
-
-  prev() {
-    this.dataSource.paginator.next('prev');
-  }
-
-  isAllSelected(): boolean {
-    if (!this.dataSource) { return false; }
-    if (this.selection.isEmpty()) { return false; }
-    return this.selection.selected.length >= this.dataSource.renderedData.length;
-  }
-
-  masterToggle() {
-    if (!this.dataSource) { return; }
-    if (this.isAllSelected()) {
-      this.selection.clear();
-    } else {
-      this.dataSource.renderedData.forEach(data => this.selection.select(data.id));
-    }
-  }
 }
 
 

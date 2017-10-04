@@ -1,29 +1,17 @@
-.mat-column-select {
-  min-width: 32px;
-  max-width: 32px;
-}
-
-.mat-column-posted {
-  min-width: 32px;
-  max-width: 32px;
-}
-
 .mat-header-cell {
   display: flex;
+  min-width: 70px;
+  margin-left: 16px
 }
 
-.mat-column-date {
-  margin-right: 16px;
+.mat-cell {
+  min-width: 70px;
+  margin-left: 16px
 }
 
-.mat-column-code {
-  max-width: 200px;
-  min-width: 90px;
-}
-
-.mat-column-label {
-  max-width: 120px;
-  min-width: 120px;
+.mat-column {
+  max-width: 240px;
+  min-width: 110px;
 }
 
 .mat-column-currency {
