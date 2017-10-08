@@ -15,17 +15,19 @@
     <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutAlign.xs="center center" fxLayoutGap="24px">
 
       <div fxLayoutGap="4px" *ngIf="isDoc" fxLayout="row" fxLayoutAlign="start center">
-        <mat-select placeholder="period" [(ngModel)]="selectedPeriod" style="width: 100px">
-          <mat-option value="custom">custom</mat-option>
-          <mat-option value="td">today</mat-option>
-          <mat-option value="7d">7 days</mat-option>
-          <mat-option value="tw">this week</mat-option>
-          <mat-option value="lw">last week</mat-option>
-          <mat-option value="tm">this month</mat-option>
-          <mat-option value="lm">last month</mat-option>
-          <mat-option value="ty">this year</mat-option>
-          <mat-option value="ly">last year</mat-option>
-        </mat-select>
+        <mat-form-field  style="width: 100px">
+          <mat-select placeholder="period" [(ngModel)]="selectedPeriod">
+            <mat-option value="custom">custom</mat-option>
+            <mat-option value="td">today</mat-option>
+            <mat-option value="7d">7 days</mat-option>
+            <mat-option value="tw">this week</mat-option>
+            <mat-option value="lw">last week</mat-option>
+            <mat-option value="tm">this month</mat-option>
+            <mat-option value="lm">last month</mat-option>
+            <mat-option value="ty">this year</mat-option>
+            <mat-option value="ly">last year</mat-option>
+          </mat-select>
+        </mat-form-field>
         <mat-form-field style="width: 92px">
           <input matInput [matDatepicker]="picker" placeholder="from" [readOnly]="selectedPeriod !== 'custom'" [(ngModel)]="filterObject.startDate"
             (ngModelChange)="onPeriodChange()">
@@ -42,11 +44,13 @@
       </div>
 
       <div>
-        <mat-select placeholder="filter column" [(ngModel)]="selectedColumn" style="max-width: 120px">
-          <mat-option *ngFor="let column of filterColumns" [value]="column.key">
-            {{column.value}}
-          </mat-option>
-        </mat-select>
+        <mat-form-field  style="max-width: 120px">
+          <mat-select placeholder="filter column" [(ngModel)]="selectedColumn">
+            <mat-option *ngFor="let column of filterColumns" [value]="column.key">
+              {{column.value}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
         <mat-input-container style="max-width: 120px">
           <input matInput #filter placeholder="filter" [tabindex]="0" autofocus autocomplete="false">
         </mat-input-container>

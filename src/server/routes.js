@@ -55,7 +55,6 @@ async function ExecuteScript(doc, script, tx) {
       ]);
   });
 
-
   if (Registers.Info.length) {
     const rec = Registers.Info[0];
     let arr = [];
@@ -91,10 +90,12 @@ router.post('/list', async (req, res, next) => {
     params.command = params.command || 'first';
     const direction = params.command !== 'prev';
     const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
-    const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (SELECT * FROM "Documents" WHERE id = $1) q`, [params.id]);
+    const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${config_schema.queryList}  d.id = $1) q`, [params.id]);
     if (params.orderStr) {
       const orderParams = params.orderStr.split('*');
-      const orderConfig = {field: orderParams[0], order: orderParams[1] || 'asc', value: row ? row['row'][orderParams[0]] : null}
+      const orderConfig = {
+        field: orderParams[0], order: orderParams[1] || 'asc', value: row ? row['row'][orderParams[0]] || '' : null
+      }
       params.order.push(orderConfig);
     }
     const lastORDER = params.order.length ? params.order[params.order.length - 1].order === 'asc' : true;
@@ -112,7 +113,12 @@ router.post('/list', async (req, res, next) => {
       const char1 = lastORDER ? isAfter ? '>' : '<' : isAfter ? '<' : '>';
       params.order.forEach(o => {
         let where = 'TRUE ';
-        order.forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' : char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
+        order.forEach(_o => {
+          let addWhere = ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
+            char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `;
+          // if (addWhere.includes('<') && _o.field !== 'id') addWhere += ` OR "${_o.field}" IS NULL `;
+          where += addWhere;
+        });
         order.length--;
         result += `\nSELECT * FROM(SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n ${lastORDER ?
           (char1 === '>') ? orderbyAfter : orderbyBefore :
@@ -157,11 +163,11 @@ router.post('/list', async (req, res, next) => {
           if (direction) {
             continuation.first = data[continuationIndex - params.offset - 1];
             continuation.last = data[continuationIndex + pageSize - params.offset];
-            data = data.slice(continuation.first ? continuationIndex - params.offset: 0, continuationIndex + pageSize - params.offset);
+            data = data.slice(continuation.first ? continuationIndex - params.offset : 0, continuationIndex + pageSize - params.offset);
           } else {
             continuation.first = data[continuationIndex - pageSize - params.offset];
             continuation.last = data[continuationIndex + 1 - params.offset];
-            data = data.slice(continuation.first ? continuationIndex - pageSize + 1 - params.offset: 0, continuationIndex + 1 - params.offset);
+            data = data.slice(continuation.first ? continuationIndex - pageSize + 1 - params.offset : 0, continuationIndex + 1 - params.offset);
           }
         }
       }

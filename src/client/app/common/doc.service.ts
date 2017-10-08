@@ -21,7 +21,7 @@ export class DocService {
   protected _do = new Subject<any>();
   do$ = this._do.asObservable();
 
-  constructor(public api: ApiService, private authService: AuthService, public snackBar: MatSnackBar) { };
+  constructor(public api: ApiService, public snackBar: MatSnackBar) { };
 
   do(doc: DocModel) {
     this._do.next(doc);
@@ -54,9 +54,7 @@ export class DocService {
   }
 
   openSnackBar(message: string, action: string) {
-    this.snackBar.open(message, action, {
-      duration: 5000,
-    });
+    this.snackBar.open(message, action, { duration: 5000 });
   }
 
 }

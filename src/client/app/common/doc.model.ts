@@ -11,9 +11,10 @@ export class DocModel {
     user = '';
     doc: {}
 
-    constructor (public type: string, public id: string, public date: string = new Date().toJSON()) {
-        if (!this.id) { this.id = v1() }
-    }
+    constructor (
+        public type = '',
+        public id = v1(),
+        public date = new Date().toJSON()) {}
 }
 
-export const JETTI_DOC_PROP = Object.keys(new DocModel('', ''));
+export const JETTI_DOC_PROP = Object.keys(new DocModel());
