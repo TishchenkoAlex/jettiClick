@@ -25,28 +25,22 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any, private apiService: ApiService) { }
 
   ngOnInit() {
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, 7, this.sort);
-    this.dataSource.selectedColumn = 'description';
-    this.sort.direction = 'asc';
     this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, 10, this.sort);
+
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .distinctUntilChanged()
       .debounceTime(1000)
-      .subscribe(() => {
-        if (!this.dataSource) { return; }
+      .subscribe((value: string) =>
         this.dataSource.filterObjext = {
           startDate: null,
           endDate: null,
-          columnFilter: this.filter.nativeElement.value
-        };
-      });
+          columnFilter: `d.description ILIKE '${this.filter.nativeElement.value}*'`
+        });
 
     if (!this.data.docID || (this.data.docID === this.data.docType)) {
-      this.dataSource.paginator.next('first');
-    } else {
-      this.dataSource.selectedID = this.data.docID;
-    }
+      this.dataSource.first() } else { this.dataSource.goto(this.data.docID) }
   }
 
   ngOnDestroy() {

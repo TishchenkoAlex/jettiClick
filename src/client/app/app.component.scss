@@ -1,5 +1,5 @@
 mat-sidenav {
-  width: 250px;
+  width: 260px;
   background: whitesmoke;
 }
 
@@ -16,6 +16,20 @@ mat-sidenav {
   background: lightgray;
 }
 
-.mat-line  {
-  color: gray;
+.sidenav-menu .mat-expansion-panel-header {
+  padding: 0 12px 0 12px;
+}
+
+.sidenav-menu .mat-expansion-panel-header-title {
+  align-items: center;
+}
+
+.sidenav-menu .mat-expansion-panel-body {
+  padding: 0 4px 4px;
+  margin: 0 4px 4px;
+  overflow: auto;
+}
+
+.sidenav-menu mat-expansion-panel {
+  background: lightness($color: lightgray)
 }

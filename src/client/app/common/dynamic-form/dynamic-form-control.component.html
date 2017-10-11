@@ -42,9 +42,9 @@
     </div>
   </div>
 
-  <div *ngSwitchCase="'script'" style="height: 400px" fxLayout="column">
+  <div *ngSwitchCase="'script'" fxLayout="column" fxFlex>
     <label [for]="control.key">{{ control.label }}:</label>
-    <td-code-editor #script theme="vs" fxFill language="javascript" (change)="onChange($event)"
+    <td-code-editor #script theme="vs" [ngStyle]="control.style" [language]="control.type" (change)="onChange($event)"
       [tabIndex]="control.order" [id]="control.key" [formControlName]="control.key" [id]="control.key">
     </td-code-editor>
   </div>

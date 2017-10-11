@@ -12,8 +12,6 @@ export class ApiDataSource extends DataSource<any> {
   paginator = new BehaviorSubject('');
   selection = new SelectionModel<string>(true, []);
 
-  selectedColumn = 'code';
-
   _filterObjextChangeSubscription: Subscription = Subscription.EMPTY;
   _filterObjextChange = new BehaviorSubject<FilterObject>(null);
   get filterObjext(): FilterObject { return this._filterObjextChange.value; }
@@ -24,7 +22,6 @@ export class ApiDataSource extends DataSource<any> {
   private lastDoc = new DocModel(this._docType, 'last');
 
   private _selectedID = '';
-  set selectedID(value: string) { this._selectedID = value; this.paginator.next('goto'); }
 
   continuation: Continuation = { first: this.firstDoc, last: this.lastDoc };
   isLoadingResults = true;
@@ -32,6 +29,7 @@ export class ApiDataSource extends DataSource<any> {
 
   constructor(private apiService: ApiService, private _docType: string, private pageSize: number, private _sort: MatSort) {
     super();
+    this._sort.direction = 'asc';
 
     this._filterObjextChangeSubscription = this._filterObjextChange.subscribe();
 
@@ -42,24 +40,25 @@ export class ApiDataSource extends DataSource<any> {
     ])
       .filter(stream => !!stream)
       .switchMap((stream) => {
-        console.log('Observable.merge', stream)
+        console.log('STREAM', stream);
         this.isLoadingResults = true;
-        let offset = 0;
-        let row: DocModel = this.firstDoc;
+
+        let offset = 0; let row = this.firstDoc;
         if (this.selection.selected.length) {
           offset = this.renderedData.findIndex(s => s.id === this.selection.selected[0]);
           if (offset !== -1) { row = this.renderedData[offset] } else { offset = this.pageSize - 1; }
         }
+
         switch (stream) {
-          case 'first': row = this.firstDoc; this.selection.clear(); break;
-          case 'prev': row = this.continuation.first; this.selection.clear(); break;
-          case 'next': row = this.continuation.last; this.selection.clear(); break;
-          case 'last': row = this.lastDoc; this.selection.clear(); break;
+          case 'first': row = this.firstDoc; this.selection.clear(); offset = 0; break;
+          case 'prev': row = this.continuation.first; this.selection.clear(); offset = 0; break;
+          case 'next': row = this.continuation.last; this.selection.clear(); offset = 0; break;
+          case 'last': row = this.lastDoc; this.selection.clear(); offset = 0; break;
           case 'refresh': row = this.renderedData[offset]; break;
           case 'goto': row = new DocModel(this._docType, this._selectedID); this.selection.select(this._selectedID); break;
         }
-        let sort = '';
-        let command = this.paginator.value || 'first';
+
+        let sort = ''; let command = this.paginator.value || 'first';
         if (this._sort.active) {
           if (stream['active']) {
             if (row === this.firstDoc) {
@@ -68,51 +67,33 @@ export class ApiDataSource extends DataSource<any> {
               command = 'sort';
             }
           }
-          sort = this._sort.active + '*' + this._sort.direction + '*' + row[this._sort.active] || '0';
+          sort = this._sort.active + '*' + this._sort.direction;
         }
-        const filter = '';
-        console.log(Math.floor(this.pageSize / 2) - 1);
-        return this.apiService.getDocList2(this._docType, row.id, command,
-          this.pageSize, offset, sort, filter)
-          .do(data => {
-            this.renderedData = data.data;
-            this.continuation = data.continuation;
-            this.isLoadingResults = false;
-          })
-          .catch(err => {
-            this.renderedData = [];
-            this.isLoadingResults = false;
-            return Observable.of<any[]>([]);
-          });
+
+        const filter = stream['columnFilter'] || '';
+
+        return this.apiService.getDocList(this._docType, row.id, command, this.pageSize, offset, sort, filter)
+          .do(data => { this.renderedData = data.data; this.continuation = data.continuation; this.isLoadingResults = false })
+          .catch(err => { this.renderedData = []; this.isLoadingResults = false; return Observable.of([]) });
       })
       .map(data => data['data'])
   }
 
-  connect(): Observable<any[]> {
-    return this.result$;
-  }
+  connect(): Observable<any[]> { return this.result$ }
 
   disconnect() { }
 
-  refresh() {
-    this.paginator.next('refresh');
-  }
+  refresh() { this.paginator.next('refresh') }
 
-  first() {
-    this.paginator.next('first');
-  }
+  goto(id: string) { this._selectedID = id; this.paginator.next('goto') }
 
-  last() {
-    this.paginator.next('last');
-  }
+  first() { this.paginator.next('first') }
 
-  next() {
-    this.paginator.next('next');
-  }
+  last() { this.paginator.next('last') }
 
-  prev() {
-    this.paginator.next('prev');
-  }
+  next() { this.paginator.next('next') }
+
+  prev() { this.paginator.next('prev') }
 
   isAllSelected(): boolean {
     if (this.selection.isEmpty()) { return false; }
@@ -120,9 +101,7 @@ export class ApiDataSource extends DataSource<any> {
   }
 
   masterToggle() {
-    if (this.isAllSelected()) {
-      this.selection.clear();
-    } else {
+    if (this.isAllSelected()) { this.selection.clear(); } else {
       this.renderedData.forEach(data => this.selection.select(data.id));
     }
   }

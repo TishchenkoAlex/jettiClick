@@ -17,6 +17,17 @@ export class TablePartsDialogComponent {
     this.formGroup = data.formGroup;
     this.controls = data.view;
     this.controls.forEach(el => el.order += 10000);
-  }
 
+    const isTableDef =
+      this.formGroup.controls['type'] &&
+      this.formGroup.controls['type'].value &&
+      this.formGroup.controls['type'].value.id === 'table';
+
+    const tableDefControl = this.controls[this.controls.findIndex(el => el.key === 'tableDef')];
+    const changeControl = this.controls[this.controls.findIndex(el => el.key === 'change')];
+    if (tableDefControl) {
+      tableDefControl.hidden = !isTableDef;
+      changeControl.hidden = isTableDef;
+    }
+  }
 }

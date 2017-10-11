@@ -50,7 +50,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       switch (dataType) {
         case 'table':
           const value = [];
-          processRecursive(v[key][key], value, []);
+          processRecursive(v[key][key] || {}, value, []);
           controlOptions.value = value;
           newControl = new TableDynamicControl(controlOptions);
           break;
@@ -66,7 +66,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
         case 'number':
           newControl = new NumberJettiFormControl(controlOptions);
           break;
-        case 'javascript':
+        case 'javascript': case 'json':
           newControl = new ScriptJettiFormControl(controlOptions);
           break;
         case 'textarea':

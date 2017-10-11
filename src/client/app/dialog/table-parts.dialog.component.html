@@ -1,4 +1,4 @@
-<div style="min-width: 280px">
+<div>
   <mat-card-content>
     <form novalidate [formGroup]="formGroup">
       <div fxLayout="column" fxLayoutGap="35px">
@@ -11,7 +11,7 @@
     </form>
   </mat-card-content>
   <div fxLayoutAlign="center center" fxLayoutGap="25px">
-    <button mat-raised-button type="submit" color="warn" [disabled]="!formGroup.valid" [mat-dialog-close]="formGroup.value">Save</button>
+    <button *ngIf="formGroup.valid" mat-raised-button type="submit" color="primary" [mat-dialog-close]="formGroup.value">Save</button>
     <button mat-raised-button type="button" mat-dialog-close>Cancel</button>
   </div>
 </div>

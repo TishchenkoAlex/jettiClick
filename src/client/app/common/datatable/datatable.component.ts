@@ -27,12 +27,15 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   dataSource: ApiDataSource | null;
 
   @Input() actionTepmlate: TemplateRef<any>;
-  @Input() pageSize = 10;
+  @Input() pageSize = 12;
+
+  @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('filter') filter: ElementRef;
+  @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
   private _filterObject: FilterObject;
   @Input() set filterObject(value: FilterObject) {
     this._filterObject = value;
-    if (!this.dataSource) { return; }
     this.dataSource.filterObjext = value;
   };
   get filterObject(): FilterObject { return this._filterObject };
@@ -40,21 +43,14 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   private _selectedPeriod = '';
   get selectedPeriod() { return this._selectedPeriod; }
   set selectedPeriod(value) {
-    this.filterObject = {...getPeriod(value), ...{columnFilter: this.filter.nativeElement.value}};
+    this.filterObject = { ...getPeriod(value), ...{ columnFilter: this.filter.nativeElement.value } };
     this._selectedPeriod = value;
   }
-
-  docType = '';
-  columns: ColDef[] = [];
-  displayedColumns = [];
-  filterColumns: any[] = [];
 
   private _selectedColumn = 'code';
   set selectedColumn(value) {
     this._selectedColumn = value;
-    if (!this.dataSource) { return; }
     this.filter.nativeElement.value = '';
-    this.dataSource.selectedColumn = this.selectedColumn;
     this.dataSource.filterObjext = {
       startDate: this.filterObject.startDate,
       endDate: this.filterObject.endDate,
@@ -63,20 +59,18 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   };
   get selectedColumn() { return this._selectedColumn; }
 
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild('filter') filter: ElementRef;
-  @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
-
   isDoc: boolean;
+  docType = '';
+  columns: ColDef[] = [];
+  displayedColumns = [];
+  filterColumns: any[] = [];
 
   constructor(private route: ActivatedRoute, private router: Router, private ds: DocService, private sns: SideNavService) { };
 
   ngOnInit() {
-
     const view = this.route.data['value'].detail;
     this.docType = this.route.params['value'].type;
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
-    this.sort.direction = 'asc'
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.sort);
 
@@ -90,13 +84,11 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       this.columns.push({ field: property, type: type, label: label, hidden: hidden, order: order, style: style });
     });
     this.columns.sort((a, b) => a.order - b.order);
-    this.displayedColumns = this.columns.filter(c => !c.hidden && (this.isDoc ?
-      (c.field !== 'description') :
-      (c.field !== 'company') && (c.field !== 'date'))).map((c) => c.field);
+    this.displayedColumns = this.columns.filter(c =>
+      !c.hidden && (this.isDoc ? c.field !== 'description' : (c.field !== 'company') && (c.field !== 'date')))
+      .map(c => c.field);
     this.displayedColumns.unshift('select');
-    this.filterColumns = this.columns.filter(c => !c.hidden).map(c => {
-      return { key: c.field, value: c.label }
-    });
+    this.filterColumns = this.columns.filter(c => !c.hidden).map(c => ({ key: c.field, value: c.label }));
 
     this.selectedPeriod = 'tm';
 
@@ -104,7 +96,6 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       .debounceTime(1000)
       .distinctUntilChanged()
       .subscribe(() => {
-        if (!this.dataSource) { return; }
         this.dataSource.filterObjext = {
           startDate: this.filterObject.startDate,
           endDate: this.filterObject.endDate,
@@ -118,7 +109,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       .filter(doc => doc.type === this.docType)
       .subscribe(doc => {
         this.dataSource.selection.select(doc.id);
-        this.dataSource.selectedID = doc.id;
+        this.dataSource.goto(doc.id);
       });
 
     this._sideNavService$ = this.sns.do$
@@ -144,8 +135,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       this.router.navigate([this.dataSource.renderedData[index]['type'], 'new']);
       return;
     }
-    if (this.docType.startsWith('Document.') ||
-      this.docType.startsWith('Catalog.')) {
+    if (this.docType.startsWith('Document.') || this.docType.startsWith('Catalog.')) {
       this.router.navigate([this.docType, 'new']);
     }
   }

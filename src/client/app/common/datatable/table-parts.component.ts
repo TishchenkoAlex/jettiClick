@@ -7,6 +7,7 @@ import {
     AutocompleteJettiFormControl,
     BaseJettiFromControl,
     TableDynamicControl,
+    ScriptJettiFormControl,
 } from '../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
@@ -19,25 +20,9 @@ interface ColDef { field: string; type: string; label: string; hidden: boolean; 
 @Component({
   selector: 'j-table-part',
   styles: [`
-    .mat-column-select {
-      min-width: 32px;
-      max-width: 32px;
-    }
-    .mat-column-index {
-      min-width: 32px;
-      max-width: 32px;
-      margin-left: -23px;
-    }
-    .mat-table {
-      max-height: 240px;
-      overflow: auto;
-    }
     .search-header {
       min-height: 46px;
       margin-top: 10px;
-    }
-    .mat-row:hover {
-      background: #f5f5f5;
     }`
   ],
   templateUrl: './table-parts.component.html',
@@ -61,7 +46,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.view = this.control.value as BaseJettiFromControl<any>[];
-    this.columns = this.view.map((el) => {
+    this.columns = this.view.filter(c => !(c instanceof ScriptJettiFormControl)).map((el) => {
       const result = { field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, order: el.order, style: el.style };
       return result;
     });
@@ -111,7 +96,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
 
   EditRow(row) {
     const formGroup = this.formGroup.controls[row.index] as FormGroup;
-    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: this.copyFormGroup(formGroup) } })
+    this.dialog.open(TablePartsDialogComponent,
+      { data: { view: this.view, formGroup: this.copyFormGroup(formGroup) },  panelClass: 'editRowDialog' })
       .afterClosed()
       .take(1)
       .subscribe(data => {
@@ -126,7 +112,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   AddRow() {
     const newFormGroup = this.copyFormGroup(this.sampleRow);
     newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
-    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: newFormGroup } })
+    this.dialog.open(TablePartsDialogComponent, 
+      { data: { view: this.view, formGroup: newFormGroup },  panelClass: 'editRowDialog' })
       .afterClosed()
       .take(1)
       .subscribe(data => {
@@ -156,7 +143,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   CopyRow() {
     const index = this.selection.selected[0].index;
     const newFormGroup = this.copyFormGroup(this.formGroup.at(index) as FormGroup);
-    this.dialog.open(TablePartsDialogComponent, { data: { view: this.view, formGroup: newFormGroup } })
+    this.dialog.open(TablePartsDialogComponent, 
+      { data: { view: this.view, formGroup: newFormGroup },  panelClass: 'editRowDialog' })
       .afterClosed()
       .take(1)
       .subscribe(data => {

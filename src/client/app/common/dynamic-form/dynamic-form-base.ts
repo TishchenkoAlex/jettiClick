@@ -62,10 +62,11 @@ export class TextareaJettiFormControl extends BaseJettiFromControl<string> {
 
 export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
   controlType = 'script';
-  type = 'string';
+  style = { 'height': '120px', 'width': '100%' };
 
   constructor(options: ControlOptions<string> = {}) {
     super(options);
+    if (options.style) { this.style = options.style };
   }
 }
 

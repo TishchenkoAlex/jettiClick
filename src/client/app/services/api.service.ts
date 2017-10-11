@@ -12,11 +12,12 @@ export interface DocListResponse { data: any[], total_count: number };
 export interface DocListRequest {
   id: string, type: string, command: string, count: number, offset: number,
   orderStr: string,
-  order: any[],
-  filter: { field: string, operator: 'ge' | 'gt' | 'le' | 'lt' | 'eq' | 'like', value: string | number | boolean }[]
+  filterStr: string,
+  filter: DocListFilter[]
 }
 export interface Continuation { first: DocModel, last: DocModel }
 export interface DocListResponse2 { data: any[], continuation: Continuation };
+export interface DocListFilter { field: string, operator: '>=' | '>' | '<=' | '<' | '=' | 'ILIKE', value: string | number | boolean };
 
 @Injectable()
 export class ApiService {
@@ -25,24 +26,16 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  getDocList(type: string, skip = 0, top = 50, order = '', filter = ''): Observable<DocListResponse> {
-    const query = `${this.url}${type}/list?$top=${top}&$skip=${skip}&$filter=${filter}&$order=${order}`;
-    console.log('LIST API', query);
-    return this.http.get(query) as Observable<DocListResponse>;
-  }
-
-  getDocList2(type: string, id: string, command: string, count = 10, offset = 0, order = '', filter = ''): Observable<DocListResponse2> {
+  getDocList(type: string, id: string, command: string, count = 10, offset = 0, order = '', filter = ''): Observable<DocListResponse2> {
     const query = `${this.url}list`;
     const body: DocListRequest = {
       id: id, type: type, command: command, count: count, offset: offset,
-      order: [],
-      orderStr: order,
+      orderStr: order, filterStr: filter,
       filter: []
     }
     // console.log('LIST API', body, order);
     return this.http.post(query, body) as Observable<DocListResponse2>;
   }
-
 
   getView(type: string): Observable<Object> {
     const query = `${this.url}${type}/view/`;

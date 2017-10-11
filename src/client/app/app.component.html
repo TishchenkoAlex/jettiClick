@@ -1,44 +1,62 @@
 <div [class.dark-theme]="isDarkTheme" style="height: 100vh;" fxLayout="column">
-    <mat-toolbar color="primary" class="mat-elevation-z8">
-        <button mat-icon-button (click)="sideNav.opened = !sideNav.opened"><mat-icon>menu</mat-icon></button>
-        <span>Jetti - ClickSales</span>
-        <span fxFlex></span>
-        <mat-progress-bar *ngIf="(loading$ | async)" style="position: absolute; bottom: 0; left: 0"  color="accent" mode="indeterminate"></mat-progress-bar>
-        <span fxFlex></span>
-        <app-login></app-login>
-        <button mat-icon-button (click)="end.toggle()"><mat-icon>more_vert</mat-icon></button>
-    </mat-toolbar>
-    <mat-sidenav-container style="height: 100%">
-        <mat-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
-            <mat-nav-list>
-                <mat-list-item *ngFor="let item of menuItems | async" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
-                    [routerLink]="item.link" [routerLinkActive]="['active-route']">
-                    <mat-icon mat-list-icon color="primary">{{ item.icon }}</mat-icon>
-                    <span mat-line color="primary">{{ item.label }}</span>
-                </mat-list-item>
-            </mat-nav-list>
-        </mat-sidenav>
-        <mat-sidenav #end position="end" mode="over" style="height: 100%;width: 350px;" class="mat-elevation-z10">
-            <div fxLayout="column" fxLayoutGap="8px">
-                <ng-container *ngTemplateOutlet="sideNavService.templateRef ? sideNavService.templateRef : sideNavTepmlateDefault; context: {sidenav: end}"></ng-container>
-            </div>
-        </mat-sidenav>
-        <div class="content">
-            <div class="mat-elevation-z10">
-                <router-outlet></router-outlet>
-            </div>
-        </div>
-    </mat-sidenav-container>
-    <!--     <mat-toolbar class="mat-medium-tall" color="primary"></mat-toolbar> -->
+  <mat-toolbar color="primary" class="mat-elevation-z8">
+    <button mat-icon-button (click)="sideNav.opened = !sideNav.opened">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span>Jetti - ClickSales</span>
+    <span fxFlex></span>
+    <mat-progress-bar *ngIf="(loading$ | async)" style="position: absolute; bottom: 0; left: 0" color="accent" mode="indeterminate"></mat-progress-bar>
+    <span fxFlex></span>
+    <app-login></app-login>
+    <button mat-icon-button (click)="end.toggle()">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  </mat-toolbar>
+  <mat-sidenav-container style="height: 100%">
+    <mat-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
+      <mat-accordion displayMode="flat" class="sidenav-menu">
+        <mat-expansion-panel hideToggle="true" expanded="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Catalogs</mat-panel-title>
+            <mat-icon>map</mat-icon>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <mat-list-item *ngFor="let item of menuItems | async" class="sidenav-menu" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
+              [routerLink]="item.link" [routerLinkActive]="['active-route']">
+              <mat-icon mat-list-icon color="primary">{{ item.icon }}</mat-icon>
+              <div mat-line color="primary">{{ item.label }}</div>
+            </mat-list-item>
+          </mat-nav-list>
+        </mat-expansion-panel>
+        <mat-expansion-panel hideToggle="true">
+          <mat-expansion-panel-header>
+            <mat-icon>map</mat-icon>
+            <mat-panel-title>Documents</mat-panel-title>
+          </mat-expansion-panel-header>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-sidenav>
+    <mat-sidenav #end position="end" mode="over" style="height: 100%;width: 350px;" class="mat-elevation-z10">
+      <div fxLayout="column" fxLayoutGap="8px">
+        <ng-container *ngTemplateOutlet="sideNavService.templateRef ? sideNavService.templateRef : sideNavTepmlateDefault; context: {sidenav: end}"></ng-container>
+      </div>
+    </mat-sidenav>
+    <div class="content">
+      <div class="mat-elevation-z10">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </mat-sidenav-container>
+  <!--     <mat-toolbar class="mat-medium-tall" color="primary"></mat-toolbar> -->
 </div>
 <mat-menu #themeMenu x-position="before">
-    <button mat-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
+  <button mat-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
 </mat-menu>
 
 <ng-template #sideNavTepmlateDefault let-sidenav="sidenav">
-<mat-card >
-        STANDART
-        <br>
-        <button mat-button (click)="sidenav.close()">Close</button>
-    </mat-card>
+  <mat-card>
+    STANDART
+    <br>
+    <button mat-button (click)="sidenav.close()">Close</button>
+  </mat-card>
 </ng-template>

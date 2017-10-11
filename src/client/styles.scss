@@ -7,9 +7,75 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -ms-overflow-style: none;
   margin: 0;
-  font-size: 0.9em;
 }
 
 .suggestDialog .mat-dialog-container {
   padding-bottom: 0px;
+}
+
+.editRowDialog .mat-dialog-container {
+  max-width: 440px;
+  min-width: 330px;
+}
+
+.sidenav-menu .mat-expansion-panel-body {
+  padding: 0;
+  margin: 0;
+  overflow: auto;
+}
+
+.sidenav-menu .mat-list-item-content {
+  height: 40px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.mat-column-date {
+  max-width: 80px;
+  min-width: 80px;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+}
+
+.mat-column-select {
+  overflow: visible !important;
+  max-width: 22px !important;
+  min-width: 22px !important;
+  margin: 0px !important;
+  padding: 0px !important;
+}
+
+.mat-column-index {
+  overflow: visible !important;
+  max-width: 22px;
+  min-width: 22px;
+  margin: 0px !important;
+  padding: 0px !important;
+}
+
+.mat-column-posted {
+  margin-top: 2px !important;
+  max-width: 24px !important;
+  min-width: 24px !important;
+  margin: 0px !important;
+  padding: 0px !important;
+}
+
+.mat-header-row, .mat-row { 
+  padding: 0 16px !important;
+  min-height: 36px !important;
+}
+
+.mat-header-cell, .mat-cell { 
+  padding: 0 4px;
+}
+
+.mat-column-currency {
+  max-width: 40px;
+  min-width: 40px;
+}
+
+.mat-row:hover {
+  background: #f5f5f5;
 }

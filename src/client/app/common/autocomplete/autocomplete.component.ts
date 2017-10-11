@@ -51,7 +51,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
     if (this.type.startsWith('Types.')) {
       this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']';
     }
-    this.onChange(this._value);
+     this.onChange(this._value);
     this._value = obj;
   }
   get value() { return this._value; }
@@ -95,17 +95,17 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
     if (this.value.type.includes('.')) { this.originalValue = Object.assign({}, this.value) }
 
     this.suggests$ = this.form.controls['suggest'].valueChanges
-      .debounceTime(400)
       .distinctUntilChanged()
+      .debounceTime(400)
       .do(data => { this.value = this.value })
       .filter(data => this.originalValue.data !== true)
       .switchMap(text => this.getSuggests(this.value.type || this.type, text))
-      .catch(err => Observable.of([]))
+      .catch(err => Observable.of([]));
 
     this._subscription$ = this.auto.optionSelected.subscribe((data) => {
       this.value = Object.assign({}, data.option.value);
       this.originalValue = Object.assign({}, data.option.value);
-    })
+    });
   }
 
   ngOnDestroy() {

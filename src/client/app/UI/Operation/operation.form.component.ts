@@ -18,9 +18,8 @@ export class OperationFormComponent extends BaseFormComponent implements OnInit 
     this._countOfControls = this.viewModel.view.length;
     this.addParametersToForm();
     console.log('CHILD INIT');
-    this.viewModel.formGroup.controls['Operation'].valueChanges.subscribe(value => {
-      this.addParametersToForm();
-    });
+    this.viewModel.formGroup.controls['Operation'].valueChanges
+      .subscribe(value => this.addParametersToForm());
   }
 
   addParametersToForm() {
@@ -33,7 +32,8 @@ export class OperationFormComponent extends BaseFormComponent implements OnInit 
         const ParametersObject: { [s: string]: any } = {};
         let index = 1; Parameters.forEach(c =>
           ParametersObject['p' + index++] = {
-            label: c.label, type: c.type.id, required: !!c.required, ['p' + (index - 1) ]: c.change ? JSON.parse(c.change) : null
+            label: c.label, type: c.type.id, required: !!c.required, change: c.change,
+            ['p' + (index - 1)]: c.tableDef ? JSON.parse(c.tableDef) : null
           });
 
         const additionalVM = getViewModel(ParametersObject, this.viewModel.model, [], true);

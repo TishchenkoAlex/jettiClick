@@ -24,7 +24,11 @@
       },
       "Tax": {
         "type": "number",
-        "order": 9
+        "order": 9,
+        "style": {
+          "max-width": "40px",
+          "min-width": "40px"
+        }
       },
       "Price": {
         "type": "number",
@@ -41,7 +45,8 @@
         "type": "Catalog.PriceType",
         "order": 5,
         "style": {
-          "max-width": "90px"
+          "max-width": "110px",
+          "min-width": "110px"
         }
       }
     },
@@ -78,7 +83,8 @@
         "type": "datetime"
       },
       "User": {
-        "type": "Catalog.Manager"
+        "type": "Catalog.Manager",
+        "required": true
       },
       "Comment": {
         "type": "string"
