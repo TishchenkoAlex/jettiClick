@@ -7,8 +7,7 @@ import { patchOptionsNoEvents } from './dynamic-form.service';
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'j-control',
-  templateUrl: './dynamic-form-control.component.html',
-  styles: [`mat-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`]
+  templateUrl: './dynamic-form-control.component.html'
 })
 export class DynamicFormControlComponent {
   @Input() control: BaseJettiFromControl<any>;

@@ -24,8 +24,8 @@ export class TablePartsDialogComponent {
       this.formGroup.controls['type'].value.id === 'table';
 
     const tableDefControl = this.controls[this.controls.findIndex(el => el.key === 'tableDef')];
-    const changeControl = this.controls[this.controls.findIndex(el => el.key === 'change')];
     if (tableDefControl) {
+      const changeControl = this.controls[this.controls.findIndex(el => el.key === 'change')];
       tableDefControl.hidden = !isTableDef;
       changeControl.hidden = isTableDef;
     }

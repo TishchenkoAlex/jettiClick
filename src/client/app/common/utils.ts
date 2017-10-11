@@ -7,9 +7,11 @@ export function copyFormGroup(formGroup: FormGroup): FormGroup {
   const newFormGroup = new FormGroup({});
   Object.keys(formGroup.controls).forEach(key => {
     const sourceFormControl = formGroup.controls[key];
+    const newValue = sourceFormControl.value && typeof sourceFormControl.value === 'object' ?
+      Object.assign({}, sourceFormControl.value) : sourceFormControl.value;
     const newFormControl = sourceFormControl.validator ?
-      new FormControl(sourceFormControl.value, Validators.required) :
-      new FormControl(sourceFormControl.value);
+      new FormControl(newValue, Validators.required) :
+      new FormControl(newValue);
     newFormGroup.addControl(key, newFormControl);
   });
   return newFormGroup;

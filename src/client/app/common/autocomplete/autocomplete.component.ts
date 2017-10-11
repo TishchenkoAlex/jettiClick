@@ -22,9 +22,6 @@ import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component'
 @Component({
   selector: 'j-autocomplete',
   templateUrl: './autocomplete.component.html',
-  styles: [
-    `mat-spinner {width: 13px; height: 13px; position: relative; top: 2px; left: 0px; opacity: 1.0;}`
-  ],
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompleteComponent), multi: true },
     { provide: NG_VALIDATORS, useExisting: forwardRef(() => AutocompleteComponent), multi: true, },
@@ -51,15 +48,17 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
     if (this.type.startsWith('Types.')) {
       this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']';
     }
-     this.onChange(this._value);
+    this.form.controls['suggest'].setValue(obj.value);
     this._value = obj;
+    this.onChange(this._value);
   }
   get value() { return this._value; }
+  get suggest() { return this.form.controls['suggest']; }
+  get isComplexValue() { return this.value.type.includes('.') }
 
   @ViewChild('auto') auto: MatAutocomplete;
 
   suggests$: Observable<any[]>;
-  originalValue: JettiComplexObject;
 
   // implement ControlValueAccessor interface
   private onChange = (value: any) => { }
@@ -85,26 +84,23 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
 
   // implement Validator interface
   validate(c: AbstractControl): ValidationErrors | null {
-    return this.form.controls['suggest'].errors;
+    return this.suggest.errors;
   };
   // end of implementation Validator interface
 
   constructor(private api: ApiService, private router: Router, public dialog: MatDialog) { }
 
   ngAfterViewInit() {
-    if (this.value.type.includes('.')) { this.originalValue = Object.assign({}, this.value) }
-
-    this.suggests$ = this.form.controls['suggest'].valueChanges
+    this.suggests$ = this.suggest.valueChanges
       .distinctUntilChanged()
-      .debounceTime(400)
-      .do(data => { this.value = this.value })
-      .filter(data => this.originalValue.data !== true)
+      .filter(data => this.isComplexValue && typeof data === 'string' && this.value.value !== this.suggest.value)
+      .debounceTime(300)
       .switchMap(text => this.getSuggests(this.value.type || this.type, text))
       .catch(err => Observable.of([]));
 
-    this._subscription$ = this.auto.optionSelected.subscribe((data) => {
-      this.value = Object.assign({}, data.option.value);
-      this.originalValue = Object.assign({}, data.option.value);
+    this._subscription$ = this.auto.optionSelected.subscribe(data => {
+      this.value = data.option.value;
+      this.auto.options.reset([]);
     });
   }
 
@@ -113,10 +109,10 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   }
 
   onBlur() {
-    if (this.originalValue && this.originalValue.value !== this.value.value) {
-      this.value = Object.assign({}, this.originalValue);
-    }
     this.auto.options.reset([]);
+    if (this.value.value === this.suggest.value) { return }
+    if (!this.isComplexValue) { this.value.value = this.suggest.value }
+    this.value = this.value;
   }
 
   displayFn(value: any): string {
@@ -129,7 +125,6 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
 
   handleReset(event) {
     this.value = { id: '', code: '', type: this.type, value: null };
-    this.originalValue = Object.assign({}, this.value);
   }
 
   handleOpen(event) {
@@ -139,18 +134,16 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
 
   handleSearch(event: Event) {
     event.stopPropagation();
-    this.dialog.open(SuggestDialogComponent, { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
+    this.dialog.open(SuggestDialogComponent,
+      { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
       .afterClosed()
       .filter(result => !!result)
       .take(1)
       .subscribe((data: DocModel) => {
         this.value = {
           id: data.id, code: data.code, type: data.type,
-          value: this.value.type.startsWith('Types.') ? null :
-            this.originalValue ? data.description : null,
-            data: true
+          value: this.value.type.startsWith('Types.') ? null : data.description
         };
-        if (this.originalValue) { this.originalValue = Object.assign({}, this.value); }
       });
   }
 

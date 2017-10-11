@@ -16,6 +16,7 @@ body {
 .editRowDialog .mat-dialog-container {
   max-width: 440px;
   min-width: 330px;
+  padding: 0;
 }
 
 .sidenav-menu .mat-expansion-panel-body {
@@ -46,6 +47,14 @@ body {
   padding: 0px !important;
 }
 
+.mat-column-code {
+  max-width: 140px;
+}
+
+.mat-cell .mat-checkbox-layout {
+  margin-bottom: 2px !important;
+}
+
 .mat-column-index {
   overflow: visible !important;
   max-width: 22px;
@@ -55,7 +64,7 @@ body {
 }
 
 .mat-column-posted {
-  margin-top: 2px !important;
+  margin-top: 4px !important;
   max-width: 24px !important;
   min-width: 24px !important;
   margin: 0px !important;
@@ -64,7 +73,7 @@ body {
 
 .mat-header-row, .mat-row { 
   padding: 0 16px !important;
-  min-height: 36px !important;
+  min-height: 32px !important;
 }
 
 .mat-header-cell, .mat-cell { 
@@ -74,6 +83,10 @@ body {
 .mat-column-currency {
   max-width: 40px;
   min-width: 40px;
+}
+
+.mat-cell {
+  font-size: 13px !important;
 }
 
 .mat-row:hover {

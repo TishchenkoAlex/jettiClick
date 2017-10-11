@@ -27,7 +27,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   dataSource: ApiDataSource | null;
 
   @Input() actionTepmlate: TemplateRef<any>;
-  @Input() pageSize = 12;
+  @Input() pageSize = 14;
 
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('filter') filter: ElementRef;
