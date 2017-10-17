@@ -1,10 +1,10 @@
 <div fxLayout="column">
 
-  <mat-expansion-panel class="panel-headers-align">
+  <mat-expansion-panel #filterPanel class="panel-headers-align">
     <mat-expansion-panel-header style="min-height: 65px;">
       <mat-panel-title>
         <div fxFlex fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px">
-          <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table}"></ng-container>
+          <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table, filterPanel: filterPanel}"></ng-container>
           <button mat-mini-fab color="accent" (click)="$event.stopPropagation(); close()" matTooltip="close">
             <mat-icon>close</mat-icon>
           </button>
@@ -12,139 +12,92 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
 
-    <div fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutAlign.xs="center center" fxLayoutGap="24px">
-
-      <div fxLayoutGap="4px" *ngIf="isDoc" fxLayout="row" fxLayoutAlign="start center">
-        <mat-form-field style="width: 100px">
-          <mat-select placeholder="period" [(ngModel)]="selectedPeriod">
-            <mat-option value="custom">custom</mat-option>
-            <mat-option value="td">today</mat-option>
-            <mat-option value="7d">7 days</mat-option>
-            <mat-option value="tw">this week</mat-option>
-            <mat-option value="lw">last week</mat-option>
-            <mat-option value="tm">this month</mat-option>
-            <mat-option value="lm">last month</mat-option>
-            <mat-option value="ty">this year</mat-option>
-            <mat-option value="ly">last year</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field style="width: 92px">
-          <input matInput [matDatepicker]="picker" placeholder="from" [readOnly]="selectedPeriod !== 'custom'" [(ngModel)]="filterObject.startDate"
-            (ngModelChange)="onPeriodChange()">
-          <mat-datepicker-toggle matSuffix [for]="picker" [disabled]="selectedPeriod !== 'custom'" tabindex="-1"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-        <div>-</div>
-        <mat-form-field style="width: 92px">
-          <input matInput [matDatepicker]="picker1" placeholder="to" [readOnly]="selectedPeriod !== 'custom'" [(ngModel)]="filterObject.endDate"
-            (ngModelChange)="onPeriodChange()">
-          <mat-datepicker-toggle matSuffix [for]="picker1" [disabled]="selectedPeriod !== 'custom'" tabindex="-1"></mat-datepicker-toggle>
-          <mat-datepicker #picker1></mat-datepicker>
-        </mat-form-field>
-      </div>
-
-      <div>
-        <mat-form-field style="max-width: 120px">
-          <mat-select placeholder="filter column" [(ngModel)]="selectedColumn">
-            <mat-option *ngFor="let column of filterColumns" [value]="column.key">
-              {{column.value}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-input-container style="max-width: 120px">
-          <input matInput #filter placeholder="filter" [tabindex]="0" autofocus autocomplete="false">
-        </mat-input-container>
-      </div>
-
-      <mat-slide-toggle color="warn">
-        Show deleted
-      </mat-slide-toggle>
-
-    </div>
   </mat-expansion-panel>
 
   <mat-card style="padding: 0px">
-  
-      <mat-table #table [dataSource]="dataSource" matSort>
 
-        <ng-container matColumnDef="select">
-          <mat-header-cell *matHeaderCellDef>
-            <mat-checkbox (change)="$event ? dataSource.masterToggle() : null" [checked]="dataSource.isAllSelected()" [indeterminate]="dataSource.selection.hasValue() && !dataSource.isAllSelected()">
-            </mat-checkbox>
-          </mat-header-cell>
-          <mat-cell *cdkCellDef="let row">
-            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? dataSource.selection.toggle(row.id) : null" [checked]="dataSource.selection.isSelected(row.id)">
-            </mat-checkbox>
-          </mat-cell>
-        </ng-container>
+    <mat-table #table [dataSource]="dataSource" matSort>
 
-        <ng-container *ngFor="let col of columns" [matColumnDef]="col.field">
-          <ng-container [ngSwitch]="col.type">
+      <ng-container matColumnDef="select">
+        <mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? dataSource.masterToggle() : null" [checked]="dataSource.isAllSelected()" [indeterminate]="dataSource.selection.hasValue() && !dataSource.isAllSelected()">
+          </mat-checkbox>
+        </mat-header-cell>
+        <mat-cell *cdkCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? dataSource.selection.toggle(row.id) : null" [checked]="dataSource.selection.isSelected(row.id)">
+          </mat-checkbox>
+        </mat-cell>
+      </ng-container>
 
-            <ng-container *ngSwitchCase="'posted'" matColumnDef="posted">
-              <mat-header-cell *matHeaderCellDef></mat-header-cell>
-              <mat-cell *cdkCellDef="let row">
-                <mat-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</mat-icon>
-                <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</mat-icon>
-                <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</mat-icon>
-              </mat-cell>
-            </ng-container>
+      <ng-container *ngFor="let col of columns" [matColumnDef]="col.field">
+        <ng-container [ngSwitch]="col.type">
 
-            <ng-container *ngSwitchCase="'string'">
-              <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true"
-                [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
-              <mat-cell *cdkCellDef="let row" [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true" [ngStyle]="col.style">
-                <div *ngIf="col.field === 'description'" class="data-table-select" (click)="open(row)" style="cursor: pointer">{{row.description}}</div>
-                <div *ngIf="col.field !== 'description'">{{row[col.field]}}</div>
-              </mat-cell>
-            </ng-container>
-
-            <ng-container *ngSwitchCase="'datetime'">
-              <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">{{ col.label }}</mat-header-cell>
-              <mat-cell *cdkCellDef="let row" [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">
-                <div *ngIf="(col.field === 'date')" class="data-table-select" (click)="open(row)" style="cursor: pointer">{{row.date | date:'dd.MM.yyyy hh:mm:ss'}}</div>
-                <div *ngIf="(col.field !== 'date')">{{row[col.field] | date:'dd.MM.yyyy hh:mm:ss'}}</div>
-              </mat-cell>
-            </ng-container>
-
-            <ng-container *ngSwitchCase="'date'">
-              <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true">{{ col.label }}</mat-header-cell>
-              <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true">
-                {{row[col.field] | date:'dd.MM.yyyy'}}
-              </mat-cell>
-            </ng-container>
-
-            <ng-container *ngSwitchCase="'number'">
-              <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style"
-                style="max-width: 70px; min-width: 70px; display: flex; justify-content: center">
-                {{ col.label }}
-              </mat-header-cell>
-              <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" 
-                style="max-width: 70px; min-width: 70px; font-weight: bold; text-align: right">
-                {{row[col.field] | number:'1.2-2' }}
-              </mat-cell>
-            </ng-container>
-
-            <ng-container *ngSwitchCase="'boolean'">
-              <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="justify-content: center; max-width: 50px;">{{ col.label }}</mat-header-cell>
-              <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="max-width: 50px; text-align: center">
-                <mat-checkbox [checked]="row[col.field]" disabled="true"></mat-checkbox>
-              </mat-cell>
-            </ng-container>
-
-            <ng-container *ngSwitchDefault>
-              <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
-              <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">
-                {{row[col.field]}}
-              </mat-cell>
-            </ng-container>
-
+          <ng-container *ngSwitchCase="'posted'" matColumnDef="posted">
+            <mat-header-cell *matHeaderCellDef></mat-header-cell>
+            <mat-cell *cdkCellDef="let row">
+              <mat-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</mat-icon>
+              <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</mat-icon>
+              <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</mat-icon>
+            </mat-cell>
           </ng-container>
-        </ng-container>
 
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        <mat-row *cdkRowDef="let row; columns: displayedColumns;"></mat-row>
-      </mat-table>
+          <ng-container *ngSwitchCase="'string'">
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true" [ngStyle]="col.style">
+              {{ col.label }}
+              <filter-column></filter-column>
+            </mat-header-cell>
+            <mat-cell *cdkCellDef="let row" [ngStyle]="col.style" [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true">
+              <div *ngIf="col.field === 'description'" class="data-table-select" (click)="open(row)">{{row.description}}</div>
+              <div *ngIf="col.field !== 'description'">{{row[col.field]}}</div>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'datetime'">
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">{{ col.label }}</mat-header-cell>
+            <mat-cell *cdkCellDef="let row" [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">
+              <div *ngIf="(col.field === 'date')" class="data-table-select" (click)="open(row)">
+                {{row.date | date:'dd.MM.yyyy hh:mm:ss'}}
+              </div>
+              <div *ngIf="(col.field !== 'date')">{{row[col.field] | date:'dd.MM.yyyy hh:mm:ss'}}</div>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'date'">
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true">{{ col.label }}</mat-header-cell>
+            <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true">
+              {{row[col.field] | date:'dd.MM.yyyy'}}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'number'">
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="max-width: 70px; min-width: 70px; display: flex; justify-content: center">
+              {{ col.label }}
+            </mat-header-cell>
+            <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="max-width: 70px; min-width: 70px; font-weight: bold; text-align: right">
+              {{row[col.field] | number:'1.2-2' }}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'boolean'">
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="justify-content: center; max-width: 50px;">{{ col.label }}</mat-header-cell>
+            <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="max-width: 50px; text-align: center">
+              <mat-checkbox [checked]="row[col.field]" disabled="true"></mat-checkbox>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container *ngSwitchDefault>
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+            <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">
+              {{row[col.field]}}
+            </mat-cell>
+          </ng-container>
+
+        </ng-container>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *cdkRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
     <div fxLayoutAlign="end center" fxLayoutGap="4px" style="padding-right: 12px">
       <button mat-icon-button color="default" (click)="dataSource.first()" [disabled]="!dataSource.continuation.first">
         <mat-icon>first_page</mat-icon>
@@ -163,7 +116,7 @@
   </mat-card>
 </div>
 
-<ng-template #actionTepmlateDefault let-d="data">
+<ng-template #actionTepmlateDefault let-d="data" let-f="filterPanel">
   <div>
     <button mat-mini-fab color="primary" (click)="$event.stopPropagation(); add()" matTooltip="create new">
       <mat-icon>add</mat-icon>
@@ -186,9 +139,11 @@
 
 <ng-template #sideNavTepmlate let-sidenav="sidenav">
   <mat-card>
-    TABLE DATA: {{ this.docType }}
-    <br>
-    <button mat-button (click)="selectedPeriod='td'">Close</button>
-    <button mat-button (click)="sidenav.close()">Close</button>
+    <mat-card-content>
+      <j-filter *ngIf="sidenav.opened" [docType]="docType" (onChange)="onChangeFilter($event)"></j-filter>
+    </mat-card-content>
+<!--     <mat-card-actions>
+      <button mat-button (click)="sidenav.close()">Close</button>
+    </mat-card-actions> -->
   </mat-card>
 </ng-template>

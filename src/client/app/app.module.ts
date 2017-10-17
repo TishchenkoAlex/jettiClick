@@ -23,15 +23,13 @@ import { DateAdapter, MAT_DATE_FORMATS, MatPaginatorIntl } from '@angular/materi
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
-import { AngularFireModule } from 'angularfire2';
-import { AngularFireAuthModule } from 'angularfire2/auth';
-import { AngularFireDatabaseModule } from 'angularfire2/database';
+import { JwtModule } from '@auth0/angular-jwt';
 
 import { TabResolver } from '../app/tab.resolver';
-import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { appRoutes } from './app.routes';
-import { AuthService } from './auth/auth.service';
+import { AuthGuardService } from './auth/auth.guard.service';
+import { Auth0Service } from './auth/auth0.service';
 import { LoginComponent } from './auth/login-component/login-component';
 import { JettiDateAdapter } from './jetti-date-adapter/jetti-date-adapter';
 import { JETTI_DATE_FORMATS } from './jetti-date-adapter/jetti-date-formats';
@@ -42,6 +40,9 @@ import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
 
+export function getJwtToken(): string {
+  return localStorage.getItem('access_token');
+}
 
 @NgModule({
   declarations: [
@@ -54,15 +55,16 @@ import { DynamicFormsModule } from './UI/dynamic.froms.module';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-
     MaterialModule,
     DynamicFormsModule,
 
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFireDatabaseModule,
-    AngularFireAuthModule,
-
-    RouterModule.forRoot(appRoutes),
+    RouterModule.forRoot(appRoutes, { useHash: true }),
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: getJwtToken,
+        whitelistedDomains: ['localhost:3000', 'jetti-project.appspot.com', 'jetti-app.com']
+      }
+    }),
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
@@ -74,9 +76,10 @@ import { DynamicFormsModule } from './UI/dynamic.froms.module';
     },
     { provide: MatPaginatorIntl, useClass: CustomPaginator },
     ApiService,
-    AuthService,
+    Auth0Service,
     TabResolver,
     SideNavService,
+    AuthGuardService,
   ],
   entryComponents: [
   ],

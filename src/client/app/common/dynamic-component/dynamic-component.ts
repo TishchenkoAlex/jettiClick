@@ -24,7 +24,7 @@ export class DynamicComponent implements AfterViewInit {
   constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 
   ngAfterViewInit() {
-    Promise.resolve().then(() => this.loadComponent());
+    setTimeout(_ => this.loadComponent());
   }
 
   loadComponent() {

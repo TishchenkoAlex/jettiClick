@@ -1,4 +1,4 @@
-const connString = 'postgres://postgres:Pa$$word@35.187.44.111:5432/jetti';
+const connString = 'postgres://postgres:Pa$$word@db.jetti-app.com/jetti';
 
 module.exports = {
   connString

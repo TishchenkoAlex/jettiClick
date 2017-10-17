@@ -33,3 +33,12 @@ mat-sidenav {
 .sidenav-menu mat-expansion-panel {
   background: lightness($color: lightgray)
 }
+
+div .mat-line {
+  font-size: 14px;
+}
+
+.mat-icon .mat-list-icon {
+  font-size: 12px;
+  padding: 0;
+}

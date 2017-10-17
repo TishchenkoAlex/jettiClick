@@ -21,22 +21,41 @@
             <mat-icon>map</mat-icon>
           </mat-expansion-panel-header>
           <mat-nav-list>
-            <mat-list-item *ngFor="let item of menuItems | async" class="sidenav-menu" [class.mat-list-item-focus]="selectedItem === item" (click)="selectedItem = item"
-              [routerLink]="item.link" [routerLinkActive]="['active-route']">
+            <mat-list-item *ngFor="let item of menuCatalogItems | async" class="sidenav-menu" [class.mat-list-item-focus]="selectedItem === item"
+              (click)="selectedItem = item" [routerLink]="'/'+item.type" [routerLinkActive]="['active-route']">
               <mat-icon mat-list-icon color="primary">{{ item.icon }}</mat-icon>
-              <div mat-line color="primary">{{ item.label }}</div>
+              <div mat-line color="primary">{{ item.description }}</div>
             </mat-list-item>
           </mat-nav-list>
         </mat-expansion-panel>
         <mat-expansion-panel hideToggle="true">
           <mat-expansion-panel-header>
-            <mat-icon>map</mat-icon>
+            <mat-icon>list</mat-icon>
             <mat-panel-title>Documents</mat-panel-title>
+          </mat-expansion-panel-header>
+          <mat-nav-list>
+            <mat-list-item *ngFor="let item of menuDocItems | async" class="sidenav-menu" [class.mat-list-item-focus]="selectedItem === item"
+              (click)="selectedItem = item" [routerLink]="'/'+item.type" [routerLinkActive]="['active-route']">
+              <mat-icon mat-list-icon color="primary">{{ item.icon }}</mat-icon>
+              <div mat-line color="primary">{{ item.description }}</div>
+            </mat-list-item>
+          </mat-nav-list>
+        </mat-expansion-panel>
+        <mat-expansion-panel hideToggle="true">
+          <mat-expansion-panel-header>
+            <mat-icon>print</mat-icon>
+            <mat-panel-title>Reports</mat-panel-title>
+          </mat-expansion-panel-header>
+        </mat-expansion-panel>
+        <mat-expansion-panel hideToggle="true">
+          <mat-expansion-panel-header>
+            <mat-icon>settings</mat-icon>
+            <mat-panel-title>Settings</mat-panel-title>
           </mat-expansion-panel-header>
         </mat-expansion-panel>
       </mat-accordion>
     </mat-sidenav>
-    <mat-sidenav #end position="end" mode="over" style="height: 100%;width: 350px;" class="mat-elevation-z10">
+    <mat-sidenav #end position="end" mode="over" style="height: 100%;width: 370px;" class="mat-elevation-z10">
       <div fxLayout="column" fxLayoutGap="8px">
         <ng-container *ngTemplateOutlet="sideNavService.templateRef ? sideNavService.templateRef : sideNavTepmlateDefault; context: {sidenav: end}"></ng-container>
       </div>

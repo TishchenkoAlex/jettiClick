@@ -34,8 +34,9 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   @Input() required = false;
   @Input() disabled = false;
   @Input() hidden = false;
-  @Input() tabIndex = false;
+  @Input() tabIndex = -1;
   @Input() type = '';
+  @Input() checkValue = true;
 
   form: FormGroup = new FormGroup({
     suggest: new FormControl('')
@@ -48,9 +49,11 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
     if (this.type.startsWith('Types.')) {
       this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']';
     }
-    this.form.controls['suggest'].setValue(obj.value);
+    // const doEvent = !(this._value && this._value.data === obj.data);
     this._value = obj;
-    this.onChange(this._value);
+    this.form.controls['suggest'].setValue(obj ? obj.value : obj);
+    if (this._value.data !== 'NO_EVENT') { this.onChange(this._value); }
+    delete this._value.data // skip initial onChange
   }
   get value() { return this._value; }
   get suggest() { return this.form.controls['suggest']; }
@@ -66,6 +69,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
 
   writeValue(obj: any): void {
     if (obj === this._value) { return }
+    obj.data = 'NO_EVENT'; // skip initial onChange
     this.value = obj;
   }
 
@@ -93,12 +97,16 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   ngAfterViewInit() {
     this.suggests$ = this.suggest.valueChanges
       .distinctUntilChanged()
-      .filter(data => this.isComplexValue && typeof data === 'string' && this.value.value !== this.suggest.value)
+      .filter(data => {
+        return this.isComplexValue && (typeof data === 'string') && (data !== this.value.value)
+        && (this.value.data !== 'NO_SUGGEST');
+      })
       .debounceTime(300)
       .switchMap(text => this.getSuggests(this.value.type || this.type, text))
       .catch(err => Observable.of([]));
 
     this._subscription$ = this.auto.optionSelected.subscribe(data => {
+      data.value = 'NO_SUGGEST';
       this.value = data.option.value;
       this.auto.options.reset([]);
     });
@@ -111,7 +119,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   onBlur() {
     this.auto.options.reset([]);
     if (this.value.value === this.suggest.value) { return }
-    if (!this.isComplexValue) { this.value.value = this.suggest.value }
+    if (!this.isComplexValue || !this.checkValue) { this.value.value = this.suggest.value }
     this.value = this.value;
   }
 
@@ -124,16 +132,17 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   }
 
   handleReset(event) {
+    this.auto.options.reset([]);
     this.value = { id: '', code: '', type: this.type, value: null };
   }
 
   handleOpen(event) {
-    event.stopPropagation();
+    this.auto.options.reset([]);
     this.router.navigate([this.value.type, this.value.id]);
   }
 
   handleSearch(event: Event) {
-    event.stopPropagation();
+    this.auto.options.reset([]);
     this.dialog.open(SuggestDialogComponent,
       { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
       .afterClosed()
@@ -142,7 +151,8 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
       .subscribe((data: DocModel) => {
         this.value = {
           id: data.id, code: data.code, type: data.type,
-          value: this.value.type.startsWith('Types.') ? null : data.description
+          value: this.value.type.startsWith('Types.') ? null : data.description,
+          data: 'NO_SUGGEST'
         };
       });
   }

@@ -14,7 +14,7 @@
       "Qty": {
         "type": "number",
         "order": 3,
-        "change": "return { Amount: doc.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}",
+        "change": "return { Amount: $.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}",
         "required": true
       },
       "SKU": {

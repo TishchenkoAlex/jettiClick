@@ -30,17 +30,22 @@
             }
         },
         "order": 11,
-        "required": true
+        "required": false
     },
     "script": {
         "type": "javascript",
         "label": "post script",
         "order": 10,
-        "required": false,
-        "hidden-list": true,
         "style": {
             "height": "300px"
-        }
+        },
+        "required": false,
+        "hidden-list": true
+    },
+    "category": {
+        "type": "string",
+        "order": 4,
+        "required": true
     },
     "Parameters": {
         "type": "table",
@@ -62,28 +67,28 @@
             "order": {
                 "type": "number",
                 "label": "order",
-                "order": 5,
-                "required": false
-            },
-            "tableDef" : {
-                "type": "json",
-                "label": "table definition",
                 "order": 4,
-                "required": false,
-                "hidden-list": true                
+                "required": true
             },
             "change": {
                 "type": "javascript",
                 "label": "change script",
-                "order": 4,
+                "order": 6,
                 "required": false,
                 "hidden-list": true
             },
             "required": {
                 "type": "boolean",
                 "label": "required",
-                "order": 6,
+                "order": 8,
                 "required": false
+            },
+            "tableDef": {
+                "type": "json",
+                "label": "table definition",
+                "order": 7,
+                "required": false,
+                "hidden-list": true
             },
             "parameter": {
                 "type": "string",

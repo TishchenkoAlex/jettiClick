@@ -1,16 +1,18 @@
-<div fxLayout="row" fxLayoutAlign="center center">
-  <img *ngIf="appAuth.user?.uid" [matMenuTriggerFor]="themeMenu" src="{{ appAuth.user?.photoURL }}" style="width: 45px; height: 45px; border-radius: 50%; cursor: pointer">
-  <button mat-button (click)="appAuth.login()" *ngIf="!appAuth.user?.uid">LOGIN</button>
-</div>
+<div *ngIf="(appAuth.userProfile$ | async) as userProfile">
+  <img [matMenuTriggerFor]="themeMenu" src="{{userProfile?.picture}}" 
+    style="width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center"
+  >
 
-<mat-menu #themeMenu>
-  <mat-card fxLayout="column" fxLayoutAlign="center center" class="mat-elevation-z0">
-    <img src="{{ appAuth.user?.photoURL }}" style="width: 125px; height: 125px; border-radius: 50%; margin: 10px">
-    <mat-card-title>{{ appAuth.user?.displayName }}</mat-card-title>
-    <mat-card-subtitle>{{ appAuth.user?.email }}</mat-card-subtitle>
-  </mat-card>
-  <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
-    <button mat-raised-button color="warn" (click)="appAuth.logout()" *ngIf="appAuth.user?.uid">LOGOUT</button>
-    <button mat-button>CLOSE</button>
-  </div>
-</mat-menu>
+  <mat-menu #themeMenu>
+    <mat-card fxLayout="column" fxLayoutAlign="center center" class="mat-elevation-z0">
+      <img src="{{userProfile?.picture}}" style="width: 125px; height: 125px; border-radius: 50%; margin: 10px">
+      <mat-card-title>{{ userProfile?.nickname }}</mat-card-title>
+      <mat-card-subtitle>{{ userProfile?.name }}</mat-card-subtitle>
+    </mat-card>
+    <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
+      <button mat-raised-button color="warn" (click)="appAuth.logout()">LOGOUT</button>
+      <button mat-button>CLOSE</button>
+    </div>
+  </mat-menu>
+</div>
+<button mat-button (click)="appAuth.login()" *ngIf="!appAuth.isAuthenticated()">LOGIN</button>

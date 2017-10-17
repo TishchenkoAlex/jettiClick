@@ -4,12 +4,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
+import { FilterFormComponent } from '../common/filter/filter.component';
+import { FilterFormControlComponent } from '../common/filter/filter.control.component';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
 import { CommonDataTableComponent } from './../common/datatable/datatable.component';
 import { DocService } from './../common/doc.service';
 import { DynamicComponent, DynamicComponentDirective } from './../common/dynamic-component/dynamic-component';
 import { DynamicFormControlComponent } from './../common/dynamic-form/dynamic-form-control.component';
 import { DynamicFormService } from './../common/dynamic-form/dynamic-form.service';
+import { FilterColumnComponent } from './../common/filter-column/fiter-column.component';
 import { BaseFormComponent } from './../common/form/form.base.components/form.base.component';
 import { RegisterMovementComponent } from './../common/register-movements/register-movement.component';
 import { TabControllerComponent } from './../common/tabcontroller/tabcontroller.component';
@@ -35,6 +38,9 @@ import { OperationFormComponent } from './Operation/operation.form.component';
     TablePartsDialogComponent,
     SuggestDialogComponent,
     RegisterMovementComponent,
+    FilterFormComponent,
+    FilterFormControlComponent,
+    FilterColumnComponent,
 
     CashRegisterForm, // add user froms above
     OperationFormComponent,

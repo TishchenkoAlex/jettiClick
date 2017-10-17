@@ -26,11 +26,10 @@ export class RegisterMovementComponent implements OnInit, AfterViewInit {
       this.docService.do$]
     ).filter(doc => doc.id === this.doc.id)
       .switchMap(doc => this.apiService.getDocAccountMovementsView(this.doc.id));
-
   }
 
   ngAfterViewInit() {
-    Promise.resolve().then(() => this.docService.do(this.doc));
+    setTimeout(_ => this.docService.do(this.doc));
   }
 
 }

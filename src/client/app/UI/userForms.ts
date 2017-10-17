@@ -14,7 +14,7 @@ export function getDocListComponent(type: string): typeof CommonDataTableCompone
     return userForms[index].listComponent;
 }
 
-export function getDocObjectComponent(type: string): typeof BaseFormComponent {
+export function getDocObjectComponent(type: string) {
     const index = userForms.findIndex((data) => data.type === type);
     if (index === -1) { return BaseFormComponent; }
     return userForms[index].objectComponent;

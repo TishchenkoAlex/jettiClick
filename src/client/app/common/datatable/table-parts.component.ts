@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { MatDialog, MatSort } from '@angular/material';
+import { MatDialog, MatSort, MatTableDataSource } from '@angular/material';
 
 import {
     AutocompleteJettiFormControl,
@@ -13,7 +13,6 @@ import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
 import { copyFormGroup } from '../utils';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
-import { MatTableDataSource } from './mat-table-datasource';
 
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };
 
@@ -54,26 +53,15 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     this.displayedColumns.unshift('index', 'select');
 
     this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
-    Promise.resolve().then(_ => this.formGroup.removeAt(this.formGroup.length - 1));
+    setTimeout(_ => this.formGroup.removeAt(this.formGroup.length - 1));
 
-    this.formGroup.controls.filter(c => typeof (c.value) === 'object').forEach((c: FormGroup) => {
-      const value = c.value;
-      // tslint:disable-next-line:forin
-      for (const key in value) {
-        const control = this.view.find(v => v.key === key);
-        if (control instanceof AutocompleteJettiFormControl && typeof value[key] === 'string') {
-          this.ds.api.getSuggestsById(value[key]).take(1)
-            .subscribe(data => {
-              c.controls[key].patchValue(data, { emitEvent: false });
-              this.dataSource.data = this.formGroup.value;
-            });
-        }
-      }
-    });
   }
 
   ngAfterViewInit() {
-    Promise.resolve().then(_ => this.dataSource = new MatTableDataSource(this.formGroup.value, this.sort));
+    setTimeout(_ => {
+      this.dataSource = new MatTableDataSource(this.formGroup.value);
+      this.dataSource.sort = this.sort;
+    });
   }
 
   isAllSelected(): boolean {

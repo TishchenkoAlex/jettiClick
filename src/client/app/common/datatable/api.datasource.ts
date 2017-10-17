@@ -6,16 +6,16 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { ApiService, Continuation } from '../../services/api.service';
 import { DocModel } from '../doc.model';
-import { FilterObject } from './datatable.component';
+import { FilterObject } from '../filter/filter.control.component';
 
 export class ApiDataSource extends DataSource<any> {
   paginator = new BehaviorSubject('');
   selection = new SelectionModel<string>(true, []);
 
-  _filterObjextChangeSubscription: Subscription = Subscription.EMPTY;
-  _filterObjextChange = new BehaviorSubject<FilterObject>(null);
-  get filterObjext(): FilterObject { return this._filterObjextChange.value; }
-  set filterObjext(filterObjext: FilterObject) { this._filterObjextChange.next(filterObjext); }
+  _filterObjectChangeSubscription: Subscription = Subscription.EMPTY;
+  _filterObjectChange = new BehaviorSubject<FilterObject>(null);
+  get filterObject(): FilterObject { return this._filterObjectChange.value; }
+  set filterObject(filterObject: FilterObject) { this._filterObjectChange.next(filterObject); }
 
   renderedData: DocModel[] = [];
   private firstDoc = new DocModel(this._docType, 'first');
@@ -31,10 +31,10 @@ export class ApiDataSource extends DataSource<any> {
     super();
     this._sort.direction = 'asc';
 
-    this._filterObjextChangeSubscription = this._filterObjextChange.subscribe();
+    this._filterObjectChangeSubscription = this._filterObjectChange.subscribe();
 
     this.result$ = Observable.merge(...[
-      this._filterObjextChange,
+      this._filterObjectChange,
       this._sort.sortChange,
       this.paginator,
     ])
@@ -70,7 +70,7 @@ export class ApiDataSource extends DataSource<any> {
           sort = this._sort.active + '*' + this._sort.direction;
         }
 
-        const filter = stream['columnFilter'] || '';
+        const filter = stream['action'] === 'filter' ? stream['value'] : {};
 
         return this.apiService.getDocList(this._docType, row.id, command, this.pageSize, offset, sort, filter)
           .do(data => { this.renderedData = data.data; this.continuation = data.continuation; this.isLoadingResults = false })

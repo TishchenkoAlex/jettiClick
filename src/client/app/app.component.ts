@@ -1,8 +1,11 @@
-import { Observable } from 'rxjs/Observable';
+import { Auth0Service } from './auth/auth0.service';
+import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { Component, OnInit } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
-import { NavigationEnd, NavigationStart, Router, RoutesRecognized } from '@angular/router';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { NavigationEnd, Router } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+
+import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
 
 @Component({
@@ -12,25 +15,26 @@ import { SideNavService } from './services/side-nav.service';
 })
 export class AppComponent implements OnInit {
 
-  menuItems: Observable<any[]>;
-
-  docs: AngularFireList<any[]>;
+  menuCatalogItems: Observable<any[]>;
+  menuDocItems: Observable<any[]>;
 
   loading$: Observable<boolean>;
 
   selectedItem; // this.users[0];
   isDarkTheme = false;
-  sideNav = {
-    mode: 'side',
-    opened: true
-  };
+  sideNav = { mode: 'side', opened: true };
 
-  constructor(media: ObservableMedia, private db: AngularFireDatabase, private router: Router,
-    public sideNavService: SideNavService) {
+  constructor(media: ObservableMedia, private router: Router, public auth: Auth0Service,
+    public sideNavService: SideNavService, private apiService: ApiService, private tsc: TabControllerService) {
 
     media.asObservable().subscribe((change: MediaChange) => this.switchMedia(change));
 
-    this.menuItems = db.list('/Menu/main/').valueChanges();
+    auth.handleAuthentication();
+    this.auth.userProfile$.subscribe(userProfile => {
+      tsc.menuItems.length = 0;
+      this.menuCatalogItems = apiService.getCatalogs().do(data => { tsc.menuItems.push.apply(tsc.menuItems, data) });
+      this.menuDocItems = apiService.getDocuments().do(data => { tsc.menuItems.push.apply(tsc.menuItems, data) });
+    })
   }
 
   ngOnInit() {

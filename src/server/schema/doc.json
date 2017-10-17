@@ -1,0 +1,66 @@
+{
+    "id": {
+        "hidden": true,
+        "hidden-list": true
+    },
+    "code": {
+        "label": "code",
+        "order": 2,
+        "required": false
+    },
+    "date": {
+        "type": "datetime",
+        "label": "date",
+        "order": 1,
+        "required": true
+    },
+    "info": {
+        "type": "textarea",
+        "label": "info",
+        "order": 100,
+        "hidden-list": true
+    },
+    "type": {
+        "hidden": true,
+        "hidden-list": true
+    },
+    "user": {
+        "type": "Catalog.User",
+        "label": "user",
+        "order": 1000000,
+        "required": false,
+        "hidden-list": true
+    },
+    "parent": {
+        "hidden": true,
+        "hidden-list": true
+    },
+    "posted": {
+        "type": "posted",
+        "order": -1000000
+    },
+    "company": {
+        "type": "Catalog.Company",
+        "label": "company",
+        "order": 3,
+        "required": true,
+        "change": "return call(doc, value, prop)"
+    },
+    "deleted": {
+        "type": "boolean",
+        "order": 5,
+        "hidden": true,
+        "hidden-list": true
+    },
+    "isfolder": {
+        "type": "boolean",
+        "order": 6,
+        "hidden": true,
+        "hidden-list": true
+    },
+    "description": {
+        "label": "description",
+        "order": 3,
+        "required": true
+    }
+}

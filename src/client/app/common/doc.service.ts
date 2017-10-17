@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 
-import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
 import { DocModel } from './doc.model';
 
@@ -21,10 +20,17 @@ export class DocService {
   protected _do = new Subject<any>();
   do$ = this._do.asObservable();
 
+  protected _goto = new Subject<any>();
+  goto$ = this._goto.asObservable();
+
   constructor(public api: ApiService, public snackBar: MatSnackBar) { };
 
   do(doc: DocModel) {
     this._do.next(doc);
+  }
+
+  goto(doc: DocModel) {
+    this._goto.next(doc);
   }
 
   close(doc: DocModel) {

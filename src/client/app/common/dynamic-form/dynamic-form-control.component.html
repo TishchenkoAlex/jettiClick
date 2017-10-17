@@ -17,18 +17,18 @@
   </mat-form-field>
 
   <j-autocomplete *ngSwitchCase="'autocomplete'" fxFlex [required]="control.required" [formControlName]="control.key" [id]="control.key"
-    [placeholder]="control.label" [hidden]="control.hidden" [tabIndex]="control.order" [type]="control.type" (change)="onChange($event)">
+    [placeholder]="control.label" [hidden]="control.hidden" [tabIndex]="control.order" [type]="control.type" (ngModelChange)="onChange($event)">
   </j-autocomplete>
 
   <mat-form-field *ngSwitchCase="'date'" fxFlex>
     <input [required]="control.required" matInput [matDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
-      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
+      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)" (dateChange)="onChange($event)">
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
   </mat-form-field>
 
   <mat-form-field *ngSwitchCase="'datetime'" fxFlex>
     <input [required]="control.required" matInput [matDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
-      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
+      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)" (dateChange)="onChange($event)">
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
   </mat-form-field>
 

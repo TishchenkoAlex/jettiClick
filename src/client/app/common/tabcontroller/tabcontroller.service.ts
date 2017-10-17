@@ -1,17 +1,10 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase } from 'angularfire2/database';
 
 import { BaseDynamicCompoment } from '../../common/dynamic-component/dynamic-component';
 import { HomeComponent } from '../../home/home.component';
 import { getDocListComponent, getDocObjectComponent } from '../../UI/userForms';
 
-export interface TabDef {
-  header: string;
-  icon: string;
-  description: string;
-  docType: string;
-  docID: string;
-}
+export interface TabDef { header: string, icon: string, description: string, docType: string, docID: string }
 
 export const HOME = 'Home';
 
@@ -24,8 +17,9 @@ export class TabControllerService {
   docID: string;
   HOME = HOME;
   component = new BaseDynamicCompoment(HomeComponent);
+  menuItems = [];
 
-  constructor(public db: AngularFireDatabase) {
+  constructor() {
     const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '' };
     this.tabs.push(homeTab);
   }
@@ -33,7 +27,7 @@ export class TabControllerService {
   GetComponent(tab: TabDef) {
     if (tab.docType === 'HOME') { return new BaseDynamicCompoment(HomeComponent); }
     if (!tab.docID) {
-        return new BaseDynamicCompoment(getDocListComponent(tab.docType));
+      return new BaseDynamicCompoment(getDocListComponent(tab.docType));
     } else {
       return new BaseDynamicCompoment(getDocObjectComponent(tab.docType));
     }

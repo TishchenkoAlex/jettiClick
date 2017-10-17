@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+/* import { Injectable } from '@angular/core';
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
 
@@ -21,3 +21,4 @@ export class AuthService {
     this.afAuth.auth.signOut();
   }
 }
+ */

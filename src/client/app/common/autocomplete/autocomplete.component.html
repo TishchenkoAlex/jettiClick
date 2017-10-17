@@ -2,10 +2,10 @@
 
   <div *ngIf="value?.type?.includes('.')">
     <mat-form-field fxFlex>
-      <input matInput [required]="required" [placeholder]="placeholder" [matAutocomplete]="auto"
-        [readOnly]="readOnly" ([disabled])="disabled" (blur)="onBlur()" [tabIndex]="tabIndex" formControlName="suggest">
-      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleSearch($event)" [tabIndex]=-1 autocomplete="off"><mat-icon>search</mat-icon></button>
-      <button mat-icon-button matSuffix type="button" style="cursor: pointer" [disabled]="!value?.value" (click)="handleOpen($event)" [tabIndex]=-1 autocomplete="off"><mat-icon>visibility</mat-icon></button>
+      <input matInput formControlName="suggest" [required]="required" [placeholder]="placeholder" [matAutocomplete]="auto"
+        [readOnly]="readOnly" ([disabled])="disabled" (blur)="onBlur()" [tabIndex]="tabIndex" autocomplete="off">
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleSearch($event)" [tabIndex]=-1><mat-icon>search</mat-icon></button>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" [disabled]="!value?.value" (click)="handleOpen($event)" [tabIndex]=-1><mat-icon>visibility</mat-icon></button>
       <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><mat-icon>clear</mat-icon></button>
     </mat-form-field>
   </div>
@@ -29,7 +29,7 @@
 
   <div *ngIf="value?.type === 'datetime'">
     <mat-form-field fxFlex>
-      <input matInput [required]="required" [placeholder]="placeholder" [readOnly]="readOnly"
+      <input matInput [required]="required" [placeholder]="placeholder" [readOnly]="readOnly" autocomplete="off"
         [matDatepicker]="picker" ([disabled])="disabled" (blur)="onBlur()" [tabIndex]="tabIndex" formControlName="suggest">
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><mat-icon>clear</mat-icon></button>
@@ -38,7 +38,7 @@
   </div>
 
   <mat-checkbox *ngIf="value?.type === 'boolean'" style="margin-top: 36px" ([disabled])="disabled"
-    (blur)="onBlur()" [tabIndex]="tabIndex" formControlName="suggest">{{placeholder}}
+    (change)="onBlur()" [tabIndex]="tabIndex" formControlName="suggest">{{placeholder}}
     <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="handleReset($event)" [tabIndex]=-1><mat-icon>clear</mat-icon></button>    
   </mat-checkbox>
 

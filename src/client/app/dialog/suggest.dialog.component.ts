@@ -14,6 +14,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
 
   private _filter$: Subscription = Subscription.EMPTY;
   isDoc: boolean;
+  pageSize = 10;
 
   dataSource: ApiDataSource | null;
 
@@ -27,20 +28,21 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, 10, this.sort);
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.sort);
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .distinctUntilChanged()
       .debounceTime(1000)
-      .subscribe((value: string) =>
-        this.dataSource.filterObjext = {
-          startDate: null,
-          endDate: null,
-          columnFilter: `d.description ILIKE '${this.filter.nativeElement.value}*'`
+      .subscribe((value: string) => {
+        this.dataSource.selection.clear();
+        this.dataSource.filterObject = {
+          action: 'filter', value: {description: this.filter.nativeElement.value}}
         });
 
+
     if (!this.data.docID || (this.data.docID === this.data.docType)) {
-      this.dataSource.first() } else { this.dataSource.goto(this.data.docID) }
+      this.dataSource.first()
+    } else { this.dataSource.goto(this.data.docID) }
   }
 
   ngOnDestroy() {
@@ -48,5 +50,4 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   }
 
 }
-
 

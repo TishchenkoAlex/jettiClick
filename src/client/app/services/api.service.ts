@@ -1,3 +1,4 @@
+import { FilterObject } from '../common/filter/filter.control.component';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -12,12 +13,10 @@ export interface DocListResponse { data: any[], total_count: number };
 export interface DocListRequest {
   id: string, type: string, command: string, count: number, offset: number,
   orderStr: string,
-  filterStr: string,
-  filter: DocListFilter[]
+  filterObject: any
 }
 export interface Continuation { first: DocModel, last: DocModel }
 export interface DocListResponse2 { data: any[], continuation: Continuation };
-export interface DocListFilter { field: string, operator: '>=' | '>' | '<=' | '<' | '=' | 'ILIKE', value: string | number | boolean };
 
 @Injectable()
 export class ApiService {
@@ -26,12 +25,12 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  getDocList(type: string, id: string, command: string, count = 10, offset = 0, order = '', filter = ''): Observable<DocListResponse2> {
+  getDocList(type: string, id: string, command: string, count = 10, offset = 0, order = '', filter = {}): Observable<DocListResponse2> {
     const query = `${this.url}list`;
     const body: DocListRequest = {
       id: id, type: type, command: command, count: count, offset: offset,
-      orderStr: order, filterStr: filter,
-      filter: []
+      orderStr: order,
+      filterObject: filter
     }
     // console.log('LIST API', body, order);
     return this.http.post(query, body) as Observable<DocListResponse2>;
@@ -67,7 +66,7 @@ export class ApiService {
       .catch(err => Observable.of({}))
   }
 
-  postDoc(doc): Observable<Object> {
+  postDoc(doc: DocModel): Observable<Object> {
     const apiDoc = mapDocToApiFormat(doc);
     const query = `${this.url}`;
     console.log('POST API', query, apiDoc);
@@ -95,5 +94,25 @@ export class ApiService {
     return this.http.get(query) as Observable<AccountRegister[]>;
   }
 
+  getCatalogs(): Observable<any[]> {
+    const query = `${this.url}Catalogs`;
+    console.log('GET CATALOG', query);
+    return (this.http.get(query) as Observable<any[]>)
+    .catch(err => Observable.of([]))
+  }
+
+  getDocuments(): Observable<any[]> {
+    const query = `${this.url}Documents`;
+    return (this.http.get(query) as Observable<any[]>)
+    .catch(err => Observable.of([]))
+  }
+
+  call(doc: DocModel, value: string, prop: string) {
+    const query = `${this.url}call`;
+    const callConfig = { doc: doc, value: value, prop: prop }
+    console.log('call ', query, callConfig);
+    return this.http.post(query, callConfig).take(1).toPromise()
+      .catch(err => Observable.of({}).toPromise())
+  }
 }
 

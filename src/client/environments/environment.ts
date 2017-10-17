@@ -14,4 +14,12 @@ export const environment = {
     storageBucket: 'jetti-app.appspot.com',
     messagingSenderId: '49165416613'
   },
+  auth0: {
+    clientID: 'Yk395LuPS8jWPp7e9fQ1PqC72h35UBmu',
+    domain: 'jetti-app.auth0.com',
+    responseType: 'token id_token',
+    audience: 'https://jetti-app.com/api',
+    redirectUri: 'http://localhost:4200/callback',
+    scope: 'openid profile',
+  }
 };

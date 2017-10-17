@@ -15,7 +15,7 @@
         <mat-checkbox (change)="$event ? dataSource.masterToggle() : null" [checked]="dataSource.isAllSelected()" [indeterminate]="dataSource.selection.hasValue() && !dataSource.isAllSelected()">
         </mat-checkbox>
       </mat-header-cell>
-      <mat-cell *cdkCellDef="let row">
+      <mat-cell *cdkCellDef="let row">  
         <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? dataSource.selection.toggle(row.id) : null" [checked]="dataSource.selection.isSelected(row.id)"></mat-checkbox>
       </mat-cell>
     </ng-container>

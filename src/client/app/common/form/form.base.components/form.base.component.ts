@@ -23,13 +23,12 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
   protected _sideNavService$: Subscription = Subscription.EMPTY;
 
-  constructor(public router: Router,  public route: ActivatedRoute,
-    public docService: DocService, public sideNavService: SideNavService) {}
+  constructor(public router: Router, public route: ActivatedRoute,
+    public docService: DocService, public sideNavService: SideNavService) { }
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
 
-    console.log('BASE INIT', this.viewModel.model);
     this.isDoc = this.viewModel.model.type.startsWith('Document.')
     this.sideNavService.templateRef = this.sideNavTepmlate;
 
@@ -42,7 +41,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
         this.viewModel.formGroup.patchValue(savedDoc, { emitEvent: false });
       });
 
-      this._sideNavService$ = this.sideNavService.do$
+    this._sideNavService$ = this.sideNavService.do$
       .filter(data => data.type === this.viewModel.model.type && data.id === this.viewModel.model.id)
       .subscribe(data => this.sideNavService.templateRef = this.sideNavTepmlate);
   }

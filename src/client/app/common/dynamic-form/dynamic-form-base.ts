@@ -62,7 +62,7 @@ export class TextareaJettiFormControl extends BaseJettiFromControl<string> {
 
 export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
   controlType = 'script';
-  style = { 'height': '120px', 'width': '100%' };
+  style = { 'height': '150px', 'width': '500px' };
 
   constructor(options: ControlOptions<string> = {}) {
     super(options);
@@ -73,7 +73,7 @@ export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
 export class BooleanJettiFormControl extends BaseJettiFromControl<boolean> {
   controlType = 'checkbox';
   type = 'boolean';
-  style = { 'max-width': '50px', 'text-align' : 'center' };
+  style = { 'max-width': '30px', 'min-width': '24px', 'text-align' : 'center', 'justify-content': 'center' };
 
   constructor(options: ControlOptions<boolean> = {}) {
     super(options);

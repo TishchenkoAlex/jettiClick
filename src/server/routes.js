@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const db = require('./db');
+const lib = require('./std.lib');
 
 router.get('/', (req, res, next) => {
   res.status(200).send('Jetti API');
@@ -7,22 +8,21 @@ router.get('/', (req, res, next) => {
 
 router.get('/catalogs', async (req, res, next) => {
   try {
-    res.json(await db.manyOrNone(`SELECT * FROM config_schema WHERE type LIKE 'Catalog.%'`));
+    res.json(await db.manyOrNone(`SELECT type, description, icon FROM config_schema WHERE chapter = 'Catalog' ORDER BY description`));
   } catch (err) { next(err.message); }
 })
 
 router.get('/documents', async (req, res, next) => {
   try {
-    res.json(await db.manyOrNone(`SELECT * FROM config_schema WHERE type LIKE 'Documents.%'`));
+    res.json(await db.manyOrNone(`SELECT type, description, icon FROM config_schema WHERE chapter = 'Document' ORDER BY description`));
   } catch (err) { next(err.message); }
 })
 
 async function ExecuteScript(doc, script, tx) {
   const Registers = { Account: [], Accumulation: [], Info: [] };
-
   const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-  const func = new AsyncFunction('doc, Registers, tx', script);
-  await func(doc, Registers, tx);
+  const func = new AsyncFunction('doc, Registers, tx, lib', script);
+  await func(doc, Registers, tx, lib);
   Registers.Account.forEach(async rec => {
     await tx.none(`
         INSERT INTO "Register.Account" (
@@ -64,6 +64,23 @@ async function ExecuteScript(doc, script, tx) {
   return doc;
 }
 
+async function docOperationResolver(doc, tx) {
+  if (doc.type !== 'Document.Operation') return;
+  const query = `SELECT id as id, description as value, code as code, type as type FROM "Documents" WHERE id = $1`;
+  for (let i = 1; i <= 10; i++) {
+    const p = doc['p' + i.toString()];
+    if (p instanceof Array) {
+      for (r = 0; r < p.length; r++)
+        for (let key in p[r]) {
+          if (typeof p[r][key] === 'string') {
+            const data = await tx.oneOrNone(query, p[r][key]); // todo check types in model
+            if (data) { p[r][key] = data; }
+          }
+        };
+    }
+  }
+}
+
 // Select documents list for UI (grids/list etc)
 router.post('/list', async (req, res, next) => {
   try {
@@ -89,12 +106,23 @@ router.post('/list', async (req, res, next) => {
     params.order.forEach(o => orderbyAfter += '"' + o.field + (o.order === 'asc' ? '" ASC, ' : '" DESC, '))
     orderbyAfter = orderbyAfter.slice(0, -2);
 
+
+    filterBuilder = (filter) => {
+      let where = 'TRUE ';
+      Object.keys(filter).forEach(key => {
+        if (key === 'description' && filter[key]) {
+          where += ` AND d.description ILIKE '${filter[key]}%'`;
+        }
+      });
+      return where;
+    }
+
     queryBuilder = (isAfter) => {
       let result = '';
       const order = params.order.slice();
       const char1 = lastORDER ? isAfter ? '>' : '<' : isAfter ? '<' : '>';
-      params.order.forEach(o => { 
-        let where = 'TRUE ';
+      params.order.forEach(o => {
+        let where = filterBuilder(params.filterObject || {});
         order.forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
           char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
         order.length--;
@@ -120,7 +148,7 @@ router.post('/list', async (req, res, next) => {
       }
       query = `SELECT * FROM (${query}) d ${orderbyAfter}`;
     }
-     console.log(query);
+    // console.log(query);
     let data = await db.manyOrNone(query);
     let result = [];
 
@@ -145,11 +173,11 @@ router.post('/list', async (req, res, next) => {
             result = data.slice(continuation.first ? continuationIndex - params.offset : 0, continuationIndex + pageSize - params.offset);
             if (result.length < pageSize) {
               const first = Math.max(continuationIndex - params.offset - (pageSize - result.length), 0);
-              const last =  Math.max(continuationIndex - params.offset + result.length, pageSize);
+              const last = Math.max(continuationIndex - params.offset + result.length, pageSize);
               continuation.first = data[first - 1];
               continuation.last = data[last + 1];
               result = data.slice(first, last);
-            } 
+            }
           } else {
             continuation.first = data[continuationIndex - pageSize - params.offset];
             continuation.last = data[continuationIndex + 1 - params.offset];
@@ -158,7 +186,7 @@ router.post('/list', async (req, res, next) => {
               continuation.first = null;
               continuation.last = data[pageSize + 1];
               result = data.slice(0, pageSize);
-            } 
+            }
           }
         }
       }
@@ -186,6 +214,7 @@ router.get('/:type/view/*', async (req, res, next) => {
         model.description = 'Copy: ' + model.description;
       } else
         model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+      await docOperationResolver(model, db);
     } else
       model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
     const result = { view: view, model: model };
@@ -218,7 +247,7 @@ router.get('/suggest/:type/*', async (req, res, next) => {
 // Delete document
 router.delete('/:id', async (req, res, next) => {
   try {
-    const t = await db.tx(async tx => {
+    await db.tx(async tx => {
       const id = req.params.id;
       let doc = await DocById(id, tx)
       await doSubscriptions(doc, 'before detele', tx);
@@ -228,15 +257,15 @@ router.delete('/:id', async (req, res, next) => {
       if (config_schema['afterDelete']) await ExecuteScript(doc, config_schema['afterDelete'], tx);
       await doSubscriptions(doc, 'after detele', tx);
       const model = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+      await docOperationResolver(result, tx);
       res.json(model);
     });
   } catch (err) { next(err.message); }
 })
 
 // Upsert document
-async function post(req, res, next) {
-  let result;
-  const t = await db.tx(async tx => {
+async function post(req, res, next, tx) {
+  try {
     let doc = req.body, id = doc.id;
     const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
     await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
@@ -256,31 +285,39 @@ async function post(req, res, next) {
             type = i.type, parent = i.parent,
             date = i.date, code = i.code, description = i.description,
             posted = i.posted, deleted = i.deleted, isfolder = i.isfolder,
-            "user" = i.user, company = i.company,
+            "user" = i.user, company = i.company, info = i.info,
             doc = i.doc
           FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
           WHERE d.id = i.id RETURNING *;`, [doc]);
     }
     if (!!doc.posted && config_schema['afterPost']) await ExecuteScript(doc, config_schema['afterPost'], tx);
     await doSubscriptions(Object.assign({}, doc), isNew ? 'after insert' : 'after update', tx);
-    result = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
-  });
-  return result;
+    return doc;
+  } catch (err) { next(err.message); }
 }
 
 // Upsert document
 router.post('/', async (req, res, next) => {
   try {
-    res.json(await post(req, res, next));
+    let doc;
+    await db.tx(async tx => {
+      doc = await post(req, res, next, tx);
+      const config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
+      doc = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
+      await docOperationResolver(doc, tx);
+    });
+    res.json(doc);
   } catch (err) { next(err.message); }
 })
 
 // Post by id (without returns posted object to client, for post in cicle many docs)
 router.get('/post/:id', async (req, res, next) => {
   try {
-    req.body = await DocById(req.params.id, db);
-    req.body.posted = !req.body.posted;
-    await post(req, res, next);
+    await db.tx(async tx => {
+      req.body = await DocById(req.params.id, tx);
+      req.body.posted = !req.body.posted;
+      await post(req, res, next, tx);
+    });
     res.json(true);
   } catch (err) { next(err.message); }
 })
@@ -312,6 +349,14 @@ router.get('/register/account/movements/view/:id', async (req, res, next) => {
     const query = `SELECT * FROM "Register.Account.View" where document_id = $1`;
     const data = await db.manyOrNone(query, [req.params.id]);
     res.json(data);
+  } catch (err) { next(err.message); }
+})
+
+// Upsert document
+router.post('/call', (req, res, next) => {
+  try {
+    let doc = { Amount: 100 }
+    res.json(doc);
   } catch (err) { next(err.message); }
 })
 

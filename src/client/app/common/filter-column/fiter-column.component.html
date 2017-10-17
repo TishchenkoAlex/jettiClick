@@ -1,0 +1,19 @@
+<mat-icon (click)="$event.stopPropagation(); isOpen = !isOpen" style="font-size: 16px" cdkOverlayOrigin #trigger="cdkOverlayOrigin"
+  [style.color]="selectedColor || 'none'">
+  filter_list
+</mat-icon>
+
+<ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen" >
+
+  <mat-card >
+    <mat-card-content cdkTrapFocus>
+      <mat-form-field >
+        <input matInput placeholder="prototype (not functional)" tabindex="1">
+      </mat-form-field>
+    </mat-card-content>
+    <mat-card-actions>
+      
+    </mat-card-actions>
+  </mat-card>
+
+</ng-template>

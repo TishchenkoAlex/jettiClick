@@ -9,6 +9,7 @@ export class DocModel {
     parent: string = null;
     company = '';
     user = '';
+    info = ''
     doc: {}
 
     constructor (

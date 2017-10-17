@@ -1,5 +1,6 @@
 @import '~@angular/material/_theming';
-
+@import '~@angular/cdk/overlay-prebuilt.css';
+@import '~@angular/cdk/a11y-prebuilt.css';
 @include mat-core();
 
 $primary: mat-palette($mat-blue, 700);
@@ -21,4 +22,5 @@ $theme: mat-light-theme($primary, $accent, $warn);
 
 .data-table-select { 
   color : mat-color($primary, default);
+  cursor: pointer;
 }

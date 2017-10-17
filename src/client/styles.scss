@@ -14,8 +14,6 @@ body {
 }
 
 .editRowDialog .mat-dialog-container {
-  max-width: 440px;
-  min-width: 330px;
   padding: 0;
 }
 
@@ -26,14 +24,14 @@ body {
 }
 
 .sidenav-menu .mat-list-item-content {
-  height: 40px !important;
+  height: 32px !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
 }
 
 .mat-column-date {
-  max-width: 80px;
-  min-width: 80px;
+  max-width: 80px !important;
+  min-width: 80px !important;
   display: flex;
   text-align: center;
   justify-content: center;
@@ -48,7 +46,7 @@ body {
 }
 
 .mat-column-code {
-  max-width: 140px;
+  max-width: 140px !important;
 }
 
 .mat-cell .mat-checkbox-layout {
@@ -57,8 +55,8 @@ body {
 
 .mat-column-index {
   overflow: visible !important;
-  max-width: 22px;
-  min-width: 22px;
+  max-width: 22px !important;
+  min-width: 22px !important;
   margin: 0px !important;
   padding: 0px !important;
 }
@@ -78,11 +76,16 @@ body {
 
 .mat-header-cell, .mat-cell { 
   padding: 0 4px;
+  min-width: 50px;
 }
 
 .mat-column-currency {
-  max-width: 40px;
-  min-width: 40px;
+  max-width: 60px !important;
+  min-width: 60px !important;
+}
+
+.mat-column-description {
+  min-width: 180px !important;
 }
 
 .mat-cell {
@@ -91,4 +94,12 @@ body {
 
 .mat-row:hover {
   background: #f5f5f5;
+}
+
+.color-picker {
+  background-color:white;
+  width: 190px;
+  height: 190px;
+  padding: 8px;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
 }

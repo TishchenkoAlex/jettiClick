@@ -2,13 +2,13 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 
 import { BaseJettiFromControl, TableDynamicControl } from './dynamic-form/dynamic-form-base';
+export interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
 
 export function copyFormGroup(formGroup: FormGroup): FormGroup {
   const newFormGroup = new FormGroup({});
   Object.keys(formGroup.controls).forEach(key => {
     const sourceFormControl = formGroup.controls[key];
-    const newValue = sourceFormControl.value && typeof sourceFormControl.value === 'object' ?
-      Object.assign({}, sourceFormControl.value) : sourceFormControl.value;
+    const newValue = JSON.parse(JSON.stringify(sourceFormControl.value));
     const newFormControl = sourceFormControl.validator ?
       new FormControl(newValue, Validators.required) :
       new FormControl(newValue);

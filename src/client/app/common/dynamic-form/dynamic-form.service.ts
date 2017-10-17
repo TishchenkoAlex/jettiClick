@@ -6,16 +6,16 @@ import { ApiService } from '../../services/api.service';
 import { DocModel } from '../doc.model';
 import { copyFormGroup, toFormGroup } from '../utils';
 import {
-    AutocompleteJettiFormControl,
-    BaseJettiFromControl,
-    BooleanJettiFormControl,
-    ControlOptions,
-    DateJettiFormControl,
-    NumberJettiFormControl,
-    ScriptJettiFormControl,
-    TableDynamicControl,
-    TextareaJettiFormControl,
-    TextboxJettiFormControl,
+  AutocompleteJettiFormControl,
+  BaseJettiFromControl,
+  BooleanJettiFormControl,
+  ControlOptions,
+  DateJettiFormControl,
+  NumberJettiFormControl,
+  ScriptJettiFormControl,
+  TableDynamicControl,
+  TextareaJettiFormControl,
+  TextboxJettiFormControl,
 } from './dynamic-form-base';
 
 export interface ViewModel {
@@ -83,8 +83,9 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       }
       f.push(newControl);
     });
-    let i = -100; f.sort((a, b) => a.order - b.order).filter(e => !(e instanceof TableDynamicControl)).forEach(e => e.order = i++);
-    i = 1; f.sort((a, b) => a.order - b.order).forEach(e => e.order = i++);
+    f.filter(e => !(e instanceof TableDynamicControl) && e.key !== 'info' && e.key !== 'user' && e.order > 0)
+      .forEach(e => e.order = e.order - 10000000000);
+    f.sort((a, b) => a.order - b.order);
   };
 
   processRecursive(view, fields, exclude);
@@ -119,7 +120,7 @@ export class DynamicFormService {
   constructor(private apiService: ApiService) { };
 
   getViewModel$(docType: string, docID = ''): Observable<ViewModel> {
-    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent', 'user'];
+    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent'];
     switch (docType.split('.')[0]) {
       case 'Catalog': { exclude.push('date', 'company'); break; }
       case 'Document':
@@ -130,6 +131,21 @@ export class DynamicFormService {
         const model = viewModel['model'];
         const view = viewModel['view'];
         return getViewModel(view, model, exclude, docID !== 'new')
+      });
+  }
+
+  getFilterModel$(docType: string): Observable<ViewModel> {
+    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent'];
+    switch (docType.split('.')[0]) {
+      case 'Catalog': { exclude.push('date', 'company'); break; }
+      case 'Document':
+      case 'Journal': { exclude.push('description'); break; }
+    }
+    return this.apiService.getViewModel(docType)
+      .map(viewModel => {
+        const model = viewModel['model'];
+        const view = viewModel['view'];
+        return getViewModel(view, model, exclude, false)
       });
   }
 

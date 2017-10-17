@@ -13,6 +13,7 @@ export function mapDocToApiFormat(model: DocModel): DocModel {
     isfolder: model.isfolder,
     company: model.company['id'],
     user: model.user['id'],
+    info: model.info,
     doc: {}
   };
 
@@ -25,7 +26,11 @@ export function mapDocToApiFormat(model: DocModel): DocModel {
         for (const p in element) {
           if (element.hasOwnProperty(p)) {
             let value = element[p];
-            if (value && value['type'] && ((value['id'] === '') || (value['id'] === null))) { value = null; }
+            if (value && value['type'] &&
+              ['string', 'number', 'boolean', 'datetime'].includes(value['type'])) {
+              value['id'] = null; element[p] = value; continue;
+            }
+            if (value && value['type'] && !value['value'] && ((value['id'] === '') || (value['id'] === null))) { value = null }
             element[p] = value ? value['id'] || value : value || null;
           }
         }
@@ -34,11 +39,11 @@ export function mapDocToApiFormat(model: DocModel): DocModel {
       newDoc.doc[property] = copy;
     } else {
       let value = model[property];
-/*       if (value && value['type'] === 'string') { value = value['value']}
-      if (value && value['type'] === 'number') { value = value['value'] * 1 }
-      if (value && value['type'] === 'boolean') { value = !!value['value'] }
-      if (value && value['type'] === 'datetime') { value = new Date(value['value']) } */
-      if (value && value['type'] && !value['value'] && ((value['id'] === '') || (value['id'] === null))) { value = null; }
+      if (value && value['type'] &&
+        ['string', 'number', 'boolean', 'datetime'].includes(value['type'])) {
+        value['id'] = null; newDoc.doc[property] = value; continue;
+      }
+      if (value && value['type'] && !value['value'] && ((value['id'] === '') || (value['id'] === null))) { value = null }
       newDoc.doc[property] = value ? value['id'] || value : value || null;
     }
   }
