@@ -1,7 +1,7 @@
-const pgp = require('pg-promise')();
-
-const env = require('./env/environment');
-
-const db = pgp(env.connString);
-
-module.exports = db;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const pgPromise = require("pg-promise");
+const environment_1 = require("./env/environment");
+const pgp = pgPromise({});
+exports.db = pgp(environment_1.connString);
+//# sourceMappingURL=db.js.map

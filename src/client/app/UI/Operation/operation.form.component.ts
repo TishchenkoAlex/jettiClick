@@ -54,6 +54,7 @@ export class OperationFormComponent implements OnInit {
           this.viewModel.formGroup.addControl(c, additionalControl);
         });
         this.viewModel.view.push.apply(this.viewModel.view, additionalVM.view);
+        let i = 1; this.viewModel.view.forEach(el => el.order = i++);
       });
   }
 

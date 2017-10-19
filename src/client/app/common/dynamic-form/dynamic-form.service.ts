@@ -32,7 +32,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
   const fields: BaseJettiFromControl<any>[] = [];
 
   const processRecursive = (v, f: BaseJettiFromControl<any>[], excl: string[]) => {
-    Object.keys(v).filter(key => excl.indexOf(key) === -1 && !!!v[key]['hidden']).map(key => {
+    Object.keys(v).filter(key => excl.indexOf(key) === -1).map(key => {
       const prop = v[key];
       const hidden = !!prop['hidden'];
       const order = hidden ? 1000 : prop['order'] * 1 || 999;
@@ -83,9 +83,9 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       }
       f.push(newControl);
     });
-    f.filter(e => !(e instanceof TableDynamicControl) && e.key !== 'info' && e.key !== 'user' && e.order > 0)
+    f.filter(e => !(e instanceof TableDynamicControl) && e.key !== 'info' && e.key !== 'user' && e.order > 0 && !!!e.hidden)
       .forEach(e => e.order = e.order - 10000000000);
-    f.sort((a, b) => a.order - b.order);
+    let i = 1; f.sort((a, b) => a.order - b.order).forEach(el => el.order = i++);
   };
 
   processRecursive(view, fields, exclude);
@@ -120,7 +120,7 @@ export class DynamicFormService {
   constructor(private apiService: ApiService) { };
 
   getViewModel$(docType: string, docID = ''): Observable<ViewModel> {
-    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent'];
+    const exclude = ['posted', 'deleted', 'isfolder', 'parent'];
     switch (docType.split('.')[0]) {
       case 'Catalog': { exclude.push('date', 'company'); break; }
       case 'Document':

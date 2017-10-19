@@ -6,6 +6,7 @@ import { TabControllerComponent } from './common/tabcontroller/tabcontroller.com
 
 export const appRoutes: Routes = [
     { path: 'callback', redirectTo: 'Home', pathMatch: 'full' },
+    { path: 'access_token', redirectTo: 'Home', pathMatch: 'full' },
     { path: ':type', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuard] },
     { path: ':type/:id', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuard]},
     { path: '', redirectTo: 'Home', pathMatch: 'full' },

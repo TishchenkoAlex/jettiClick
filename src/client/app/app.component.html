@@ -24,7 +24,7 @@
             <mat-list-item *ngFor="let item of menuCatalogItems | async" class="sidenav-menu" [class.mat-list-item-focus]="selectedItem === item"
               (click)="selectedItem = item" [routerLink]="'/'+item.type" [routerLinkActive]="['active-route']">
               <mat-icon mat-list-icon color="primary">{{ item.icon }}</mat-icon>
-              <div mat-line color="primary">{{ item.description }}</div>
+              <div mat-line color="primary">{{ item.menu }}</div>
             </mat-list-item>
           </mat-nav-list>
         </mat-expansion-panel>
@@ -37,7 +37,7 @@
             <mat-list-item *ngFor="let item of menuDocItems | async" class="sidenav-menu" [class.mat-list-item-focus]="selectedItem === item"
               (click)="selectedItem = item" [routerLink]="'/'+item.type" [routerLinkActive]="['active-route']">
               <mat-icon mat-list-icon color="primary">{{ item.icon }}</mat-icon>
-              <div mat-line color="primary">{{ item.description }}</div>
+              <div mat-line color="primary">{{ item.menu }}</div>
             </mat-list-item>
           </mat-nav-list>
         </mat-expansion-panel>

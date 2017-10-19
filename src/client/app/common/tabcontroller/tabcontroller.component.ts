@@ -36,7 +36,7 @@ export class TabControllerComponent implements OnInit {
             const lastTabIndex = this.tcs.tabs.push(newTab);
             this.tcs.index = lastTabIndex - 1;
             this.tcs.component = this.tcs.GetComponent(newTab);
-          });
+          }, 500);
         } else {
           this.tcs.index = index;
         }

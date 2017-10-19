@@ -47,7 +47,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log('BASE DESTROY', this.viewModel.model);
+    // console.log('BASE DESTROY', this.viewModel.model);
     this._subscription$.unsubscribe();
     this._sideNavService$.unsubscribe();
   }
@@ -58,7 +58,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   Save() {
-    console.log('BASE SAVE');
+    // console.log('BASE SAVE');
     this.onSubmit();
   }
 
@@ -82,12 +82,12 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   Close() {
-    console.log('BASE CLOSE');
+    // console.log('BASE CLOSE');
     this.docService.close(this.viewModel.model);
   }
 
   Copy() {
-    console.log('BASE COPY');
+    // console.log('BASE COPY');
     this.router.navigate([this.viewModel.model.type, 'copy-' + this.viewModel.model.id]);
   }
 

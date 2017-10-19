@@ -1,5 +1,4 @@
-import { FilterObject } from '../filter/filter.control.component';
-import { Component, ElementRef, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -7,7 +6,8 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { DocModel } from '../../common/doc.model';
 import { DocService } from '../doc.service';
-import { getPeriod, ColDef } from './../../common/utils';
+import { FilterObject } from '../filter/filter.control.component';
+import { ColDef } from './../../common/utils';
 import { SideNavService } from './../../services/side-nav.service';
 import { ApiDataSource } from './api.datasource';
 
@@ -126,7 +126,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   }
 
   close() {
-    console.log('BASE CLOSE');
+    // console.log('BASE CLOSE');
     const doc = new DocModel(this.docType, '');
     doc.type = this.docType;
     this.ds.close(doc);
