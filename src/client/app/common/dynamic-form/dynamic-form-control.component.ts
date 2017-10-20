@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
@@ -6,6 +6,7 @@ import { BaseJettiFromControl } from './dynamic-form-base';
 import { patchOptionsNoEvents } from './dynamic-form.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-control',
   templateUrl: './dynamic-form-control.component.html'
 })
@@ -14,8 +15,6 @@ export class DynamicFormControlComponent {
   @Input() form: FormGroup;
 
   constructor (public api: ApiService) {}
-
-  get isValid() { return this.form.controls[this.control.key].valid; }
 
   get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
 

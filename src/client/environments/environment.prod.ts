@@ -15,6 +15,6 @@ export const environment = {
     responseType: 'token id_token',
     audience: 'https://jetti-app.com/api',
     redirectUri: 'https://jetti-project.appspot.com/callback',
-    scope: 'openid profile',
+    scope: 'openid profile email',
   }
 };

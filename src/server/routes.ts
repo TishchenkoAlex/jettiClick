@@ -1,3 +1,4 @@
+import { DocBase, FormControlRefValue } from './modules/doc.base';
 import * as express from 'express';
 
 import { db } from './db';
@@ -370,8 +371,8 @@ router.post('/call', async (req, res, next) => {
       const query = `SELECT module FROM config_schema WHERE type = $1`;
       const moduleScript = (await db.one(query, [params.doc.type])).module;
       if (moduleScript) {
-        const m = (new Function(moduleScript))();
-        result = await m[`${params.prop}_valueChanges`](params.doc, params.value, lib);
+        const func = (new Function(moduleScript))();
+        result = await func[`${params.prop}_valueChanges`](params.doc, params.value, lib);
       }
     });
     res.json(result);
@@ -380,8 +381,11 @@ router.post('/call', async (req, res, next) => {
 
 router.post('/server', async (req, res, next) => {
   try {
-    const params = req.body;
-    const result = await Modules.Document.CashIn.valueChanges.company(params.doc, params.value);
+    const doc = req.body.doc as DocBase;
+    const value = req.body.value;
+    const prop = req.body.prop;
+    const type = doc.type.split('.');
+    const result = await Modules[type[0]][type[1]]['valueChanges'][prop](doc, value);
     res.json(result);
   } catch (err) { next(err.message); }
 })

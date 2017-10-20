@@ -21,7 +21,7 @@ import { SuggestDialogComponent } from './../dialog/suggest.dialog.component';
 import { TablePartsDialogComponent } from './../dialog/table-parts.dialog.component';
 import { HomeComponent } from './../home/home.component';
 import { MaterialModule } from './../material.module';
-import { CashRegisterForm } from './Catalog/CashRegister/CashRegister.form';
+import { CashRegisterFormComponent } from './Catalog/CashRegister/CashRegister.form';
 import { OperationFormComponent } from './Operation/operation.form.component';
 
 @NgModule({
@@ -42,7 +42,7 @@ import { OperationFormComponent } from './Operation/operation.form.component';
     FilterFormControlComponent,
     FilterColumnComponent,
 
-    CashRegisterForm, // add user froms above
+    CashRegisterFormComponent, // add user froms above
     OperationFormComponent,
   ],
   imports: [
@@ -66,7 +66,7 @@ import { OperationFormComponent } from './Operation/operation.form.component';
     CommonDataTableComponent,
     BaseFormComponent,
 
-    CashRegisterForm, // add user froms above
+    CashRegisterFormComponent, // add user froms above
     OperationFormComponent,
   ]
 })

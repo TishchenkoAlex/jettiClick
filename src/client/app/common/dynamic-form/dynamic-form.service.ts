@@ -26,7 +26,7 @@ export interface ViewModel {
   schema: any;
 }
 
-export const patchOptionsNoEvents = { onlySelf: true, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
+export const patchOptionsNoEvents = { onlySelf: false, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
 export function getViewModel(view, model, exclude: string[], isExists: boolean) {
   const fields: BaseJettiFromControl<any>[] = [];

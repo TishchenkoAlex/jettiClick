@@ -9,7 +9,7 @@ export interface CashIn extends DocBase {
     }
 }
 
-export const company_valueChanges = async (doc: CashIn, value: FormControlRefValue) => {
+export const company_valueChanges = async (doc: DocBase, value: FormControlRefValue) => {
     const company = await lib.doc.byId(value.id) as DocCompany;
     const currency = await lib.doc.formControlRef(company.doc.currency) as FormControlRefValue;
     return { currency: currency };

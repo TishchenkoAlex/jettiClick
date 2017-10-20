@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
 import { NavigationEnd, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -9,6 +9,7 @@ import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']

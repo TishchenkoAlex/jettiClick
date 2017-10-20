@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -12,6 +12,7 @@ import { SideNavService } from './../../services/side-nav.service';
 import { ApiDataSource } from './api.datasource';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'common-datatable',
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
@@ -67,10 +68,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       this.ds.delete$,
       this.ds.goto$])
       .filter(doc => doc.type === this.docType)
-      .subscribe(doc => {
-        this.dataSource.selection.select(doc.id);
-        this.dataSource.goto(doc.id);
-      });
+      .subscribe(doc => this.dataSource.goto(doc.id));
 
     this._sideNavService$ = this.sns.do$
       .filter(data => data.type === this.docType && data.id === '')
@@ -80,7 +78,6 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log('DESTROY', this.docType);
     this._docSubscription$.unsubscribe();
     this._sideNavService$.unsubscribe();
     this.dataSource._filterObjectChangeSubscription.unsubscribe();
@@ -107,9 +104,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   }
 
   delete() {
-    this.dataSource.selection.selected.forEach(el => {
-      this.ds.delete(el);
-    });
+    this.dataSource.selection.selected.forEach(el => this.ds.delete(el));
   }
 
   post() {
@@ -126,7 +121,6 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   }
 
   close() {
-    // console.log('BASE CLOSE');
     const doc = new DocModel(this.docType, '');
     doc.type = this.docType;
     this.ds.close(doc);

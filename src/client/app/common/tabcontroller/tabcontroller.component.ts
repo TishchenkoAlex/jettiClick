@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';
@@ -7,6 +7,7 @@ import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { DocService } from './../../common/doc.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-tabcontroller',
   templateUrl: './tabcontroller.component.html',
   styleUrls: ['./tabcontroller.component.scss'],
@@ -14,17 +15,17 @@ import { DocService } from './../../common/doc.service';
 export class TabControllerComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private router: Router, private location: Location,
-    public tcs: TabControllerService, private ds: DocService) {
+    public tcs: TabControllerService, private ds: DocService, private cd: ChangeDetectorRef) {
   }
 
   ngOnInit() {
-    this.route.paramMap
+    this.route.paramMap.filter(el => this.tcs.menuItems.length > 0)
       .subscribe((params: ParamMap) => {
         this.tcs.tabid = params.get('type') || HOME;
         this.tcs.docID = params.get('id') || '';
         const index = this.tcs.tabs.findIndex(i => (i.docType === this.tcs.tabid) && (i.docID === this.tcs.docID));
         if (index === -1) {
-          setTimeout(_ => {
+          Promise.resolve().then(() => {
             const menuItem = this.tcs.menuItems.find(el => el.type === this.tcs.tabid);
             let description = this.tcs.docID && this.route.data['value'].detail
               ? (this.route.data['value'].detail as ViewModel).model.description : '';
@@ -36,10 +37,10 @@ export class TabControllerComponent implements OnInit {
             const lastTabIndex = this.tcs.tabs.push(newTab);
             this.tcs.index = lastTabIndex - 1;
             this.tcs.component = this.tcs.GetComponent(newTab);
-          }, 500);
-        } else {
-          this.tcs.index = index;
-        }
+            this.cd.detectChanges();
+          });
+        } else { this.tcs.index = index }
+        this.cd.detectChanges();
       });
 
     this.ds.close$

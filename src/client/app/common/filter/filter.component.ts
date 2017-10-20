@@ -1,11 +1,12 @@
-import { FilterObject } from './filter.control.component';
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { DocService } from '../../common/doc.service';
 import { DynamicFormService, ViewModel } from '../dynamic-form/dynamic-form.service';
+import { FilterObject } from './filter.control.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-filter',
   styleUrls: ['./filter.component.scss'],
   templateUrl: './filter.component.html',

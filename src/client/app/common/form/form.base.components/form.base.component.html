@@ -124,10 +124,7 @@
 
 <ng-template #sideNavTepmlate let-sidenav="sidenav">
   <mat-card>
-    <div>Document: {{ viewModel.model.type }}</div>
-    <div>Id: {{ viewModel.model.id }}</div>
-    <br>
-    <button mat-button (click)="docService.goto(viewModel.model); router.navigate([viewModel.model.type]);sidenav.close()">Open list</button>
+    <button mat-button (click)="this.Goto(); sidenav.close()">Find in list</button>
     <button mat-button (click)="sidenav.close()">Close</button>
   </mat-card>
 </ng-template>

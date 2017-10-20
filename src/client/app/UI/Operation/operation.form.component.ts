@@ -1,34 +1,31 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, QueryList, ViewChildren, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 
-import { DocService } from '../../common/doc.service';
-import { getViewModel, ViewModel } from '../../common/dynamic-form/dynamic-form.service';
+import { getViewModel } from '../../common/dynamic-form/dynamic-form.service';
+import { BaseFormComponent } from '../../common/form/form.base.components/form.base.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: 'operation.form.component.html',
   styleUrls: ['../../common/form/form.base.components/form.base.component.scss'],
 })
-export class OperationFormComponent implements OnInit {
+export class OperationFormComponent implements AfterViewInit {
 
-  viewModel: ViewModel;
   private _countOfControls = 0;
 
-  constructor(public route: ActivatedRoute, public docService: DocService) { }
+  @ViewChild(BaseFormComponent) super: BaseFormComponent;
+  get viewModel() { return this.super.viewModel }
 
-  ngOnInit() {
-    this.viewModel = this.route.data['value'].detail;
+  ngAfterViewInit() {
     this._countOfControls = this.viewModel.view.length;
     this.addParametersToForm();
-    console.log('CHILD INIT');
     this.viewModel.formGroup.controls['Operation'].valueChanges
       .subscribe(value => this.addParametersToForm());
-
   }
 
   addParametersToForm() {
     this.viewModel.view.length = this._countOfControls;
-    this.docService.api.getViewModel('Catalog.Operation',
+    this.super.docService.api.getViewModel('Catalog.Operation',
       this.viewModel.formGroup.controls['Operation'].value.id)
       .take(1)
       .subscribe(data => {
@@ -55,6 +52,7 @@ export class OperationFormComponent implements OnInit {
         });
         this.viewModel.view.push.apply(this.viewModel.view, additionalVM.view);
         let i = 1; this.viewModel.view.forEach(el => el.order = i++);
+        this.super.cd.detectChanges();
       });
   }
 

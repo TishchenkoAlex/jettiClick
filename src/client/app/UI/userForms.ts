@@ -1,10 +1,10 @@
 import { CommonDataTableComponent } from '../common/datatable/datatable.component';
 import { BaseFormComponent } from '../common/form/form.base.components/form.base.component';
-import { CashRegisterForm } from './Catalog/CashRegister/CashRegister.form';
+import { CashRegisterFormComponent } from './Catalog/CashRegister/CashRegister.form';
 import { OperationFormComponent } from './Operation/operation.form.component';
 
 const userForms = [
-    { type: 'Catalog.CashRegister', objectComponent: CashRegisterForm, listComponent: CommonDataTableComponent },
+    { type: 'Catalog.CashRegister', objectComponent: CashRegisterFormComponent, listComponent: CommonDataTableComponent },
     { type: 'Document.Operation', objectComponent: OperationFormComponent, listComponent: CommonDataTableComponent }
 ]
 

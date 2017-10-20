@@ -1,32 +1,12 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 
-import { DocService } from '../../../common/doc.service';
-import { ViewModel } from '../../../common/dynamic-form/dynamic-form.service';
+import { BaseFormComponent } from '../../../common/form/form.base.components/form.base.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: 'CashRegister.form.html',
 })
-// tslint:disable-next-line:component-class-suffix
-export class CashRegisterForm {
-  viewModel: ViewModel;
-
-  constructor(public route: ActivatedRoute, public docService: DocService) {
-    this.viewModel = this.route.data['value'].detail;
-  }
-
-  Save() {
-    console.log('BASE SAVE');
-    this.onSubmit();
-  }
-
-  private onSubmit() {
-    this.viewModel.model = Object.assign(this.viewModel.model, this.viewModel.formGroup.value);
-    this.docService.save(this.viewModel.model);
-  }
-
-  Close() {
-    console.log('BASE CLOSE');
-    this.docService.close(this.viewModel.model);
-  }
+export class CashRegisterFormComponent {
+  @ViewChild(BaseFormComponent) super: BaseFormComponent;
+  get viewModel() { return this.super.viewModel }
 }

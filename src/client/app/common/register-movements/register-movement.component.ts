@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
@@ -7,6 +7,7 @@ import { DocService } from '../doc.service';
 import { AccountRegister } from './../../models/account.register';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-register-movement',
   styleUrls: ['./register-movement.component.scss'],
   templateUrl: './register-movement.component.html',
@@ -29,7 +30,7 @@ export class RegisterMovementComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(_ => this.docService.do(this.doc));
+    this.docService.do(this.doc);
   }
 
 }

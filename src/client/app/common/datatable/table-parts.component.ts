@@ -1,13 +1,23 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatSort, MatTableDataSource } from '@angular/material';
 
 import {
-    AutocompleteJettiFormControl,
-    BaseJettiFromControl,
-    TableDynamicControl,
-    ScriptJettiFormControl,
+  AutocompleteJettiFormControl,
+  BaseJettiFromControl,
+  TableDynamicControl,
+  ScriptJettiFormControl,
 } from '../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
@@ -17,6 +27,7 @@ import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.com
 interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-table-part',
   styles: [`
     .search-header {
@@ -41,7 +52,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   columns: ColDef[] = [];
   sampleRow: FormGroup;
 
-  constructor(public dialog: MatDialog, private ds: DocService) { }
+  constructor(public dialog: MatDialog, private ds: DocService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.view = this.control.value as BaseJettiFromControl<any>[];
@@ -53,15 +64,13 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     this.displayedColumns.unshift('index', 'select');
 
     this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
-    setTimeout(_ => this.formGroup.removeAt(this.formGroup.length - 1));
-
+    this.formGroup.removeAt(this.formGroup.length - 1);
   }
 
   ngAfterViewInit() {
-    setTimeout(_ => {
-      this.dataSource = new MatTableDataSource(this.formGroup.value);
-      this.dataSource.sort = this.sort;
-    });
+    this.dataSource = new MatTableDataSource(this.formGroup.value);
+    this.dataSource.sort = this.sort;
+    this.cd.detectChanges();
   }
 
   isAllSelected(): boolean {
@@ -86,7 +95,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     const formGroup = this.formGroup.controls[row.index] as FormGroup;
     const newFormGroup = this.copyFormGroup(formGroup);
     this.dialog.open(TablePartsDialogComponent,
-      { data: { view: this.view, formGroup: newFormGroup },  panelClass: 'editRowDialog' })
+      { data: { view: this.view, formGroup: newFormGroup }, panelClass: 'editRowDialog' })
       .afterClosed()
       .take(1)
       .subscribe(data => {
@@ -102,7 +111,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     const newFormGroup = this.copyFormGroup(this.sampleRow);
     newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
     this.dialog.open(TablePartsDialogComponent,
-      { data: { view: this.view, formGroup: newFormGroup },  panelClass: 'editRowDialog' })
+      { data: { view: this.view, formGroup: newFormGroup }, panelClass: 'editRowDialog' })
       .afterClosed()
       .take(1)
       .subscribe(data => {
@@ -132,8 +141,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   CopyRow() {
     const index = this.selection.selected[0].index;
     const newFormGroup = this.copyFormGroup(this.formGroup.at(index) as FormGroup);
-    this.dialog.open(TablePartsDialogComponent, 
-      { data: { view: this.view, formGroup: newFormGroup },  panelClass: 'editRowDialog' })
+    this.dialog.open(TablePartsDialogComponent,
+      { data: { view: this.view, formGroup: newFormGroup }, panelClass: 'editRowDialog' })
       .afterClosed()
       .take(1)
       .subscribe(data => {

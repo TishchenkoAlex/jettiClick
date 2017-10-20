@@ -1,13 +1,14 @@
-import { AfterViewInit, Component, forwardRef, Input, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, forwardRef, Input, OnDestroy, ViewChild, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
-    AbstractControl,
-    ControlValueAccessor,
-    FormControl,
-    FormGroup,
-    NG_VALIDATORS,
-    NG_VALUE_ACCESSOR,
-    ValidationErrors,
-    Validator,
+  AbstractControl,
+  ControlValueAccessor,
+  FormControl,
+  FormGroup,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator,
+  Validators,
 } from '@angular/forms';
 import { MatAutocomplete, MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
@@ -20,6 +21,7 @@ import { DocModel } from '../doc.model';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-autocomplete',
   templateUrl: './autocomplete.component.html',
   providers: [
@@ -39,7 +41,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   @Input() checkValue = true;
 
   form: FormGroup = new FormGroup({
-    suggest: new FormControl('')
+    suggest: new FormControl(this.value)
   });
 
   private _subscription$: Subscription = Subscription.EMPTY;
@@ -51,7 +53,8 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
     }
     // const doEvent = !(this._value && this._value.data === obj.data);
     this._value = obj;
-    this.form.controls['suggest'].setValue(obj ? obj.value : obj);
+    (this.form.controls['suggest'] as FormControl).patchValue(obj ? obj.value : obj,
+      {emitEvent: false, onlySelf: true});
     if (this._value.data !== 'NO_EVENT') { this.onChange(this._value); }
     delete this._value.data // skip initial onChange
   }
@@ -88,7 +91,13 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
 
   // implement Validator interface
   validate(c: AbstractControl): ValidationErrors | null {
-    return this.suggest.errors;
+    if (!this.required) { return null }
+    if (c.value.value) {
+      // console.log('VALID', this.type);
+      return null;
+    }
+    // console.log('INVALID');
+    return {'required': true}
   };
   // end of implementation Validator interface
 
@@ -99,7 +108,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
       .distinctUntilChanged()
       .filter(data => {
         return this.isComplexValue && (typeof data === 'string') && (data !== this.value.value)
-        && (this.value.data !== 'NO_SUGGEST');
+          && (this.value.data !== 'NO_SUGGEST');
       })
       .debounceTime(300)
       .switchMap(text => this.getSuggests(this.value.type || this.type, text))

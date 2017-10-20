@@ -59,7 +59,7 @@ export class Auth0Service {
     const accessToken = localStorage.getItem('access_token');
     if (accessToken) {
       this.auth0.client.userInfo(accessToken, (err, profile) => {
-        if (profile) { this._userProfile$.next(profile); }
+        if (profile) { this._userProfile$.next(profile); console.log(profile)}
       });
     }
   }

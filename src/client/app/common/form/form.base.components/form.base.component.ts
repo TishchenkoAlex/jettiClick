@@ -1,4 +1,13 @@
-import { Component, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    Input,
+    OnDestroy,
+    OnInit,
+    TemplateRef,
+    ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
@@ -8,6 +17,7 @@ import { ViewModel } from '../../dynamic-form/dynamic-form.service';
 import { SideNavService } from './../../../services/side-nav.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-form',
   styleUrls: ['./form.base.component.scss'],
   templateUrl: './form.base.component.html',
@@ -23,7 +33,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
   protected _sideNavService$: Subscription = Subscription.EMPTY;
 
-  constructor(public router: Router, public route: ActivatedRoute,
+  constructor(public router: Router, public route: ActivatedRoute, public cd: ChangeDetectorRef,
     public docService: DocService, public sideNavService: SideNavService) { }
 
   ngOnInit() {
@@ -47,7 +57,6 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // console.log('BASE DESTROY', this.viewModel.model);
     this._subscription$.unsubscribe();
     this._sideNavService$.unsubscribe();
   }
@@ -58,7 +67,6 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   Save() {
-    // console.log('BASE SAVE');
     this.onSubmit();
   }
 
@@ -82,13 +90,15 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   Close() {
-    // console.log('BASE CLOSE');
     this.docService.close(this.viewModel.model);
   }
 
   Copy() {
-    // console.log('BASE COPY');
     this.router.navigate([this.viewModel.model.type, 'copy-' + this.viewModel.model.id]);
+  }
+
+  Goto() {
+    this.router.navigate([this.viewModel.model.type]).then(() => this.docService.goto(this.viewModel.model));
   }
 
 }

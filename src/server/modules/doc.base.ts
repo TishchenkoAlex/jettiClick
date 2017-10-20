@@ -1,5 +1,6 @@
 export interface DocBase {
     id: string;
+    type: string;
     code: string;
     description: string;
     company: string;
@@ -19,3 +20,4 @@ export interface FormControlRefValue {
 }
 
 export type Ref = string;
+
