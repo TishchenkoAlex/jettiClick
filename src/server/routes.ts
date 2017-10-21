@@ -1,9 +1,9 @@
-import { DocBase, FormControlRefValue } from './modules/doc.base';
+import { DocBase, RefValue } from './modules/doc.base';
 import * as express from 'express';
 
 import { db } from './db';
-import { Modules } from './modules/index';
 import { lib } from './std.lib';
+import { valueChanges } from './modules/index';
 
 export const router = express.Router();
 
@@ -379,13 +379,12 @@ router.post('/call', async (req, res, next) => {
   } catch (err) { next(err.message); }
 })
 
-router.post('/server', async (req, res, next) => {
+router.post('/valueChanges/:type/:property', async (req, res, next) => {
   try {
     const doc = req.body.doc as DocBase;
     const value = req.body.value;
-    const prop = req.body.prop;
-    const type = doc.type.split('.');
-    const result = await Modules[type[0]][type[1]]['valueChanges'][prop](doc, value);
+    const Module = valueChanges;
+    const result = await Module[req.params.type][req.params.property](doc, value);
     res.json(result);
   } catch (err) { next(err.message); }
 })

@@ -1,9 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
 import { NavigationEnd, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 
 import { Auth0Service } from './auth/auth0.service';
+import { LoadingService } from './common/loading.service';
 import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
@@ -19,14 +20,13 @@ export class AppComponent implements OnInit {
   menuCatalogItems: Observable<any[]>;
   menuDocItems: Observable<any[]>;
 
-  loading$: Observable<boolean>;
-
   selectedItem; // this.users[0];
   isDarkTheme = false;
   sideNav = { mode: 'side', opened: true };
 
-  constructor(media: ObservableMedia, private router: Router, private auth: Auth0Service,
-    public sideNavService: SideNavService, private apiService: ApiService, private tsc: TabControllerService) {
+  constructor(media: ObservableMedia, private router: Router, private auth: Auth0Service, public lds: LoadingService,
+    public sideNavService: SideNavService, private apiService: ApiService,
+    private tsc: TabControllerService, private cd: ChangeDetectorRef) {
 
     media.asObservable().subscribe((change: MediaChange) => this.switchMedia(change));
 
@@ -35,12 +35,12 @@ export class AppComponent implements OnInit {
       tsc.menuItems.length = 0;
       this.menuCatalogItems = apiService.getCatalogs().do(data => tsc.menuItems.push.apply(tsc.menuItems, data));
       this.menuDocItems = apiService.getDocuments().do(data => tsc.menuItems.push.apply(tsc.menuItems, data));
+      this.cd.markForCheck();
     })
   }
 
   ngOnInit() {
-    this.loading$ = this.router.events
-      .map(event => !(event instanceof NavigationEnd));
+    this.router.events.subscribe(event => this.lds.loading = !(event instanceof NavigationEnd));
   }
 
   private switchMedia(change: MediaChange) {

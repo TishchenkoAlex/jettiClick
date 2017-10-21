@@ -46,7 +46,6 @@
 
   </mat-table>
   <div fxLayoutAlign="end center" fxLayoutGap="4px">
-    <mat-progress-bar *ngIf="dataSource.isLoadingResults" mode="indeterminate"></mat-progress-bar>
     <button mat-icon-button color="default" (click)="dataSource.first()" [disabled]="!dataSource.continuation.first">
       <mat-icon>first_page</mat-icon>
     </button>

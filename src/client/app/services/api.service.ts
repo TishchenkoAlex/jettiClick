@@ -1,4 +1,3 @@
-import { FilterObject } from '../common/filter/filter.control.component';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -107,12 +106,21 @@ export class ApiService {
     .catch(err => Observable.of([]))
   }
 
-  call(doc: DocModel, value: string, prop: string) {
+/*   call(doc: DocModel, value: string, prop: string) {
     const query = `${this.url}call`;
     const callConfig = { doc: doc, value: value, prop: prop }
     console.log('call ', query, callConfig);
     return this.http.post(query, callConfig).take(1).toPromise()
       .catch(err => Observable.of({}).toPromise())
   }
+ */
+  valueChanges(doc: DocModel, property: string, value: string) {
+    const query = `${this.url}valueChanges/${doc.type}/${property}`;
+    const callConfig = { doc: doc, value: value }
+    console.log('valueChanges', query, callConfig);
+    return this.http.post(query, callConfig).take(1).toPromise()
+      .catch(err => Observable.of({}).toPromise())
+  }
+
 }
 

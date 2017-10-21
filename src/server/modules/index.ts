@@ -1,12 +1,9 @@
-import { company_valueChanges } from './Document.CashIn';
+import { ValueChanges } from './doc.base';
+import { CashInActions } from './Document.CashIn';
+import { OperationActions } from './Document.Operation';
 
-export const Modules = {
-    Document: {
-        CashIn: {
-            valueChanges: {
-                company: company_valueChanges,
-            }
-        }
-    }
+
+export const valueChanges: ValueChanges = {
+    'Document.CashIn': CashInActions,
+    'Document.Operation': OperationActions
 }
-

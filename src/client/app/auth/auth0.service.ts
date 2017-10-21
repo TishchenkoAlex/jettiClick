@@ -29,14 +29,13 @@ export class Auth0Service {
         this.setSession(authResult);
       } else if (err) {
         this.router.navigate(['/Home']);
-        console.log(err);
       }
       this.getProfile();
     });
   }
 
   private setSession(authResult): void {
-    const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
+    const expiresAt = JSON.stringify((authResult.expiresIn * 1000000) + new Date().getTime());
     localStorage.setItem('access_token', authResult.accessToken);
     localStorage.setItem('id_token', authResult.idToken);
     localStorage.setItem('expires_at', expiresAt);
@@ -59,7 +58,7 @@ export class Auth0Service {
     const accessToken = localStorage.getItem('access_token');
     if (accessToken) {
       this.auth0.client.userInfo(accessToken, (err, profile) => {
-        if (profile) { this._userProfile$.next(profile); console.log(profile)}
+        if (profile) { this._userProfile$.next(profile) }
       });
     }
   }

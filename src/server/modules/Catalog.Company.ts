@@ -1,8 +1,9 @@
-import { DocBase, Ref } from './doc.base';
+import { DocBase, FileldsAction, Ref } from './doc.base';
 
-export interface DocCompany extends DocBase {
+export interface CalalogCompany extends DocBase {
     doc: {
         currency: Ref,
         prefix: string
     }
 }
+

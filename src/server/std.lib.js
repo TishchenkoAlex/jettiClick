@@ -33,7 +33,7 @@ async function formControlRef(id) {
     SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = $1`, [id]);
     return result;
 }
-async function debit(company, account, date) {
+async function debit(account, date = new Date().toJSON(), company) {
     const result = await db_1.db.one(`
     SELECT SUM(sum) result FROM "Register.Account" a
     JOIN "Documents" da ON da.code = a.dt and da.type = 'Catalog.Account'
@@ -41,14 +41,14 @@ async function debit(company, account, date) {
     WHERE da.code = $1 AND a.datetime <= $2 AND dc.code = $3`, [account, date, company]);
     return result.result;
 }
-async function kredit(account, date) {
+async function kredit(account, date = new Date().toJSON(), company) {
     const result = await db_1.db.one(`
     SELECT SUM(sum) result FROM "Register.Account" a
     JOIN "Documents" da ON da.code = a.kt and da.type = 'Catalog.Account'
     WHERE da.code = $1 AND a.datetime <= $2`, [account, date]);
     return result.result;
 }
-async function balance(account, date = new Date(), company) {
+async function balance(account, date = new Date().toJSON(), company) {
     const result = await db_1.db.one(`
     SELECT SUM(sum) result FROM "Register.Account"
     WHERE dt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);

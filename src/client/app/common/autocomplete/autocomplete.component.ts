@@ -1,14 +1,13 @@
-import { AfterViewInit, Component, forwardRef, Input, OnDestroy, ViewChild, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, forwardRef, Input, OnDestroy, ViewChild } from '@angular/core';
 import {
-  AbstractControl,
-  ControlValueAccessor,
-  FormControl,
-  FormGroup,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator,
-  Validators,
+    AbstractControl,
+    ControlValueAccessor,
+    FormControl,
+    FormGroup,
+    NG_VALIDATORS,
+    NG_VALUE_ACCESSOR,
+    ValidationErrors,
+    Validator,
 } from '@angular/forms';
 import { MatAutocomplete, MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
@@ -48,15 +47,15 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
+    const NO_EVENT = obj && obj.data === 'NO_EVENT';
+    delete obj.data // skip initial onChange
+    if (JSON.stringify(obj) === JSON.stringify(this._value)) { return }
     if (this.type.startsWith('Types.')) {
       this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']';
     }
-    // const doEvent = !(this._value && this._value.data === obj.data);
     this._value = obj;
-    (this.form.controls['suggest'] as FormControl).patchValue(obj ? obj.value : obj,
-      {emitEvent: false, onlySelf: true});
-    if (this._value.data !== 'NO_EVENT') { this.onChange(this._value); }
-    delete this._value.data // skip initial onChange
+    (this.form.controls['suggest'] as FormControl).patchValue(obj ? obj.value : obj);
+    if (!NO_EVENT) { this.onChange(this._value) }
   }
   get value() { return this._value; }
   get suggest() { return this.form.controls['suggest']; }
@@ -71,7 +70,6 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   private onTouched = () => { };
 
   writeValue(obj: any): void {
-    if (obj === this._value) { return }
     obj.data = 'NO_EVENT'; // skip initial onChange
     this.value = obj;
   }
@@ -92,12 +90,8 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   // implement Validator interface
   validate(c: AbstractControl): ValidationErrors | null {
     if (!this.required) { return null }
-    if (c.value.value) {
-      // console.log('VALID', this.type);
-      return null;
-    }
-    // console.log('INVALID');
-    return {'required': true}
+    if (c.value.value) { return null }
+    return { 'required': true }
   };
   // end of implementation Validator interface
 

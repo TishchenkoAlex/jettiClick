@@ -1,9 +1,10 @@
-import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatSort } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ApiDataSource } from '../common/datatable/api.datasource';
+import { LoadingService } from '../common/loading.service';
 import { ApiService } from '../services/api.service';
 
 @Component({
@@ -24,12 +25,13 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('filter') filter: ElementRef;
 
-  constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any, private apiService: ApiService) { }
+  constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any,
+    private apiService: ApiService, private lds: LoadingService) { }
 
   ngOnInit() {
     this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.sort);
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.sort, this.lds);
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .distinctUntilChanged()

@@ -1,23 +1,33 @@
+export type Ref = string;
+
 export interface DocBase {
-    id: string;
+    id: Ref;
     type: string;
     code: string;
     description: string;
-    company: string;
-    user: string;
+    company: Ref;
+    user: Ref;
     posted: boolean;
     deleted: boolean;
     isfolder: boolean;
-    parent: string;
+    parent: Ref;
     info: string;
+    doc: { [x: string]: boolean | number | string | Ref | any[] }
 }
 
-export interface FormControlRefValue {
-    id: string,
+export interface RefValue {
+    id: Ref,
     type: string,
     code: string,
     value: string | number | boolean
 }
 
-export type Ref = string;
+export interface PatchValue { [x: string]: boolean | number | string | RefValue }
 
+export interface FileldsAction {
+    [field: string]: (doc: DocBase, value: any) => Promise<PatchValue>
+}
+
+export interface ValueChanges {
+    [type: string]: FileldsAction
+}

@@ -1,5 +1,5 @@
 import { db } from './db';
-import { DocBase, FormControlRefValue, Ref } from './modules/doc.base';
+import { DocBase, RefValue, Ref } from './modules/doc.base';
 
 export const lib = {
   account: {
@@ -21,13 +21,13 @@ async function accountByCode(code) {
   return result.result as Ref;
 }
 
-async function byCode(type, code) {
+async function byCode(type: string, code: string) {
   const result = await db.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = $1 AND code = $2`, [type, code]);
   return result.result as Ref;
 }
 
-async function byId(id) {
+async function byId(id: string) {
   const result = await db.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
   return result as DocBase;
 }
@@ -35,10 +35,10 @@ async function byId(id) {
 async function formControlRef(id: string) {
   const result = await db.oneOrNone(`
     SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = $1`, [id]);
-  return result as FormControlRefValue;
+  return result as RefValue;
 }
 
-async function debit(company, account, date) {
+async function debit(account: Ref, date = new Date().toJSON(), company: string) {
   const result = await db.one(`
     SELECT SUM(sum) result FROM "Register.Account" a
     JOIN "Documents" da ON da.code = a.dt and da.type = 'Catalog.Account'
@@ -47,7 +47,7 @@ async function debit(company, account, date) {
   return result.result as number;
 }
 
-async function kredit(account, date) {
+async function kredit(account: Ref, date = new Date().toJSON(), company: string) {
   const result = await db.one(`
     SELECT SUM(sum) result FROM "Register.Account" a
     JOIN "Documents" da ON da.code = a.kt and da.type = 'Catalog.Account'
@@ -55,7 +55,7 @@ async function kredit(account, date) {
   return result.result as number;
 }
 
-async function balance(account, date = new Date(), company) {
+async function balance(account: Ref, date = new Date().toJSON(), company: string) {
   const result = await db.one(`
     SELECT SUM(sum) result FROM "Register.Account"
     WHERE dt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);

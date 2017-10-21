@@ -36,7 +36,7 @@ export class OperationFormComponent implements AfterViewInit {
             label: c.label, type: c.type.id, required: !!c.required, change: c.change, order: c.order,
             ['p' + c.order]: c.tableDef ? JSON.parse(c.tableDef) : null
           });
-
+        for (let fc = 1; fc <= 10; fc++) { this.viewModel.formGroup.removeControl('p' + fc); }
         const additionalVM = getViewModel(ParametersObject, this.viewModel.model, [], true);
         Object.keys(additionalVM.formGroup.controls).forEach(c => {
           const additionalControl = additionalVM.formGroup.get(c) as FormControl;
@@ -47,7 +47,6 @@ export class OperationFormComponent implements AfterViewInit {
                 { id: '', value: null, type: type, code: '' }, { onlySelf: true, emitEvent: false });
             }
           }
-          this.viewModel.formGroup.removeControl(c);
           this.viewModel.formGroup.addControl(c, additionalControl);
         });
         this.viewModel.view.push.apply(this.viewModel.view, additionalVM.view);

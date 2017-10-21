@@ -1,3 +1,4 @@
+import { LoadingService } from '../loading.service';
 import { DataSource, SelectionModel } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -24,10 +25,10 @@ export class ApiDataSource extends DataSource<any> {
   private _selectedID = '';
 
   continuation: Continuation = { first: this.firstDoc, last: this.lastDoc };
-  isLoadingResults = true;
   private result$: Observable<any[]>;
 
-  constructor(private apiService: ApiService, private _docType: string, private pageSize: number, private _sort: MatSort) {
+  constructor(private apiService: ApiService, private _docType: string,
+    private pageSize: number, private _sort: MatSort, private lds: LoadingService) {
     super();
     this._sort.direction = 'asc';
 
@@ -40,8 +41,7 @@ export class ApiDataSource extends DataSource<any> {
     ])
       .filter(stream => !!stream)
       .switchMap((stream) => {
-        console.log('STREAM', stream);
-        this.isLoadingResults = true;
+        this.lds.loading = true;
 
         let offset = 0; let row = this.firstDoc;
         if (this.selection.selected.length) {
@@ -73,8 +73,8 @@ export class ApiDataSource extends DataSource<any> {
         const filter = stream['action'] === 'filter' ? stream['value'] : {};
 
         return this.apiService.getDocList(this._docType, row.id, command, this.pageSize, offset, sort, filter)
-          .do(data => { this.renderedData = data.data; this.continuation = data.continuation; this.isLoadingResults = false })
-          .catch(err => { this.renderedData = []; this.isLoadingResults = false; return Observable.of([]) });
+          .do(data => { this.renderedData = data.data; this.continuation = data.continuation; this.lds.loading = false })
+          .catch(err => { this.renderedData = []; this.lds.loading = false; return Observable.of([]) });
       })
       .map(data => data['data'])
   }

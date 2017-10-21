@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const db_1 = require("./db");
-const index_1 = require("./modules/index");
 const std_lib_1 = require("./std.lib");
+const index_1 = require("./modules/index");
 exports.router = express.Router();
 exports.router.get('/catalogs', async (req, res, next) => {
     try {
@@ -422,13 +422,12 @@ exports.router.post('/call', async (req, res, next) => {
         next(err.message);
     }
 });
-exports.router.post('/server', async (req, res, next) => {
+exports.router.post('/valueChanges/:type/:property', async (req, res, next) => {
     try {
         const doc = req.body.doc;
         const value = req.body.value;
-        const prop = req.body.prop;
-        const type = doc.type.split('.');
-        const result = await index_1.Modules[type[0]][type[1]]['valueChanges'][prop](doc, value);
+        const Module = index_1.valueChanges;
+        const result = await Module[req.params.type][req.params.property](doc, value);
         res.json(result);
     }
     catch (err) {

@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { DocModel } from '../../common/doc.model';
 import { DocService } from '../doc.service';
 import { FilterObject } from '../filter/filter.control.component';
+import { LoadingService } from '../loading.service';
 import { ColDef } from './../../common/utils';
 import { SideNavService } from './../../services/side-nav.service';
 import { ApiDataSource } from './api.datasource';
@@ -37,14 +38,14 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   filterColumns: any[] = [];
 
   constructor(private route: ActivatedRoute, private router: Router,
-    private ds: DocService, private sns: SideNavService) { };
+    private ds: DocService, private sns: SideNavService, private lds: LoadingService) { };
 
   ngOnInit() {
     const view = this.route.data['value'].detail;
     this.docType = this.route.params['value'].type;
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.sort);
+    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.sort, this.lds);
 
     Object.keys(view).filter(property => view[property] && view[property]['type'] !== 'table').map((property) => {
       const prop = view[property];
@@ -128,7 +129,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
 
   onChangeFilter(event: FilterObject) {
     this.dataSource.filterObject = event;
-    console.log(event);
+    console.log('onChangeFilter', event);
   }
 }
 

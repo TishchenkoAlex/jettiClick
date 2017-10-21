@@ -31,6 +31,7 @@ import { appRoutes } from './app.routes';
 import { AuthGuardService } from './auth/auth.guard.service';
 import { Auth0Service } from './auth/auth0.service';
 import { LoginComponent } from './auth/login-component/login-component';
+import { LoadingService } from './common/loading.service';
 import { JettiDateAdapter } from './jetti-date-adapter/jetti-date-adapter';
 import { JETTI_DATE_FORMATS } from './jetti-date-adapter/jetti-date-formats';
 import { CustomPaginator } from './jetti-date-adapter/jetti-paginator';
@@ -75,6 +76,7 @@ export function getJwtToken(): string {
       useClass: AppRouteReuseStrategy
     },
     { provide: MatPaginatorIntl, useClass: CustomPaginator },
+    LoadingService,
     ApiService,
     Auth0Service,
     TabResolver,
