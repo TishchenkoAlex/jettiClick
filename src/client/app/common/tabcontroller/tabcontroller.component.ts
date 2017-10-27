@@ -27,11 +27,11 @@ export class TabControllerComponent implements OnInit {
         if (index === -1) {
           Promise.resolve().then(() => {
             const menuItem = this.tcs.menuItems.find(el => el.type === this.tcs.tabid);
-            let description = this.tcs.docID && this.route.data['value'].detail
-              ? (this.route.data['value'].detail as ViewModel).model.description : '';
+            let description = this.tcs.docID && this.route.data['value'].detail ?
+              (this.route.data['value'].detail as ViewModel).model.description : '';
             description = description.length > 25 ? description.slice(0, 22) + '...' : description;
             const newTab: TabDef = {
-              header: menuItem.description, docType: this.tcs.tabid,
+              header: this.tcs.docID ? menuItem.description : menuItem.menu, docType: this.tcs.tabid,
               icon: menuItem.icon, docID: this.tcs.docID, description: description
             };
             const lastTabIndex = this.tcs.tabs.push(newTab);

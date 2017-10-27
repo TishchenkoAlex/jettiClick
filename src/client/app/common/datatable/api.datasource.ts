@@ -1,4 +1,3 @@
-import { LoadingService } from '../loading.service';
 import { DataSource, SelectionModel } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -28,7 +27,7 @@ export class ApiDataSource extends DataSource<any> {
   private result$: Observable<any[]>;
 
   constructor(private apiService: ApiService, private _docType: string,
-    private pageSize: number, private _sort: MatSort, private lds: LoadingService) {
+    private pageSize: number, private _sort: MatSort) {
     super();
     this._sort.direction = 'asc';
 
@@ -41,7 +40,6 @@ export class ApiDataSource extends DataSource<any> {
     ])
       .filter(stream => !!stream)
       .switchMap((stream) => {
-        this.lds.loading = true;
 
         let offset = 0; let row = this.firstDoc;
         if (this.selection.selected.length) {
@@ -54,7 +52,7 @@ export class ApiDataSource extends DataSource<any> {
           case 'prev': row = this.continuation.first; this.selection.clear(); offset = 0; break;
           case 'next': row = this.continuation.last; this.selection.clear(); offset = 0; break;
           case 'last': row = this.lastDoc; this.selection.clear(); offset = 0; break;
-          case 'refresh': row = this.renderedData[offset]; break;
+          case 'refresh': row = this.renderedData[offset] || this.firstDoc; break;
           case 'goto': row = new DocModel(this._docType, this._selectedID); this.selection.select(this._selectedID); break;
         }
 
@@ -73,8 +71,8 @@ export class ApiDataSource extends DataSource<any> {
         const filter = stream['action'] === 'filter' ? stream['value'] : {};
 
         return this.apiService.getDocList(this._docType, row.id, command, this.pageSize, offset, sort, filter)
-          .do(data => { this.renderedData = data.data; this.continuation = data.continuation; this.lds.loading = false })
-          .catch(err => { this.renderedData = []; this.lds.loading = false; return Observable.of([]) });
+          .do(data => { this.renderedData = data.data; this.continuation = data.continuation })
+          .catch(err => { this.renderedData = []; return Observable.of([]) });
       })
       .map(data => data['data'])
   }

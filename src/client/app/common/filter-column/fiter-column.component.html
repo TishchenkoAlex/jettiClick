@@ -1,18 +1,30 @@
-<mat-icon (click)="$event.stopPropagation(); isOpen = !isOpen" style="font-size: 16px" cdkOverlayOrigin #trigger="cdkOverlayOrigin"
-  [style.color]="selectedColor || 'none'">
+<mat-icon (click)="$event.stopPropagation(); isOpen = !isOpen" style="font-size: 16px" cdkOverlayOrigin #origin="cdkOverlayOrigin">
   filter_list
 </mat-icon>
 
-<ng-template cdkConnectedOverlay [cdkConnectedOverlayOrigin]="trigger" [cdkConnectedOverlayOpen]="isOpen" >
+<ng-template cdkConnectedOverlay hasBackdrop backdropClass="cdk-overlay-transparent-backdrop" [cdkConnectedOverlayOrigin]="origin"
+  [cdkConnectedOverlayOpen]="isOpen" width="300px" (attach)="attach()" (detach)="detach()" (backdropClick)="backdropClick()" (positionChange)="positionChange($event)">
 
-  <mat-card >
-    <mat-card-content cdkTrapFocus>
-      <mat-form-field >
-        <input matInput placeholder="prototype (not functional)" tabindex="1">
+  <mat-card>
+    <mat-card-content cdkTrapFocus fxLayout="column">
+      <mat-card-title-group>
+        <mat-card-title>
+          <mat-card-subtitle>
+              {{ field | json }}
+          </mat-card-subtitle>
+        </mat-card-title>
+      </mat-card-title-group>
+      <mat-form-field>
+        <input matInput placeholder="filter" cdk-focus-initial>
       </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="second" cdk-focus-initial>
+      </mat-form-field>
+
     </mat-card-content>
-    <mat-card-actions>
-      
+    <mat-card-actions align="center">
+      <button mat-raised-button color="primary" (click)="isOpen = false">Ok</button>
+      <button mat-button (click)="isOpen = false">Cancel</button>
     </mat-card-actions>
   </mat-card>
 

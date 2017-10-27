@@ -1,4 +1,3 @@
-import { LoadingService } from '../../loading.service';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -35,7 +34,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   protected _sideNavService$: Subscription = Subscription.EMPTY;
 
   constructor(public router: Router, public route: ActivatedRoute, public cd: ChangeDetectorRef,
-    public docService: DocService, public sideNavService: SideNavService, public lds: LoadingService) { }
+    public docService: DocService, public sideNavService: SideNavService) { }
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
@@ -49,7 +48,6 @@ export class BaseFormComponent implements OnInit, OnDestroy {
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
         this.viewModel.formGroup.patchValue(savedDoc, { emitEvent: false });
-        this.lds.loading = false;
       });
 
     this._sideNavService$ = this.sideNavService.do$
@@ -63,7 +61,6 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   private onSubmit() {
-    this.lds.loading = true;
     this.viewModel.model = Object.assign(this.viewModel.model, this.viewModel.formGroup.value);
     this.docService.save(this.viewModel.model);
   }

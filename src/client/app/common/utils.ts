@@ -2,7 +2,6 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 
 import { BaseJettiFromControl, TableDynamicControl } from './dynamic-form/dynamic-form-base';
-export interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: string };
 
 export function copyFormGroup(formGroup: FormGroup): FormGroup {
   const newFormGroup = new FormGroup({});
@@ -82,3 +81,4 @@ export function getPeriod(value: string): { startDate: Date, endDate: Date } {
     }
   }
 }
+

@@ -42,9 +42,10 @@
           </ng-container>
 
           <ng-container *ngSwitchCase="'string'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true" [ngStyle]="col.style">
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true"
+              [ngStyle]="col.style">
               {{ col.label }}
-              <filter-column></filter-column>
+              <filter-column [field]="col"></filter-column>
             </mat-header-cell>
             <mat-cell *cdkCellDef="let row" [ngStyle]="col.style" [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true">
               <div *ngIf="col.field === 'description'" class="data-table-select" (click)="open(row)">{{row.description}}</div>
@@ -53,7 +54,10 @@
           </ng-container>
 
           <ng-container *ngSwitchCase="'datetime'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">{{ col.label }}</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">
+              {{ col.label }}
+              <filter-column [field]="col"></filter-column>
+            </mat-header-cell>
             <mat-cell *cdkCellDef="let row" [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">
               <div *ngIf="(col.field === 'date')" class="data-table-select" (click)="open(row)">
                 {{row.date | date:'dd.MM.yyyy hh:mm:ss'}}
@@ -63,7 +67,10 @@
           </ng-container>
 
           <ng-container *ngSwitchCase="'date'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true">{{ col.label }}</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true">
+              {{ col.label }}
+              <filter-column [field]="col"></filter-column>
+            </mat-header-cell>
             <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true">
               {{row[col.field] | date:'dd.MM.yyyy'}}
             </mat-cell>
@@ -72,6 +79,7 @@
           <ng-container *ngSwitchCase="'number'">
             <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="max-width: 70px; min-width: 70px; display: flex; justify-content: center">
               {{ col.label }}
+              <filter-column [field]="col"></filter-column>
             </mat-header-cell>
             <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="max-width: 70px; min-width: 70px; font-weight: bold; text-align: right">
               {{row[col.field] | number:'1.2-2' }}
@@ -79,14 +87,20 @@
           </ng-container>
 
           <ng-container *ngSwitchCase="'boolean'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="justify-content: center; max-width: 50px;">{{ col.label }}</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="justify-content: center; max-width: 50px;">
+              {{ col.label }}
+              <filter-column [field]="col"></filter-column>
+            </mat-header-cell>
             <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="max-width: 50px; text-align: center">
               <mat-checkbox [checked]="row[col.field]" disabled="true"></mat-checkbox>
             </mat-cell>
           </ng-container>
 
           <ng-container *ngSwitchDefault>
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
+            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">
+              {{ col.label }}
+              <filter-column [field]="col"></filter-column>
+            </mat-header-cell>
             <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">
               {{row[col.field]}}
             </mat-cell>
@@ -141,7 +155,7 @@
     <mat-card-content>
       <j-filter *ngIf="sidenav.opened" [docType]="docType" (onChange)="onChangeFilter($event)"></j-filter>
     </mat-card-content>
-<!--     <mat-card-actions>
+    <!--     <mat-card-actions>
       <button mat-button (click)="sidenav.close()">Close</button>
     </mat-card-actions> -->
   </mat-card>

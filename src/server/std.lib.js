@@ -11,6 +11,7 @@ exports.lib = {
     doc: {
         byCode: byCode,
         byId: byId,
+        modelById: modelById,
         formControlRef: formControlRef
     }
 };
@@ -28,30 +29,43 @@ async function byId(id) {
     const result = await db_1.db.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
     return result;
 }
+async function modelById(id) {
+    const doc = await byId(id);
+    const config_schema = await db_1.db.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
+    const model = await db_1.db.one(`${config_schema.queryObject} AND d.id = $1`, id);
+    return model;
+}
 async function formControlRef(id) {
     const result = await db_1.db.oneOrNone(`
     SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = $1`, [id]);
     return result;
 }
 async function debit(account, date = new Date().toJSON(), company) {
-    const result = await db_1.db.one(`
-    SELECT SUM(sum) result FROM "Register.Account" a
-    JOIN "Documents" da ON da.code = a.dt and da.type = 'Catalog.Account'
-    JOIN "Documents" dc ON dc.id = a.company and dc.type = 'Catalog.Company'
-    WHERE da.code = $1 AND a.datetime <= $2 AND dc.code = $3`, [account, date, company]);
+    const result = await db_1.db.oneOrNone(`
+    SELECT SUM(sum)::NUMERIC(15,2) result FROM "Register.Account"
+    WHERE dt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);
     return result.result;
 }
 async function kredit(account, date = new Date().toJSON(), company) {
-    const result = await db_1.db.one(`
-    SELECT SUM(sum) result FROM "Register.Account" a
-    JOIN "Documents" da ON da.code = a.kt and da.type = 'Catalog.Account'
-    WHERE da.code = $1 AND a.datetime <= $2`, [account, date]);
+    const result = await db_1.db.oneOrNone(`
+    SELECT SUM(sum)::NUMERIC(15,2) result FROM "Register.Account"
+    WHERE kt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);
     return result.result;
 }
 async function balance(account, date = new Date().toJSON(), company) {
-    const result = await db_1.db.one(`
-    SELECT SUM(sum) result FROM "Register.Account"
-    WHERE dt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);
+    const result = await db_1.db.oneOrNone(`
+  SELECT (SUM(u.dt) - SUM(u.kt))::NUMERIC(15,2) result  FROM (
+      SELECT SUM(sum) dt, 0 kt
+      FROM "Register.Account"
+      WHERE dt = $1 AND datetime <= $2 AND company = $3
+
+      UNION ALL
+
+      SELECT 0 dt, SUM(sum) kt
+      FROM "Register.Account"
+      WHERE kt = $1 AND datetime <= $2 AND company = $3
+    ) u
+    `, [account, date, company]);
     return result.result;
 }
 //# sourceMappingURL=std.lib.js.map

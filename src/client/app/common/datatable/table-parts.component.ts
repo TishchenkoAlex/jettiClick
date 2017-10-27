@@ -1,3 +1,4 @@
+import { ColDef } from '../filter-column/column';
 import { SelectionModel } from '@angular/cdk/collections';
 import {
   AfterViewInit,
@@ -23,8 +24,6 @@ import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
 import { copyFormGroup } from '../utils';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
-
-interface ColDef { field: string; type: string; label: string; hidden: boolean; order: number; style: {} };
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

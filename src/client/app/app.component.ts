@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { LoadingService } from './common/loading.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
-import { NavigationEnd, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 
 import { Auth0Service } from './auth/auth0.service';
-import { LoadingService } from './common/loading.service';
 import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
@@ -15,7 +15,7 @@ import { SideNavService } from './services/side-nav.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent  {
 
   menuCatalogItems: Observable<any[]>;
   menuDocItems: Observable<any[]>;
@@ -24,8 +24,8 @@ export class AppComponent implements OnInit {
   isDarkTheme = false;
   sideNav = { mode: 'side', opened: true };
 
-  constructor(media: ObservableMedia, private router: Router, private auth: Auth0Service, public lds: LoadingService,
-    public sideNavService: SideNavService, private apiService: ApiService,
+  constructor(media: ObservableMedia, private router: Router, private auth: Auth0Service,
+    public sideNavService: SideNavService, private apiService: ApiService, public lds: LoadingService,
     private tsc: TabControllerService, private cd: ChangeDetectorRef) {
 
     media.asObservable().subscribe((change: MediaChange) => this.switchMedia(change));
@@ -37,10 +37,6 @@ export class AppComponent implements OnInit {
       this.menuDocItems = apiService.getDocuments().do(data => tsc.menuItems.push.apply(tsc.menuItems, data));
       this.cd.markForCheck();
     })
-  }
-
-  ngOnInit() {
-    this.router.events.subscribe(event => this.lds.loading = !(event instanceof NavigationEnd));
   }
 
   private switchMedia(change: MediaChange) {

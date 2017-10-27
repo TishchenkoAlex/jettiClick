@@ -11,10 +11,14 @@ body {
 
 .suggestDialog .mat-dialog-container {
   padding-bottom: 0px;
+  min-width: 340px;
+  max-width: 650px;
 }
 
 .editRowDialog .mat-dialog-container {
   padding: 0;
+  min-width: 340px;
+  max-width: 650px;
 }
 
 .sidenav-menu .mat-expansion-panel-body {

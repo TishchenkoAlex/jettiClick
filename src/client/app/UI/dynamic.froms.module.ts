@@ -6,6 +6,8 @@ import { CovalentCodeEditorModule } from '@covalent/code-editor';
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
 import { FilterFormComponent } from '../common/filter/filter.component';
 import { FilterFormControlComponent } from '../common/filter/filter.control.component';
+import { RegisterAccumulationComponent } from '../common/register-movements/register.accumulation.component';
+import { RegisterAccumulationListComponent } from '../common/register-movements/register.accumulation.list.component';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
 import { CommonDataTableComponent } from './../common/datatable/datatable.component';
 import { DocService } from './../common/doc.service';
@@ -38,6 +40,8 @@ import { OperationFormComponent } from './Operation/operation.form.component';
     TablePartsDialogComponent,
     SuggestDialogComponent,
     RegisterMovementComponent,
+    RegisterAccumulationComponent,
+    RegisterAccumulationListComponent,
     FilterFormComponent,
     FilterFormControlComponent,
     FilterColumnComponent,
@@ -68,6 +72,7 @@ import { OperationFormComponent } from './Operation/operation.form.component';
 
     CashRegisterFormComponent, // add user froms above
     OperationFormComponent,
+    FilterColumnComponent,
   ]
 })
 export class DynamicFormsModule { }

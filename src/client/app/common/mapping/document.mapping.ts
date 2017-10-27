@@ -9,7 +9,7 @@ export function mapDocToApiFormat(model: DocModel): DocModel {
     description: model.description,
     posted: model.posted,
     deleted: model.deleted,
-    parent: model.parent,
+    parent: model.parent['id'],
     isfolder: model.isfolder,
     company: model.company['id'],
     user: model.user['id'],

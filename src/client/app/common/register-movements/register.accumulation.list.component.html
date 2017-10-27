@@ -1,0 +1,9 @@
+<span *ngFor="let item of list$ | async">
+
+    <h5 style="margin-bottom: 0px">{{item.description}}</h5>
+    <j-register-accumulation [doc]="doc" [register]="item.type">
+        {{ item }} {{ doc.type }}
+    </j-register-accumulation>
+
+
+</span>

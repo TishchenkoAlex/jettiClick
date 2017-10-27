@@ -83,8 +83,8 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       }
       f.push(newControl);
     });
-    f.filter(e => !(e instanceof TableDynamicControl) && e.key !== 'info' && e.key !== 'user' && e.order > 0 && !!!e.hidden)
-      .forEach(e => e.order = e.order - 10000000000);
+    f.filter(e => !(e instanceof TableDynamicControl) && e.key !== 'info' && e.key !== 'user' && e.key !== 'parent' && e.order > 0 &&
+      !!!e.hidden).forEach(e => e.order = e.order - 10000000000);
     let i = 1; f.sort((a, b) => a.order - b.order).forEach(el => el.order = i++);
   };
 
@@ -120,7 +120,7 @@ export class DynamicFormService {
   constructor(private apiService: ApiService) { };
 
   getViewModel$(docType: string, docID = ''): Observable<ViewModel> {
-    const exclude = ['posted', 'deleted', 'isfolder', 'parent'];
+    const exclude = ['posted', 'deleted', 'isfolder'];
     switch (docType.split('.')[0]) {
       case 'Catalog': { exclude.push('date', 'company'); break; }
       case 'Document':
@@ -135,7 +135,7 @@ export class DynamicFormService {
   }
 
   getFilterModel$(docType: string): Observable<ViewModel> {
-    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder', 'parent'];
+    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder'];
     switch (docType.split('.')[0]) {
       case 'Catalog': { exclude.push('date', 'company'); break; }
       case 'Document':

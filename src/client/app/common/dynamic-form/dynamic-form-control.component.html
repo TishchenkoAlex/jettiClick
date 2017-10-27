@@ -17,7 +17,7 @@
   </mat-form-field>
 
   <j-autocomplete *ngSwitchCase="'autocomplete'" fxFlex [required]="control.required" [formControlName]="control.key" [id]="control.key"
-    [placeholder]="control.label" [hidden]="control.hidden" [tabIndex]="control.order" [type]="control.type" (ngModelChange)="onChange($event)">
+    [placeholder]="control.label" [hidden]="control.hidden" [tabIndex]="control.order" [type]="control.type" (change)="onChange($event)">
   </j-autocomplete>
 
   <mat-form-field *ngSwitchCase="'date'" fxFlex>
@@ -42,7 +42,7 @@
     </div>
   </div>
 
-  <div *ngSwitchCase="'script'" fxLayout="column" fxFlex>
+  <div *ngSwitchCase="'script'" fxLayout="column" fxFlex fxFill>
     <label [for]="control.key">{{ control.label }}:</label>
     <td-code-editor #script theme="vs" [ngStyle]="control.style" [language]="control.type" (change)="onChange($event)"
       [tabIndex]="control.order" [id]="control.key" [formControlName]="control.key" [id]="control.key">

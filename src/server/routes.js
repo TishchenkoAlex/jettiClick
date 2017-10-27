@@ -92,7 +92,6 @@ async function docOperationResolver(doc, tx) {
 }
 // Select documents list for UI (grids/list etc)
 exports.router.post('/list', async (req, res, next) => {
-    console.log(req.user);
     try {
         const params = req.body;
         params.order = [];
@@ -117,6 +116,7 @@ exports.router.post('/list', async (req, res, next) => {
         orderbyAfter = orderbyAfter.slice(0, -2);
         const filterBuilder = (filter) => {
             let where = 'TRUE ';
+            console.log(filter);
             Object.keys(filter).forEach(key => {
                 if (key === 'description' && filter[key]) {
                     where += ` AND d.description ILIKE '${filter[key]}%'`;
@@ -231,7 +231,14 @@ exports.router.get('/:type/view/*', async (req, res, next) => {
                 model.description = 'Copy: ' + model.description;
             }
             else {
-                model = await db_1.db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+                if (id.startsWith('base-')) {
+                    model = await db_1.db.one(`${config_schema.queryNewObject}`);
+                    const source = await std_lib_1.lib.doc.modelById(id.slice(5));
+                    model = Object.assign({}, model, source);
+                }
+                else {
+                    model = await db_1.db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+                }
             }
             await docOperationResolver(model, db_1.db);
         }
@@ -429,6 +436,52 @@ exports.router.post('/valueChanges/:type/:property', async (req, res, next) => {
         const Module = index_1.valueChanges;
         const result = await Module[req.params.type][req.params.property](doc, value);
         res.json(result);
+    }
+    catch (err) {
+        next(err.message);
+    }
+});
+exports.router.get('/register/accumulation/list/:id', async (req, res, next) => {
+    try {
+        const result = await db_1.db.manyOrNone(`
+      SELECT DISTINCT r.type, s.description FROM "Register.Accumulation" r
+      LEFT JOIN config_schema s ON s.type = r.type
+      WHERE document = $1`, [req.params.id]);
+        res.json(result);
+    }
+    catch (err) {
+        next(err.message);
+    }
+});
+exports.router.get('/register/accumulation/:type/:id', async (req, res, next) => {
+    try {
+        const config_schema = await db_1.db.one(`
+      SELECT "queryObject" query FROM config_schema WHERE type = $1`, [req.params.type]);
+        const result = await db_1.db.manyOrNone(`${config_schema.query} AND r.document = $1`, [req.params.id]);
+        res.json(result);
+    }
+    catch (err) {
+        next(err.message);
+    }
+});
+exports.router.get('/user/settings/:type', async (req, res, next) => {
+    try {
+        const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+        const query = `select settings->'${req.params.type}' result from users where email = '${user}'`;
+        const result = await db_1.db.oneOrNone(query);
+        res.json(result.result);
+    }
+    catch (err) {
+        next(err.message);
+    }
+});
+exports.router.post('/user/settings/:type', async (req, res, next) => {
+    try {
+        const user = (req.user && req.user.sub && req.user.sub.split('|')[1]) || '';
+        const data = req.body || {};
+        const query = `update users set settings = jsonb_set(settings, '{"${req.params.type}"}', $1) where email = '${user}'`;
+        const settings = await db_1.db.none(query, [data]);
+        res.json(true);
     }
     catch (err) {
         next(err.message);

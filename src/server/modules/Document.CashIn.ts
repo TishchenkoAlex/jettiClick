@@ -18,3 +18,8 @@ const company_valueChanges = async (doc: DocumentCashIn, value: RefValue): Promi
 export const CashInActions: FileldsAction = {
     'company': company_valueChanges
 }
+
+const createFrom = async (source: DocBase): Promise<DocBase> => {
+    const s = lib.doc.byId(source.id);
+    return s;
+}

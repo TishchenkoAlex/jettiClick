@@ -32,6 +32,10 @@
         "order": 11,
         "required": false
     },
+    "parent": {
+        "type": "Catalog.Operation",
+        "hidden-list": true
+    },
     "script": {
         "type": "javascript",
         "label": "post script",
@@ -42,8 +46,9 @@
         "required": false,
         "hidden-list": true
     },
-    "category": {
-        "type": "string",
+    "Group": {
+        "type": "Catalog.Operation.Group",
+        "label": "Operation group",
         "order": 4,
         "required": true
     },

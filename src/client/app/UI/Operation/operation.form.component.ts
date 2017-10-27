@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, QueryList, ViewChildren, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 
 import { getViewModel } from '../../common/dynamic-form/dynamic-form.service';
@@ -51,6 +51,8 @@ export class OperationFormComponent implements AfterViewInit {
         });
         this.viewModel.view.push.apply(this.viewModel.view, additionalVM.view);
         let i = 1; this.viewModel.view.forEach(el => el.order = i++);
+        // const view = []; this.viewModel.view.forEach(el => { if (!!!el.hidden) { view.push(el) } });
+        // this.viewModel.view = view;
         this.super.cd.detectChanges();
       });
   }

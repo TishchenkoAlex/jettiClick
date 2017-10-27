@@ -1,0 +1,11 @@
+{
+    "Refresh": {
+        "label": "refresh",
+        "enabled": true,
+        "script" : ""
+    },
+    "create": [
+        "Document.ClientOrder",
+        "Document.Invoice"
+    ]
+}

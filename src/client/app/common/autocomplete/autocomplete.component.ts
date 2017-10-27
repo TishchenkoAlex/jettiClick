@@ -1,4 +1,14 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, forwardRef, Input, OnDestroy, ViewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    forwardRef,
+    Input,
+    OnDestroy,
+    Output,
+    ViewChild,
+} from '@angular/core';
 import {
     AbstractControl,
     ControlValueAccessor,
@@ -38,6 +48,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   @Input() tabIndex = -1;
   @Input() type = '';
   @Input() checkValue = true;
+  @Output() change = new EventEmitter();
 
   form: FormGroup = new FormGroup({
     suggest: new FormControl(this.value)
@@ -45,21 +56,24 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
 
   private _subscription$: Subscription = Subscription.EMPTY;
 
+  get suggest() { return this.form.controls['suggest']; }
+  get isComplexValue() { return this.value.type.includes('.') }
+  get isTypeControl() {return this.type.startsWith('Types.') }
+  get isTypeValue() { return this.value.type.startsWith('Types.') }
+
   private _value: JettiComplexObject;
   @Input() set value(obj) {
     const NO_EVENT = obj && obj.data === 'NO_EVENT';
-    delete obj.data // skip initial onChange
+    delete obj.data;
     if (JSON.stringify(obj) === JSON.stringify(this._value)) { return }
-    if (this.type.startsWith('Types.')) {
+    if (this.isTypeControl) {
       this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']';
     }
     this._value = obj;
-    (this.form.controls['suggest'] as FormControl).patchValue(obj ? obj.value : obj);
-    if (!NO_EVENT) { this.onChange(this._value) }
+    this.suggest.patchValue(obj ? obj.value : obj);
+    if (!NO_EVENT) { this.onChange(this._value); this.change.emit(this._value) }
   }
   get value() { return this._value; }
-  get suggest() { return this.form.controls['suggest']; }
-  get isComplexValue() { return this.value.type.includes('.') }
 
   @ViewChild('auto') auto: MatAutocomplete;
 
@@ -70,7 +84,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   private onTouched = () => { };
 
   writeValue(obj: any): void {
-    obj.data = 'NO_EVENT'; // skip initial onChange
+    obj.data = 'NO_EVENT'; // skip initial onChange (when patchValue)
     this.value = obj;
   }
 
@@ -135,16 +149,19 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   }
 
   handleReset(event) {
+    event.stopPropagation();
     this.auto.options.reset([]);
     this.value = { id: '', code: '', type: this.type, value: null };
   }
 
-  handleOpen(event) {
+  handleOpen(event: Event) {
+    event.stopPropagation();
     this.auto.options.reset([]);
     this.router.navigate([this.value.type, this.value.id]);
   }
 
   handleSearch(event: Event) {
+    event.stopPropagation();
     this.auto.options.reset([]);
     this.dialog.open(SuggestDialogComponent,
       { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
@@ -154,7 +171,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
       .subscribe((data: DocModel) => {
         this.value = {
           id: data.id, code: data.code, type: data.type,
-          value: this.value.type.startsWith('Types.') ? null : data.description,
+          value: this.isTypeValue ? null : data.description,
           data: 'NO_SUGGEST'
         };
       });

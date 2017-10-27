@@ -1,3 +1,4 @@
+import { FormListSettings } from './models/user.settings';
 import { DocBase, RefValue } from './modules/doc.base';
 import * as express from 'express';
 
@@ -86,7 +87,6 @@ async function docOperationResolver(doc, tx) {
 
 // Select documents list for UI (grids/list etc)
 router.post('/list', async (req, res, next) => {
-  console.log(req.user);
   try {
     const params = req.body;
     params.order = [];
@@ -113,6 +113,7 @@ router.post('/list', async (req, res, next) => {
 
     const filterBuilder = (filter) => {
       let where = 'TRUE ';
+      console.log(filter);
       Object.keys(filter).forEach(key => {
         if (key === 'description' && filter[key]) {
           where += ` AND d.description ILIKE '${filter[key]}%'`;
@@ -218,7 +219,13 @@ router.get('/:type/view/*', async (req, res, next) => {
         model.posted = false; model.deleted = false;
         model.description = 'Copy: ' + model.description;
       } else {
-        model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+        if (id.startsWith('base-')) {
+          model = await db.one(`${config_schema.queryNewObject}`);
+          const source = await lib.doc.modelById(id.slice(5));
+          model = { ...model, ...source };
+        } else {
+          model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+        }
       }
       await docOperationResolver(model, db);
     } else {
@@ -388,3 +395,46 @@ router.post('/valueChanges/:type/:property', async (req, res, next) => {
     res.json(result);
   } catch (err) { next(err.message); }
 })
+
+
+router.get('/register/accumulation/list/:id', async (req, res, next) => {
+  try {
+    const result = await db.manyOrNone(`
+      SELECT DISTINCT r.type, s.description FROM "Register.Accumulation" r
+      LEFT JOIN config_schema s ON s.type = r.type
+      WHERE document = $1`, [req.params.id]);
+    res.json(result);
+  } catch (err) { next(err.message); }
+})
+
+
+router.get('/register/accumulation/:type/:id', async (req, res, next) => {
+  try {
+    const config_schema = await db.one(`
+      SELECT "queryObject" query FROM config_schema WHERE type = $1`, [req.params.type]);
+    const result = await db.manyOrNone(`${config_schema.query} AND r.document = $1`, [req.params.id]);
+    res.json(result);
+  } catch (err) { next(err.message); }
+})
+
+router.get('/user/settings/:type', async (req, res, next) => {
+  try {
+    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const query = `select settings->'${req.params.type}' result from users where email = '${user}'`;
+    const result = await db.oneOrNone<{result: FormListSettings}>(query);
+    res.json(result.result);
+  } catch (err) { next(err.message); }
+})
+
+router.post('/user/settings/:type', async (req, res, next) => {
+  try {
+    const user = (req.user && req.user.sub && req.user.sub.split('|')[1]) || '';
+    const data = req.body || {};
+    const query = `update users set settings = jsonb_set(settings, '{"${req.params.type}"}', $1) where email = '${user}'`;
+    const settings = await db.none(query, [data]);
+    res.json(true);
+  } catch (err) { next(err.message); }
+})
+
+
+

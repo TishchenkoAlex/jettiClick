@@ -4,7 +4,6 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ApiDataSource } from '../common/datatable/api.datasource';
-import { LoadingService } from '../common/loading.service';
 import { ApiService } from '../services/api.service';
 
 @Component({
@@ -26,12 +25,12 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   @ViewChild('filter') filter: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any,
-    private apiService: ApiService, private lds: LoadingService) { }
+    private apiService: ApiService) { }
 
   ngOnInit() {
     this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.sort, this.lds);
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.sort);
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .distinctUntilChanged()

@@ -1,3 +1,5 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
@@ -39,6 +41,13 @@ export class DocService {
 
   save(doc: DocModel) {
     this.api.postDoc(doc)
+      .filter(result => {
+        if (result instanceof HttpErrorResponse) {
+          this.openSnackBar(doc.description, 'Error on post! ');
+          return false;
+        };
+        return true;
+      })
       .take(1)
       .subscribe((savedDoc: DocModel) => {
         this._saveDoc.next(savedDoc);

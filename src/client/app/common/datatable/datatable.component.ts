@@ -4,11 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
+import { UserSettingsService } from '../../auth/settings/user.settings.service';
 import { DocModel } from '../../common/doc.model';
 import { DocService } from '../doc.service';
+import { ColDef } from '../filter-column/column';
 import { FilterObject } from '../filter/filter.control.component';
-import { LoadingService } from '../loading.service';
-import { ColDef } from './../../common/utils';
 import { SideNavService } from './../../services/side-nav.service';
 import { ApiDataSource } from './api.datasource';
 
@@ -22,6 +22,7 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
 
   protected _docSubscription$: Subscription = Subscription.EMPTY;
   protected _sideNavService$: Subscription = Subscription.EMPTY;
+  protected _userSettingscSubscription$: Subscription = Subscription.EMPTY;
 
   dataSource: ApiDataSource | null;
 
@@ -38,14 +39,14 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
   filterColumns: any[] = [];
 
   constructor(private route: ActivatedRoute, private router: Router,
-    private ds: DocService, private sns: SideNavService, private lds: LoadingService) { };
+    private ds: DocService, private sns: SideNavService, private uss: UserSettingsService) { };
 
   ngOnInit() {
     const view = this.route.data['value'].detail;
     this.docType = this.route.params['value'].type;
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.sort, this.lds);
+    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.sort);
 
     Object.keys(view).filter(property => view[property] && view[property]['type'] !== 'table').map((property) => {
       const prop = view[property];
@@ -68,20 +69,26 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
       this.ds.save$,
       this.ds.delete$,
       this.ds.goto$])
-      .filter(doc => doc.type === this.docType)
+      .filter(doc => doc && doc.type === this.docType)
       .subscribe(doc => this.dataSource.goto(doc.id));
 
     this._sideNavService$ = this.sns.do$
       .filter(data => data.type === this.docType && data.id === '')
       .subscribe(data => this.sns.templateRef = this.sideNavTepmlate);
 
-    this.dataSource.filterObject = { action: 'filter', value: {}};
+    this._userSettingscSubscription$ = this.uss.formListSettings$.skip(1)
+      .filter(s => s.type === this.docType).subscribe(s => {
+        console.log('USS', s.payload);
+        this.dataSource.filterObject = { action: 'filter', value: {} };
+      })
+    this.uss.get(this.docType);
   }
 
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
     this._sideNavService$.unsubscribe();
     this.dataSource._filterObjectChangeSubscription.unsubscribe();
+    this._userSettingscSubscription$.unsubscribe();
   }
 
   add() {
@@ -132,5 +139,4 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
     console.log('onChangeFilter', event);
   }
 }
-
 
