@@ -1,6 +1,8 @@
-import { LoadingService } from './common/loading.service';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { isDevMode } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+
+import { LoadingService } from './common/loading.service';
 
 export class ApiInterceptor implements HttpInterceptor {
   constructor(private ls: LoadingService) { }
@@ -10,7 +12,7 @@ export class ApiInterceptor implements HttpInterceptor {
     return next.handle(req)
       .do(data => {
         if (data.type !== 0) {
-          console.log('API', req.url);
+          if (isDevMode) { console.log('API', req.url) }
           this.ls.loading = false;
         }
       });

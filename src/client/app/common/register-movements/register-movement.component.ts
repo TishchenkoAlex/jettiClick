@@ -1,10 +1,10 @@
+import { AccountRegister } from '../../../../server/models/account.register';
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
 import { DocModel } from '../doc.model';
 import { DocService } from '../doc.service';
-import { AccountRegister } from './../../models/account.register';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

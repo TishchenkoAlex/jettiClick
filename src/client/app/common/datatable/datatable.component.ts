@@ -78,7 +78,6 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
 
     this._userSettingscSubscription$ = this.uss.formListSettings$.skip(1)
       .filter(s => s.type === this.docType).subscribe(s => {
-        console.log('USS', s.payload);
         this.dataSource.filterObject = { action: 'filter', value: {} };
       })
     this.uss.get(this.docType);

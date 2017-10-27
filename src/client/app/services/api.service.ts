@@ -1,3 +1,4 @@
+import { AccountRegister } from '../../../server/models/account.register';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -6,7 +7,6 @@ import { FormListSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
 import { DocModel } from '../common/doc.model';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
-import { AccountRegister } from './../models/account.register';
 
 export interface DocListResponse { data: any[], total_count: number };
 
