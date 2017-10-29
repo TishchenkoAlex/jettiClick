@@ -104,19 +104,16 @@ router.post('/list', async (req, res, next) => {
     const lastORDER = valueOrder.length ? valueOrder[valueOrder.length - 1].order === 'asc' : true;
     valueOrder.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
 
-    let orderbyBefore = 'ORDER BY '; let orderbyAfter = orderbyBefore;
+    let orderbyBefore = ' ORDER BY '; let orderbyAfter = orderbyBefore;
     valueOrder.forEach(o => orderbyBefore += '"' + o.field + (o.order === 'asc' ? '" DESC, ' : '" ASC, '))
     orderbyBefore = orderbyBefore.slice(0, -2);
     valueOrder.forEach(o => orderbyAfter += '"' + o.field + (o.order === 'asc' ? '" ASC, ' : '" DESC, '))
     orderbyAfter = orderbyAfter.slice(0, -2);
 
     const filterBuilder = (filter: FormListFilter[]) => {
-      let where = 'TRUE ';
-      filter.forEach(f => {
-        if (f.left === 'description' && f.right) {
-          where += ` AND d.description ILIKE '${f.right}%'`;
-        }
-      });
+      let where = ' TRUE ';
+      filter.filter(f => f.left === 'description' && f.right)
+        .forEach(f => where += ` AND d.description ILIKE '${f.right}%'`);
       return where;
     }
 
@@ -139,11 +136,11 @@ router.post('/list', async (req, res, next) => {
 
     let query = '';
     if (params.command === 'first') {
-      const where = 'TRUE ';
+      const where = filterBuilder(params.filter || []);
       query = `SELECT * FROM (SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n${orderbyAfter} LIMIT ${params.count + 1}) d`;
     } else {
       if (params.command === 'last') {
-        const where = 'TRUE ';
+        const where = filterBuilder(params.filter || []);
         query = `SELECT * FROM (SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n${orderbyBefore} LIMIT ${params.count + 1}) d`;
       } else {
         const queryBefore = queryBuilder(true);

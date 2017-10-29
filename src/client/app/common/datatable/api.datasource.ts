@@ -1,6 +1,6 @@
 import { DataSource, SelectionModel } from '@angular/cdk/collections';
-import { MatSort, Sort } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { Continuation, DocListResponse2 } from '../../../../server/models/api';
@@ -13,23 +13,24 @@ export class ApiDataSource extends DataSource<any> {
   selection = new SelectionModel<string>(true, []);
 
   renderedData: DocModel[] = [];
-  private firstDoc = new DocModel(this._docType, 'first');
-  private lastDoc = new DocModel(this._docType, 'last');
+  private firstDoc = new DocModel(this.docType, 'first');
+  private lastDoc = new DocModel(this.docType, 'last');
 
   private _selectedID = '';
 
   continuation: Continuation = { first: this.firstDoc, last: this.lastDoc };
   private result$: Observable<any[]>;
 
-  constructor(private apiService: ApiService, private _docType: string,
+  constructor(private apiService: ApiService, private docType: string,
     private pageSize: number, private uss: UserSettingsService) {
     super();
 
     this.result$ = Observable.merge(...[
       this.paginator,
       this.uss.formListSettings$,
-    ]).filter(stream => (stream['type'] === undefined) || (stream['type'] === this._docType))
-      .switchMap((stream: Sort | string | FormListSettingsAction) => {
+    ]).pipe(
+      filter(stream => (stream['type'] === undefined) || (stream['type'] === this.docType)),
+      switchMap((stream: string | FormListSettingsAction) => {
         let offset = 0; let row = this.firstDoc;
         if (this.selection.selected.length) {
           offset = this.renderedData.findIndex(s => s.id === this.selection.selected[0]);
@@ -42,28 +43,28 @@ export class ApiDataSource extends DataSource<any> {
           case 'next': row = this.continuation.last; this.selection.clear(); offset = 0; break;
           case 'last': row = this.lastDoc; this.selection.clear(); offset = 0; break;
           case 'refresh': row = this.renderedData[offset] || this.firstDoc; break;
-          case 'goto': row = new DocModel(this._docType, this._selectedID); this.selection.select(this._selectedID); break;
+          case 'goto': row = new DocModel(this.docType, this._selectedID); this.selection.select(this._selectedID); break;
         }
 
         const command = typeof stream === 'string' ? stream : 'first';
 
-        const filter = stream['type'] ? (stream as FormListSettingsAction).payload.filter :
-            this.uss.userSettings.formListSettings[this._docType] ?
-              this.uss.userSettings.formListSettings[this._docType].filter : [];
+        const filterArr = stream['type'] ? (stream as FormListSettingsAction).payload.filter :
+          this.uss.userSettings.formListSettings[this.docType] ?
+            this.uss.userSettings.formListSettings[this.docType].filter : [];
 
-        const sort = stream['type'] ? (stream as FormListSettingsAction).payload.order :
-          this.uss.userSettings.formListSettings[this._docType] ?
-            this.uss.userSettings.formListSettings[this._docType].order : [];
+        const sortArr = stream['type'] ? (stream as FormListSettingsAction).payload.order :
+          this.uss.userSettings.formListSettings[this.docType] ?
+            this.uss.userSettings.formListSettings[this.docType].order : [];
 
-        return this.apiService.getDocList(this._docType, row.id, command, this.pageSize, offset, sort, filter)
-          .do(data => { this.renderedData = data.data; this.continuation = data.continuation })
-          .catch(err => {
+        return this.apiService.getDocList(this.docType, row.id, command, this.pageSize, offset, sortArr, filterArr).pipe(
+          tap(data => { this.renderedData = data.data; this.continuation = data.continuation }),
+          catchError(err => {
             this.renderedData = [];
-            const EMPTY: DocListResponse2 = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first }}
+            const EMPTY: DocListResponse2 = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first } }
             return Observable.of(EMPTY)
-          });
-      })
-      .map(data => data['data'])
+          }));
+      }),
+      map(data => data['data']))
   }
 
   connect(): Observable<any[]> { return this.result$ }

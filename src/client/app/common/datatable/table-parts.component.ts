@@ -1,24 +1,24 @@
-import { ColumnDef } from '../../../../server/models/column';
 import { SelectionModel } from '@angular/cdk/collections';
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    ViewChild,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatSort, MatTableDataSource } from '@angular/material';
+import { take } from 'rxjs/operators';
 
+import { ColumnDef } from '../../../../server/models/column';
 import {
-  AutocompleteJettiFormControl,
-  BaseJettiFromControl,
-  TableDynamicControl,
-  ScriptJettiFormControl,
+    BaseJettiFromControl,
+    ScriptJettiFormControl,
+    TableDynamicControl,
 } from '../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
@@ -95,8 +95,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     const newFormGroup = this.copyFormGroup(formGroup);
     this.dialog.open(TablePartsDialogComponent,
       { data: { view: this.view, formGroup: newFormGroup }, panelClass: 'editRowDialog' })
-      .afterClosed()
-      .take(1)
+      .afterClosed().pipe(
+      take(1))
       .subscribe(data => {
         if (data) {
           formGroup.patchValue(data, { emitEvent: false });
@@ -111,8 +111,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
     this.dialog.open(TablePartsDialogComponent,
       { data: { view: this.view, formGroup: newFormGroup }, panelClass: 'editRowDialog' })
-      .afterClosed()
-      .take(1)
+      .afterClosed().pipe(
+      take(1))
       .subscribe(data => {
         if (data) {
           newFormGroup.patchValue(data, { emitEvent: false });
@@ -142,8 +142,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
     const newFormGroup = this.copyFormGroup(this.formGroup.at(index) as FormGroup);
     this.dialog.open(TablePartsDialogComponent,
       { data: { view: this.view, formGroup: newFormGroup }, panelClass: 'editRowDialog' })
-      .afterClosed()
-      .take(1)
+      .afterClosed().pipe(
+      take(1))
       .subscribe(data => {
         if (data) {
           data.index = this.formGroup.length;

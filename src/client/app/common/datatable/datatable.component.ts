@@ -12,6 +12,7 @@ import {
 import { MatSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
+import { filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -53,14 +54,18 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
   };
 
   ngOnInit() {
+    this.docType = this.route.params['value'].type;
     const view = this.route.data['value'].detail[0]['view'];
     this.columns = this.route.data['value'].detail[0]['columnDef'];
 
+    const _sort = this.columns.map(c => c.sort).find(s => s.order !== '');
+    if (_sort) {
+      this.sort.direction = _sort.order;
+      this.sort.active =  _sort.field;
+    }
 
-    this.docType = this.route.params['value'].type;
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.uss);
-    if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
 
     this.displayedColumns = this.columns.filter(c =>
       !c.hidden && (this.isDoc ? c.field !== 'description' : (c.field !== 'company') && (c.field !== 'date')))
@@ -70,12 +75,12 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
     this._docSubscription$ = Observable.merge(...[
       this.ds.save$,
       this.ds.delete$,
-      this.ds.goto$])
-      .filter(doc => doc && doc.type === this.docType)
+      this.ds.goto$]).pipe(
+      filter(doc => doc && doc.type === this.docType))
       .subscribe(doc => this.dataSource.goto(doc.id));
 
-    this._sideNavService$ = this.sns.do$
-      .filter(data => data.type === this.docType && data.id === '')
+    this._sideNavService$ = this.sns.do$.pipe(
+      filter(data => data.type === this.docType && data.id === ''))
       .subscribe(data => this.sns.templateRef = this.sideNavTepmlate);
   }
 
@@ -84,16 +89,10 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
       filter: this.columns.map(c => c.filter),
       order: this.columns.map(c => c.sort)
     }
-    const sort = formListSettings.order.find(s => s.order !== '');
-    if (sort) {
-      console.log('SORT CHANGE', sort);
-      this.sort.direction = sort.order;
-      this.sort.active = sort.field;
-      this.cd.detectChanges();
-    }
+    this.uss.userSettings.formListSettings[this.docType] = formListSettings;
 
     this._sortChange$ = this.sort.sortChange.subscribe(() => {
-      formListSettings.order = [{field: this.sort.active, order: this.sort.direction }];
+      formListSettings.order = [{ field: this.sort.active, order: this.sort.direction }];
       this.uss.setFormListSettings(this.docType, formListSettings);
     });
 
@@ -134,9 +133,9 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
     const tasks$ = [];
     this.dataSource.selection.selected
       .filter(el => this.dataSource.renderedData.findIndex(d => d.id === el) > -1)
-      .forEach(el => tasks$.push(this.ds.post(el).take(1)));
-    Observable.forkJoin(...tasks$)
-      .take(1)
+      .forEach(el => tasks$.push(this.ds.post(el).pipe(take(1))));
+    Observable.forkJoin(...tasks$).pipe(
+      take(1))
       .subscribe(results => {
         this.dataSource.refresh();
         this.ds.openSnackBar('Multiple parallel tasks', 'complete')

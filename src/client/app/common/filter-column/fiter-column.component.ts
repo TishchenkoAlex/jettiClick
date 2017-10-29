@@ -1,4 +1,6 @@
-import { ConnectedOverlayPositionChange, ConnectedPositionStrategy, OverlayOrigin } from '@angular/cdk/overlay';
+import { FilterInterval } from '../../../../server/models/user.settings';
+import { DynamicFilterControlComponent } from './dynamic-filter-control.component';
+import { ConnectedOverlayPositionChange, ConnectedPositionStrategy, OverlayOrigin, ConnectionPositionPair } from '@angular/cdk/overlay';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { MatInput } from '@angular/material';
 
@@ -14,19 +16,18 @@ export class FilterColumnComponent implements AfterViewInit {
 
   private _positionStrategy: ConnectedPositionStrategy;
 
-  @Input() field: ColumnDef;
+  @Input() columnDef: ColumnDef;
   @Input() type = '';
-  @ViewChild(MatInput) filter: MatInput;
+  @ViewChild(DynamicFilterControlComponent) filter: DynamicFilterControlComponent;
   @ViewChild(OverlayOrigin) _overlayOrigin: OverlayOrigin;
-  firstValue;
-  secondValue;
   isOpen = false;
+  backup: ColumnDef;
 
   constructor(private cd: ChangeDetectorRef, private uss: UserSettingsService) { }
 
   ngAfterViewInit() {
-    if (this.field.filter.right === null) { return }
-    this.firstValue = this.field.filter.right.toString();
+    this.backup = JSON.parse(JSON.stringify(this.columnDef));
+    if (this.columnDef.filter.right === null) { return }
     this.cd.detectChanges();
   }
 
@@ -35,21 +36,44 @@ export class FilterColumnComponent implements AfterViewInit {
   }
 
   detach() {
-    if (this.isOpen) { this.isOpen = false };
+    if (this.isOpen) { this.onCancel() };
+  }
+
+  onCancel() {
+    this.columnDef = JSON.parse(JSON.stringify(this.backup));
+    this.isOpen = false;
     this.cd.markForCheck();
   }
 
   backdropClick() {
-    this.isOpen = false;
-    this.cd.markForCheck();
+    this.detach();
   }
 
   positionChange(event: ConnectedOverlayPositionChange) {
-    this.cd.detectChanges();
+    console.log(event.connectionPair);
+    // event.connectionPair.overlayX = 'end';
+    // event.connectionPair = new ConnectionPositionPair({originX: 'start', originY: 'bottom'}, {overlayX: 'end', overlayY: 'top'});
+    // console.log(event.connectionPair);
+    // this.cd.markForCheck();
+    // this.cd.detectChanges();
   }
 
   onFilter() {
     this.isOpen = false;
-    this.field.filter.right = this.firstValue;
+    this.uss.setFormListSettings(this.type, this.uss.userSettings.formListSettings[this.type]);
   }
+
+  onClear() {
+    this.columnDef = {...this.columnDef, filter: {...this.columnDef.filter, right: null} };
+    this.filter.filterInterval = new FilterInterval();
+  }
+
+  get isFilter()  {
+    if (this.columnDef.filter.right && typeof this.columnDef.filter.right !== 'object') { return true }
+    if (this.columnDef.filter.right && this.columnDef.filter.right['value']) { return true }
+    if (this.columnDef.filter.right && this.columnDef.filter.right['start']) { return true }
+    if (this.columnDef.filter.right && this.columnDef.filter.right['end']) { return true }
+    return false;
+  }
+
 }

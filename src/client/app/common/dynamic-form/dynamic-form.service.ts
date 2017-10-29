@@ -1,21 +1,22 @@
-import { DocModel } from '../../../../server/modules/doc.base';
 import { Injectable } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
+import { map } from 'rxjs/operators';
 
+import { DocModel } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
 import { copyFormGroup, toFormGroup } from '../utils';
 import {
-  AutocompleteJettiFormControl,
-  BaseJettiFromControl,
-  BooleanJettiFormControl,
-  ControlOptions,
-  DateJettiFormControl,
-  NumberJettiFormControl,
-  ScriptJettiFormControl,
-  TableDynamicControl,
-  TextareaJettiFormControl,
-  TextboxJettiFormControl,
+    AutocompleteJettiFormControl,
+    BaseJettiFromControl,
+    BooleanJettiFormControl,
+    ControlOptions,
+    DateJettiFormControl,
+    NumberJettiFormControl,
+    ScriptJettiFormControl,
+    TableDynamicControl,
+    TextareaJettiFormControl,
+    TextboxJettiFormControl,
 } from './dynamic-form-base';
 
 export interface ViewModel {
@@ -126,12 +127,12 @@ export class DynamicFormService {
       case 'Document':
       case 'Journal': { exclude.push('description'); break; }
     }
-    return this.apiService.getViewModel(docType, docID)
-      .map(viewModel => {
+    return this.apiService.getViewModel(docType, docID).pipe(
+      map(viewModel => {
         const model = viewModel['model'];
         const view = viewModel['view'];
         return getViewModel(view, model, exclude, docID !== 'new')
-      });
+      }));
   }
 
   getFilterModel$(docType: string): Observable<ViewModel> {
@@ -141,12 +142,12 @@ export class DynamicFormService {
       case 'Document':
       case 'Journal': { exclude.push('description'); break; }
     }
-    return this.apiService.getViewModel(docType)
-      .map(viewModel => {
+    return this.apiService.getViewModel(docType).pipe(
+      map(viewModel => {
         const model = viewModel['model'];
         const view = viewModel['view'];
         return getViewModel(view, model, exclude, false)
-      });
+      }));
   }
 
   getView$(type: string) {

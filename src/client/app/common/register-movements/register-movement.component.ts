@@ -1,8 +1,9 @@
-import { DocModel } from '../../../../server/modules/doc.base';
-import { AccountRegister } from '../../../../server/models/account.register';
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { filter, startWith, switchMap } from 'rxjs/operators';
 
+import { AccountRegister } from '../../../../server/models/account.register';
+import { DocModel } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
 
@@ -25,8 +26,8 @@ export class RegisterMovementComponent implements OnInit {
       this.docService.save$,
       this.docService.delete$,
       this.docService.do$]
-    ).startWith(this.doc)
-      .filter(doc => doc.id === this.doc.id)
-      .switchMap(doc => this.apiService.getDocAccountMovementsView(this.doc.id));
+    ).pipe(startWith(this.doc),
+      filter(doc => doc.id === this.doc.id),
+      switchMap(doc => this.apiService.getDocAccountMovementsView(this.doc.id)));
   }
 }

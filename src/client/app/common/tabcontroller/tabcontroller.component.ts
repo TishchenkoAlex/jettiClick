@@ -5,6 +5,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';
 import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { DocService } from './../../common/doc.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +20,7 @@ export class TabControllerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.route.paramMap.filter(el => this.tcs.menuItems.length > 0)
+    this.route.paramMap.pipe(filter(el => this.tcs.menuItems.length > 0))
       .subscribe((params: ParamMap) => {
         this.tcs.tabid = params.get('type') || HOME;
         this.tcs.docID = params.get('id') || '';

@@ -4,7 +4,7 @@ import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/timer';
+/*
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -18,7 +18,7 @@ import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/skip';
 import 'rxjs/add/operator/takeLast';
-import 'rxjs/add/operator/toPromise';
+import 'rxjs/add/operator/toPromise'; */
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';

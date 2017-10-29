@@ -1,10 +1,10 @@
-import { DocModel } from '../../../server/modules/doc.base';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
+import { filter, take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
+import { DocModel } from '../../../server/modules/doc.base';
 import { ApiService } from '../services/api.service';
 
 @Injectable()
@@ -40,15 +40,15 @@ export class DocService {
   }
 
   save(doc: DocModel) {
-    this.api.postDoc(doc)
-      .filter(result => {
+    this.api.postDoc(doc).pipe(
+      filter(result => {
         if (result instanceof HttpErrorResponse) {
           this.openSnackBar(doc.description, 'Error on post! ');
           return false;
         };
         return true;
-      })
-      .take(1)
+      }),
+      take(1))
       .subscribe((savedDoc: DocModel) => {
         this._saveDoc.next(savedDoc);
         this.openSnackBar(savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
@@ -56,8 +56,8 @@ export class DocService {
   }
 
   delete(id: string) {
-    this.api.deleteDoc(id)
-      .take(1)
+    this.api.deleteDoc(id).pipe(
+      take(1))
       .subscribe((deletedDoc: DocModel) => {
         this._saveDoc.next(deletedDoc);
         this.openSnackBar(deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');

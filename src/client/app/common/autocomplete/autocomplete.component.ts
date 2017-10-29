@@ -1,4 +1,3 @@
-import { DocModel } from '../../../../server/modules/doc.base';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -20,11 +19,13 @@ import {
     ValidationErrors,
     Validator,
 } from '@angular/forms';
-import { MatAutocomplete, MatDialog } from '@angular/material';
+import { MatAutocomplete, MatDialog, MatInput } from '@angular/material';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
+import { catchError, debounceTime, distinctUntilChanged, filter, switchMap, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
+import { DocModel } from '../../../../server/modules/doc.base';
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
@@ -48,7 +49,10 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   @Input() tabIndex = -1;
   @Input() type = '';
   @Input() checkValue = true;
+  @Input() openButton = true;
   @Output() change = new EventEmitter();
+
+  @ViewChild(MatInput) matInput: MatInput;
 
   form: FormGroup = new FormGroup({
     suggest: new FormControl(this.value)
@@ -83,12 +87,13 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   private onTouched = () => { };
 
   writeValue(obj: any): void {
+    if (!obj) { obj =  { id: '', code: '', type: this.type, value: null } };
     this.NO_EVENT = true;
     if ((this.type.includes('.')) && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string')) {
       this.value = { id: '', code: '', type: this.type, value: null };
       return;
     }
-    if (obj.type && obj.type !== this.type && !this.isTypeControl) {
+    if (obj && obj.type && obj.type !== this.type && !this.isTypeControl) {
       this.value = { id: '', code: '', type: this.type, value: null }
       return;
     }
@@ -119,15 +124,15 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   constructor(private api: ApiService, private router: Router, public dialog: MatDialog) { }
 
   ngAfterViewInit() {
-    this.suggests$ = this.suggest.valueChanges
-      .distinctUntilChanged()
-      .filter(data => {
+    this.suggests$ = this.suggest.valueChanges.pipe(
+      distinctUntilChanged(),
+      filter(data => {
         return this.isComplexValue && (typeof data === 'string') && (data !== this.value.value)
           && (this.value.data !== 'NO_SUGGEST');
       })
-      .debounceTime(300)
-      .switchMap(text => this.getSuggests(this.value.type || this.type, text))
-      .catch(err => Observable.of([]));
+      , debounceTime(300)
+      , switchMap(text => this.getSuggests(this.value.type || this.type, text))
+      , catchError(err => Observable.of([])));
 
     this._subscription$ = this.auto.optionSelected.subscribe(data => {
       data.value = 'NO_SUGGEST';
@@ -172,9 +177,9 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
     this.auto.options.reset([]);
     this.dialog.open(SuggestDialogComponent,
       { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
-      .afterClosed()
-      .filter(result => !!result)
-      .take(1)
+      .afterClosed().pipe(
+      filter(result => !!result),
+      take(1))
       .subscribe((data: DocModel) => {
         this.value = {
           id: data.id, code: data.code, type: data.type,
@@ -185,4 +190,3 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   }
 
 }
-

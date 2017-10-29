@@ -1,0 +1,53 @@
+<div [ngSwitch]="columnDef.type">
+
+  <mat-form-field *ngSwitchCase="'string'" fxFlex>
+    <input matInput [placeholder]="columnDef.label" autocomplete="off" (change)="onChange($event)" [(ngModel)]="columnDef.filter.right">
+    <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="columnDef.filter.right = null" [tabIndex]=-1><mat-icon>clear</mat-icon></button>
+  </mat-form-field>
+
+  <mat-form-field *ngSwitchCase="'number'" fxFlex>
+    <input matInput [placeholder]="columnDef.label" style="text-align: right" type="number" autocomplete="off" (change)="onChange($event)"
+      [(ngModel)]="columnDef.filter.right">
+    <button mat-icon-button matSuffix [disabled]="true" [tabindex]="-1" type="button">
+      <mat-icon>attach_money</mat-icon>
+    </button>
+    <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="columnDef.filter.right = null" [tabIndex]=-1><mat-icon>clear</mat-icon></button>    
+  </mat-form-field>
+
+  <div *ngSwitchCase="'datetime'" fxLayout="column">
+    <mat-form-field fxFlex>
+      <input matInput [matDatepicker]="picker1" name="start" placeholder="start" autocomplete="off" (change)="onChange($event)"
+        (dateChange)="onChange($event)" [(ngModel)]="filterInterval.start">
+      <mat-datepicker-toggle matSuffix [for]="picker1" [tabindex]="1"></mat-datepicker-toggle>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.start = null" [tabIndex]=-1><mat-icon>clear</mat-icon></button>
+    </mat-form-field>
+    <mat-form-field fxFlex>
+      <input matInput [matDatepicker]="picker2" name="end" placeholder="end" autocomplete="off" (change)="onChange($event)" (dateChange)="onChange($event)"
+        [(ngModel)]="filterInterval.end" fxFlex>
+      <mat-datepicker-toggle matSuffix [for]="picker2" [tabindex]="1"></mat-datepicker-toggle>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.end = null" [tabIndex]=-1><mat-icon>clear</mat-icon></button>      
+    </mat-form-field>
+  </div>
+
+  <div *ngSwitchCase="'date'" fxLayout="column">
+    <mat-form-field fxFlex>
+      <input matInput [matDatepicker]="picker1" name="start" placeholder="start" autocomplete="off" (change)="onChange($event)"
+        (dateChange)="onChange($event)" [(ngModel)]="filterInterval.start">
+      <mat-datepicker-toggle matSuffix [for]="picker1" tabindex="1"></mat-datepicker-toggle>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.start = null" [tabIndex]=-1><mat-icon>clear</mat-icon></button>      
+    </mat-form-field>
+    <mat-form-field fxFlex>
+      <input matInput [matDatepicker]="picker2" name="end" placeholder="end" autocomplete="off" (change)="onChange($event)" (dateChange)="onChange($event)"
+        [(ngModel)]="filterInterval.end">
+      <mat-datepicker-toggle matSuffix [for]="picker2" tabindex="1"></mat-datepicker-toggle>
+      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.end = null" [tabIndex]=-1><mat-icon>clear</mat-icon></button>            
+    </mat-form-field>
+  </div>
+
+  <j-autocomplete *ngSwitchDefault [placeholder]="columnDef.label" [type]="columnDef.type" [checkValue]="false" (change)="onChange($event)" [(ngModel)]="columnDef.filter.right">
+  </j-autocomplete>
+
+</div>
+
+<mat-datepicker #picker1></mat-datepicker>
+<mat-datepicker #picker2></mat-datepicker>

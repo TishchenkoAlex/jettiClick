@@ -1,3 +1,5 @@
+import { tap } from 'rxjs/operators/tap';
+import { take } from 'rxjs/operators';
 import { UserSettingsService } from './auth/settings/user.settings.service';
 import { LoadingService } from './common/loading.service';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
@@ -34,9 +36,9 @@ export class AppComponent  {
     auth.handleAuthentication();
     this.auth.userProfile$.subscribe(userProfile => {
       tsc.menuItems.length = 0;
-      apiService.getUserDefaultsSettings().take(1).subscribe(data => ups.userSettings.defaults = data);
-      this.menuCatalogItems = apiService.getCatalogs().do(data => tsc.menuItems.push.apply(tsc.menuItems, data));
-      this.menuDocItems = apiService.getDocuments().do(data => tsc.menuItems.push.apply(tsc.menuItems, data));
+      apiService.getUserDefaultsSettings().pipe(take(1)).subscribe(data => ups.userSettings.defaults = data);
+      this.menuCatalogItems = apiService.getCatalogs().pipe(tap(data => tsc.menuItems.push.apply(tsc.menuItems, data)));
+      this.menuDocItems = apiService.getDocuments().pipe(tap(data => tsc.menuItems.push.apply(tsc.menuItems, data)));
       this.cd.markForCheck();
     })
   }

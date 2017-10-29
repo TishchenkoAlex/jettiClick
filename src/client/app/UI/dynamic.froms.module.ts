@@ -1,3 +1,4 @@
+import { DynamicFilterControlComponent } from '../common/filter-column/dynamic-filter-control.component';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -45,6 +46,7 @@ import { OperationFormComponent } from './Operation/operation.form.component';
     FilterFormComponent,
     FilterFormControlComponent,
     FilterColumnComponent,
+    DynamicFilterControlComponent,
 
     CashRegisterFormComponent, // add user froms above
     OperationFormComponent,

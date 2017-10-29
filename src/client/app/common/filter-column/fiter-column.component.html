@@ -1,31 +1,22 @@
 <mat-icon (click)="$event.stopPropagation(); isOpen = !isOpen" style="font-size: 16px" cdkOverlayOrigin #origin="cdkOverlayOrigin"
-  [style.color]="this.firstValue ? 'red' : ''">
+  [style.color]="isFilter ? 'red' : ''">
   filter_list
 </mat-icon>
 
 <ng-template cdkConnectedOverlay hasBackdrop backdropClass="cdk-overlay-transparent-backdrop" [cdkConnectedOverlayOrigin]="origin"
-  [cdkConnectedOverlayOpen]="isOpen" width="300px" (attach)="attach()" (detach)="detach()" (backdropClick)="backdropClick()" (positionChange)="positionChange($event)">
+  [cdkConnectedOverlayOpen]="isOpen" width="300px" (attach)="attach()" (detach)="detach()" (backdropClick)="backdropClick()"
+  (positionChange)="positionChange($event)">
 
   <mat-card>
-    <mat-card-content cdkTrapFocus fxLayout="column">
-      <mat-card-title-group>
-        <mat-card-title>
-          <mat-card-subtitle>
-          </mat-card-subtitle>
-        </mat-card-title>
-      </mat-card-title-group>
-      <mat-form-field>
-        <input matInput placeholder="filter" cdk-focus-initial [(ngModel)]="firstValue">
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput placeholder="second" cdk-focus-initial [(ngModel)]="secondValue">
-      </mat-form-field>
-
-    </mat-card-content>
-    <mat-card-actions align="center">
-      <button mat-raised-button color="primary" (click)="onFilter()">Ok</button>
-      <button mat-button (click)="isOpen = false">Cancel</button>
-    </mat-card-actions>
+    <div cdkTrapFocus>
+      <mat-card-content fxLayout="column">
+        <j-filter-form-control [columnDef]="columnDef"></j-filter-form-control>
+      </mat-card-content>
+      <mat-card-actions align="center" style="margin-bottom: 0; padding: 0;">
+        <button mat-raised-button color="primary" (click)="onFilter()" [disabled]="!this.filter?.valid()">Ok</button>
+        <button mat-button (click)="onCancel()">Cancel</button>
+      </mat-card-actions>
+    </div>
   </mat-card>
 
 </ng-template>

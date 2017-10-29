@@ -1,8 +1,10 @@
+import { catchError, map, take } from 'rxjs/operators';
 import { DocListRequestBody, DocListResponse2 } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/of';
 
 import { AccountRegister } from '../../../server/models/account.register';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
@@ -26,70 +28,70 @@ export class ApiService {
       filter: filter
     }
     return (this.http.post(query, body) as Observable<DocListResponse2>)
-      .catch(err => Observable.of({ data: [], continuation: null }))
+      .pipe(catchError(err => Observable.of({ data: [], continuation: null })));
   }
 
-  getView(type: string): Observable<{view: any[], columnDef: ColumnDef[]}> {
+  getView(type: string): Observable<{ view: any[], columnDef: ColumnDef[] }> {
     const query = `${this.url}${type}/view/`;
-    return (this.http.get(query))
-      .map(data => ({ view: data['view'], columnDef: data['columnDef']}))
-      .catch(err => Observable.of({view: [], columnDef: []}))
+    return (this.http.get(query)).pipe(
+      map(data => ({ view: data['view'], columnDef: data['columnDef'] })),
+      catchError(err => Observable.of({ view: [], columnDef: [] })))
   }
 
   getViewModel(type: string, id = ''): Observable<Object> {
     if (id === 'new') { id = ''; }
     const query = `${this.url}${type}/view/${id}`;
-    return (this.http.get(query))
-      .catch(err => Observable.of({}))
+    return (this.http.get(query)).pipe(
+      catchError(err => Observable.of({})))
   }
 
   getSuggests(docType: string, filter = ''): Observable<any[]> {
     const query = `${this.url}suggest/${docType}/${filter}`;
-    return (this.http.get(query) as Observable<any[]>)
-      .catch(err => Observable.of([]))
+    return (this.http.get(query) as Observable<any[]>).pipe(
+      catchError(err => Observable.of([])))
   }
 
   getSuggestsById(id: string): Observable<Object> {
     const query = `${this.url}suggest/${id}`;
-    return (this.http.get(query))
-      .catch(err => Observable.of({}))
+    return (this.http.get(query)).pipe(
+      catchError(err => Observable.of({})))
   }
 
   postDoc(doc: DocModel) {
     const apiDoc = mapDocToApiFormat(doc);
     const query = `${this.url}`;
-    return (this.http.post(query, apiDoc) as Observable<DocModel>)
-      .catch((err: HttpErrorResponse) => Observable.of(err))
+    return (this.http.post(query, apiDoc) as Observable<DocModel>).pipe(
+      catchError((err: HttpErrorResponse) => Observable.of(err)))
   }
 
   postDocById(id: string): Observable<boolean> {
     const query = `${this.url}post/${id}`;
-    return (this.http.get(query) as Observable<boolean>)
-      .catch(err => Observable.of(false))
+    return (this.http.get(query) as Observable<boolean>).pipe(
+      catchError(err => Observable.of(false)))
   }
 
   deleteDoc(id: string): Observable<Object> {
     const query = `${this.url}${id}`;
-    return (this.http.delete(query))
-      .catch(err => Observable.of(null))
+    return (this.http.delete(query)).pipe(
+      catchError(err => Observable.of(null)))
   }
 
   getDocAccountMovementsView(id: string): Observable<AccountRegister[]> {
     const query = `${this.url}register/account/movements/view/${id}`;
-    return (this.http.get(query) as Observable<AccountRegister[]>)
-      .catch(err => Observable.of([]))
+    return (this.http.get(query) as Observable<AccountRegister[]>).pipe(
+      catchError(err => Observable.of([])))
   }
 
   getCatalogs(): Observable<any[]> {
     const query = `${this.url}Catalogs`;
-    return (this.http.get(query) as Observable<any[]>)
-      .catch(err => Observable.of([]))
+    return (this.http.get(query) as Observable<any[]>).pipe(
+      catchError(err => Observable.of([])))
   }
 
   getDocuments(): Observable<any[]> {
     const query = `${this.url}Documents`;
-    return (this.http.get(query) as Observable<any[]>)
-      .catch(err => Observable.of([]))
+    return (this.http.get(query) as Observable<any[]>).pipe(
+      catchError(err => Observable.of([])))
   }
 
   /*   call(doc: DocModel, value: string, prop: string) {
@@ -104,46 +106,47 @@ export class ApiService {
   valueChanges(doc: DocModel, property: string, value: string) {
     const query = `${this.url}valueChanges/${doc.type}/${property}`;
     const callConfig = { doc: doc, value: value }
-    return this.http.post(query, callConfig).take(1)
-      .catch(err => Observable.of(Object.assign({})))
+    return this.http.post(query, callConfig).pipe(
+      take(1),
+      catchError(err => Observable.of(Object.assign({}))))
       .toPromise()
   }
 
   getDocRegisterAccumulationList(id: string) {
     const query = `${this.url}register/accumulation/list/${id}`;
-    return (this.http.get(query) as Observable<any[]>)
-      .catch(err => Observable.of([]))
+    return (this.http.get(query) as Observable<any[]>).pipe(
+    catchError(err => Observable.of([])))
   }
 
   getDocAccumulationMovements(type: string, id: string) {
     const query = `${this.url}register/accumulation/${type}/${id}`;
-    return (this.http.get(query) as Observable<any[]>)
-      .catch(err => Observable.of([]))
+    return (this.http.get(query) as Observable<any[]>).pipe(
+      catchError(err => Observable.of([])));
   }
 
 
   getUserFormListSettings(type: string): Observable<FormListSettings> {
     const query = `${this.url}user/settings/${type}`;
-    return (this.http.get(query) as Observable<FormListSettings>)
-      .catch(err => Observable.of(new FormListSettings()))
+    return (this.http.get(query) as Observable<FormListSettings>).pipe(
+      catchError(err => Observable.of(new FormListSettings())))
   }
 
   setUserFormListSettings(type: string, formListSettings: FormListSettings) {
     const query = `${this.url}user/settings/${type}`;
-    return (this.http.post(query, formListSettings) as Observable<boolean>)
-      .catch(err => Observable.of(false))
+    return (this.http.post(query, formListSettings) as Observable<boolean>).pipe(
+      catchError(err => Observable.of(false)))
   }
 
   getUserDefaultsSettings() {
     const query = `${this.url}user/settings/defaults`;
-    return (this.http.get(query) as Observable<UserDefaultsSettings>)
-      .catch(err => Observable.of(new UserDefaultsSettings()))
+    return (this.http.get(query) as Observable<UserDefaultsSettings>).pipe(
+      catchError(err => Observable.of(new UserDefaultsSettings())))
   }
 
   setUserDefaultsSettings(value: UserDefaultsSettings) {
     const query = `${this.url}user/settings/defaults`;
-    return (this.http.post(query, value) as Observable<boolean>)
-      .catch(err => Observable.of(false))
+    return (this.http.post(query, value) as Observable<boolean>).pipe(
+      catchError(err => Observable.of(false)))
   }
 
 }

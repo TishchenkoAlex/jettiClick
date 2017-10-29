@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
+import { tap } from 'rxjs/operators';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,7 +19,7 @@ export class RegisterAccumulationComponent implements OnInit {
   @Input() doc: DocModel;
   @Input() register: string;
 
-  constructor(private apiService: ApiService, private docService: DocService) {}
+  constructor(private apiService: ApiService, private docService: DocService) { }
 
   ngOnInit() {
     this.movements = new MovementsDataSource(this.apiService, this.register, this.doc.id);
@@ -35,15 +36,15 @@ export class MovementsDataSource extends DataSource<any> {
   }
 
   connect(): Observable<any[]> {
-    return this.apiService.getDocAccumulationMovements(this.register, this.id)
-      .do(data => {
+    return this.apiService.getDocAccumulationMovements(this.register, this.id).pipe(
+      tap(data => {
         if (data.length > 0) {
           this.additionalColumns = Object.keys(data[0])
             .filter(el => ['date', 'kind', 'company', 'document']
               .findIndex(e => e === el) === -1);
           this.displayedColumns = [...this.displayedColumns, ...this.additionalColumns];
         }
-      })
+      }))
   }
 
   disconnect(): void { }

@@ -1,5 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { take } from 'rxjs/operators';
 
 import { getViewModel } from '../../common/dynamic-form/dynamic-form.service';
 import { BaseFormComponent } from '../../common/form/form.base.components/form.base.component';
@@ -26,8 +27,8 @@ export class OperationFormComponent implements AfterViewInit {
   addParametersToForm() {
     this.viewModel.view.length = this._countOfControls;
     this.super.docService.api.getViewModel('Catalog.Operation',
-      this.viewModel.formGroup.controls['Operation'].value.id)
-      .take(1)
+      this.viewModel.formGroup.controls['Operation'].value.id).pipe(
+      take(1))
       .subscribe(data => {
         const Parameters = data['model']['Parameters'] as any[];
         const ParametersObject: { [s: string]: any } = {};

@@ -100,6 +100,15 @@ body {
   background: #f5f5f5;
 }
 
+.mat-sort-header-container {
+  align-items: center;
+}
+
+.mat-sort-header-container .mat-icon {
+  height: 20px;
+
+}
+
 .color-picker {
   background-color:white;
   width: 190px;

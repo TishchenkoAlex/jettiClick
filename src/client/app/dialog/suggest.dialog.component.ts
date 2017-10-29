@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatSort } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { UserSettingsService } from '../auth/settings/user.settings.service';
@@ -39,8 +40,6 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
     private apiService: ApiService, private uss: UserSettingsService) { }
 
   ngOnInit() {
-    this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
-    if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
     this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.uss);
   }
 
@@ -49,9 +48,9 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
       this.dataSource.first()
     } else { this.dataSource.goto(this.data.docID) }
 
-    this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
-      .distinctUntilChanged()
-      .debounceTime(1000)
+    this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup').pipe(
+      distinctUntilChanged(),
+      debounceTime(1000))
       .subscribe((value: string) => {
         this.dataSource.selection.clear();
         this.update();
