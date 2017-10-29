@@ -1,38 +1,57 @@
-export interface UserSettings {
-  formListSettings: { [x: string]: FormListSettings },
-  defaults: {
-    company?: string
-    department?: string
-  }
+export class UserSettings {
+  formListSettings: { [x: string]: FormListSettings } = { '': new FormListSettings() };
+  defaults = new UserDefaultsSettings();
 }
 
-export interface FormListFilter {
-  left: string,
-  center: '=' | '>=' | '<=' | 'like' | 'in' | 'beetwen',
-  right: number | string | any[] | boolean | { 'start': string | number, 'end': string | number }
+export class UserDefaultsSettings {
+  company: string = null
+  department: string = null;
+  rowsInList = 14;
 }
 
-export interface FormListOrder { fileld: string, order: 'asc' | 'desc' }
+export class FilterInterval {
+  start: number | string | boolean = null;
+  end: number | string | boolean = null;
+}
+
+export type FilterList = number[] | string[];
+
+export class FormListFilter {
+  left: string;
+  center: '=' | '>=' | '<=' | 'like' | 'in' | 'beetwen' = '='
+  right: number | string | FilterList | boolean | FilterInterval = null;
+
+  constructor (field: string) {
+    this.left = field;
+  };
+}
+
+export class FormListOrder {
+  order: 'asc' | 'desc' | ''  = '';
+
+  constructor (public field: string) {};
+}
 
 export class FormListSettings {
-  filter: FormListFilter[];
-  order: FormListOrder[];
+  filter: FormListFilter[] = [];
+  order: FormListOrder[] = [];
 }
 
 const userSettings: UserSettings = {
   formListSettings: {
     'Catalog.ClientOrder': {
       filter: [
-        { left: 'Client', center: 'like', right: 'Client' }
+        { left: 'Client', center: 'like', right: 'Client' },
+        { left: 'date', center: 'beetwen', right: { start: '2015-01-01', end: '2017-01-01' } }
       ],
       order: [
-        { fileld: 'Amount', order: 'asc' }
+        { field: 'Amount', order: 'asc' }
       ]
     }
   },
   defaults: {
     company: 'NATUSA',
-    department: null
+    department: null,
+    rowsInList: 15
   }
 }
-

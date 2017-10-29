@@ -1,9 +1,9 @@
+import { DocModel } from '../../../../server/modules/doc.base';
 import { AccountRegister } from '../../../../server/models/account.register';
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
-import { DocModel } from '../doc.model';
 import { DocService } from '../doc.service';
 
 @Component({

@@ -1,4 +1,4 @@
-import { DocModel, JETTI_DOC_PROP } from '../doc.model';
+import { DocModel, JETTI_DOC_PROP } from '../../../../server/modules/doc.base';
 
 export function mapDocToApiFormat(model: DocModel): DocModel {
   const newDoc: DocModel = {

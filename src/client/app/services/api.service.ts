@@ -1,22 +1,14 @@
-import { AccountRegister } from '../../../server/models/account.register';
+import { DocListRequestBody, DocListResponse2 } from '../../../server/models/api';
+import { ColumnDef } from '../../../server/models/column';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { FormListSettings } from '../../../server/models/user.settings';
+import { AccountRegister } from '../../../server/models/account.register';
+import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
+import { DocModel } from '../../../server/modules/doc.base';
 import { environment } from '../../environments/environment';
-import { DocModel } from '../common/doc.model';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
-
-export interface DocListResponse { data: any[], total_count: number };
-
-export interface DocListRequest {
-  id: string, type: string, command: string, count: number, offset: number,
-  orderStr: string,
-  filterObject: any
-}
-export interface Continuation { first: DocModel, last: DocModel }
-export interface DocListResponse2 { data: any[], continuation: Continuation };
 
 @Injectable()
 export class ApiService {
@@ -25,22 +17,23 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  getDocList(type: string, id: string, command: string, count = 10, offset = 0, order = '', filter = {}): Observable<DocListResponse2> {
+  getDocList(type: string, id: string, command: string, count = 10, offset = 0,
+    order: FormListOrder[] = [], filter: FormListFilter[] = []): Observable<DocListResponse2> {
     const query = `${this.url}list`;
-    const body: DocListRequest = {
+    const body: DocListRequestBody = {
       id: id, type: type, command: command, count: count, offset: offset,
-      orderStr: order,
-      filterObject: filter
+      order: order,
+      filter: filter
     }
     return (this.http.post(query, body) as Observable<DocListResponse2>)
       .catch(err => Observable.of({ data: [], continuation: null }))
   }
 
-  getView(type: string): Observable<Object> {
+  getView(type: string): Observable<{view: any[], columnDef: ColumnDef[]}> {
     const query = `${this.url}${type}/view/`;
     return (this.http.get(query))
-      .map(data => data['view'])
-      .catch(err => Observable.of({}))
+      .map(data => ({ view: data['view'], columnDef: data['columnDef']}))
+      .catch(err => Observable.of({view: [], columnDef: []}))
   }
 
   getViewModel(type: string, id = ''): Observable<Object> {
@@ -112,7 +105,8 @@ export class ApiService {
     const query = `${this.url}valueChanges/${doc.type}/${property}`;
     const callConfig = { doc: doc, value: value }
     return this.http.post(query, callConfig).take(1)
-      .catch(err => Observable.of(Object.assign({})).toPromise())
+      .catch(err => Observable.of(Object.assign({})))
+      .toPromise()
   }
 
   getDocRegisterAccumulationList(id: string) {
@@ -128,15 +122,28 @@ export class ApiService {
   }
 
 
-  getUserSettings(type: string): Observable<FormListSettings> {
+  getUserFormListSettings(type: string): Observable<FormListSettings> {
     const query = `${this.url}user/settings/${type}`;
     return (this.http.get(query) as Observable<FormListSettings>)
       .catch(err => Observable.of(new FormListSettings()))
   }
 
-  setUserSettings(type: string, formListSettings: FormListSettings) {
+  setUserFormListSettings(type: string, formListSettings: FormListSettings) {
     const query = `${this.url}user/settings/${type}`;
     return (this.http.post(query, formListSettings) as Observable<boolean>)
       .catch(err => Observable.of(false))
   }
+
+  getUserDefaultsSettings() {
+    const query = `${this.url}user/settings/defaults`;
+    return (this.http.get(query) as Observable<UserDefaultsSettings>)
+      .catch(err => Observable.of(new UserDefaultsSettings()))
+  }
+
+  setUserDefaultsSettings(value: UserDefaultsSettings) {
+    const query = `${this.url}user/settings/defaults`;
+    return (this.http.post(query, value) as Observable<boolean>)
+      .catch(err => Observable.of(false))
+  }
+
 }

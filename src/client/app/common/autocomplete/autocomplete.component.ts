@@ -1,3 +1,4 @@
+import { DocModel } from '../../../../server/modules/doc.base';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -26,7 +27,6 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
-import { DocModel } from '../doc.model';
 import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
 @Component({
@@ -55,23 +55,22 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   });
 
   private _subscription$: Subscription = Subscription.EMPTY;
+  private NO_EVENT = false;
 
   get suggest() { return this.form.controls['suggest']; }
-  get isComplexValue() { return this.value.type.includes('.') }
-  get isTypeControl() {return this.type.startsWith('Types.') }
-  get isTypeValue() { return this.value.type.startsWith('Types.') }
+  get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.') }
+  get isTypeControl() { return this.type.startsWith('Types.') }
+  get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.') }
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
-    const NO_EVENT = obj && obj.data === 'NO_EVENT';
     delete obj.data;
-    if (JSON.stringify(obj) === JSON.stringify(this._value)) { return }
-    if (this.isTypeControl) {
-      this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']';
-    }
+    // if (JSON.stringify(obj) === JSON.stringify(this._value)) { return }
+    if (this.isTypeControl) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']' }
     this._value = obj;
-    this.suggest.patchValue(obj ? obj.value : obj);
-    if (!NO_EVENT) { this.onChange(this._value); this.change.emit(this._value) }
+    this.suggest.patchValue(obj.value ? obj.value : obj);
+    if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value) }
+    this.NO_EVENT = false;
   }
   get value() { return this._value; }
 
@@ -84,7 +83,15 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   private onTouched = () => { };
 
   writeValue(obj: any): void {
-    obj.data = 'NO_EVENT'; // skip initial onChange (when patchValue)
+    this.NO_EVENT = true;
+    if ((this.type.includes('.')) && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string')) {
+      this.value = { id: '', code: '', type: this.type, value: null };
+      return;
+    }
+    if (obj.type && obj.type !== this.type && !this.isTypeControl) {
+      this.value = { id: '', code: '', type: this.type, value: null }
+      return;
+    }
     this.value = obj;
   }
 

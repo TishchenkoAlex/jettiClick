@@ -1,18 +1,14 @@
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import 'rxjs/add/operator/filter';
-
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import * as auth0 from 'auth0-js';
+import { Subject } from 'rxjs/Subject';
 
 import { environment } from '../../environments/environment';
-import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class Auth0Service {
 
-  protected _userProfile$ = new Subject<any>();
-  userProfile$ = this._userProfile$.asObservable();
+  userProfile$ = new Subject<any>();
 
   auth0 = new auth0.WebAuth(environment.auth0);
 
@@ -45,7 +41,7 @@ export class Auth0Service {
     localStorage.removeItem('access_token');
     localStorage.removeItem('id_token');
     localStorage.removeItem('expires_at');
-    this._userProfile$.next(null);
+    this.userProfile$.next(null);
     this.router.navigate(['/Home']);
   }
 
@@ -58,7 +54,7 @@ export class Auth0Service {
     const accessToken = localStorage.getItem('access_token');
     if (accessToken) {
       this.auth0.client.userInfo(accessToken, (err, profile) => {
-        if (profile) { this._userProfile$.next(profile) }
+        if (profile) { this.userProfile$.next(profile) }
       });
     }
   }

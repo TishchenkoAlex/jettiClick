@@ -1,4 +1,5 @@
-<mat-icon (click)="$event.stopPropagation(); isOpen = !isOpen" style="font-size: 16px" cdkOverlayOrigin #origin="cdkOverlayOrigin">
+<mat-icon (click)="$event.stopPropagation(); isOpen = !isOpen" style="font-size: 16px" cdkOverlayOrigin #origin="cdkOverlayOrigin"
+  [style.color]="this.firstValue ? 'red' : ''">
   filter_list
 </mat-icon>
 
@@ -10,20 +11,19 @@
       <mat-card-title-group>
         <mat-card-title>
           <mat-card-subtitle>
-              {{ field | json }}
           </mat-card-subtitle>
         </mat-card-title>
       </mat-card-title-group>
       <mat-form-field>
-        <input matInput placeholder="filter" cdk-focus-initial>
+        <input matInput placeholder="filter" cdk-focus-initial [(ngModel)]="firstValue">
       </mat-form-field>
       <mat-form-field>
-        <input matInput placeholder="second" cdk-focus-initial>
+        <input matInput placeholder="second" cdk-focus-initial [(ngModel)]="secondValue">
       </mat-form-field>
 
     </mat-card-content>
     <mat-card-actions align="center">
-      <button mat-raised-button color="primary" (click)="isOpen = false">Ok</button>
+      <button mat-raised-button color="primary" (click)="onFilter()">Ok</button>
       <button mat-button (click)="isOpen = false">Cancel</button>
     </mat-card-actions>
   </mat-card>

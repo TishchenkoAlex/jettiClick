@@ -1,10 +1,12 @@
-import { FormListSettings } from './models/user.settings';
-import { DocBase, RefValue } from './modules/doc.base';
+import { DocListRequestBody } from './models/api';
 import * as express from 'express';
 
 import { db } from './db';
-import { lib } from './std.lib';
+import { ColumnDef } from './models/column';
+import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from './models/user.settings';
+import { DocBase } from './modules/doc.base';
 import { valueChanges } from './modules/index';
+import { lib } from './std.lib';
 
 export const router = express.Router();
 
@@ -88,35 +90,31 @@ async function docOperationResolver(doc, tx) {
 // Select documents list for UI (grids/list etc)
 router.post('/list', async (req, res, next) => {
   try {
-    const params = req.body;
-    params.order = [];
+    const params = req.body as DocListRequestBody;
     params.command = params.command || 'first';
     const direction = params.command !== 'prev';
     const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
     const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${config_schema.queryList} AND d.id = $1) q`, [params.id]);
-    if (params.orderStr) {
-      const orderParams = params.orderStr.split('*');
-      const orderConfig = {
-        field: orderParams[0], order: orderParams[1] || 'asc', value: row ? row['row'][orderParams[0]] || '' : null
-      }
-      params.order.push(orderConfig);
-    }
-    const lastORDER = params.order.length ? params.order[params.order.length - 1].order === 'asc' : true;
-    params.order.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
+
+    const valueOrder: {field: string, order: 'asc' | 'desc', value: any }[] = [];
+    params.order.filter(el => el.order !== '').forEach(el => {
+      valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? row['row'][el.field] || '' : null });
+    });
+
+    const lastORDER = valueOrder.length ? valueOrder[valueOrder.length - 1].order === 'asc' : true;
+    valueOrder.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
 
     let orderbyBefore = 'ORDER BY '; let orderbyAfter = orderbyBefore;
-    params.order.forEach(o => orderbyBefore += '"' + o.field + (o.order === 'asc' ? '" DESC, ' : '" ASC, '))
+    valueOrder.forEach(o => orderbyBefore += '"' + o.field + (o.order === 'asc' ? '" DESC, ' : '" ASC, '))
     orderbyBefore = orderbyBefore.slice(0, -2);
-    params.order.forEach(o => orderbyAfter += '"' + o.field + (o.order === 'asc' ? '" ASC, ' : '" DESC, '))
+    valueOrder.forEach(o => orderbyAfter += '"' + o.field + (o.order === 'asc' ? '" ASC, ' : '" DESC, '))
     orderbyAfter = orderbyAfter.slice(0, -2);
 
-
-    const filterBuilder = (filter) => {
+    const filterBuilder = (filter: FormListFilter[]) => {
       let where = 'TRUE ';
-      console.log(filter);
-      Object.keys(filter).forEach(key => {
-        if (key === 'description' && filter[key]) {
-          where += ` AND d.description ILIKE '${filter[key]}%'`;
+      filter.forEach(f => {
+        if (f.left === 'description' && f.right) {
+          where += ` AND d.description ILIKE '${f.right}%'`;
         }
       });
       return where;
@@ -125,10 +123,10 @@ router.post('/list', async (req, res, next) => {
     const queryBuilder = (isAfter) => {
       // tslint:disable-next-line:no-shadowed-variable
       let result = '';
-      const order = params.order.slice();
+      const order = valueOrder.slice();
       const char1 = lastORDER ? isAfter ? '>' : '<' : isAfter ? '<' : '>';
-      params.order.forEach(o => {
-        let where = filterBuilder(params.filterObject || {});
+      valueOrder.forEach(o => {
+        let where = filterBuilder(params.filter || []);
         order.forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
           char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
         order.length--;
@@ -205,18 +203,38 @@ router.post('/list', async (req, res, next) => {
 
 router.get('/:type/view/*', async (req, res, next) => {
   try {
+    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const config_schema = await db.one(`
       SELECT "queryObject", "queryNewObject",
+        (select settings->'${req.params.type}' result from users where email = '${user}') settings,
         (SELECT schema FROM config_schema WHERE type = 'doc') || config_schema.schema AS "schemaFull"
       FROM config_schema WHERE type = $1`, [req.params.type]);
     const view = config_schema.schemaFull;
+    const settings: FormListSettings = config_schema.settings || new FormListSettings();
+
+    const columnDef: ColumnDef[] = [];
+    Object.keys(view).filter(property => view[property] && view[property]['type'] !== 'table').map((property) => {
+      const prop = view[property];
+      const hidden = !!prop['hidden-list'];
+      const order = hidden ? 1000 : prop['order'] * 1 || 999;
+      const label = (prop['label'] || property.toString()).toLowerCase();
+      const type = prop['type'] || 'string';
+      const style = prop['style'] || '';
+      columnDef.push({
+        field: property, type: type, label: label, hidden: hidden, order: order, style: style,
+        filter: settings.filter.find(f => f.left === property) || new FormListFilter(property),
+        sort: settings.order.find(f => f.field === property) || new FormListOrder(property)
+      });
+    });
+    columnDef.sort((a, b) => a.order - b.order);
+
     let model; const id = req.params['0'];
     if (id) {
       if (id.startsWith('copy-')) {
         model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id.slice(5)]);
         const newDoc = await db.one('SELECT uuid_generate_v1mc() id, now() date');
         model.id = newDoc.id; model.date = newDoc.date; model.code = '';
-        model.posted = false; model.deleted = false;
+        model.posted = false; model.deleted = false; model.parent = null;
         model.description = 'Copy: ' + model.description;
       } else {
         if (id.startsWith('base-')) {
@@ -231,7 +249,7 @@ router.get('/:type/view/*', async (req, res, next) => {
     } else {
       model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
     }
-    const result = { view: view, model: model };
+    const result = { view: view, model: model, columnDef: columnDef };
     res.json(result);
   } catch (err) { next(err.message); }
 })
@@ -417,6 +435,25 @@ router.get('/register/accumulation/:type/:id', async (req, res, next) => {
   } catch (err) { next(err.message); }
 })
 
+router.get('/user/settings/defaults', async (req, res, next) => {
+  try {
+    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const query = `select settings->'defaults' result from users where email = '${user}'`;
+    const result = await db.oneOrNone<{result: UserDefaultsSettings}>(query);
+    res.json(result.result || new UserDefaultsSettings());
+  } catch (err) { next(err.message); }
+})
+
+router.post('/user/settings/defaults', async (req, res, next) => {
+  try {
+    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const data = req.body || new UserDefaultsSettings();
+    const query = `update users set settings = jsonb_set(settings, '{"defaults"}, $1) where email = '${user}'`;
+    const result = await db.none(query, [data]);
+    res.json(true);
+  } catch (err) { next(err.message); }
+})
+
 router.get('/user/settings/:type', async (req, res, next) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
@@ -435,6 +472,3 @@ router.post('/user/settings/:type', async (req, res, next) => {
     res.json(true);
   } catch (err) { next(err.message); }
 })
-
-
-

@@ -1,4 +1,4 @@
-import { ColDef } from '../filter-column/column';
+import { ColumnDef } from '../../../../server/models/column';
 import { SelectionModel } from '@angular/cdk/collections';
 import {
   AfterViewInit,
@@ -48,7 +48,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   dataSource: MatTableDataSource<any> | null;
   selection = new SelectionModel<any>(true, []);
   displayedColumns: any[] = [];
-  columns: ColDef[] = [];
+  columns: ColumnDef[] = [];
   sampleRow: FormGroup;
 
   constructor(public dialog: MatDialog, private ds: DocService, private cd: ChangeDetectorRef) { }

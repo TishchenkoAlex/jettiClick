@@ -1,3 +1,4 @@
+import { DocModel } from '../../../server/modules/doc.base';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { Injectable } from '@angular/core';
@@ -5,7 +6,6 @@ import { MatSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 
 import { ApiService } from '../services/api.service';
-import { DocModel } from './doc.model';
 
 @Injectable()
 export class DocService {

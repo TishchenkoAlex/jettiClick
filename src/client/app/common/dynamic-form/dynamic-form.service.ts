@@ -1,9 +1,9 @@
+import { DocModel } from '../../../../server/modules/doc.base';
 import { Injectable } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
-import { DocModel } from '../doc.model';
 import { copyFormGroup, toFormGroup } from '../utils';
 import {
   AutocompleteJettiFormControl,
@@ -149,7 +149,7 @@ export class DynamicFormService {
       });
   }
 
-  getView$(type: string): Observable<Object> {
+  getView$(type: string) {
     return this.apiService.getView(type);
   }
 

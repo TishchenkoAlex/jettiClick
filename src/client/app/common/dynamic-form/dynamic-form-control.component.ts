@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
-import { BaseJettiFromControl } from './dynamic-form-base';
+import { BaseJettiFromControl, JettiComplexObject } from './dynamic-form-base';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,8 +17,8 @@ export class DynamicFormControlComponent {
 
   get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
 
-  async onChange(event) {
-    if (this.control.change) {
+  async onChange(event: JettiComplexObject) {
+    if (this.control.change && event.value) {
       const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
       const func = new AsyncFunction('doc, prop, value, call', this.control.change);
       const patch = await func(

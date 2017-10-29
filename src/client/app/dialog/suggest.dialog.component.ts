@@ -1,8 +1,18 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    Inject,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatSort } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
+import { UserSettingsService } from '../auth/settings/user.settings.service';
 import { ApiDataSource } from '../common/datatable/api.datasource';
 import { ApiService } from '../services/api.service';
 
@@ -11,8 +21,9 @@ import { ApiService } from '../services/api.service';
   templateUrl: './suggest.dialog.component.html',
   styleUrls: ['./suggest.dialog.component.scss']
 })
-export class SuggestDialogComponent implements OnInit, OnDestroy {
+export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  private _sortChange$: Subscription = Subscription.EMPTY;
   private _filter$: Subscription = Subscription.EMPTY;
   isDoc: boolean;
   pageSize = 10;
@@ -25,31 +36,50 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   @ViewChild('filter') filter: ElementRef;
 
   constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any,
-    private apiService: ApiService) { }
+    private apiService: ApiService, private uss: UserSettingsService) { }
 
   ngOnInit() {
     this.isDoc = this.data.docType.startsWith('Document.') || this.data.docType.startsWith('Journal.');
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.sort);
+    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.uss);
+  }
+
+  ngAfterViewInit() {
+    if (!this.data.docID || (this.data.docID === this.data.docType)) {
+      this.dataSource.first()
+    } else { this.dataSource.goto(this.data.docID) }
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup')
       .distinctUntilChanged()
       .debounceTime(1000)
       .subscribe((value: string) => {
         this.dataSource.selection.clear();
-        this.dataSource.filterObject = {
-          action: 'filter', value: {description: this.filter.nativeElement.value}}
-        });
+        this.update();
+      });
 
+    this._sortChange$ = this.sort.sortChange.subscribe(() => {
+      this.update();
+    });
 
-    if (!this.data.docID || (this.data.docID === this.data.docType)) {
-      this.dataSource.first()
-    } else { this.dataSource.goto(this.data.docID) }
+  }
+
+  private update() {
+    this.uss.formListSettings$.next({
+      type: this.data.docType,
+      payload: {
+        filter: [
+          { left: 'description', center: 'like', right: this.filter.nativeElement.value }
+        ],
+        order: [
+          { field: this.sort.active, order: this.sort.direction }
+        ]
+      }
+    });
   }
 
   ngOnDestroy() {
     this._filter$.unsubscribe();
+    this._sortChange$.unsubscribe();
   }
 
 }
-

@@ -1,9 +1,9 @@
+import { DocModel } from '../../../../server/modules/doc.base';
 import { DataSource } from '@angular/cdk/collections';
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { ApiService } from '../../services/api.service';
-import { DocModel } from '../doc.model';
 import { DocService } from '../doc.service';
 
 @Component({

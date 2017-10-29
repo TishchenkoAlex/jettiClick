@@ -1,25 +1,34 @@
 import { ConnectedOverlayPositionChange, ConnectedPositionStrategy, OverlayOrigin } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { MatInput } from '@angular/material';
 
-import { ColDef } from './column';
+import { ColumnDef } from '../../../../server/models/column';
+import { UserSettingsService } from '../../auth/settings/user.settings.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'filter-column',
   templateUrl: './fiter-column.component.html'
 })
-export class FilterColumnComponent {
+export class FilterColumnComponent implements AfterViewInit {
 
   private _positionStrategy: ConnectedPositionStrategy;
 
-  @Input() field: ColDef;
+  @Input() field: ColumnDef;
+  @Input() type = '';
   @ViewChild(MatInput) filter: MatInput;
   @ViewChild(OverlayOrigin) _overlayOrigin: OverlayOrigin;
-
+  firstValue;
+  secondValue;
   isOpen = false;
 
-  constructor(private cd: ChangeDetectorRef) { }
+  constructor(private cd: ChangeDetectorRef, private uss: UserSettingsService) { }
+
+  ngAfterViewInit() {
+    if (this.field.filter.right === null) { return }
+    this.firstValue = this.field.filter.right.toString();
+    this.cd.detectChanges();
+  }
 
   attach() {
     Promise.resolve().then(() => this.filter.focus());
@@ -37,6 +46,10 @@ export class FilterColumnComponent {
 
   positionChange(event: ConnectedOverlayPositionChange) {
     this.cd.detectChanges();
-    console.log('positionChange', event);
+  }
+
+  onFilter() {
+    this.isOpen = false;
+    this.field.filter.right = this.firstValue;
   }
 }

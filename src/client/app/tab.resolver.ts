@@ -10,7 +10,7 @@ import { ApiService } from './services/api.service';
 @Injectable()
 export class TabResolver implements Resolve<any> {
 
-  constructor(private dfs: DynamicFormService, public tcs: TabControllerService, private sns: SideNavService) { }
+  constructor(private dfs: DynamicFormService, public tcs: TabControllerService, private sns: SideNavService, private api: ApiService) { }
 
   public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Object> {
     const type: string = route.params['type'];
@@ -21,7 +21,10 @@ export class TabResolver implements Resolve<any> {
       if (route.params['id']) {
         return this.dfs.getViewModel$(route.params['type'], route.params['id']);
       }
-      return this.dfs.getView$(route.params['type']);
+      return Observable.forkJoin(
+        this.dfs.getView$(route.params['type']),
+        this.api.getUserFormListSettings(route.params['type'])
+      )
     }
   }
 }

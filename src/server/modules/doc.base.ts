@@ -22,6 +22,29 @@ export interface RefValue {
     value: string | number | boolean
 }
 
+import { v1 } from 'uuid';
+
+export class DocModel implements DocBase  {
+    public code = '';
+    public description = '';
+    public company: Ref = '';
+    public user: Ref = '';
+    public posted  = false;
+    public deleted = false;
+    public parent: Ref = null;
+    public info = '';
+    public doc: { [x: string]: boolean | number | string | Ref | any[] } = {};
+
+    constructor (
+        public type = '',
+        public id = v1(),
+        public date = new Date().toJSON(),
+        public isfolder = false
+    ) {}
+}
+
+export const JETTI_DOC_PROP = Object.keys(new DocModel());
+
 export interface PatchValue { [x: string]: boolean | number | string | RefValue }
 
 export interface FileldsAction {

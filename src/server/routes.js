@@ -2,8 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const db_1 = require("./db");
-const std_lib_1 = require("./std.lib");
+const user_settings_1 = require("./models/user.settings");
 const index_1 = require("./modules/index");
+const std_lib_1 = require("./std.lib");
 exports.router = express.Router();
 exports.router.get('/catalogs', async (req, res, next) => {
     try {
@@ -94,32 +95,27 @@ async function docOperationResolver(doc, tx) {
 exports.router.post('/list', async (req, res, next) => {
     try {
         const params = req.body;
-        params.order = [];
         params.command = params.command || 'first';
         const direction = params.command !== 'prev';
         const config_schema = await db_1.db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
         const row = await db_1.db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${config_schema.queryList} AND d.id = $1) q`, [params.id]);
-        if (params.orderStr) {
-            const orderParams = params.orderStr.split('*');
-            const orderConfig = {
-                field: orderParams[0], order: orderParams[1] || 'asc', value: row ? row['row'][orderParams[0]] || '' : null
-            };
-            params.order.push(orderConfig);
-        }
-        const lastORDER = params.order.length ? params.order[params.order.length - 1].order === 'asc' : true;
-        params.order.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
+        const valueOrder = [];
+        params.order.filter(el => el.order !== '').forEach(el => {
+            valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? row['row'][el.field] || '' : null });
+        });
+        const lastORDER = valueOrder.length ? valueOrder[valueOrder.length - 1].order === 'asc' : true;
+        valueOrder.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
         let orderbyBefore = 'ORDER BY ';
         let orderbyAfter = orderbyBefore;
-        params.order.forEach(o => orderbyBefore += '"' + o.field + (o.order === 'asc' ? '" DESC, ' : '" ASC, '));
+        valueOrder.forEach(o => orderbyBefore += '"' + o.field + (o.order === 'asc' ? '" DESC, ' : '" ASC, '));
         orderbyBefore = orderbyBefore.slice(0, -2);
-        params.order.forEach(o => orderbyAfter += '"' + o.field + (o.order === 'asc' ? '" ASC, ' : '" DESC, '));
+        valueOrder.forEach(o => orderbyAfter += '"' + o.field + (o.order === 'asc' ? '" ASC, ' : '" DESC, '));
         orderbyAfter = orderbyAfter.slice(0, -2);
         const filterBuilder = (filter) => {
             let where = 'TRUE ';
-            console.log(filter);
-            Object.keys(filter).forEach(key => {
-                if (key === 'description' && filter[key]) {
-                    where += ` AND d.description ILIKE '${filter[key]}%'`;
+            filter.forEach(f => {
+                if (f.left === 'description' && f.right) {
+                    where += ` AND d.description ILIKE '${f.right}%'`;
                 }
             });
             return where;
@@ -127,10 +123,10 @@ exports.router.post('/list', async (req, res, next) => {
         const queryBuilder = (isAfter) => {
             // tslint:disable-next-line:no-shadowed-variable
             let result = '';
-            const order = params.order.slice();
+            const order = valueOrder.slice();
             const char1 = lastORDER ? isAfter ? '>' : '<' : isAfter ? '<' : '>';
-            params.order.forEach(o => {
-                let where = filterBuilder(params.filterObject || {});
+            valueOrder.forEach(o => {
+                let where = filterBuilder(params.filter || []);
                 order.forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
                     char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
                 order.length--;
@@ -212,11 +208,29 @@ exports.router.post('/list', async (req, res, next) => {
 });
 exports.router.get('/:type/view/*', async (req, res, next) => {
     try {
+        const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
         const config_schema = await db_1.db.one(`
       SELECT "queryObject", "queryNewObject",
+        (select settings->'${req.params.type}' result from users where email = '${user}') settings,
         (SELECT schema FROM config_schema WHERE type = 'doc') || config_schema.schema AS "schemaFull"
       FROM config_schema WHERE type = $1`, [req.params.type]);
         const view = config_schema.schemaFull;
+        const settings = config_schema.settings || new user_settings_1.FormListSettings();
+        const columnDef = [];
+        Object.keys(view).filter(property => view[property] && view[property]['type'] !== 'table').map((property) => {
+            const prop = view[property];
+            const hidden = !!prop['hidden-list'];
+            const order = hidden ? 1000 : prop['order'] * 1 || 999;
+            const label = (prop['label'] || property.toString()).toLowerCase();
+            const type = prop['type'] || 'string';
+            const style = prop['style'] || '';
+            columnDef.push({
+                field: property, type: type, label: label, hidden: hidden, order: order, style: style,
+                filter: settings.filter.find(f => f.left === property) || new user_settings_1.FormListFilter(property),
+                sort: settings.order.find(f => f.field === property) || new user_settings_1.FormListOrder(property)
+            });
+        });
+        columnDef.sort((a, b) => a.order - b.order);
         let model;
         const id = req.params['0'];
         if (id) {
@@ -228,6 +242,7 @@ exports.router.get('/:type/view/*', async (req, res, next) => {
                 model.code = '';
                 model.posted = false;
                 model.deleted = false;
+                model.parent = null;
                 model.description = 'Copy: ' + model.description;
             }
             else {
@@ -245,7 +260,7 @@ exports.router.get('/:type/view/*', async (req, res, next) => {
         else {
             model = config_schema.queryNewObject ? await db_1.db.one(`${config_schema.queryNewObject}`) : {};
         }
-        const result = { view: view, model: model };
+        const result = { view: view, model: model, columnDef: columnDef };
         res.json(result);
     }
     catch (err) {
@@ -459,6 +474,29 @@ exports.router.get('/register/accumulation/:type/:id', async (req, res, next) =>
       SELECT "queryObject" query FROM config_schema WHERE type = $1`, [req.params.type]);
         const result = await db_1.db.manyOrNone(`${config_schema.query} AND r.document = $1`, [req.params.id]);
         res.json(result);
+    }
+    catch (err) {
+        next(err.message);
+    }
+});
+exports.router.get('/user/settings/defaults', async (req, res, next) => {
+    try {
+        const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+        const query = `select settings->'defaults' result from users where email = '${user}'`;
+        const result = await db_1.db.oneOrNone(query);
+        res.json(result.result || new user_settings_1.UserDefaultsSettings());
+    }
+    catch (err) {
+        next(err.message);
+    }
+});
+exports.router.post('/user/settings/defaults', async (req, res, next) => {
+    try {
+        const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+        const data = req.body || new user_settings_1.UserDefaultsSettings();
+        const query = `update users set settings = jsonb_set(settings, '{"defaults"}, $1) where email = '${user}'`;
+        const result = await db_1.db.none(query, [data]);
+        res.json(true);
     }
     catch (err) {
         next(err.message);

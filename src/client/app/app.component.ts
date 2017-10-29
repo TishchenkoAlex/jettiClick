@@ -1,3 +1,4 @@
+import { UserSettingsService } from './auth/settings/user.settings.service';
 import { LoadingService } from './common/loading.service';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
@@ -24,7 +25,7 @@ export class AppComponent  {
   isDarkTheme = false;
   sideNav = { mode: 'side', opened: true };
 
-  constructor(media: ObservableMedia, private router: Router, private auth: Auth0Service,
+  constructor(media: ObservableMedia, private router: Router, private auth: Auth0Service, private ups: UserSettingsService,
     public sideNavService: SideNavService, private apiService: ApiService, public lds: LoadingService,
     private tsc: TabControllerService, private cd: ChangeDetectorRef) {
 
@@ -33,6 +34,7 @@ export class AppComponent  {
     auth.handleAuthentication();
     this.auth.userProfile$.subscribe(userProfile => {
       tsc.menuItems.length = 0;
+      apiService.getUserDefaultsSettings().take(1).subscribe(data => ups.userSettings.defaults = data);
       this.menuCatalogItems = apiService.getCatalogs().do(data => tsc.menuItems.push.apply(tsc.menuItems, data));
       this.menuDocItems = apiService.getDocuments().do(data => tsc.menuItems.push.apply(tsc.menuItems, data));
       this.cd.markForCheck();

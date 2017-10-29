@@ -1,0 +1,97 @@
+{
+    "Document.Operation": {
+        "order": [
+            {
+                "field": "date",
+                "order": "asc"
+            }
+        ],
+        "filter": [
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Amount",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "column1",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "column2",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": "NAT USA",
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "currency",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Operation",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            }
+        ]
+    }
+}

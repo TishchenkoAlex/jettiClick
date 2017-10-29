@@ -1,14 +1,24 @@
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    Input,
+    OnDestroy,
+    OnInit,
+    TemplateRef,
+    ViewChild,
+} from '@angular/core';
 import { MatSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
+import { ColumnDef } from '../../../../server/models/column';
+import { FormListSettings } from '../../../../server/models/user.settings';
+import { DocModel } from '../../../../server/modules/doc.base';
 import { UserSettingsService } from '../../auth/settings/user.settings.service';
-import { DocModel } from '../../common/doc.model';
 import { DocService } from '../doc.service';
-import { ColDef } from '../filter-column/column';
-import { FilterObject } from '../filter/filter.control.component';
 import { SideNavService } from './../../services/side-nav.service';
 import { ApiDataSource } from './api.datasource';
 
@@ -18,11 +28,11 @@ import { ApiDataSource } from './api.datasource';
   styleUrls: ['./datatable.component.scss'],
   templateUrl: './datatable.component.html',
 })
-export class CommonDataTableComponent implements OnInit, OnDestroy {
+export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  protected _docSubscription$: Subscription = Subscription.EMPTY;
-  protected _sideNavService$: Subscription = Subscription.EMPTY;
-  protected _userSettingscSubscription$: Subscription = Subscription.EMPTY;
+  private _docSubscription$: Subscription = Subscription.EMPTY;
+  private _sideNavService$: Subscription = Subscription.EMPTY;
+  private _sortChange$: Subscription = Subscription.EMPTY;
 
   dataSource: ApiDataSource | null;
 
@@ -34,36 +44,28 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
 
   isDoc: boolean;
   docType = '';
-  columns: ColDef[] = [];
+  columns: ColumnDef[] = [];
   displayedColumns = [];
-  filterColumns: any[] = [];
 
-  constructor(private route: ActivatedRoute, private router: Router,
-    private ds: DocService, private sns: SideNavService, private uss: UserSettingsService) { };
+  constructor(private route: ActivatedRoute, private router: Router, private cd: ChangeDetectorRef,
+    private ds: DocService, private sns: SideNavService, private uss: UserSettingsService) {
+    this.pageSize = this.uss.userSettings.defaults.rowsInList;
+  };
 
   ngOnInit() {
-    const view = this.route.data['value'].detail;
+    const view = this.route.data['value'].detail[0]['view'];
+    this.columns = this.route.data['value'].detail[0]['columnDef'];
+
+
     this.docType = this.route.params['value'].type;
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
+    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.uss);
     if (this.isDoc) { this.sort.active = 'date'; } else { this.sort.active = 'description'; }
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.sort);
-
-    Object.keys(view).filter(property => view[property] && view[property]['type'] !== 'table').map((property) => {
-      const prop = view[property];
-      const hidden = !!prop['hidden-list'];
-      const order = hidden ? 1000 : prop['order'] * 1 || 999;
-      const label = (prop['label'] || property.toString()).toLowerCase();
-      const type = prop['type'] || 'string';
-      const style = prop['style'] || '';
-      this.columns.push({ field: property, type: type, label: label, hidden: hidden, order: order, style: style });
-    });
-    this.columns.sort((a, b) => a.order - b.order);
 
     this.displayedColumns = this.columns.filter(c =>
       !c.hidden && (this.isDoc ? c.field !== 'description' : (c.field !== 'company') && (c.field !== 'date')))
       .map(c => c.field);
     this.displayedColumns.unshift('select');
-    this.filterColumns = this.columns.filter(c => !c.hidden).map(c => ({ key: c.field, value: c.label }));
 
     this._docSubscription$ = Observable.merge(...[
       this.ds.save$,
@@ -75,19 +77,33 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
     this._sideNavService$ = this.sns.do$
       .filter(data => data.type === this.docType && data.id === '')
       .subscribe(data => this.sns.templateRef = this.sideNavTepmlate);
+  }
 
-    this._userSettingscSubscription$ = this.uss.formListSettings$.skip(1)
-      .filter(s => s.type === this.docType).subscribe(s => {
-        this.dataSource.filterObject = { action: 'filter', value: {} };
-      })
-    this.uss.get(this.docType);
+  ngAfterViewInit() {
+    const formListSettings: FormListSettings = {
+      filter: this.columns.map(c => c.filter),
+      order: this.columns.map(c => c.sort)
+    }
+    const sort = formListSettings.order.find(s => s.order !== '');
+    if (sort) {
+      console.log('SORT CHANGE', sort);
+      this.sort.direction = sort.order;
+      this.sort.active = sort.field;
+      this.cd.detectChanges();
+    }
+
+    this._sortChange$ = this.sort.sortChange.subscribe(() => {
+      formListSettings.order = [{field: this.sort.active, order: this.sort.direction }];
+      this.uss.setFormListSettings(this.docType, formListSettings);
+    });
+
+    this.uss.formListSettings$.next({ type: this.docType, payload: formListSettings });
   }
 
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
     this._sideNavService$.unsubscribe();
-    this.dataSource._filterObjectChangeSubscription.unsubscribe();
-    this._userSettingscSubscription$.unsubscribe();
+    this._sortChange$.unsubscribe();
   }
 
   add() {
@@ -133,9 +149,5 @@ export class CommonDataTableComponent implements OnInit, OnDestroy {
     this.ds.close(doc);
   }
 
-  onChangeFilter(event: FilterObject) {
-    this.dataSource.filterObject = event;
-    console.log('onChangeFilter', event);
-  }
 }
 
