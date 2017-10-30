@@ -153,7 +153,7 @@
 <ng-template #sideNavTepmlate let-sidenav="sidenav">
   <mat-card>
     <mat-card-content>
-      <j-filter *ngIf="sidenav.opened" [docType]="docType"></j-filter>
+      <j-filter *ngIf="sidenav.opened" [docType]="docType" [columns]="columns"></j-filter>
     </mat-card-content>
     <!--     <mat-card-actions>
       <button mat-button (click)="sidenav.close()">Close</button>

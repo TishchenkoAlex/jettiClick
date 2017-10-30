@@ -1,15 +1,9 @@
-<div *ngIf="(viewModel$ | async) as viewModel">
-  <form novalidate [formGroup]="viewModel.formGroup">
-    <div fxLayout="column">
-      <div *ngFor="let control of viewModel.view; let i = index">
-        <div [ngSwitch]="control.controlType">
-          <j-filter-control [control]="control" [form]="viewModel.formGroup"></j-filter-control>
-        </div>
-      </div>
-    </div>
-  </form>
-  <div fxLayoutAlign="center center" fxLayoutGap="16px">
-    <button mat-raised-button color="primary" (click)="Filter(viewModel.formGroup.value)">Filter</button>
-    <button mat-raised-button (click)="Search(viewModel.formGroup.value)">Search</button>
+<div fxLayout="column">
+  <div *ngFor="let columnDef of columns">
+    <j-filter-form-control [columnDef]="columnDef"></j-filter-form-control>
   </div>
+</div>
+<div fxLayoutAlign="center center" fxLayoutGap="16px">
+  <button mat-raised-button color="primary">Filter</button>
+  <button mat-raised-button>Search</button>
 </div>

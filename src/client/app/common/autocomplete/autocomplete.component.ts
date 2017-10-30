@@ -129,10 +129,10 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
       filter(data => {
         return this.isComplexValue && (typeof data === 'string') && (data !== this.value.value)
           && (this.value.data !== 'NO_SUGGEST');
-      })
-      , debounceTime(300)
-      , switchMap(text => this.getSuggests(this.value.type || this.type, text))
-      , catchError(err => Observable.of([])));
+      }),
+      debounceTime(500),
+      switchMap(text => this.getSuggests(this.value.type || this.type, text)),
+      catchError(err => Observable.of([])));
 
     this._subscription$ = this.auto.optionSelected.subscribe(data => {
       data.value = 'NO_SUGGEST';
@@ -148,7 +148,10 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   onBlur() {
     this.auto.options.reset([]);
     if (this.value.value === this.suggest.value) { return }
-    if (!this.isComplexValue || !this.checkValue) { this.value.value = this.suggest.value }
+    if (!this.isComplexValue) { this.value.value = this.suggest.value } else
+    if (!this.checkValue && this.isComplexValue) {
+      this.value.value = typeof this.suggest.value === 'object' ? this.suggest.value.value : this.suggest.value;
+    }
     this.value = this.value;
   }
 
@@ -160,8 +163,8 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
     return this.api.getSuggests(type, text || '');
   }
 
-  handleReset(event) {
-    event.stopPropagation();
+  handleReset(event: Event) {
+    if (event instanceof Event) { event.stopPropagation() }
     this.auto.options.reset([]);
     this.value = { id: '', code: '', type: this.type, value: null };
   }

@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatInput } from '@angular/material';
 
 import { ColumnDef } from '../../../../server/models/column';
 import { FilterInterval } from '../../../../server/models/user.settings';
+import { UserSettingsService } from '../../auth/settings/user.settings.service';
 import { AutocompleteComponent } from '../autocomplete/autocomplete.component';
+import { getPeriod } from '../utils';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -14,9 +16,10 @@ export class DynamicFilterControlComponent implements OnInit {
   @Input() columnDef: ColumnDef;
   @ViewChild(MatInput) filter: MatInput;
   @ViewChild(AutocompleteComponent) autocomplete: AutocompleteComponent;
-  @Output() change = new EventEmitter();
 
   filterInterval = new FilterInterval();
+
+  constructor (private cd: ChangeDetectorRef, private uss: UserSettingsService) {}
 
   ngOnInit() {
     if (this.columnDef.type  === 'datetime' || this.columnDef.type  === 'date') {
@@ -25,6 +28,7 @@ export class DynamicFilterControlComponent implements OnInit {
         return;
       }
       this.columnDef.filter.right = this.filterInterval;
+      this.columnDef.filter.center = 'beetwen';
     }
 
     if (this.columnDef.type  === 'number') {
@@ -33,6 +37,10 @@ export class DynamicFilterControlComponent implements OnInit {
         return;
       }
       this.columnDef.filter.right = this.filterInterval;
+    }
+
+    if (this.columnDef.type  === 'string') {
+      this.columnDef.filter.center = 'like'
     }
   }
 
@@ -48,6 +56,13 @@ export class DynamicFilterControlComponent implements OnInit {
   }
 
   onChange(event) {
+    this.uss.columnDef$.next(JSON.parse(JSON.stringify(this.columnDef)));
+  }
 
+  selectPeriod(period: string) {
+    const result = getPeriod(period);
+      this.filterInterval.start = result.startDate.toJSON();
+      this.filterInterval.end = result.endDate.toJSON();
+    this.onChange(null);
   }
 }

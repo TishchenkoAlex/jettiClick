@@ -1,9 +1,6 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 
-import { DocService } from '../../common/doc.service';
-import { DynamicFormService, ViewModel } from '../dynamic-form/dynamic-form.service';
-import { FilterObject } from './filter.control.component';
+import { ColumnDef } from '../../../../server/models/column';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -11,26 +8,11 @@ import { FilterObject } from './filter.control.component';
   styleUrls: ['./filter.component.scss'],
   templateUrl: './filter.component.html',
 })
-export class FilterFormComponent implements OnInit {
+export class FilterFormComponent  {
 
   @Input() docType = '';
-  @Output() onChange: EventEmitter<FilterObject> = new EventEmitter<FilterObject>();
+  @Input() columns: ColumnDef[];
 
-  viewModel$: Observable<ViewModel>;
-  isDoc: boolean;
-
-  constructor(public docService: DocService, private dfs: DynamicFormService) { }
-
-  ngOnInit() {
-    this.viewModel$ = this.dfs.getFilterModel$(this.docType);
-  }
-
-  Filter(value) {
-    this.onChange.emit({action: 'filter',  value: value})
-  }
-
-  Search(value) {
-    this.onChange.emit({ action: 'search',  value: value})
-  }
+  constructor(private cd: ChangeDetectorRef) {}
 
 }

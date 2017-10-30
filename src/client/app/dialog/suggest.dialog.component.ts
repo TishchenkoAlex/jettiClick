@@ -50,7 +50,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup').pipe(
       distinctUntilChanged(),
-      debounceTime(1000))
+      debounceTime(500))
       .subscribe((value: string) => {
         this.dataSource.selection.clear();
         this.update();

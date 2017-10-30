@@ -3,7 +3,13 @@ import * as express from 'express';
 
 import { db } from './db';
 import { ColumnDef } from './models/column';
-import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from './models/user.settings';
+import {
+  FilterInterval,
+  FormListFilter,
+  FormListOrder,
+  FormListSettings,
+  UserDefaultsSettings,
+} from './models/user.settings';
 import { DocBase } from './modules/doc.base';
 import { valueChanges } from './modules/index';
 import { lib } from './std.lib';
@@ -96,7 +102,7 @@ router.post('/list', async (req, res, next) => {
     const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
     const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${config_schema.queryList} AND d.id = $1) q`, [params.id]);
 
-    const valueOrder: {field: string, order: 'asc' | 'desc', value: any }[] = [];
+    const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
     params.order.filter(el => el.order !== '').forEach(el => {
       valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? row['row'][el.field] || '' : null });
     });
@@ -112,8 +118,25 @@ router.post('/list', async (req, res, next) => {
 
     const filterBuilder = (filter: FormListFilter[]) => {
       let where = ' TRUE ';
-      filter.filter(f => f.left === 'description' && f.right)
-        .forEach(f => where += ` AND d.description ILIKE '${f.right}%'`);
+      filter.filter(f => f.right).forEach(f => {
+        let operator = f.center.toString();
+        if (f.center === 'like') { operator = 'ILIKE' }
+        const value = f.right['value'] || f.right;
+        switch (operator) {
+          case '=': case '>=': case '<=': case '>': case '<':
+            if (typeof value === 'object') { return; }
+            where += ` AND d."${f.left}" ${operator} '${value}'`;
+            break;
+          case 'ILIKE':
+            where += ` AND d."${f.left}" ${operator} '%${value}%'`;
+            break;
+          case 'beetwen':
+            const interval = f.right as FilterInterval;
+            if (interval.start) { where += ` AND d."${f.left}" >= '${interval.start}'` }
+            if (interval.end) { where += ` AND d."${f.left}" <= '${interval.end}'` }
+            break;
+        }
+      });
       return where;
     }
 
@@ -405,8 +428,9 @@ router.post('/valueChanges/:type/:property', async (req, res, next) => {
   try {
     const doc = req.body.doc as DocBase;
     const value = req.body.value;
-    const Module = valueChanges;
-    const result = await Module[req.params.type][req.params.property](doc, value);
+    const Module = valueChanges[req.params.type];
+    let result = {};
+    if (Module) { result = await Module[req.params.type][req.params.property](doc, value) }
     res.json(result);
   } catch (err) { next(err.message); }
 })
@@ -436,7 +460,7 @@ router.get('/user/settings/defaults', async (req, res, next) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const query = `select settings->'defaults' result from users where email = '${user}'`;
-    const result = await db.oneOrNone<{result: UserDefaultsSettings}>(query);
+    const result = await db.oneOrNone<{ result: UserDefaultsSettings }>(query);
     res.json(result.result || new UserDefaultsSettings());
   } catch (err) { next(err.message); }
 })
@@ -455,7 +479,7 @@ router.get('/user/settings/:type', async (req, res, next) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const query = `select settings->'${req.params.type}' result from users where email = '${user}'`;
-    const result = await db.oneOrNone<{result: FormListSettings}>(query);
+    const result = await db.oneOrNone<{ result: FormListSettings }>(query);
     res.json(result.result);
   } catch (err) { next(err.message); }
 })

@@ -17,8 +17,8 @@ export class DynamicFormControlComponent {
 
   get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
 
-  async onChange(event: JettiComplexObject) {
-    if (this.control.change && event.value) {
+  async onChange(event: Event) {
+    if (this.control.change) {
       const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
       const func = new AsyncFunction('doc, prop, value, call', this.control.change);
       const patch = await func(

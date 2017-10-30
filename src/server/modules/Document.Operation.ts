@@ -11,6 +11,7 @@ export interface DocumentOperation extends DocBase {
 }
 
 const company_valueChanges = async (doc: DocumentOperation, value: RefValue): Promise<PatchValue> => {
+  if (!value) { return {} }
   const company = await lib.doc.byId(value.id) as CalalogCompany;
   const currency = await lib.doc.formControlRef(company.doc.currency) as RefValue;
   return { currency: currency };

@@ -113,8 +113,37 @@ exports.router.post('/list', async (req, res, next) => {
         orderbyAfter = orderbyAfter.slice(0, -2);
         const filterBuilder = (filter) => {
             let where = ' TRUE ';
-            filter.filter(f => f.left === 'description' && f.right)
-                .forEach(f => where += ` AND d.description ILIKE '${f.right}%'`);
+            filter.filter(f => f.right).forEach(f => {
+                let operator = f.center.toString();
+                if (f.center === 'like') {
+                    operator = 'ILIKE';
+                }
+                const value = f.right['value'] || f.right;
+                switch (operator) {
+                    case '=':
+                    case '>=':
+                    case '<=':
+                    case '>':
+                    case '<':
+                        if (typeof value === 'object') {
+                            return;
+                        }
+                        where += ` AND d."${f.left}" ${operator} '${value}'`;
+                        break;
+                    case 'ILIKE':
+                        where += ` AND d."${f.left}" ${operator} '%${value}%'`;
+                        break;
+                    case 'beetwen':
+                        const interval = f.right;
+                        if (interval.start) {
+                            where += ` AND d."${f.left}" >= '${interval.start}'`;
+                        }
+                        if (interval.end) {
+                            where += ` AND d."${f.left}" <= '${interval.end}'`;
+                        }
+                        break;
+                }
+            });
             return where;
         };
         const queryBuilder = (isAfter) => {
@@ -445,8 +474,11 @@ exports.router.post('/valueChanges/:type/:property', async (req, res, next) => {
     try {
         const doc = req.body.doc;
         const value = req.body.value;
-        const Module = index_1.valueChanges;
-        const result = await Module[req.params.type][req.params.property](doc, value);
+        const Module = index_1.valueChanges[req.params.type];
+        let result = {};
+        if (Module) {
+            result = await Module[req.params.type][req.params.property](doc, value);
+        }
         res.json(result);
     }
     catch (err) {

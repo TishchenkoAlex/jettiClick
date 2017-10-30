@@ -6,7 +6,6 @@ import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
 import { FilterFormComponent } from '../common/filter/filter.component';
-import { FilterFormControlComponent } from '../common/filter/filter.control.component';
 import { RegisterAccumulationComponent } from '../common/register-movements/register.accumulation.component';
 import { RegisterAccumulationListComponent } from '../common/register-movements/register.accumulation.list.component';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
@@ -44,7 +43,6 @@ import { OperationFormComponent } from './Operation/operation.form.component';
     RegisterAccumulationComponent,
     RegisterAccumulationListComponent,
     FilterFormComponent,
-    FilterFormControlComponent,
     FilterColumnComponent,
     DynamicFilterControlComponent,
 

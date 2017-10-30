@@ -1,20 +1,30 @@
-import { FilterInterval } from '../../../../server/models/user.settings';
-import { DynamicFilterControlComponent } from './dynamic-filter-control.component';
-import { ConnectedOverlayPositionChange, ConnectedPositionStrategy, OverlayOrigin, ConnectionPositionPair } from '@angular/cdk/overlay';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
-import { MatInput } from '@angular/material';
+import { ConnectedOverlayPositionChange, ConnectedPositionStrategy, OverlayOrigin } from '@angular/cdk/overlay';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    Input,
+    OnDestroy,
+    ViewChild,
+} from '@angular/core';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
+import { FilterInterval } from '../../../../server/models/user.settings';
 import { UserSettingsService } from '../../auth/settings/user.settings.service';
+import { DynamicFilterControlComponent } from './dynamic-filter-control.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'filter-column',
   templateUrl: './fiter-column.component.html'
 })
-export class FilterColumnComponent implements AfterViewInit {
+export class FilterColumnComponent implements AfterViewInit, OnDestroy {
 
   private _positionStrategy: ConnectedPositionStrategy;
+  private _ColumnDefChanges$: Subscription = Subscription.EMPTY;
 
   @Input() columnDef: ColumnDef;
   @Input() type = '';
@@ -26,12 +36,22 @@ export class FilterColumnComponent implements AfterViewInit {
   constructor(private cd: ChangeDetectorRef, private uss: UserSettingsService) { }
 
   ngAfterViewInit() {
-    this.backup = JSON.parse(JSON.stringify(this.columnDef));
+    this._ColumnDefChanges$ = this.uss.columnDef$.pipe(
+      filter(c => c.field === this.columnDef.field && c.type === this.type)
+    ).subscribe(c => {
+      this.columnDef = c;
+      this.cd.detectChanges();
+    });
+
     if (this.columnDef.filter.right === null) { return }
-    this.cd.detectChanges();
+  }
+
+  ngOnDestroy() {
+    this._ColumnDefChanges$.unsubscribe();
   }
 
   attach() {
+    this.backup = JSON.parse(JSON.stringify(this.columnDef));
     Promise.resolve().then(() => this.filter.focus());
   }
 
@@ -50,7 +70,6 @@ export class FilterColumnComponent implements AfterViewInit {
   }
 
   positionChange(event: ConnectedOverlayPositionChange) {
-    console.log(event.connectionPair);
     // event.connectionPair.overlayX = 'end';
     // event.connectionPair = new ConnectionPositionPair({originX: 'start', originY: 'bottom'}, {overlayX: 'end', overlayY: 'top'});
     // console.log(event.connectionPair);
@@ -64,15 +83,18 @@ export class FilterColumnComponent implements AfterViewInit {
   }
 
   onClear() {
-    this.columnDef = {...this.columnDef, filter: {...this.columnDef.filter, right: null} };
+    this.columnDef = { ...this.columnDef, filter: { ...this.columnDef.filter, right: null } };
     this.filter.filterInterval = new FilterInterval();
+    this.uss.columnDef$.next(JSON.parse(JSON.stringify(this.columnDef)));
   }
 
-  get isFilter()  {
-    if (this.columnDef.filter.right && typeof this.columnDef.filter.right !== 'object') { return true }
-    if (this.columnDef.filter.right && this.columnDef.filter.right['value']) { return true }
-    if (this.columnDef.filter.right && this.columnDef.filter.right['start']) { return true }
-    if (this.columnDef.filter.right && this.columnDef.filter.right['end']) { return true }
+  get isFilter() {
+    if (this.columnDef.filter.right) {
+      if (typeof this.columnDef.filter.right !== 'object') { return true }
+      if (this.columnDef.filter.right['value']) { return true }
+      if (this.columnDef.filter.right['start']) { return true }
+      if (this.columnDef.filter.right['end']) { return true }
+    }
     return false;
   }
 
