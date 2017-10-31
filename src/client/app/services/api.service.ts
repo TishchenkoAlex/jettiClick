@@ -1,5 +1,5 @@
 import { catchError, map, take } from 'rxjs/operators';
-import { DocListRequestBody, DocListResponse2 } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse2, MenuItem } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -78,20 +78,20 @@ export class ApiService {
 
   getDocAccountMovementsView(id: string): Observable<AccountRegister[]> {
     const query = `${this.url}register/account/movements/view/${id}`;
-    return (this.http.get(query) as Observable<AccountRegister[]>).pipe(
+    return (this.http.get<AccountRegister[]>(query)).pipe(
       catchError(err => Observable.of([])))
   }
 
-  getCatalogs(): Observable<any[]> {
+  getCatalogs(): Observable<MenuItem[]> {
     const query = `${this.url}Catalogs`;
-    return (this.http.get(query) as Observable<any[]>).pipe(
-      catchError(err => Observable.of([])))
+    return (this.http.get<MenuItem[]>(query)).pipe(
+      catchError(err => Observable.of(<MenuItem[]>[])))
   }
 
-  getDocuments(): Observable<any[]> {
+  getDocuments(): Observable<MenuItem[]> {
     const query = `${this.url}Documents`;
-    return (this.http.get(query) as Observable<any[]>).pipe(
-      catchError(err => Observable.of([])))
+    return (this.http.get<MenuItem[]>(query)).pipe(
+      catchError(err => Observable.of(<MenuItem[]>[])))
   }
 
   /*   call(doc: DocModel, value: string, prop: string) {

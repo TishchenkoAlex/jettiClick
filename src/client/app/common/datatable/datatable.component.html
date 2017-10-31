@@ -113,16 +113,16 @@
       <mat-row *cdkRowDef="let row; columns: displayedColumns;"></mat-row>
     </mat-table>
     <div fxLayoutAlign="end center" fxLayoutGap="4px" style="padding-right: 12px">
-      <button mat-icon-button color="default" (click)="dataSource.first()" [disabled]="!dataSource.continuation.first">
+      <button mat-icon-button color="default" (click)="dataSource ? dataSource.first() : undefined" [disabled]="!dataSource?.continuation?.first">
         <mat-icon>first_page</mat-icon>
       </button>
-      <button mat-icon-button color="default" (click)="dataSource.prev()" [disabled]="!dataSource.continuation.first">
+      <button mat-icon-button color="default" (click)="dataSource ? dataSource.prev(): undefined" [disabled]="!dataSource?.continuation?.first">
         <mat-icon>navigate_before</mat-icon>
       </button>
-      <button mat-icon-button color="default" (click)="dataSource.next()" [disabled]="!dataSource.continuation.last">
+      <button mat-icon-button color="default" (click)="dataSource ? dataSource.next() : undefined" [disabled]="!dataSource?.continuation?.last">
         <mat-icon>navigate_next</mat-icon>
       </button>
-      <button mat-icon-button color="default" (click)="dataSource.last()" [disabled]="!dataSource.continuation.last">
+      <button mat-icon-button color="default" (click)="dataSource ? dataSource.last() : undefined" [disabled]="!dataSource?.continuation?.last">
         <mat-icon>last_page</mat-icon>
       </button>
     </div>

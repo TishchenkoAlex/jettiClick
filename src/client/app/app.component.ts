@@ -1,13 +1,13 @@
-import { tap } from 'rxjs/operators/tap';
-import { take } from 'rxjs/operators';
-import { UserSettingsService } from './auth/settings/user.settings.service';
-import { LoadingService } from './common/loading.service';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
 import { MediaChange, ObservableMedia } from '@angular/flex-layout';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
+import { share, take } from 'rxjs/operators';
 
+import { MenuItem } from '../../server/models/api';
 import { Auth0Service } from './auth/auth0.service';
+import { UserSettingsService } from './auth/settings/user.settings.service';
+import { LoadingService } from './common/loading.service';
 import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
@@ -18,10 +18,10 @@ import { SideNavService } from './services/side-nav.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent  {
+export class AppComponent {
 
-  menuCatalogItems: Observable<any[]>;
-  menuDocItems: Observable<any[]>;
+  menuCatalogItems: Observable<MenuItem[]>;
+  menuDocItems: Observable<MenuItem[]>;
 
   selectedItem; // this.users[0];
   isDarkTheme = false;
@@ -34,13 +34,17 @@ export class AppComponent  {
     media.asObservable().subscribe((change: MediaChange) => this.switchMedia(change));
 
     auth.handleAuthentication();
+
     this.auth.userProfile$.subscribe(userProfile => {
-      tsc.menuItems.length = 0;
-      apiService.getUserDefaultsSettings().pipe(take(1)).subscribe(data => ups.userSettings.defaults = data);
-      this.menuCatalogItems = apiService.getCatalogs().pipe(tap(data => tsc.menuItems.push.apply(tsc.menuItems, data)));
-      this.menuDocItems = apiService.getDocuments().pipe(tap(data => tsc.menuItems.push.apply(tsc.menuItems, data)));
-      this.cd.markForCheck();
+      this.menuCatalogItems = apiService.getCatalogs().pipe(share(), take(1));
+      this.menuDocItems = apiService.getDocuments().pipe(share(), take(1));
+      Observable.forkJoin(this.menuCatalogItems, this.menuDocItems).pipe(take(1))
+        .subscribe(data => {
+          tsc.menuItems.push(...data[0], ...data[1]);
+          localStorage.setItem('menuItems', JSON.stringify(tsc.menuItems));
+        });
     })
+
   }
 
   private switchMedia(change: MediaChange) {

@@ -44,6 +44,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngAfterViewInit() {
+    if (!this.dataSource) { return };
     if (!this.data.docID || (this.data.docID === this.data.docType)) {
       this.dataSource.first()
     } else { this.dataSource.goto(this.data.docID) }

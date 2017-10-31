@@ -1,11 +1,11 @@
 import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import { filter } from 'rxjs/operators';
 
 import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';
-import { ViewModel } from '../dynamic-form/dynamic-form.service';
 import { DocService } from './../../common/doc.service';
-import { filter } from 'rxjs/operators';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,28 +20,24 @@ export class TabControllerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.route.paramMap.pipe(filter(el => this.tcs.menuItems.length > 0))
+    this.route.paramMap.pipe(filter(() => this.tcs.menuItems.length > 0))
       .subscribe((params: ParamMap) => {
+
         this.tcs.tabid = params.get('type') || HOME;
         this.tcs.docID = params.get('id') || '';
         const index = this.tcs.tabs.findIndex(i => (i.docType === this.tcs.tabid) && (i.docID === this.tcs.docID));
         if (index === -1) {
-          Promise.resolve().then(() => {
-            const menuItem = this.tcs.menuItems.find(el => el.type === this.tcs.tabid);
-            let description = this.tcs.docID && this.route.data['value'].detail ?
-              (this.route.data['value'].detail as ViewModel).model.description : '';
-            description = description.length > 25 ? description.slice(0, 22) + '...' : description;
-            const newTab: TabDef = {
-              header: this.tcs.docID ? menuItem.description : menuItem.menu, docType: this.tcs.tabid,
-              icon: menuItem.icon, docID: this.tcs.docID, description: description
-            };
-            const lastTabIndex = this.tcs.tabs.push(newTab);
-            this.tcs.index = lastTabIndex - 1;
-            this.tcs.component = this.tcs.GetComponent(newTab);
-            this.cd.detectChanges();
-          });
+          let menuItem = this.tcs.menuItems.find(el => el.type === this.tcs.tabid);
+          if (!menuItem) { menuItem = { type: HOME, icon: 'home', description: '', menu: HOME } }
+          const description = this.tcs.docID ? menuItem.description : menuItem.menu;
+          const newTab: TabDef = {
+            header: description, docType: this.tcs.tabid, icon: menuItem.icon, docID: this.tcs.docID, description: description };
+          let lastTabIndex;
+          if (this.tcs.tabid === HOME) { lastTabIndex = this.tcs.tabs.unshift(newTab) } else { lastTabIndex = this.tcs.tabs.push(newTab) }
+          this.tcs.component = this.tcs.GetComponent(newTab);
+          this.tcs.index = lastTabIndex - 1;
         } else { this.tcs.index = index }
-        this.cd.detectChanges();
+        this.cd.markForCheck();
       });
 
     this.ds.close$
@@ -50,6 +46,15 @@ export class TabControllerComponent implements OnInit {
         if (this.tcs.index === this.tcs.tabs.length) { this.tcs.index-- };
         this.location.back();
       });
+
+    this.route.data.pipe(filter(r => r.detail)).subscribe(data => {
+      const t = this.tcs.tabs.find(i => (i.docType === this.tcs.tabid) && (i.docID === this.tcs.docID));
+      if (t && data.detail && data.detail.model && data.detail.model.description) {
+        t.description = data.detail.model.description;
+      }
+    });
+
+    this.router.navigate([HOME]);
   }
 
   private handleClose(event) {

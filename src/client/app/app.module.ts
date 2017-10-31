@@ -1,24 +1,8 @@
-import { ApiInterceptor } from './api.interceptor';
 import 'hammerjs';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/observable/of';
-/*
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/operator/share';
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/take';
-import 'rxjs/add/operator/skip';
-import 'rxjs/add/operator/takeLast';
-import 'rxjs/add/operator/toPromise'; */
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';
@@ -30,6 +14,7 @@ import { RouteReuseStrategy, RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
 
 import { TabResolver } from '../app/tab.resolver';
+import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
 import { appRoutes } from './app.routes';
 import { AuthGuardService } from './auth/auth.guard.service';
@@ -37,6 +22,7 @@ import { Auth0Service } from './auth/auth0.service';
 import { LoginComponent } from './auth/login-component/login-component';
 import { UserSettingsService } from './auth/settings/user.settings.service';
 import { LoadingService } from './common/loading.service';
+import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { JettiDateAdapter } from './jetti-date-adapter/jetti-date-adapter';
 import { JETTI_DATE_FORMATS } from './jetti-date-adapter/jetti-date-formats';
 import { CustomPaginator } from './jetti-date-adapter/jetti-paginator';
@@ -96,4 +82,7 @@ export function getJwtToken(): string {
 })
 export class AppModule {
 
+  constructor (private tcs: TabControllerService) {
+    this.tcs.menuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
+  }
 }

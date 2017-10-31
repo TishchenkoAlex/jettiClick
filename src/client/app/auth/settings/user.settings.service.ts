@@ -16,7 +16,9 @@ export class UserSettingsService {
   formListSettings$ = new Subject<FormListSettingsAction>();
   columnDef$ = new Subject<ColumnDef>();
 
-  constructor(private api: ApiService) { }
+  constructor(private api: ApiService) {
+    this.selectUserDefaultsSettings();
+  }
 
   selectUserDefaultsSettings() {
     if (this.userSettings.defaults) {

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import { MenuItem } from '../../../../server/models/api';
 import { BaseDynamicCompoment } from '../../common/dynamic-component/dynamic-component';
 import { HomeComponent } from '../../home/home.component';
 import { getDocListComponent, getDocObjectComponent } from '../../UI/userForms';
@@ -7,6 +8,7 @@ import { getDocListComponent, getDocObjectComponent } from '../../UI/userForms';
 export interface TabDef { header: string, icon: string, description: string, docType: string, docID: string }
 
 export const HOME = 'Home';
+export const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '' };
 
 @Injectable()
 export class TabControllerService {
@@ -16,16 +18,14 @@ export class TabControllerService {
   tabid: string;
   docID: string;
   HOME = HOME;
-  component = new BaseDynamicCompoment(HomeComponent);
-  menuItems = [];
+  component: BaseDynamicCompoment;
+  menuItems: MenuItem[] = [];
 
   constructor() {
-    const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '' };
-    this.tabs.push(homeTab);
   }
 
   GetComponent(tab: TabDef) {
-    if (tab.docType === 'HOME') { return new BaseDynamicCompoment(HomeComponent); }
+    if (tab.docType === HOME) { return new BaseDynamicCompoment(HomeComponent); }
     if (!tab.docID) {
       return new BaseDynamicCompoment(getDocListComponent(tab.docType));
     } else {

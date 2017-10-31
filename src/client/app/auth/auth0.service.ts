@@ -1,3 +1,4 @@
+import { HOME } from '../common/tabcontroller/tabcontroller.service';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import * as auth0 from 'auth0-js';
@@ -24,7 +25,7 @@ export class Auth0Service {
         window.location.hash = '';
         this.setSession(authResult);
       } else if (err) {
-        this.router.navigate(['/Home']);
+        this.router.navigate([HOME]);
       }
       this.getProfile();
     });
@@ -42,7 +43,7 @@ export class Auth0Service {
     localStorage.removeItem('id_token');
     localStorage.removeItem('expires_at');
     this.userProfile$.next(null);
-    this.router.navigate(['/Home']);
+    this.router.navigate([HOME]);
   }
 
   public isAuthenticated(): boolean {
