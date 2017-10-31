@@ -268,7 +268,7 @@ exports.router.get('/:type/view/*', async (req, res, next) => {
                 model.code = '';
                 model.posted = false;
                 model.deleted = false;
-                model.parent = null;
+                model.parent = Object.assign({}, model.parent, { id: null, code: null, value: null });
                 model.description = 'Copy: ' + model.description;
             }
             else {
@@ -477,7 +477,7 @@ exports.router.post('/valueChanges/:type/:property', async (req, res, next) => {
         const Module = index_1.valueChanges[req.params.type];
         let result = {};
         if (Module) {
-            result = await Module[req.params.type][req.params.property](doc, value);
+            result = await Module[req.params.property](doc, value);
         }
         res.json(result);
     }

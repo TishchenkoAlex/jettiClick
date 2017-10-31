@@ -1,7 +1,6 @@
 import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
 
 import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';

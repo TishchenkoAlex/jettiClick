@@ -27,8 +27,8 @@ import { v1 } from 'uuid';
 export class DocModel implements DocBase  {
     public code = '';
     public description = '';
-    public company: Ref = '';
-    public user: Ref = '';
+    public company: Ref = null;
+    public user: Ref = null;
     public posted  = false;
     public deleted = false;
     public parent: Ref = null;

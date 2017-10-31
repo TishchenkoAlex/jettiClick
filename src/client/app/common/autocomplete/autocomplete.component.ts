@@ -65,11 +65,11 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.') }
   get isTypeControl() { return this.type.startsWith('Types.') }
   get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.') }
+  get EMPTY() { return { id: '', code: '', type: this.type, value: null } }
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
     delete obj.data;
-    // if (JSON.stringify(obj) === JSON.stringify(this._value)) { return }
     if (this.isTypeControl) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']' }
     this._value = obj;
     this.suggest.patchValue(obj.value ? obj.value : obj);
@@ -87,14 +87,11 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   private onTouched = () => { };
 
   writeValue(obj: any): void {
-    if (!obj) { obj =  { id: '', code: '', type: this.type, value: null } };
     this.NO_EVENT = true;
-    if ((this.type.includes('.')) && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string')) {
-      this.value = { id: '', code: '', type: this.type, value: null };
-      return;
-    }
-    if (obj && obj.type && obj.type !== this.type && !this.isTypeControl) {
-      this.value = { id: '', code: '', type: this.type, value: null }
+    if (!obj) { obj = this.EMPTY };
+    if ((this.type.includes('.')) && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
+        (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) {
+      this.value = this.EMPTY;
       return;
     }
     this.value = obj;
@@ -149,9 +146,9 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
     this.auto.options.reset([]);
     if (this.value.value === this.suggest.value) { return }
     if (!this.isComplexValue) { this.value.value = this.suggest.value } else
-    if (!this.checkValue && this.isComplexValue) {
-      this.value.value = typeof this.suggest.value === 'object' ? this.suggest.value.value : this.suggest.value;
-    }
+      if (!this.checkValue && this.isComplexValue) {
+        this.value.value = typeof this.suggest.value === 'object' ? this.suggest.value.value : this.suggest.value;
+      }
     this.value = this.value;
   }
 
@@ -166,7 +163,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   handleReset(event: Event) {
     if (event instanceof Event) { event.stopPropagation() }
     this.auto.options.reset([]);
-    this.value = { id: '', code: '', type: this.type, value: null };
+    this.value = this.EMPTY;
   }
 
   handleOpen(event: Event) {

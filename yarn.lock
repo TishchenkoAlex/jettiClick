@@ -33,8 +33,8 @@
     tslib "^1.7.1"
 
 "@angular/cdk@angular/cdk-builds":
-  version "2.0.0-beta.12-520d83b"
-  resolved "https://codeload.github.com/angular/cdk-builds/tar.gz/3cba692709f9989173d02d04f2c7af114701c6ea"
+  version "2.0.0-beta.12-b39202f"
+  resolved "https://codeload.github.com/angular/cdk-builds/tar.gz/87c54e98da28d1dd24395216cdefc8d3e88a1333"
   dependencies:
     tslib "^1.7.1"
 
@@ -126,8 +126,8 @@
     tslib "^1.7.1"
 
 "@angular/flex-layout@angular/flex-layout-builds":
-  version "2.0.0-beta.9-c3c7151"
-  resolved "https://codeload.github.com/angular/flex-layout-builds/tar.gz/92e1c2025672ca0e9f96f119c08ec83ee2bae118"
+  version "2.0.0-beta.9-e3b7fde"
+  resolved "https://codeload.github.com/angular/flex-layout-builds/tar.gz/146fd63d8099b6bc0522d11328082149395f1411"
   dependencies:
     tslib "^1.7.1"
 
@@ -142,8 +142,8 @@
   resolved "https://registry.yarnpkg.com/@angular/language-service/-/language-service-4.4.6.tgz#498ece95c5f6066403bf9fd3c5831af42b45618b"
 
 "@angular/material@angular/material2-builds":
-  version "2.0.0-beta.12-520d83b"
-  resolved "https://codeload.github.com/angular/material2-builds/tar.gz/3a630f4de01c380a3588d38150ef471ff1a3e443"
+  version "2.0.0-beta.12-b39202f"
+  resolved "https://codeload.github.com/angular/material2-builds/tar.gz/49bcfcb19cb8f7a9738be0dd5158e7df534fd0bf"
   dependencies:
     tslib "^1.7.1"
 
@@ -3547,14 +3547,14 @@ pg-pool@~2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/pg-pool/-/pg-pool-2.0.3.tgz#c022032c8949f312a4f91fb6409ce04076be3257"
 
-pg-promise@7.0.3:
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/pg-promise/-/pg-promise-7.0.3.tgz#81d9e20c214117cb917fbcc163425b835db614e3"
+pg-promise@7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/pg-promise/-/pg-promise-7.2.0.tgz#19e6b45f20a7e2860a0d19fdd44871abfe274dee"
   dependencies:
     manakin "~0.5.1"
     pg "~7.3.0"
     pg-minify "~0.5.3"
-    spex "~2.0.0"
+    spex "~2.0.1"
 
 pg-types@~1.12.1:
   version "1.12.1"
@@ -4588,9 +4588,9 @@ spdy@^3.4.1:
     select-hose "^2.0.0"
     spdy-transport "^2.0.18"
 
-spex@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/spex/-/spex-2.0.0.tgz#63e1b8655159a32028eb6a237ffb0589e85f3c32"
+spex@~2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/spex/-/spex-2.0.1.tgz#928c5c75b1a490f7203f49bccd967622dba4d3d3"
 
 split@^1.0.0:
   version "1.0.1"

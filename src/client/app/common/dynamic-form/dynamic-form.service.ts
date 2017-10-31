@@ -135,21 +135,6 @@ export class DynamicFormService {
       }));
   }
 
-  getFilterModel$(docType: string): Observable<ViewModel> {
-    const exclude = ['id', 'type', 'posted', 'deleted', 'isfolder'];
-    switch (docType.split('.')[0]) {
-      case 'Catalog': { exclude.push('date', 'company'); break; }
-      case 'Document':
-      case 'Journal': { exclude.push('description'); break; }
-    }
-    return this.apiService.getViewModel(docType).pipe(
-      map(viewModel => {
-        const model = viewModel['model'];
-        const view = viewModel['view'];
-        return getViewModel(view, model, exclude, false)
-      }));
-  }
-
   getView$(type: string) {
     return this.apiService.getView(type);
   }

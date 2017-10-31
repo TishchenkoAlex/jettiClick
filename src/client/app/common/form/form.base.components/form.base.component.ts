@@ -62,7 +62,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   private onSubmit() {
-    this.viewModel.model = Object.assign(this.viewModel.model, this.viewModel.formGroup.value);
+    this.viewModel.model = Object.assign(this.viewModel.model, this.viewModel.formGroup.getRawValue());
     this.docService.save(this.viewModel.model);
   }
 

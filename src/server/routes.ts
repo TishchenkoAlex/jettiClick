@@ -254,7 +254,8 @@ router.get('/:type/view/*', async (req, res, next) => {
         model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id.slice(5)]);
         const newDoc = await db.one('SELECT uuid_generate_v1mc() id, now() date');
         model.id = newDoc.id; model.date = newDoc.date; model.code = '';
-        model.posted = false; model.deleted = false; model.parent = null;
+        model.posted = false; model.deleted = false;
+        model.parent = {...model.parent, id: null, code: null, value: null};
         model.description = 'Copy: ' + model.description;
       } else {
         if (id.startsWith('base-')) {
@@ -430,7 +431,7 @@ router.post('/valueChanges/:type/:property', async (req, res, next) => {
     const value = req.body.value;
     const Module = valueChanges[req.params.type];
     let result = {};
-    if (Module) { result = await Module[req.params.type][req.params.property](doc, value) }
+    if (Module) { result = await Module[req.params.property](doc, value) }
     res.json(result);
   } catch (err) { next(err.message); }
 })
