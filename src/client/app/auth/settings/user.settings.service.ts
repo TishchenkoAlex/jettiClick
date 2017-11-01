@@ -1,4 +1,3 @@
-import { ColumnDef } from '../../../../server/models/column';
 import { Injectable } from '@angular/core';
 import { filter, take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
@@ -14,7 +13,6 @@ export class UserSettingsService {
   userSettings = new UserSettings();
   userDefaultsSettings$ = new Subject<UserDefaultsSettings>();
   formListSettings$ = new Subject<FormListSettingsAction>();
-  columnDef$ = new Subject<ColumnDef>();
 
   constructor(private api: ApiService) {
     this.selectUserDefaultsSettings();
@@ -62,7 +60,6 @@ export class UserSettingsService {
       .subscribe(s => {
         this.userSettings.formListSettings[type] = value;
         this.formListSettings$.next({ type: type, payload: value });
-        console.log('SAVED:', value)
       });
   }
 

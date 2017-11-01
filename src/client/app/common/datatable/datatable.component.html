@@ -35,9 +35,15 @@
           <ng-container *ngSwitchCase="'posted'" matColumnDef="posted">
             <mat-header-cell *matHeaderCellDef></mat-header-cell>
             <mat-cell *cdkCellDef="let row">
-              <mat-icon *ngIf="row['deleted']" color="warn">indeterminate_check_box</mat-icon>
-              <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">check_box</mat-icon>
-              <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">check_box_outline_blank</mat-icon>
+              <mat-icon *ngIf="row['deleted']" color="warn">
+                {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'indeterminate_check_box'}}
+              </mat-icon>
+              <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">
+                {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'check_box'}}
+              </mat-icon>
+              <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">
+                {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'check_box_outline_blank'}}
+              </mat-icon>
             </mat-cell>
           </ng-container>
 

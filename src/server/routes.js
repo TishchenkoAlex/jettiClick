@@ -131,7 +131,7 @@ exports.router.post('/list', async (req, res, next) => {
                         where += ` AND d."${f.left}" ${operator} '${value}'`;
                         break;
                     case 'ILIKE':
-                        where += ` AND d."${f.left}" ${operator} '%${value}%'`;
+                        where += ` AND d."${f.left}" ${operator} '%${value['value'] || value}%'`;
                         break;
                     case 'beetwen':
                         const interval = f.right;
@@ -179,6 +179,9 @@ exports.router.post('/list', async (req, res, next) => {
             }
             query = `SELECT * FROM (${query}) d ${orderbyAfter}`;
         }
+        query = `SELECT d.*,
+    (select count(*) FROM "Documents" where parent = d.id) "childs",
+    (select count(*) FROM "Documents" where id = d.parent) "parents" FROM (${query}) d ${orderbyAfter}`;
         // console.log(query);
         const data = await db_1.db.manyOrNone(query);
         let result = [];

@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    ViewChild,
+} from '@angular/core';
 import { MatInput } from '@angular/material';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -16,13 +25,14 @@ export class DynamicFilterControlComponent implements OnInit {
   @Input() columnDef: ColumnDef;
   @ViewChild(MatInput) filter: MatInput;
   @ViewChild(AutocompleteComponent) autocomplete: AutocompleteComponent;
+  @Output() change = new EventEmitter();
 
   filterInterval = new FilterInterval();
 
-  constructor (private cd: ChangeDetectorRef, private uss: UserSettingsService) {}
+  constructor(private cd: ChangeDetectorRef, private uss: UserSettingsService) { }
 
   ngOnInit() {
-    if (this.columnDef.type  === 'datetime' || this.columnDef.type  === 'date') {
+    if (this.columnDef.type === 'datetime' || this.columnDef.type === 'date') {
       if (this.columnDef.filter.right && this.columnDef.filter.right['start']) {
         this.filterInterval = this.columnDef.filter.right as FilterInterval;
         return;
@@ -31,15 +41,16 @@ export class DynamicFilterControlComponent implements OnInit {
       this.columnDef.filter.center = 'beetwen';
     }
 
-    if (this.columnDef.type  === 'number') {
+    if (this.columnDef.type === 'number') {
       if (this.columnDef.filter.right && this.columnDef.filter.right['start']) {
         this.filterInterval = this.columnDef.filter.right as FilterInterval;
         return;
       }
       this.columnDef.filter.right = this.filterInterval;
+      this.columnDef.filter.center = 'beetwen';
     }
 
-    if (this.columnDef.type  === 'string') {
+    if (this.columnDef.type === 'string') {
       this.columnDef.filter.center = 'like'
     }
   }
@@ -50,19 +61,25 @@ export class DynamicFilterControlComponent implements OnInit {
   }
 
   valid() {
-    if (this.columnDef.type  === 'datetime' || this.columnDef.type  === 'date') {
+    if (this.columnDef.type === 'datetime' || this.columnDef.type === 'date') {
     }
     return true;
   }
 
   onChange(event) {
-    this.uss.columnDef$.next(JSON.parse(JSON.stringify(this.columnDef)));
+    if (this.columnDef.type.includes('.')) {
+      this.columnDef.filter.center = '=';
+      if (!this.columnDef.filter.right['id'] && this.columnDef.filter.right['value']) {
+        this.columnDef.filter.center = 'like';
+      }
+    }
+    this.change.emit();
   }
 
   selectPeriod(period: string) {
     const result = getPeriod(period);
-      this.filterInterval.start = result.startDate.toJSON();
-      this.filterInterval.end = result.endDate.toJSON();
+    this.filterInterval.start = result.startDate.toJSON();
+    this.filterInterval.end = result.endDate.toJSON();
     this.onChange(null);
   }
 }

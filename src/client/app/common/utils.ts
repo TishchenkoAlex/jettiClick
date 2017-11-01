@@ -3,7 +3,7 @@ import * as moment from 'moment';
 
 import { BaseJettiFromControl, TableDynamicControl } from './dynamic-form/dynamic-form-base';
 
-export function copyFormGroup(formGroup: FormGroup): FormGroup {
+export function cloneFormGroup(formGroup: FormGroup): FormGroup {
   const newFormGroup = new FormGroup({});
   Object.keys(formGroup.controls).forEach(key => {
     const sourceFormControl = formGroup.controls[key];

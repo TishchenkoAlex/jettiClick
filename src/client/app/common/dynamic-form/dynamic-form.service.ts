@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { DocModel } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
-import { copyFormGroup, toFormGroup } from '../utils';
+import { cloneFormGroup, toFormGroup } from '../utils';
 import {
     AutocompleteJettiFormControl,
     BaseJettiFromControl,
@@ -84,9 +84,14 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       }
       f.push(newControl);
     });
-    f.filter(e => !(e instanceof TableDynamicControl) && e.key !== 'info' && e.key !== 'user' && e.key !== 'parent' && e.order > 0 &&
-      !!!e.hidden).forEach(e => e.order = e.order - 10000000000);
-    let i = 1; f.sort((a, b) => a.order - b.order).forEach(el => el.order = i++);
+    f.forEach(e => {
+      if (e.key === 'parent' || e.order <= 0 || e.hidden || e.controlType === 'script') {
+        e.order = -1;
+      }
+      if (e instanceof TableDynamicControl) { e.order = e.order + 101 }
+    });
+    f.sort((a, b) => a.order - b.order);
+    let i = 1; f.filter(e => e.order > 0).forEach(el => el.order = i++);
   };
 
   processRecursive(view, fields, exclude);
@@ -103,7 +108,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       if (isExists) {
         if (!model[property]) { model[property] = [] }
         for (let i = 1; i <= model[property].length; i++) {
-          const newFormGroup = copyFormGroup(sample);
+          const newFormGroup = cloneFormGroup(sample);
           newFormGroup.controls['index'].setValue(i, patchOptionsNoEvents);
           formArray.push(newFormGroup);
         }

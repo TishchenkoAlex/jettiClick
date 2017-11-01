@@ -8,7 +8,9 @@ import { BaseFormComponent } from '../../common/form/form.base.components/form.b
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: 'operation.form.component.html',
-  styleUrls: ['../../common/form/form.base.components/form.base.component.scss'],
+  styleUrls: [
+    '../../common/form/form.base.components/form.base.component.scss'
+  ]
 })
 export class OperationFormComponent implements AfterViewInit {
 
@@ -39,6 +41,7 @@ export class OperationFormComponent implements AfterViewInit {
           });
         for (let fc = 1; fc <= 10; fc++) { this.viewModel.formGroup.removeControl('p' + fc); }
         const additionalVM = getViewModel(ParametersObject, this.viewModel.model, [], true);
+        additionalVM.view.filter(el => el.order > 0).forEach(el => el.order = el.order + 103);
         Object.keys(additionalVM.formGroup.controls).forEach(c => {
           const additionalControl = additionalVM.formGroup.get(c) as FormControl;
           if ((additionalControl.value && additionalControl.value.type === null) || !additionalControl.value) {
@@ -51,9 +54,7 @@ export class OperationFormComponent implements AfterViewInit {
           this.viewModel.formGroup.addControl(c, additionalControl);
         });
         this.viewModel.view.push.apply(this.viewModel.view, additionalVM.view);
-        let i = 1; this.viewModel.view.forEach(el => el.order = i++);
-        // const view = []; this.viewModel.view.forEach(el => { if (!!!el.hidden) { view.push(el) } });
-        // this.viewModel.view = view;
+        let i = 1; this.viewModel.view.filter(el => el.order > 0).sort((a, b) => a.order - b.order).forEach(el => el.order = i++);
         this.super.cd.detectChanges();
       });
   }

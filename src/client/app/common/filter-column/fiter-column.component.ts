@@ -1,18 +1,9 @@
 import { ConnectedOverlayPositionChange, ConnectedPositionStrategy, OverlayOrigin } from '@angular/cdk/overlay';
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    Input,
-    OnDestroy,
-    ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
-import { FilterInterval } from '../../../../server/models/user.settings';
 import { UserSettingsService } from '../../auth/settings/user.settings.service';
 import { DynamicFilterControlComponent } from './dynamic-filter-control.component';
 
@@ -21,7 +12,7 @@ import { DynamicFilterControlComponent } from './dynamic-filter-control.componen
   selector: 'filter-column',
   templateUrl: './fiter-column.component.html'
 })
-export class FilterColumnComponent implements AfterViewInit, OnDestroy {
+export class FilterColumnComponent {
 
   private _positionStrategy: ConnectedPositionStrategy;
   private _ColumnDefChanges$: Subscription = Subscription.EMPTY;
@@ -30,29 +21,15 @@ export class FilterColumnComponent implements AfterViewInit, OnDestroy {
   @Input() type = '';
   @ViewChild(DynamicFilterControlComponent) filter: DynamicFilterControlComponent;
   @ViewChild(OverlayOrigin) _overlayOrigin: OverlayOrigin;
+
   isOpen = false;
-  backup: ColumnDef;
+  private backup: ColumnDef;
 
   constructor(private cd: ChangeDetectorRef, private uss: UserSettingsService) { }
 
-  ngAfterViewInit() {
-    this._ColumnDefChanges$ = this.uss.columnDef$.pipe(
-      filter(c => c.field === this.columnDef.field && c.type === this.type)
-    ).subscribe(c => {
-      this.columnDef = c;
-      this.cd.detectChanges();
-    });
-
-    if (this.columnDef.filter.right === null) { return }
-  }
-
-  ngOnDestroy() {
-    this._ColumnDefChanges$.unsubscribe();
-  }
-
   attach() {
-    this.backup = JSON.parse(JSON.stringify(this.columnDef));
     Promise.resolve().then(() => this.filter.focus());
+    this.backup = JSON.parse(JSON.stringify(this.columnDef));
   }
 
   detach() {
@@ -60,7 +37,7 @@ export class FilterColumnComponent implements AfterViewInit, OnDestroy {
   }
 
   onCancel() {
-    this.columnDef = JSON.parse(JSON.stringify(this.backup));
+    this.columnDef = this.backup;
     this.isOpen = false;
     this.cd.markForCheck();
   }
@@ -78,14 +55,14 @@ export class FilterColumnComponent implements AfterViewInit, OnDestroy {
   }
 
   onFilter() {
+    const i = this.uss.userSettings.formListSettings[this.type].filter.findIndex(el => el.left === this.columnDef.filter.left);
+    if (i > -1) { this.uss.userSettings.formListSettings[this.type].filter[i] = this.columnDef.filter }
     this.isOpen = false;
     this.uss.setFormListSettings(this.type, this.uss.userSettings.formListSettings[this.type]);
   }
 
-  onClear() {
-    this.columnDef = { ...this.columnDef, filter: { ...this.columnDef.filter, right: null } };
-    this.filter.filterInterval = new FilterInterval();
-    this.uss.columnDef$.next(JSON.parse(JSON.stringify(this.columnDef)));
+  onChange() {
+    this.cd.markForCheck();
   }
 
   get isFilter() {

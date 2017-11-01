@@ -22,7 +22,7 @@ import {
 } from '../../common/dynamic-form/dynamic-form-base';
 import { DocService } from '../doc.service';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
-import { copyFormGroup } from '../utils';
+import { cloneFormGroup } from '../utils';
 import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.component';
 
 @Component({
@@ -59,7 +59,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
       const result = { field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, order: el.order, style: el.style };
       return result;
     });
-    this.displayedColumns = this.columns.map((c) => c.field);
+    this.displayedColumns = this.columns.sort((a, b) => a.order - b.order).map((c) => c.field);
     this.displayedColumns.unshift('index', 'select');
 
     this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
@@ -86,7 +86,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   }
 
   private copyFormGroup(formGroup: FormGroup): FormGroup {
-    const newFormGroup = copyFormGroup(formGroup);
+    const newFormGroup = cloneFormGroup(formGroup);
     return newFormGroup;
   }
 

@@ -1,4 +1,10 @@
 {
+    "Group": {
+        "type": "Catalog.Operation.Group",
+        "label": "Operation group",
+        "order": 4,
+        "required": true
+    },
     "Rules": {
         "type": "table",
         "Rules": {
@@ -46,15 +52,9 @@
         "required": false,
         "hidden-list": true
     },
-    "Group": {
-        "type": "Catalog.Operation.Group",
-        "label": "Operation group",
-        "order": 4,
-        "required": true
-    },
     "Parameters": {
         "type": "table",
-        "order": 1,
+        "order": 10,
         "required": false,
         "Parameters": {
             "type": {

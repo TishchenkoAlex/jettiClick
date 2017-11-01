@@ -73,7 +73,7 @@ export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
 export class BooleanJettiFormControl extends BaseJettiFromControl<boolean> {
   controlType = 'checkbox';
   type = 'boolean';
-  style = { 'max-width': '30px', 'min-width': '24px', 'text-align' : 'center', 'justify-content': 'center' };
+  style = { 'max-width': '45px', 'min-width': '24px', 'text-align' : 'center', 'justify-content': 'center' };
 
   constructor(options: ControlOptions<boolean> = {}) {
     super(options);

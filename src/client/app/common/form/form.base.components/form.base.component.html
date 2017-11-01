@@ -1,76 +1,82 @@
 <form novalidate [formGroup]="viewModel.formGroup">
-<mat-accordion class="panel-headers-align" multi="true" displayMode="flat">
-  <mat-expansion-panel hideToggle="true" expanded="true">
-    <mat-expansion-panel-header style="min-height: 65px;">
-      <mat-panel-title>
-        <div fxFlex fxLayoutAlign="space-between center">
-          <div>
-            <div fxLayout="row" fxLayoutAlign="start center">
-              <mat-icon *ngIf="viewModel.model.deleted" color="warn">indeterminate_check_box</mat-icon>
-              <mat-icon *ngIf="viewModel.model.posted && !viewModel.model.deleted" color="primary">check_box</mat-icon>
-              <mat-icon *ngIf="!(viewModel.model.posted) && !(viewModel.model.deleted)" color="accent">check_box_outline_blank</mat-icon>
-              <span [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 10px; font-weight: bold">{{ viewModel.model.description.split(',')[0] }}</span>
+  <mat-accordion class="panel-headers-align" multi="true" displayMode="flat">
+    <mat-expansion-panel hideToggle="true" expanded="true">
+      <mat-expansion-panel-header style="min-height: 65px;">
+        <mat-panel-title>
+          <div fxFlex fxLayoutAlign="space-between center">
+            <div>
+              <div fxLayout="row" fxLayoutAlign="start center">
+                <mat-icon *ngIf="viewModel.model.deleted" color="warn">indeterminate_check_box</mat-icon>
+                <mat-icon *ngIf="viewModel.model.posted && !viewModel.model.deleted" color="primary">check_box</mat-icon>
+                <mat-icon *ngIf="!(viewModel.model.posted) && !(viewModel.model.deleted)" color="accent">check_box_outline_blank</mat-icon>
+                <span [fxShow]="false" [fxShow.gt-xs]="true" style="margin-left: 10px; font-weight: bold">{{ viewModel.model.description.split(',')[0] }}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </mat-panel-title>
-      <mat-panel-description>
-        <span [fxShow]="false" [fxShow.gt-xs]="true"></span>
-        <div fxFlex fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; margin-right: 6px">
-          <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
-          <button type="button" mat-mini-fab color="accent" (click)="$event.stopPropagation(); Close()" matTooltip="close"><mat-icon>close</mat-icon></button>
-        </div>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
+        </mat-panel-title>
+        <mat-panel-description>
+          <span [fxShow]="false" [fxShow.gt-xs]="true"></span>
+          <div fxFlex fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px; margin-right: 6px">
+            <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
+            <button type="button" mat-mini-fab color="accent" (click)="$event.stopPropagation(); Close()" matTooltip="close">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
 
-    <mat-card-content>
-      <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
-      <ng-content></ng-content>
-    </mat-card-content>
-  
-  </mat-expansion-panel>
+      <mat-card-content>
+        <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
+        <ng-content></ng-content>
+      </mat-card-content>
 
-  <mat-expansion-panel hideToggle="true">
-    <mat-expansion-panel-header>
-      <mat-panel-title>Additonal Info</mat-panel-title>
-      <mat-panel-description>Details
-        <mat-icon>map</mat-icon>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    
-    <j-control *ngIf="viewModel.controlsByKey['user']" [control]="viewModel.controlsByKey['user']" [form]="viewModel.formGroup"></j-control>
-    <j-control *ngIf="viewModel.controlsByKey['info']" [control]="viewModel.controlsByKey['info']" [form]="viewModel.formGroup"></j-control>
-    <j-control *ngIf="viewModel.controlsByKey['parent']" [control]="viewModel.controlsByKey['parent']" [form]="viewModel.formGroup"></j-control>
-    <div *ngFor="let control of viewModel.view; let i = index" fxLayout="column">
-      <j-control *ngIf="control.controlType === 'script'" [control]="control" [form]="viewModel.formGroup" fxFlex></j-control>
-    </div>
-  </mat-expansion-panel>
+    </mat-expansion-panel>
 
-  <mat-expansion-panel #accunt hideToggle="true" *ngIf="this.isDoc && viewModel.model.posted">
-    <mat-expansion-panel-header>
-      <mat-panel-title>Register movements</mat-panel-title>
-      <mat-panel-description>Account
-        <mat-icon>toc</mat-icon>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
+    <mat-expansion-panel hideToggle="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Additonal Info</mat-panel-title>
+        <mat-panel-description>Details
+          <mat-icon>map</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
 
-    <j-register-movement *ngIf="accunt.expanded" [doc]="viewModel.model"></j-register-movement>
+      <div fxLayout="row" fxLayoutGap="35px" fxLayout.xs="column">
+        <j-control *ngIf="viewModel.controlsByKey['parent']" [control]="viewModel.controlsByKey['parent']" [form]="viewModel.formGroup"
+          fxFlex></j-control>
+        <j-control *ngIf="viewModel.controlsByKey['user']" [control]="viewModel.controlsByKey['user']" [form]="viewModel.formGroup"
+          fxFlex></j-control>
+      </div>
+      <j-control *ngIf="viewModel.controlsByKey['info']" [control]="viewModel.controlsByKey['info']" [form]="viewModel.formGroup"></j-control>
+      <div *ngFor="let control of viewModel.view; let i = index" fxLayout="column">
+        <j-control *ngIf="control.controlType === 'script'" [control]="control" [form]="viewModel.formGroup" fxFlex></j-control>
+      </div>
+    </mat-expansion-panel>
 
-  </mat-expansion-panel>
+    <mat-expansion-panel #accunt hideToggle="true" *ngIf="this.isDoc && viewModel.model.posted">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Register movements</mat-panel-title>
+        <mat-panel-description>Account
+          <mat-icon>toc</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
 
-  <mat-expansion-panel #accumulation hideToggle="true" *ngIf="this.isDoc && viewModel.model.posted">
-    <mat-expansion-panel-header>
-      <mat-panel-title>Register movements</mat-panel-title>
-      <mat-panel-description>Accumulation
-        <mat-icon>toc</mat-icon>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
+      <j-register-movement *ngIf="accunt.expanded" [doc]="viewModel.model"></j-register-movement>
 
-    <j-register-accumulation-list *ngIf="accumulation.expanded" [doc]="viewModel.model"></j-register-accumulation-list>
+    </mat-expansion-panel>
 
-  </mat-expansion-panel>
+    <mat-expansion-panel #accumulation hideToggle="true" *ngIf="this.isDoc && viewModel.model.posted">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Register movements</mat-panel-title>
+        <mat-panel-description>Accumulation
+          <mat-icon>toc</mat-icon>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
 
-</mat-accordion>
+      <j-register-accumulation-list *ngIf="accumulation.expanded" [doc]="viewModel.model"></j-register-accumulation-list>
+
+    </mat-expansion-panel>
+
+  </mat-accordion>
 </form>
 
 <ng-template #formTepmlateDefault let-v="viewModel">
@@ -80,26 +86,26 @@
     <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px">
       <div fxLayoutGap.gt-xs="column" fxFlex>
         <div *ngFor="let control of v.view; let i = index">
-          <j-control *ngIf="(i%3+1) === 1 && control.type !== 'table' && control.key !== 'user' && control.controlType !== 'script' && control.key !== 'info' && control.key !== 'parent'" [control]="control" [form]="v.formGroup"></j-control>
+          <j-control *ngIf="(control.order-1)%3+1 === 1 && control.order && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
         </div>
       </div>
       <div fxLayoutGap.gt-xs="column" fxFlex>
         <div *ngFor="let control of v.view; let i = index">
-          <j-control *ngIf="(i%3+1) === 2 && control.type !== 'table' && control.key !== 'user' && control.controlType !== 'script' && control.key !== 'info' && control.key !== 'parent'" [control]="control" [form]="v.formGroup"></j-control>
+          <j-control *ngIf="(control.order-1)%3+1 === 2 && control.order && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
         </div>
       </div>
       <div fxLayoutGap.gt-xs="column" fxFlex>
         <div *ngFor="let control of v.view; let i = index">
-          <j-control *ngIf="(i%3+1) === 3 && control.type !== 'table' && control.key !== 'user' && control.controlType !== 'script' && control.key !== 'info' && control.key !== 'parent'" [control]="control" [form]="v.formGroup"></j-control>
+          <j-control *ngIf="(control.order-1)%3+1 === 3 && control.order && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
         </div>
       </div>
     </div>
 
     <div fxLayoutGap.gt-xs="column">
-      <mat-tab-group #tg dynamicHeight="true">
+      <mat-tab-group dynamicHeight="true">
         <div *ngFor="let control of v.view; let i = index">
           <span *ngIf="control.type === 'table'">
-            <mat-tab #ta [tabindex]="i">
+            <mat-tab>
               <ng-template mat-tab-label>
                 <div>{{ control.label }}</div>
               </ng-template>
@@ -115,22 +121,28 @@
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
   <div>
-    <button mat-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); PostClose()" matTooltip="post & close" *ngIf="!v.model.deleted">
+    <button mat-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); PostClose()" matTooltip="post & close"
+      *ngIf="!v.model.deleted">
       <mat-icon>done_all</mat-icon>
     </button>
-    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Post()" matTooltip="post" *ngIf="!v.model.deleted">
+    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Post()" matTooltip="post"
+      *ngIf="!v.model.deleted">
       <mat-icon>done</mat-icon>
     </button>
-    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Copy()" matTooltip="copy" *ngIf="!v.model.deleted && !v.model.id.startsWith('copy')">
+    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Copy()" matTooltip="copy"
+      *ngIf="!v.model.deleted && !v.model.id.startsWith('copy')">
       <mat-icon>content_copy</mat-icon>
     </button>
-    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); unPost()" matTooltip="unPost" *ngIf="!v.model.deleted && v.model.posted">
+    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); unPost()" matTooltip="unPost"
+      *ngIf="!v.model.deleted && v.model.posted">
       <mat-icon>undo</mat-icon>
     </button>
-    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Save()" matTooltip="save" *ngIf="!v.model.deleted && !v.model.posted">
+    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Save()" matTooltip="save"
+      *ngIf="!v.model.deleted && !v.model.posted">
       <mat-icon>save</mat-icon>
     </button>
-    <button mat-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="$event.stopPropagation(); Delete()" [matTooltip]="v.model.deleted ? 'undelete': 'delete'">
+    <button mat-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="$event.stopPropagation(); Delete()"
+      [matTooltip]="v.model.deleted ? 'undelete': 'delete'">
       <mat-icon>delete</mat-icon>
     </button>
   </div>

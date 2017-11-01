@@ -68,7 +68,7 @@
         </ng-container>
         <ng-container *ngSwitchCase="'autocomplete'">
           <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>
-          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field].value}}</mat-cell>
+          <mat-cell *cdkCellDef="let row" [ngStyle]="col.style">{{row[col.field]?.value}}</mat-cell>
         </ng-container>
         <ng-container *ngSwitchDefault>
           <mat-header-cell *matHeaderCellDef mat-sort-header [ngStyle]="col.style">{{ col.label }}</mat-header-cell>

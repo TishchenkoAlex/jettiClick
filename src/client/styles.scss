@@ -66,11 +66,11 @@ body {
 }
 
 .mat-column-posted {
-  margin-top: 4px !important;
   max-width: 24px !important;
   min-width: 24px !important;
   margin: 0px !important;
   padding: 0px !important;
+  margin-top: 2px !important;
 }
 
 .mat-header-row, .mat-row { 
@@ -80,12 +80,12 @@ body {
 
 .mat-header-cell, .mat-cell { 
   padding: 0 4px;
-  min-width: 50px;
 }
 
 .mat-column-currency {
-  max-width: 60px !important;
-  min-width: 60px !important;
+  max-width: 70px !important;
+  min-width: 70px !important;
+  text-align: end !important;
 }
 
 .mat-column-description {

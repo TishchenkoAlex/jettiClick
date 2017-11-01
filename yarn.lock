@@ -33,8 +33,8 @@
     tslib "^1.7.1"
 
 "@angular/cdk@angular/cdk-builds":
-  version "2.0.0-beta.12-b39202f"
-  resolved "https://codeload.github.com/angular/cdk-builds/tar.gz/87c54e98da28d1dd24395216cdefc8d3e88a1333"
+  version "2.0.0-beta.12-a2129fc"
+  resolved "https://codeload.github.com/angular/cdk-builds/tar.gz/ecbcea98368c2d24911da222e75a82de64229d05"
   dependencies:
     tslib "^1.7.1"
 
@@ -142,8 +142,8 @@
   resolved "https://registry.yarnpkg.com/@angular/language-service/-/language-service-4.4.6.tgz#498ece95c5f6066403bf9fd3c5831af42b45618b"
 
 "@angular/material@angular/material2-builds":
-  version "2.0.0-beta.12-b39202f"
-  resolved "https://codeload.github.com/angular/material2-builds/tar.gz/49bcfcb19cb8f7a9738be0dd5158e7df534fd0bf"
+  version "2.0.0-beta.12-de8c6e2"
+  resolved "https://codeload.github.com/angular/material2-builds/tar.gz/f948896c909f21ed645b505a6d21b551e86364a6"
   dependencies:
     tslib "^1.7.1"
 
@@ -4941,9 +4941,13 @@ type-is@~1.6.15:
     media-typer "0.3.0"
     mime-types "~2.1.15"
 
-"typescript@>=2.0.0 <2.6.0", typescript@^2.3.3, typescript@~2.5.3:
+"typescript@>=2.0.0 <2.6.0", typescript@^2.3.3:
   version "2.5.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.5.3.tgz#df3dcdc38f3beb800d4bc322646b04a3f6ca7f0d"
+
+typescript@~2.6.1:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.6.1.tgz#ef39cdea27abac0b500242d6726ab90e0c846631"
 
 uglify-js@3.1.x:
   version "3.1.4"
