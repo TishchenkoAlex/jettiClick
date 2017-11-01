@@ -100,6 +100,11 @@
         </div>
       </div>
     </div>
+    <div *ngFor="let control of v.view; let i = index">
+      <j-control *ngIf="control.order < 1 && ( 
+        (control.key !== 'parent') && (control.key !== 'user') && (control.key !== 'info') && (control.controlType !== 'script'))" 
+        [control]="control" [form]="v.formGroup"></j-control>
+    </div>
 
     <div fxLayoutGap.gt-xs="column">
       <mat-tab-group dynamicHeight="true">

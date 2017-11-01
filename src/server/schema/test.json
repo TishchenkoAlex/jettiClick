@@ -1,64 +1,99 @@
 {
-    "id": {
-        "hidden": true,
-        "hidden-list": true,
-        "order": -1
-    },
-    "code": {
-        "label": "code",
-        "order": 2,
-        "required": false
-    },
-    "date": {
-        "type": "datetime",
-        "label": "date",
-        "order": 1,
-        "required": true
-    },
-    "info": {
-        "type": "textarea",
-        "label": "info",
-        "order": -1,
-        "hidden-list": true
-    },
-    "type": {
-        "hidden": true,
-        "hidden-list": true,
-        "order": -1
-    },
+    "id": "ad9c5422-602d-11e7-bd38-2bf2176a37b9",
+    "info": null,
+    "type": "Document.Invoice",
     "user": {
+        "id": null,
+        "code": null,
         "type": "Catalog.User",
-        "label": "user",
-        "order": -1,
-        "required": false,
-        "hidden-list": true
+        "value": null
     },
-    "posted": {
-        "type": "posted",
-        "order": -1
+    "parent": {
+        "id": null,
+        "code": null,
+        "type": "Types.Document",
+        "value": null
     },
+    "date": "2017-09-02T18:00:00.000Z",
+    "code": "INV-000000002",
     "company": {
+        "id": "JETTI",
+        "code": "JETTI",
         "type": "Catalog.Company",
-        "label": "company",
-        "order": 3,
-        "change": "return call(doc, prop, value)",
-        "required": true
+        "value": "Jetti"
     },
-    "deleted": {
-        "type": "boolean",
-        "order": -1,
-        "hidden": true,
-        "hidden-list": true
+    "Customer": {
+        "id": "7ab6bafa-8cb7-11e7-b66d-d7cb5362ac55",
+        "code": "41",
+        "type": "Catalog.Counterpartie",
+        "value": "Контрагент 12 (тест длинного наименования) очень длинного"
     },
-    "isfolder": {
-        "type": "boolean",
-        "order": -1,
-        "hidden": true,
-        "hidden-list": true
+    "Manager": {
+        "id": "d5baebd6-6af4-11e7-875b-1789d7649e6c",
+        "code": "EMP-0000002",
+        "type": "Catalog.Manager",
+        "value": "Федоров"
     },
-    "description": {
-        "label": "description",
-        "order": 3,
-        "required": true
-    }
+    "Storehouse": {
+        "id": "402aa242-9cc6-11e7-9da7-a3296364cf20",
+        "code": "STOR-0001",
+        "type": "Catalog.Storehouse",
+        "value": "Склад 1"
+    },
+    "Status": "Pending",
+    "Amount": 360,
+    "Tax": 1,
+    "Items": [
+        {
+            "SKU": {
+                "id": "be01a212-666e-11e7-84c6-7be710a256c4",
+                "code": "SKU-00000004",
+                "type": "Catalog.Product",
+                "value": "Печенька"
+            },
+            "Qty": 100,
+            "Price": 3,
+            "PriceType": {
+                "id": "1",
+                "code": "1",
+                "type": "Catalog.PriceType",
+                "value": "Retail"
+            },
+            "Tax": 0.5,
+            "Amount": 300,
+            "index": 0
+        },
+        {
+            "SKU": {
+                "id": "2a7b4c26-6751-11e7-9c49-db1644eddd24",
+                "code": "SKU-00000012",
+                "type": "Catalog.Product",
+                "value": "Мороженое"
+            },
+            "Qty": 10,
+            "Price": 6,
+            "PriceType": {
+                "id": "1",
+                "code": "1",
+                "type": "Catalog.PriceType",
+                "value": "Retail"
+            },
+            "Tax": 0.5,
+            "Amount": 60,
+            "index": 1
+        }
+    ],
+    "Comments": [
+        {
+            "Date": "2017-09-08T18:00:00",
+            "User": {
+                "id": "bf7ca890-94b2-11e7-815f-8b27275e6da8",
+                "code": "EMP-0000001",
+                "type": "Catalog.Manager",
+                "value": "Сидоров"
+            },
+            "Comment": "this is comment!",
+            "index": 0
+        }
+    ]
 }
