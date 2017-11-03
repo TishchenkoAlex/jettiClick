@@ -31,10 +31,9 @@ import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
-
-export function getJwtToken(): string {
-  return localStorage.getItem('access_token');
-}
+import { registerLocaleData } from '@angular/common';
+import localeRU from '@angular/common/locales/ru';
+import localeRUExtra from '@angular/common/locales/extra/ru';
 
 @NgModule({
   declarations: [
@@ -53,7 +52,7 @@ export function getJwtToken(): string {
     RouterModule.forRoot(appRoutes),
     JwtModule.forRoot({
       config: {
-        tokenGetter: getJwtToken,
+        tokenGetter: () => localStorage.getItem('access_token'),
         whitelistedDomains: ['localhost:3000', 'jetti-project.appspot.com', 'jetti-app.com']
       }
     }),
@@ -83,6 +82,7 @@ export function getJwtToken(): string {
 export class AppModule {
 
   constructor (private tcs: TabControllerService) {
+    registerLocaleData(localeRU, localeRUExtra);
     this.tcs.menuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
   }
 }

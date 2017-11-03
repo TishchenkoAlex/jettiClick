@@ -1,5 +1,5 @@
 import { db } from './db';
-import { DocBase, Ref, RefValue } from './modules/doc.base';
+import { IDocBase, Ref, RefValue } from './modules/doc.base';
 
 export interface JTL {
   account: {
@@ -10,8 +10,8 @@ export interface JTL {
   },
   doc: {
     byCode: (type: string, code: string) => Promise<string>;
-    byId: (id: string) => Promise<DocBase>;
-    modelById: (id: string) => Promise<DocBase>;
+    byId: (id: string) => Promise<IDocBase>;
+    modelById: (id: string) => Promise<IDocBase>;
     formControlRef: (id: string) => Promise<RefValue>;
   }
 }
@@ -45,14 +45,14 @@ async function byCode(type: string, code: string) {
 
 async function byId(id: string) {
   const result = await db.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
-  return result as DocBase;
+  return result as IDocBase;
 }
 
 async function modelById(id: string) {
   const doc = await byId(id);
   const config_schema = await db.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
   const model = await db.one(`${config_schema.queryObject} AND d.id = $1`, id);
-  return model as DocBase;
+  return model as IDocBase;
 }
 
 async function formControlRef(id: string) {

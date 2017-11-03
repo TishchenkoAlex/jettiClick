@@ -18,6 +18,7 @@ import {
     NG_VALUE_ACCESSOR,
     ValidationErrors,
     Validator,
+    Validators,
 } from '@angular/forms';
 import { MatAutocomplete, MatDialog, MatInput } from '@angular/material';
 import { Router } from '@angular/router';
@@ -55,7 +56,7 @@ export class AutocompleteComponent implements OnDestroy, AfterViewInit, ControlV
   @ViewChild(MatInput) matInput: MatInput;
 
   form: FormGroup = new FormGroup({
-    suggest: new FormControl(this.value)
+    suggest: this.required ? new FormControl(this.value, Validators.required) : new FormControl(this.value)
   });
 
   private _subscription$: Subscription = Subscription.EMPTY;

@@ -28,9 +28,12 @@ body {
 }
 
 .sidenav-menu .mat-list-item-content {
-  height: 32px !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
+}
+
+.sidenav-menu .mat-list-item {
+  height: 32px !important;
 }
 
 .mat-column-date {

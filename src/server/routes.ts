@@ -10,7 +10,7 @@ import {
   FormListSettings,
   UserDefaultsSettings,
 } from './models/user.settings';
-import { DocBase } from './modules/doc.base';
+import { IDocBase } from './modules/doc.base';
 import { valueChanges } from './modules/index';
 import { lib } from './std.lib';
 
@@ -430,7 +430,7 @@ router.post('/call', async (req, res, next) => {
 
 router.post('/valueChanges/:type/:property', async (req, res, next) => {
   try {
-    const doc = req.body.doc as DocBase;
+    const doc = req.body.doc as IDocBase;
     const value = req.body.value;
     const Module = valueChanges[req.params.type];
     let result = {};

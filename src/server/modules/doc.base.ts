@@ -1,6 +1,6 @@
 export type Ref = string;
 
-export interface DocBase {
+export interface IDocBase {
     id: Ref;
     type: string;
     code: string;
@@ -24,7 +24,7 @@ export interface RefValue {
 
 import { v1 } from 'uuid';
 
-export class DocModel implements DocBase  {
+export class DocModel implements IDocBase  {
     public code = '';
     public description = '';
     public company: Ref = null;
@@ -48,7 +48,7 @@ export const JETTI_DOC_PROP = Object.keys(new DocModel());
 export interface PatchValue { [x: string]: boolean | number | string | RefValue }
 
 export interface FileldsAction {
-    [field: string]: (doc: DocBase, value: any) => Promise<PatchValue>
+    [field: string]: (doc: IDocBase, value: RefValue) => Promise<PatchValue>
 }
 
 export interface ValueChanges {
