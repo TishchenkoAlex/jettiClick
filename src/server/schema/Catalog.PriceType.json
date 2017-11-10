@@ -1,0 +1,14 @@
+{
+    "parent": {
+        "type": "Catalog.PriceType",
+        "hidden-list": true
+    },
+    "currency": {
+        "type": "Catalog.Currency",
+        "required": true
+    },
+    "TaxInclude": {
+        "type": "boolean",
+        "required": true
+    }
+}

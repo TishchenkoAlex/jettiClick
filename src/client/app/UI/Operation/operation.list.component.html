@@ -1,0 +1,6 @@
+<div *ngIf="operationsGroups$ | async as operationsGroups">
+    <button *ngFor="let op of operationsGroups" mat-raised-button (click)="Click(op)">{{ op.description }}</button>
+</div>
+<j-list>
+
+</j-list>

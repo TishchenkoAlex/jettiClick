@@ -11,13 +11,13 @@ body {
 
 .suggestDialog .mat-dialog-container {
   padding-bottom: 0px;
-  min-width: 340px;
+  min-width: 440px;
   max-width: 650px;
 }
 
 .editRowDialog .mat-dialog-container {
   padding: 0;
-  min-width: 340px;
+  min-width: 440px;
   max-width: 650px;
 }
 
@@ -53,7 +53,7 @@ body {
 }
 
 .mat-column-code {
-  max-width: 140px !important;
+  max-width: 120px !important;
 }
 
 .mat-cell .mat-checkbox-layout {
@@ -88,11 +88,14 @@ body {
 .mat-column-currency {
   max-width: 70px !important;
   min-width: 70px !important;
-  text-align: end !important;
 }
 
 .mat-column-description {
   min-width: 180px !important;
+}
+
+.mat-form-field-infix {
+  width: 0px !important;
 }
 
 .mat-cell {

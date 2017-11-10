@@ -49,6 +49,10 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
       this.dataSource.first()
     } else { this.dataSource.goto(this.data.docID) }
 
+    this._sortChange$ = this.sort.sortChange.subscribe(() => {
+      this.update();
+    });
+
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup').pipe(
       distinctUntilChanged(),
       debounceTime(500))
@@ -56,11 +60,6 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
         this.dataSource.selection.clear();
         this.update();
       });
-
-    this._sortChange$ = this.sort.sortChange.subscribe(() => {
-      this.update();
-    });
-
   }
 
   private update() {

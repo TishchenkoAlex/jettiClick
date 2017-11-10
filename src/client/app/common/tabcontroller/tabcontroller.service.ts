@@ -5,10 +5,10 @@ import { BaseDynamicCompoment } from '../../common/dynamic-component/dynamic-com
 import { HomeComponent } from '../../home/home.component';
 import { getDocListComponent, getDocObjectComponent } from '../../UI/userForms';
 
-export interface TabDef { header: string, icon: string, description: string, docType: string, docID: string }
+export interface TabDef { header: string, icon: string, description: string, docType: string, docID: string, params: {[key: string]: any}}
 
 export const HOME = 'Home';
-export const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '' };
+export const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '', params: {} };
 
 @Injectable()
 export class TabControllerService {
@@ -17,6 +17,7 @@ export class TabControllerService {
   tabs: TabDef[] = [];
   tabid: string;
   docID: string;
+  params: {[key: string]: any};
   HOME = HOME;
   component: BaseDynamicCompoment;
   menuItems: MenuItem[] = [];

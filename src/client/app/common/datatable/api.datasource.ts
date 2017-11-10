@@ -33,7 +33,10 @@ export class ApiDataSource extends DataSource<any> {
       switchMap((stream: string | FormListSettingsAction) => {
         let offset = 0; let row = this.firstDoc;
         if (this.selection.selected.length) {
-          offset = this.renderedData.findIndex(s => s.id === this.selection.selected[0]);
+          const selectedId = this.selection.selected[this.selection.selected.length - 1];
+          this.selection.clear();
+          this.selection.select(selectedId);
+          offset = this.renderedData.findIndex(s => s.id === selectedId);
           if (offset !== -1) { row = this.renderedData[offset] } else { offset = this.pageSize - 1; }
         }
 
@@ -43,18 +46,20 @@ export class ApiDataSource extends DataSource<any> {
           case 'next': row = this.continuation.last; this.selection.clear(); offset = 0; break;
           case 'last': row = this.lastDoc; this.selection.clear(); offset = 0; break;
           case 'refresh': row = this.renderedData[offset] || this.firstDoc; break;
-          case 'goto': row = new DocModel(this.docType, this._selectedID); this.selection.select(this._selectedID); break;
+          case 'goto': row = new DocModel(this.docType, this._selectedID); offset = 0;
+            this.selection.clear(); this.selection.select(this._selectedID); break;
         }
 
-        const command = typeof stream === 'string' ? stream : 'first';
+        let command = typeof stream === 'string' ? stream : 'first';
 
         const filterArr = stream['type'] ? (stream as FormListSettingsAction).payload.filter :
           this.uss.userSettings.formListSettings[this.docType] ?
             this.uss.userSettings.formListSettings[this.docType].filter : [];
 
         const sortArr = stream['type'] ? (stream as FormListSettingsAction).payload.order :
-          this.uss.userSettings.formListSettings[this.docType] ?
-            this.uss.userSettings.formListSettings[this.docType].order : [];
+            this.uss.userSettings.formListSettings[this.docType] ?
+              this.uss.userSettings.formListSettings[this.docType].order : [];
+        if (stream['type'] && row.id !== 'first' && (stream as FormListSettingsAction).payload.order) { command = 'sort' }
 
         return this.apiService.getDocList(this.docType, row.id, command, this.pageSize, offset, sortArr, filterArr).pipe(
           tap(data => { this.renderedData = data.data; this.continuation = data.continuation }),

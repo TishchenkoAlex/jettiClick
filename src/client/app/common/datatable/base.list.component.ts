@@ -1,13 +1,13 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    Input,
-    OnDestroy,
-    OnInit,
-    TemplateRef,
-    ViewChild,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
 import { MatSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,18 +20,21 @@ import { FormListSettings } from '../../../../server/models/user.settings';
 import { DocModel } from '../../../../server/modules/doc.base';
 import { UserSettingsService } from '../../auth/settings/user.settings.service';
 import { DocService } from '../doc.service';
+import { LoadingService } from '../loading.service';
 import { SideNavService } from './../../services/side-nav.service';
 import { ApiDataSource } from './api.datasource';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'common-datatable',
-  styleUrls: ['./datatable.component.scss'],
-  templateUrl: './datatable.component.html',
+  selector: 'j-list',
+  styleUrls: ['./base.list.component.scss'],
+  templateUrl: './base.list.component.html',
+  providers: []
 })
-export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BaseListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private _docSubscription$: Subscription = Subscription.EMPTY;
+  private _closeSubscription$: Subscription = Subscription.EMPTY;
   private _sideNavService$: Subscription = Subscription.EMPTY;
   private _sortChange$: Subscription = Subscription.EMPTY;
 
@@ -48,8 +51,9 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
   columns: ColumnDef[] = [];
   displayedColumns = [];
 
-  constructor(private route: ActivatedRoute, private router: Router, private cd: ChangeDetectorRef,
-    private ds: DocService, private sns: SideNavService, private uss: UserSettingsService) {
+  constructor(public route: ActivatedRoute, public router: Router, public cd: ChangeDetectorRef,
+    public ds: DocService, private sns: SideNavService,
+    public uss: UserSettingsService, private lds: LoadingService) {
     this.pageSize = this.uss.userSettings.defaults.rowsInList;
   };
 
@@ -61,7 +65,7 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
     const _sort = this.columns.map(c => c.sort).find(s => s.order !== '');
     if (_sort) {
       this.sort.direction = _sort.order;
-      this.sort.active =  _sort.field;
+      this.sort.active = _sort.field;
     }
 
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
@@ -75,6 +79,7 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
     this._docSubscription$ = Observable.merge(...[
       this.ds.save$,
       this.ds.delete$,
+      this.ds.saveCloseDoc$,
       this.ds.goto$]).pipe(
       filter(doc => doc && doc.type === this.docType))
       .subscribe(doc => this.dataSource.goto(doc.id));
@@ -82,6 +87,10 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
     this._sideNavService$ = this.sns.do$.pipe(
       filter(data => data.type === this.docType && data.id === ''))
       .subscribe(data => this.sns.templateRef = this.sideNavTepmlate);
+
+    this._closeSubscription$ = this.ds.close$.pipe(
+      filter(data => data && data.type === this.docType && data.id === ''))
+      .subscribe(data => this.ds.close(null));
   }
 
   ngAfterViewInit() {
@@ -101,6 +110,7 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
 
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
+    this._closeSubscription$.unsubscribe();
     this._sideNavService$.unsubscribe();
     this._sortChange$.unsubscribe();
   }
@@ -129,23 +139,23 @@ export class CommonDataTableComponent implements OnInit, AfterViewInit, OnDestro
     this.dataSource.selection.selected.forEach(el => this.ds.delete(el));
   }
 
-  post() {
-    const tasks$ = [];
-    this.dataSource.selection.selected
-      .filter(el => this.dataSource.renderedData.findIndex(d => d.id === el) > -1)
-      .forEach(el => tasks$.push(this.ds.post(el).pipe(take(1))));
-    Observable.forkJoin(...tasks$).pipe(
-      take(1))
-      .subscribe(results => {
+  async post() {
+    const tasksCount = this.dataSource.selection.selected.length;
+    const selected = this.dataSource.selection.selected.filter(el => this.dataSource.renderedData.findIndex(d => d.id === el) > -1);
+    for (const s of selected) {
+      await this.ds.post(s);
+      this.dataSource.selection.deselect(s);
+      this.lds.counter = 100 - (this.dataSource.selection.selected.length) / tasksCount * 100;
+      if (this.dataSource.selection.selected.length === 0) {
+        this.lds.counter = 0;
         this.dataSource.refresh();
-        this.ds.openSnackBar('Multiple parallel tasks', 'complete')
-      });
+      }
+      this.cd.markForCheck();
+    }
   }
 
   close() {
-    const doc = new DocModel(this.docType, '');
-    doc.type = this.docType;
-    this.ds.close(doc);
+    this.ds.close(null);
   }
 
 }

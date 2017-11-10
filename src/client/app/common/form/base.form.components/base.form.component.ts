@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -20,8 +21,8 @@ import { SideNavService } from './../../../services/side-nav.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-form',
-  styleUrls: ['./form.base.component.scss'],
-  templateUrl: './form.base.component.html',
+  styleUrls: ['./base.form.component.scss'],
+  templateUrl: './base.form.component.html',
 })
 export class BaseFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
@@ -30,67 +31,94 @@ export class BaseFormComponent implements OnInit, OnDestroy {
 
   viewModel: ViewModel;
   isDoc: boolean;
+  docId: string;
 
   private _subscription$: Subscription = Subscription.EMPTY;
+  private _closeSubscription$: Subscription = Subscription.EMPTY;
+  private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
   protected _sideNavService$: Subscription = Subscription.EMPTY;
 
   constructor(public router: Router, public route: ActivatedRoute, public cd: ChangeDetectorRef,
-    public docService: DocService, public sideNavService: SideNavService) { }
+    public ds: DocService, public sideNavService: SideNavService, private location: Location) { }
 
   ngOnInit() {
     this.viewModel = this.route.data['value'].detail;
+    this.docId = this.route.params['value'].id;
     this.isDoc = this.viewModel.model.type.startsWith('Document.')
     this.sideNavService.templateRef = this.sideNavTepmlate;
 
     this._subscription$ = Observable.merge(...[
-      this.docService.save$,
-      this.docService.delete$]).pipe(
+      this.ds.save$,
+      this.ds.delete$]).pipe(
+      filter(doc => doc.id === this.docId))
+      .subscribe(savedDoc => {
+        this.viewModel.model = savedDoc;
+        this.viewModel.formGroup.patchValue(savedDoc, { emitEvent: false });
+        this.viewModel.formGroup.markAsPristine();
+      });
+
+      this._saveCloseSubscription$ = this.ds.saveCloseDoc$.pipe(
       filter(doc => doc.id === this.viewModel.model.id))
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
         this.viewModel.formGroup.patchValue(savedDoc, { emitEvent: false });
+        this.viewModel.formGroup.markAsPristine();
+        this.Goto();
+        this.Close();
       });
 
     this._sideNavService$ = this.sideNavService.do$.pipe(
-      filter(data => data.type === this.viewModel.model.type && data.id === this.viewModel.model.id))
+      filter(data => data.type === this.viewModel.model.type && data.id === this.docId))
       .subscribe(data => this.sideNavService.templateRef = this.sideNavTepmlate);
+
+    this._closeSubscription$ = this.ds.close$.pipe(
+      filter(data => data && data.type === this.viewModel.model.type && data.id === this.docId))
+      .subscribe(data => this.Close())
   }
 
   ngOnDestroy() {
     this._subscription$.unsubscribe();
     this._sideNavService$.unsubscribe();
+    this._saveCloseSubscription$.unsubscribe();
+    this._closeSubscription$.unsubscribe();
   }
 
-  private onSubmit() {
-    this.viewModel.model = Object.assign(this.viewModel.model, this.viewModel.formGroup.getRawValue());
-    this.docService.save(this.viewModel.model);
+  private onSubmit(close = false) {
+    this.viewModel.model = Object.assign(this.viewModel.model, this.viewModel.formGroup.getRawValue()); // ???
+    this.ds.save(this.viewModel.model, close);
   }
 
-  Save() {
-    this.onSubmit();
-  }
-
-  PostClose() {
-    this.Post();
-    this.Close()
+  Save(close = false) {
+    this.onSubmit(close);
   }
 
   Post() {
     this.viewModel.model.posted = true;
-    this.onSubmit();
+    this.Save();
+  }
+
+  PostClose() {
+    this.viewModel.model.posted = true;
+    this.Save(true);
   }
 
   unPost() {
     this.viewModel.model.posted = false;
-    this.onSubmit();
+    this.Save();
   }
 
   Delete() {
-    this.docService.delete(this.viewModel.model.id);
+    this.ds.delete(this.viewModel.model.id);
   }
 
   Close() {
-    this.docService.close(this.viewModel.model);
+    if (this.viewModel.formGroup.pristine) {
+      this.ds.close(null);
+    } else {
+      if (confirm('Discard changes and close?')) {
+        this.ds.close(null);
+      }
+    }
   }
 
   Copy() {
@@ -98,7 +126,9 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   Goto() {
-    this.router.navigate([this.viewModel.model.type]).then(() => this.docService.goto(this.viewModel.model));
+    this.router.navigate([this.viewModel.model.type]).then(() => {
+      setTimeout(() => this.ds.goto(this.viewModel.model));
+    });
   }
 
 }

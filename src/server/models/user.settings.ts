@@ -20,7 +20,7 @@ export type FilterList = number[] | string[];
 export class FormListFilter {
   left: string;
   center: '=' | '>=' | '<=' | 'like' | 'in' | 'beetwen' = '='
-  right: number | string | boolean | FilterList | FilterInterval = null;
+  right: any = null;
 
   constructor (field: string) {
     this.left = field;

@@ -17,7 +17,7 @@ export class TablePartsDialogComponent {
   constructor(public dialog: MatDialog, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.formGroup = data.formGroup;
     this.controls = data.view;
-    this.controls.forEach(el => el.order += 10000);
+    for (const row of this.controls) { row.order = 0}
 
     const isTableDef =
       this.formGroup.controls['type'] &&

@@ -6,6 +6,7 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnDestroy,
     OnInit,
     Output,
     ViewChild,
@@ -13,6 +14,7 @@ import {
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatSort, MatTableDataSource } from '@angular/material';
 import { take } from 'rxjs/operators';
+import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import {
@@ -36,7 +38,7 @@ import { TablePartsDialogComponent } from './../../dialog/table-parts.dialog.com
   ],
   templateUrl: './table-parts.component.html',
 })
-export class TablePartsComponent implements OnInit, AfterViewInit {
+export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
   private view: BaseJettiFromControl<any>[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
@@ -51,6 +53,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
   columns: ColumnDef[] = [];
   sampleRow: FormGroup;
 
+  private _subscription$: Subscription = Subscription.EMPTY;
+
   constructor(public dialog: MatDialog, private ds: DocService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
@@ -64,12 +68,18 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
 
     this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
     this.formGroup.removeAt(this.formGroup.length - 1);
+
+    this._subscription$ = this.ds.save$.subscribe(data => this.dataSource.data = this.formGroup.getRawValue());
   }
 
   ngAfterViewInit() {
-    this.dataSource = new MatTableDataSource(this.formGroup.value);
+    this.dataSource = new MatTableDataSource(this.formGroup.getRawValue());
     this.dataSource.sort = this.sort;
     this.cd.detectChanges();
+  }
+
+  ngOnDestroy() {
+    this._subscription$.unsubscribe();
   }
 
   isAllSelected(): boolean {
@@ -100,7 +110,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
       .subscribe(data => {
         if (data) {
           formGroup.patchValue(data, { emitEvent: false });
-          this.dataSource.data = this.formGroup.value;
+          this.dataSource.data = this.formGroup.getRawValue();
           this.onChange.emit(data);
         }
       });
@@ -117,7 +127,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
         if (data) {
           newFormGroup.patchValue(data, { emitEvent: false });
           this.formGroup.push(newFormGroup);
-          this.dataSource.data = this.formGroup.value;
+          this.dataSource.data = this.formGroup.getRawValue();
           this.onChange.emit(data);
         }
       });
@@ -134,7 +144,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
       const formGroup = this.formGroup.controls[i] as FormGroup;
       (formGroup.controls['index'] as FormControl).patchValue(i, { emitEvent: false });
     }
-    this.dataSource.data = this.formGroup.value;
+    this.dataSource.data = this.formGroup.getRawValue();
   }
 
   CopyRow() {
@@ -149,7 +159,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit {
           data.index = this.formGroup.length;
           newFormGroup.patchValue(data, patchOptionsNoEvents);
           this.formGroup.push(newFormGroup);
-          this.dataSource.data = this.formGroup.value;
+          this.dataSource.data = this.formGroup.getRawValue();
           this.onChange.emit(data);
           this.selection.clear();
         }

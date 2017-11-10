@@ -1,99 +1,1761 @@
 {
-    "id": "ad9c5422-602d-11e7-bd38-2bf2176a37b9",
-    "info": null,
-    "type": "Document.Invoice",
-    "user": {
-        "id": null,
-        "code": null,
-        "type": "Catalog.User",
-        "value": null
+    "defaults": {
+        "rowsInList": 14
     },
-    "parent": {
-        "id": null,
-        "code": null,
-        "type": "Types.Document",
-        "value": null
-    },
-    "date": "2017-09-02T18:00:00.000Z",
-    "code": "INV-000000002",
-    "company": {
-        "id": "JETTI",
-        "code": "JETTI",
-        "type": "Catalog.Company",
-        "value": "Jetti"
-    },
-    "Customer": {
-        "id": "7ab6bafa-8cb7-11e7-b66d-d7cb5362ac55",
-        "code": "41",
-        "type": "Catalog.Counterpartie",
-        "value": "Контрагент 12 (тест длинного наименования) очень длинного"
-    },
-    "Manager": {
-        "id": "d5baebd6-6af4-11e7-875b-1789d7649e6c",
-        "code": "EMP-0000002",
-        "type": "Catalog.Manager",
-        "value": "Федоров"
-    },
-    "Storehouse": {
-        "id": "402aa242-9cc6-11e7-9da7-a3296364cf20",
-        "code": "STOR-0001",
-        "type": "Catalog.Storehouse",
-        "value": "Склад 1"
-    },
-    "Status": "Pending",
-    "Amount": 360,
-    "Tax": 1,
-    "Items": [
-        {
-            "SKU": {
-                "id": "be01a212-666e-11e7-84c6-7be710a256c4",
-                "code": "SKU-00000004",
-                "type": "Catalog.Product",
-                "value": "Печенька"
+    "Catalog.User": {
+        "order": [
+            {
+                "field": "posted",
+                "order": ""
             },
-            "Qty": 100,
-            "Price": 3,
-            "PriceType": {
-                "id": "1",
-                "code": "1",
-                "type": "Catalog.PriceType",
-                "value": "Retail"
+            {
+                "field": "date",
+                "order": ""
             },
-            "Tax": 0.5,
-            "Amount": 300,
-            "index": 0
-        },
-        {
-            "SKU": {
-                "id": "2a7b4c26-6751-11e7-9c49-db1644eddd24",
-                "code": "SKU-00000012",
-                "type": "Catalog.Product",
-                "value": "Мороженое"
+            {
+                "field": "code",
+                "order": ""
             },
-            "Qty": 10,
-            "Price": 6,
-            "PriceType": {
-                "id": "1",
-                "code": "1",
-                "type": "Catalog.PriceType",
-                "value": "Retail"
+            {
+                "field": "description",
+                "order": ""
             },
-            "Tax": 0.5,
-            "Amount": 60,
-            "index": 1
-        }
-    ],
-    "Comments": [
-        {
-            "Date": "2017-09-08T18:00:00",
-            "User": {
-                "id": "bf7ca890-94b2-11e7-815f-8b27275e6da8",
-                "code": "EMP-0000001",
-                "type": "Catalog.Manager",
-                "value": "Сидоров"
+            {
+                "field": "company",
+                "order": ""
             },
-            "Comment": "this is comment!",
-            "index": 0
-        }
-    ]
+            {
+                "field": "user",
+                "order": ""
+            },
+            {
+                "field": "id",
+                "order": ""
+            },
+            {
+                "field": "info",
+                "order": ""
+            },
+            {
+                "field": "type",
+                "order": ""
+            },
+            {
+                "field": "deleted",
+                "order": ""
+            },
+            {
+                "field": "isfolder",
+                "order": ""
+            },
+            {
+                "field": "parent",
+                "order": ""
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Catalog.Company": {
+        "order": [
+            {
+                "field": "posted",
+                "order": ""
+            },
+            {
+                "field": "date",
+                "order": ""
+            },
+            {
+                "field": "code",
+                "order": "asc"
+            },
+            {
+                "field": "company",
+                "order": ""
+            },
+            {
+                "field": "description",
+                "order": ""
+            },
+            {
+                "field": "prefix",
+                "order": ""
+            },
+            {
+                "field": "currency",
+                "order": ""
+            },
+            {
+                "field": "user",
+                "order": ""
+            },
+            {
+                "field": "parent",
+                "order": ""
+            },
+            {
+                "field": "type",
+                "order": ""
+            },
+            {
+                "field": "info",
+                "order": ""
+            },
+            {
+                "field": "deleted",
+                "order": ""
+            },
+            {
+                "field": "isfolder",
+                "order": ""
+            },
+            {
+                "field": "id",
+                "order": ""
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "prefix",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "currency",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Currency",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Catalog.Manager": {
+        "order": [
+            {
+                "field": "posted",
+                "order": ""
+            },
+            {
+                "field": "date",
+                "order": ""
+            },
+            {
+                "field": "code",
+                "order": ""
+            },
+            {
+                "field": "company",
+                "order": ""
+            },
+            {
+                "field": "description",
+                "order": ""
+            },
+            {
+                "field": "FullName",
+                "order": ""
+            },
+            {
+                "field": "Product",
+                "order": ""
+            },
+            {
+                "field": "Birthday",
+                "order": ""
+            },
+            {
+                "field": "Gender",
+                "order": ""
+            },
+            {
+                "field": "info",
+                "order": ""
+            },
+            {
+                "field": "parent",
+                "order": ""
+            },
+            {
+                "field": "deleted",
+                "order": ""
+            },
+            {
+                "field": "type",
+                "order": ""
+            },
+            {
+                "field": "user",
+                "order": ""
+            },
+            {
+                "field": "isfolder",
+                "order": ""
+            },
+            {
+                "field": "id",
+                "order": ""
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "FullName",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Product",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Types.Subcount",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "Birthday",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "Gender",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Catalog.Product": {
+        "order": [
+            {
+                "field": "code",
+                "order": "asc"
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Document.CashIn": {
+        "order": [
+            {
+                "field": "posted",
+                "order": ""
+            },
+            {
+                "field": "date",
+                "order": ""
+            },
+            {
+                "field": "code",
+                "order": "asc"
+            },
+            {
+                "field": "company",
+                "order": ""
+            },
+            {
+                "field": "description",
+                "order": ""
+            },
+            {
+                "field": "CashRegister",
+                "order": ""
+            },
+            {
+                "field": "Amount",
+                "order": ""
+            },
+            {
+                "field": "currency",
+                "order": ""
+            },
+            {
+                "field": "type",
+                "order": ""
+            },
+            {
+                "field": "user",
+                "order": ""
+            },
+            {
+                "field": "deleted",
+                "order": ""
+            },
+            {
+                "field": "id",
+                "order": ""
+            },
+            {
+                "field": "isfolder",
+                "order": ""
+            },
+            {
+                "field": "info",
+                "order": ""
+            },
+            {
+                "field": "parent",
+                "order": ""
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "="
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "CashRegister",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Amount",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "currency",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Document.Invoice": {
+        "order": [
+            {
+                "field": "code",
+                "order": "desc"
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": {
+                    "end": "2015-12-31T22:00:00.000Z",
+                    "start": "2014-12-31T22:00:00.000Z"
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "company",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Company",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "Department",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Manager",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Manager",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "Customer",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Counterpartie",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "Status",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "Storehouse",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Storehouse",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "Amount",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "Tax",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "currency",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Currency",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "PayDay",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Catalog.Operation": {
+        "order": [
+            {
+                "field": "Group",
+                "order": "asc"
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Group",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Operation.Group",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "script",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Catalog.Department": {
+        "order": [
+            {
+                "field": "posted",
+                "order": ""
+            },
+            {
+                "field": "date",
+                "order": ""
+            },
+            {
+                "field": "code",
+                "order": ""
+            },
+            {
+                "field": "description",
+                "order": ""
+            },
+            {
+                "field": "company",
+                "order": ""
+            },
+            {
+                "field": "user",
+                "order": ""
+            },
+            {
+                "field": "id",
+                "order": ""
+            },
+            {
+                "field": "info",
+                "order": ""
+            },
+            {
+                "field": "type",
+                "order": ""
+            },
+            {
+                "field": "deleted",
+                "order": ""
+            },
+            {
+                "field": "isfolder",
+                "order": ""
+            },
+            {
+                "field": "parent",
+                "order": ""
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Document.Operation": {
+        "order": [
+            {
+                "field": "posted",
+                "order": ""
+            },
+            {
+                "field": "date",
+                "order": ""
+            },
+            {
+                "field": "code",
+                "order": ""
+            },
+            {
+                "field": "company",
+                "order": ""
+            },
+            {
+                "field": "description",
+                "order": ""
+            },
+            {
+                "field": "Group",
+                "order": ""
+            },
+            {
+                "field": "Operation",
+                "order": "asc"
+            },
+            {
+                "field": "column1",
+                "order": ""
+            },
+            {
+                "field": "column2",
+                "order": ""
+            },
+            {
+                "field": "Amount",
+                "order": ""
+            },
+            {
+                "field": "currency",
+                "order": ""
+            },
+            {
+                "field": "column3",
+                "order": ""
+            },
+            {
+                "field": "type",
+                "order": ""
+            },
+            {
+                "field": "info",
+                "order": ""
+            },
+            {
+                "field": "deleted",
+                "order": ""
+            },
+            {
+                "field": "user",
+                "order": ""
+            },
+            {
+                "field": "isfolder",
+                "order": ""
+            },
+            {
+                "field": "parent",
+                "order": ""
+            },
+            {
+                "field": "id",
+                "order": ""
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": {
+                    "end": "2018-12-31T22:00:00.000Z",
+                    "start": "2014-12-31T22:00:00.000Z"
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": {
+                    "id": "9bcc3f56-a17c-11e7-ae4f-ffbd4e97d2d4",
+                    "code": "NATUSA",
+                    "type": "Catalog.Company",
+                    "value": "NAT USA"
+                },
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Group",
+                "right": {
+                    "id": "89bb1aae-ba99-11e7-a25f-c72f37ddc74a",
+                    "code": "SALARY",
+                    "type": "Catalog.Operation.Group",
+                    "value": "Регистрация расходов"
+                },
+                "center": "="
+            },
+            {
+                "left": "Operation",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Operation",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "column1",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "column2",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "Amount",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "currency",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "column3",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Catalog.CashRegister": {
+        "order": [
+            {
+                "field": "code",
+                "order": "asc"
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Department",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Document.ClientOrder": {
+        "order": [
+            {
+                "field": "posted",
+                "order": ""
+            },
+            {
+                "field": "date",
+                "order": "asc"
+            },
+            {
+                "field": "code",
+                "order": ""
+            },
+            {
+                "field": "description",
+                "order": ""
+            },
+            {
+                "field": "company",
+                "order": ""
+            },
+            {
+                "field": "Customer",
+                "order": ""
+            },
+            {
+                "field": "Manager",
+                "order": ""
+            },
+            {
+                "field": "Status",
+                "order": ""
+            },
+            {
+                "field": "Tax",
+                "order": ""
+            },
+            {
+                "field": "Amount",
+                "order": ""
+            },
+            {
+                "field": "parent",
+                "order": ""
+            },
+            {
+                "field": "user",
+                "order": ""
+            },
+            {
+                "field": "type",
+                "order": ""
+            },
+            {
+                "field": "deleted",
+                "order": ""
+            },
+            {
+                "field": "info",
+                "order": ""
+            },
+            {
+                "field": "isfolder",
+                "order": ""
+            },
+            {
+                "field": "id",
+                "order": ""
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "like"
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Company",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "Customer",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Manager",
+                "right": {
+                    "id": "",
+                    "code": "",
+                    "type": "Catalog.Manager",
+                    "value": null
+                },
+                "center": "="
+            },
+            {
+                "left": "Status",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Tax",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Amount",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Catalog.Counterpartie": {
+        "order": [
+            {
+                "field": "description",
+                "order": "desc"
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": "",
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "FullName",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Client",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Supplier",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Catalog.Operation.Group": {
+        "order": [
+            {
+                "field": "code",
+                "order": "asc"
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            }
+        ]
+    },
+    "Document.Operation.CASH.IN": {
+        "order": [
+            {
+                "field": "posted",
+                "order": ""
+            },
+            {
+                "field": "date",
+                "order": ""
+            },
+            {
+                "field": "code",
+                "order": ""
+            },
+            {
+                "field": "description",
+                "order": ""
+            },
+            {
+                "field": "company",
+                "order": ""
+            },
+            {
+                "field": "Operation",
+                "order": ""
+            },
+            {
+                "field": "column1",
+                "order": ""
+            },
+            {
+                "field": "column2",
+                "order": ""
+            },
+            {
+                "field": "column3",
+                "order": ""
+            },
+            {
+                "field": "Amount",
+                "order": ""
+            },
+            {
+                "field": "currency",
+                "order": ""
+            },
+            {
+                "field": "type",
+                "order": ""
+            },
+            {
+                "field": "parent",
+                "order": ""
+            },
+            {
+                "field": "deleted",
+                "order": ""
+            },
+            {
+                "field": "user",
+                "order": ""
+            },
+            {
+                "field": "isfolder",
+                "order": ""
+            },
+            {
+                "field": "info",
+                "order": ""
+            },
+            {
+                "field": "id",
+                "order": ""
+            }
+        ],
+        "filter": [
+            {
+                "left": "posted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "date",
+                "right": {
+                    "end": null,
+                    "start": null
+                },
+                "center": "beetwen"
+            },
+            {
+                "left": "code",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "description",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "company",
+                "right": {
+                    "id": "9bcc3f56-a17c-11e7-ae4f-ffbd4e97d2d4",
+                    "code": "NATUSA",
+                    "type": "Catalog.Company",
+                    "value": "NAT USA"
+                },
+                "center": "="
+            },
+            {
+                "left": "Operation",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "column1",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "column2",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "column3",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "Amount",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "currency",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "type",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "parent",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "deleted",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "user",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "isfolder",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "info",
+                "right": null,
+                "center": "="
+            },
+            {
+                "left": "id",
+                "right": null,
+                "center": "="
+            }
+        ]
+    }
 }

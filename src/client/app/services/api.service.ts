@@ -1,12 +1,14 @@
-import { catchError, map, take } from 'rxjs/operators';
-import { DocListRequestBody, DocListResponse2, MenuItem } from '../../../server/models/api';
-import { ColumnDef } from '../../../server/models/column';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/observable/of';
 
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { catchError, map, take } from 'rxjs/operators';
+
 import { AccountRegister } from '../../../server/models/account.register';
+import { DocListRequestBody, DocListResponse2, MenuItem } from '../../../server/models/api';
+import { ColumnDef } from '../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { DocModel } from '../../../server/modules/doc.base';
 import { environment } from '../../environments/environment';
@@ -60,8 +62,7 @@ export class ApiService {
   postDoc(doc: DocModel) {
     const apiDoc = mapDocToApiFormat(doc);
     const query = `${this.url}`;
-    return (this.http.post(query, apiDoc) as Observable<DocModel>).pipe(
-      catchError((err: HttpErrorResponse) => Observable.of(err)))
+    return (this.http.post(query, apiDoc) as Observable<DocModel>);
   }
 
   postDocById(id: string): Observable<boolean> {
@@ -124,6 +125,11 @@ export class ApiService {
       catchError(err => Observable.of([])));
   }
 
+  getOperationsGroups() {
+    const query = `${this.url}operations/groups`;
+    return (this.http.get(query) as Observable<any[]>).pipe(
+      catchError(err => Observable.of([])));
+  }
 
   getUserFormListSettings(type: string): Observable<FormListSettings> {
     const query = `${this.url}user/settings/${type}`;

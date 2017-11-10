@@ -40,7 +40,7 @@ export class AppComponent {
       this.menuDocItems = apiService.getDocuments().pipe(share(), take(1));
       Observable.forkJoin(this.menuCatalogItems, this.menuDocItems).pipe(take(1))
         .subscribe(data => {
-          tsc.menuItems.push(...data[0], ...data[1]);
+          tsc.menuItems = [...data[0], ...data[1]];
           localStorage.setItem('menuItems', JSON.stringify(tsc.menuItems));
         });
     })

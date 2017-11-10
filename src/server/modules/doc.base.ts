@@ -2,6 +2,7 @@ export type Ref = string;
 
 export interface IDocBase {
     id: Ref;
+    date: string,
     type: string;
     code: string;
     description: string;
@@ -54,3 +55,4 @@ export interface FileldsAction {
 export interface ValueChanges {
     [type: string]: FileldsAction
 }
+

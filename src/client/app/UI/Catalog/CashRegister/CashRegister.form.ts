@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 
-import { BaseFormComponent } from '../../../common/form/form.base.components/form.base.component';
+import { BaseFormComponent } from '../../../common/form/base.form.components/base.form.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

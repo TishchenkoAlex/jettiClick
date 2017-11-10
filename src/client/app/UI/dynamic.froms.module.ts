@@ -1,21 +1,21 @@
-import { DynamicFilterControlComponent } from '../common/filter-column/dynamic-filter-control.component';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
+import { DynamicFilterControlComponent } from '../common/filter-column/dynamic-filter-control.component';
 import { FilterFormComponent } from '../common/filter/filter.component';
 import { RegisterAccumulationComponent } from '../common/register-movements/register.accumulation.component';
 import { RegisterAccumulationListComponent } from '../common/register-movements/register.accumulation.list.component';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
-import { CommonDataTableComponent } from './../common/datatable/datatable.component';
+import { BaseListComponent } from './../common/datatable/base.list.component';
 import { DocService } from './../common/doc.service';
 import { DynamicComponent, DynamicComponentDirective } from './../common/dynamic-component/dynamic-component';
 import { DynamicFormControlComponent } from './../common/dynamic-form/dynamic-form-control.component';
 import { DynamicFormService } from './../common/dynamic-form/dynamic-form.service';
 import { FilterColumnComponent } from './../common/filter-column/fiter-column.component';
-import { BaseFormComponent } from './../common/form/form.base.components/form.base.component';
+import { BaseFormComponent } from './../common/form/base.form.components/base.form.component';
 import { RegisterMovementComponent } from './../common/register-movements/register-movement.component';
 import { TabControllerComponent } from './../common/tabcontroller/tabcontroller.component';
 import { TabControllerService } from './../common/tabcontroller/tabcontroller.service';
@@ -25,13 +25,14 @@ import { HomeComponent } from './../home/home.component';
 import { MaterialModule } from './../material.module';
 import { CashRegisterFormComponent } from './Catalog/CashRegister/CashRegister.form';
 import { OperationFormComponent } from './Operation/operation.form.component';
+import { OperationListComponent } from './Operation/operation.list.component';
 
 @NgModule({
   declarations: [
     AutocompleteComponent,
     HomeComponent,
     TabControllerComponent,
-    CommonDataTableComponent,
+    BaseListComponent,
     DynamicComponentDirective,
     DynamicComponent,
     DynamicFormControlComponent,
@@ -48,6 +49,7 @@ import { OperationFormComponent } from './Operation/operation.form.component';
 
     CashRegisterFormComponent, // add user froms above
     OperationFormComponent,
+    OperationListComponent,
   ],
   imports: [
     CommonModule,
@@ -67,11 +69,12 @@ import { OperationFormComponent } from './Operation/operation.form.component';
     TablePartsDialogComponent,
     SuggestDialogComponent,
     HomeComponent,
-    CommonDataTableComponent,
+    BaseListComponent,
     BaseFormComponent,
 
     CashRegisterFormComponent, // add user froms above
     OperationFormComponent,
+    OperationListComponent,
     FilterColumnComponent,
   ]
 })

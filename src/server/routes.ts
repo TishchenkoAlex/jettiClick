@@ -1,7 +1,9 @@
-import { DocListRequestBody } from './models/api';
 import * as express from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { ITask, IDatabase } from 'pg-promise';
 
 import { db } from './db';
+import { DocListRequestBody } from './models/api';
 import { ColumnDef } from './models/column';
 import {
   FilterInterval,
@@ -11,81 +13,90 @@ import {
   UserDefaultsSettings,
 } from './models/user.settings';
 import { IDocBase } from './modules/doc.base';
-import { valueChanges } from './modules/index';
+import { valueChanges, JDM } from './modules/index';
 import { lib } from './std.lib';
 
 export const router = express.Router();
 
-router.get('/catalogs', async (req, res, next) => {
+router.get('/catalogs', async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await db.manyOrNone(`
       SELECT type, description, icon, menu FROM config_schema WHERE chapter = 'Catalog' ORDER BY description`));
   } catch (err) { next(err.message); }
 })
 
-router.get('/documents', async (req, res, next) => {
+router.get('/documents', async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await db.manyOrNone(`
       SELECT type, description, icon, menu FROM config_schema WHERE chapter = 'Document' ORDER BY description`));
   } catch (err) { next(err.message); }
 })
 
-async function ExecuteScript(doc, script, tx) {
+router.get('/operations/groups', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.json(await db.manyOrNone(`
+      SELECT id, description, code FROM "Documents" WHERE type = 'Catalog.Operation.Group' ORDER BY description`));
+  } catch (err) { next(err.message); }
+})
+
+async function ExecuteScript(doc: IDocBase, script, tx: ITask<any>) {
+  const d1 = new Date();
   const Registers = { Account: [], Accumulation: [], Info: [] };
   const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
   const func = new AsyncFunction('doc, Registers, tx, lib', script);
   await func(doc, Registers, tx, lib);
-  Registers.Account.forEach(async rec => {
-    await tx.none(`
-        INSERT INTO "Register.Account" (
-          datetime, document, operation, sum, company,
-          dt, dt_subcount1, dt_subcount2, dt_subcount3, dt_subcount4, dt_qty, dt_cur,
-          kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur )
-        VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
-        );`, [
-        new Date(doc.date), doc.id, rec.operation || doc.doc.Operation, rec.sum, rec.company || doc.company,
-        rec.debit.account, rec.debit.subcounts[0], rec.debit.subcounts[1], rec.debit.subcounts[2], rec.debit.subcounts[3],
-        rec.debit.qty, rec.debit.currency || doc.doc.currency,
-        rec.kredit.account, rec.kredit.subcounts[0], rec.kredit.subcounts[1], rec.kredit.subcounts[2], rec.kredit.subcounts[3],
-        rec.kredit.qty, rec.kredit.currency || doc.doc.currency
-      ]
-    );
-  });
+  // if (JDM[doc.type].post) {  await JDM[doc.type].post(doc, Registers, tx) };
+  // console.log('Registers', (new Date().getTime() - d1.getTime()) / 1000);
 
-  Registers.Accumulation.forEach(async rec => {
-    await tx.none(`INSERT INTO "Register.Accumulation" (kind, type, date, document, company, data)
-    VALUES ($1,$2,$3,$4,$5,$6)`, [
-        rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
-      ]);
-  });
-
-  Registers.Info.forEach(async rec => {
-    await tx.none(`INSERT INTO "Register.Info" (type, date, document, company, data)
-    VALUES ($1,$2,$3,$4,$5,$6)`, [
-        rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
-      ]);
-  });
-
-  if (Registers.Info.length) {
-    const rec = Registers.Info[0];
-    const arr = [];
-    for (const key in rec) { if (rec.hasOwnProperty(key)) { arr.push(rec[key]) } }
-    await tx.none(`INSERT INTO "Register.Info" VALUES ($1,$2,$3,$4)`, arr);
+  let query = '';
+  for (const rec of Registers.Account) {
+    query += `
+      INSERT INTO "Register.Account" (
+        datetime, document, operation, sum, company,
+        dt, dt_subcount1, dt_subcount2, dt_subcount3, dt_subcount4, dt_qty, dt_cur,
+        kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur )
+      VALUES (
+        '${new Date(doc.date).toJSON()}',
+        '${doc.id}', '${rec.operation || doc.doc.Operation || doc.type}', ${rec.sum || 0}, '${rec.company || doc.company}',
+        '${rec.debit.account}',
+        '${rec.debit.subcounts[0]}', '${rec.debit.subcounts[1]}',
+        '${rec.debit.subcounts[2]}', '${rec.debit.subcounts[3]}',
+        ${rec.debit.qty || 0}, '${ rec.debit.currency || doc.doc.currency}',
+        '${rec.kredit.account}',
+        '${rec.kredit.subcounts[0]}', '${rec.kredit.subcounts[1]}',
+        '${rec.kredit.subcounts[2]}', '${rec.kredit.subcounts[3]}',
+        ${rec.kredit.qty || 0}, '${rec.kredit.currency || doc.doc.currency}'
+      );`;
   };
+
+  for (const rec of Registers.Accumulation) {
+    const data = JSON.stringify(rec.data);
+    query += `
+      INSERT INTO "Register.Accumulation" (kind, type, date, document, company, data)
+      VALUES (${rec.kind}, '${rec.type}', '${new Date(doc.date).toJSON()}', '${doc.id}', '${rec.company || doc.company}', '${data}');`;
+  };
+
+  for (const rec of Registers.Info) {
+    const data = JSON.stringify(rec.data);
+    query += `
+      INSERT INTO "Register.Info" (type, date, document, company, data)
+      VALUES ('${rec.type}', '${new Date(doc.date).toJSON()}', '${doc.id}', '${rec.company || doc.company}', '${data}');`;
+  };
+
+  if (query) { await tx.none(query) };
+  // console.log('TOTAL SCRIPTS', (new Date().getTime() - d1.getTime()) / 1000);
   return doc;
 }
-
-async function docOperationResolver(doc, tx) {
+async function docOperationResolver(doc: IDocBase, tx: ITask<any> | IDatabase<any>) {
   if (doc.type !== 'Document.Operation') { return }; // only for Operations docs
   for (let i = 1; i <= 10; i++) {
     const p = doc['p' + i.toString()];
     if (p instanceof Array) {
-      for (let r = 0; r < p.length; r++) {
-        for (const key in p[r]) {
-          if (typeof p[r][key] === 'string') {
-            const data = await lib.doc.formControlRef(p[r][key]); // todo check types in model
-            if (data) { p[r][key] = data; }
+      for (const el of p) {
+        for (const key in el) {
+          if (typeof el[key] === 'string') {
+            const data = await lib.doc.formControlRef(el[key], tx); // todo check types in model
+            if (data) { el[key] = data; }
           }
         }
       }
@@ -94,7 +105,7 @@ async function docOperationResolver(doc, tx) {
 }
 
 // Select documents list for UI (grids/list etc)
-router.post('/list', async (req, res, next) => {
+router.post('/list', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = req.body as DocListRequestBody;
     params.command = params.command || 'first';
@@ -224,7 +235,7 @@ router.post('/list', async (req, res, next) => {
   } catch (err) { next(err.message); }
 });
 
-router.get('/:type/view/*', async (req, res, next) => {
+router.get('/:type/view/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const config_schema = await db.one(`
@@ -258,7 +269,7 @@ router.get('/:type/view/*', async (req, res, next) => {
         const newDoc = await db.one('SELECT uuid_generate_v1mc() id, now() date');
         model.id = newDoc.id; model.date = newDoc.date; model.code = '';
         model.posted = false; model.deleted = false;
-        model.parent = {...model.parent, id: null, code: null, value: null};
+        model.parent = { ...model.parent, id: null, code: null, value: null };
         model.description = 'Copy: ' + model.description;
       } else {
         if (id.startsWith('base-')) {
@@ -278,7 +289,7 @@ router.get('/:type/view/*', async (req, res, next) => {
   } catch (err) { next(err.message); }
 })
 
-router.get('/suggest/:id', async (req, res, next) => {
+router.get('/suggest/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = `
       SELECT id as id, description as value, code as code, type as type
@@ -288,7 +299,7 @@ router.get('/suggest/:id', async (req, res, next) => {
   } catch (err) { next(err.message); }
 })
 
-router.get('/suggest/:type/*', async (req, res, next) => {
+router.get('/suggest/:type/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = `
       SELECT id as id, description as value, code as code, type as type
@@ -301,7 +312,7 @@ router.get('/suggest/:type/*', async (req, res, next) => {
 })
 
 // Delete document
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await db.tx(async tx => {
       const id = req.params.id;
@@ -321,24 +332,23 @@ router.delete('/:id', async (req, res, next) => {
 })
 
 // Upsert document
-async function post(req, res, next, tx) {
-  try {
-    let doc = req.body; const id = doc.id;
-    const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
-    await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
-    const config_schema = (await tx.one(`
+async function post(doc: IDocBase, tx: ITask<any>) {
+  const id = doc.id;
+  const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
+  await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
+  const config_schema = (await tx.one(`
       SELECT "queryObject", replace("beforePost", '$.', 'doc.doc.') "beforePost",
         replace("afterPost", '$.', 'doc.doc.') "afterPost" FROM config_schema WHERE type = $1`, [doc.type]));
-    await tx.none(`
+  await tx.none(`
         DELETE FROM "Register.Account" WHERE document = $1;
         DELETE FROM "Register.Info" WHERE document = $1;
         DELETE FROM "Register.Accumulation" WHERE document = $1;`, id);
-    if (!!doc.posted && config_schema['beforePost']) { await ExecuteScript(doc, config_schema['beforePost'], tx); }
-    if (isNew) {
-      doc = await tx.one(`
+  if (!!doc.posted && config_schema['beforePost']) { await ExecuteScript(doc, config_schema['beforePost'], tx); }
+  if (isNew) {
+    doc = await tx.one(`
       INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1) RETURNING *;`, [doc]);
-    } else {
-      doc = await tx.one(`
+  } else {
+    doc = await tx.one(`
         UPDATE "Documents" d
           SET
             type = i.type, parent = i.parent,
@@ -348,19 +358,18 @@ async function post(req, res, next, tx) {
             doc = i.doc
           FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
           WHERE d.id = i.id RETURNING *;`, [doc]);
-    }
-    if (!!doc.posted && config_schema['afterPost']) { await ExecuteScript(doc, config_schema['afterPost'], tx); }
-    await doSubscriptions(Object.assign({}, doc), isNew ? 'after insert' : 'after update', tx);
-    return doc;
-  } catch (err) { next(err.message); }
+  }
+  if (!!doc.posted && config_schema['afterPost']) { await ExecuteScript(doc, config_schema['afterPost'], tx); }
+  await doSubscriptions(JSON.parse(JSON.stringify(doc)), isNew ? 'after insert' : 'after update', tx);
+  return doc;
 }
 
 // Upsert document
-router.post('/', async (req, res, next) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let doc;
-    await db.tx(async tx => {
-      doc = await post(req, res, next, tx);
+    await db.tx(async (tx: ITask<any>) => {
+      doc = await post(req.body, tx);
       const config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
       doc = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
       await docOperationResolver(doc, tx);
@@ -370,37 +379,38 @@ router.post('/', async (req, res, next) => {
 })
 
 // Post by id (without returns posted object to client, for post in cicle many docs)
-router.get('/post/:id', async (req, res, next) => {
+router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await db.tx(async tx => {
-      req.body = await DocById(req.params.id, tx);
-      req.body.posted = !req.body.posted;
-      await post(req, res, next, tx);
+    const d1 = new Date();
+    await db.tx(async (tx: ITask<any>) => {
+      const doc = await DocById(req.params.id, tx);
+      doc.posted = !doc.posted;
+      await post(doc, tx);
     });
     res.json(true);
   } catch (err) { next(err.message); }
 })
 
-async function doSubscriptions(doc, script, tx) {
+async function doSubscriptions(doc: IDocBase, script: string, tx: ITask<any>) {
   const scripts = await tx.manyOrNone(`
     SELECT "then" FROM "Subscriptions" WHERE "what" ? $1 AND "when" = $2 ORDER BY "order"`, [doc.type, script]);
   const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-  for (let i = 0; i < scripts.length; i++) {
-    const func = new AsyncFunction('doc, db', scripts[i].then);
+  for (const scr of scripts) {
+    const func = new AsyncFunction('doc, db', scr.then);
     await func(doc, tx);
   };
 }
 
 // Get document by id ROUTE
-router.get('/raw/:id', async (req, res, next) => {
+router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await DocById(req.params.id, db));
   } catch (err) { next(err.message); }
 })
 
 // Get document by id
-async function DocById(id, tx) {
-  return await tx.oneOrNone(`select * from "Documents" WHERE id = $1`, [id]);
+async function DocById(id: string, tx: ITask<any> | IDatabase<any>) {
+  return await tx.oneOrNone<IDocBase>(`select * from "Documents" WHERE id = $1`, [id]);
 }
 
 router.get('/register/account/movements/view/:id', async (req, res, next) => {
@@ -412,7 +422,7 @@ router.get('/register/account/movements/view/:id', async (req, res, next) => {
 })
 
 // server onChangeValue
-router.post('/call', async (req, res, next) => {
+router.post('/call', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result = {};
     await db.tx(async tx => {
@@ -428,7 +438,7 @@ router.post('/call', async (req, res, next) => {
   } catch (err) { next(err.message); }
 })
 
-router.post('/valueChanges/:type/:property', async (req, res, next) => {
+router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const doc = req.body.doc as IDocBase;
     const value = req.body.value;
@@ -440,7 +450,7 @@ router.post('/valueChanges/:type/:property', async (req, res, next) => {
 })
 
 
-router.get('/register/accumulation/list/:id', async (req, res, next) => {
+router.get('/register/accumulation/list/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await db.manyOrNone(`
       SELECT DISTINCT r.type, s.description FROM "Register.Accumulation" r
@@ -451,7 +461,7 @@ router.get('/register/accumulation/list/:id', async (req, res, next) => {
 })
 
 
-router.get('/register/accumulation/:type/:id', async (req, res, next) => {
+router.get('/register/accumulation/:type/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const config_schema = await db.one(`
       SELECT "queryObject" query FROM config_schema WHERE type = $1`, [req.params.type]);
@@ -460,7 +470,7 @@ router.get('/register/accumulation/:type/:id', async (req, res, next) => {
   } catch (err) { next(err.message); }
 })
 
-router.get('/user/settings/defaults', async (req, res, next) => {
+router.get('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const query = `select settings->'defaults' result from users where email = '${user}'`;
@@ -469,7 +479,7 @@ router.get('/user/settings/defaults', async (req, res, next) => {
   } catch (err) { next(err.message); }
 })
 
-router.post('/user/settings/defaults', async (req, res, next) => {
+router.post('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const data = req.body || new UserDefaultsSettings();
@@ -479,7 +489,7 @@ router.post('/user/settings/defaults', async (req, res, next) => {
   } catch (err) { next(err.message); }
 })
 
-router.get('/user/settings/:type', async (req, res, next) => {
+router.get('/user/settings/:type', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const query = `select settings->'${req.params.type}' result from users where email = '${user}'`;
@@ -497,3 +507,4 @@ router.post('/user/settings/:type', async (req, res, next) => {
     res.json(true);
   } catch (err) { next(err.message); }
 })
+

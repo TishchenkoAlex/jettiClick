@@ -1,5 +1,6 @@
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { catchError, take, tap } from 'rxjs/operators';
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpErrorResponse } from '@angular/common/http';
 import { isDevMode } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { environment } from './../environments/environment';
@@ -16,11 +17,11 @@ export class ApiInterceptor implements HttpInterceptor {
       tap(data => {
         this.ls.loading = false;
         if (data.type !== 0) { if (isDevMode) { console.log('API', req.url.replace(environment.api, '')) } }
-      })).pipe(
-      catchError(err => {
+      }),
+      catchError((err: HttpErrorResponse) => {
         this.ls.loading = true;
         this.ls.color = 'warn';
-        return Observable.throw(err);
+        return ErrorObservable.create(err);
       }));
   }
 }

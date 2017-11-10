@@ -1,6 +1,32 @@
 {
+    "Group": {
+        "type": "Catalog.Operation.Group",
+        "label": "Group",
+        "order": 4,
+        "hidden": true
+    },
     "Amount": {
         "type": "number"
+    },
+    "parent": {
+        "type": "Document.Operation",
+        "hidden-list": true
+    },
+    "column1": {
+        "label": "Parameter 1",
+        "order": 6,
+        "hidden": true
+    },
+    "column2": {
+        "label": "Parameter 2",
+        "order": 7,
+        "hidden": true
+    },
+    "column3": {
+        "label": "Parameter 3",
+        "order": 8,
+        "hidden": true,
+        "hidden-list": true
     },
     "currency": {
         "type": "Catalog.Currency",
@@ -8,7 +34,7 @@
     },
     "Operation": {
         "type": "Catalog.Operation",
-        "order": 4,
+        "order": 5,
         "required": true
     }
 }

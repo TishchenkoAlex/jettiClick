@@ -1,0 +1,22 @@
+{
+    "parent": {
+        "type": "Types.Document",
+        "hidden-list": true
+    },
+    "Rates": {
+        "type": "table",
+        "required": true,
+        "Rates": {
+            "Curency": {
+                "type": "Catalog.Currency",
+                "order": 1,
+                "required": true
+            },
+            "Rate": {
+                "type": "number",
+                "order": 2,
+                "required": true
+            }
+        }
+    }
+}

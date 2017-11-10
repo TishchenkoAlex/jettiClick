@@ -35,6 +35,10 @@ import { registerLocaleData } from '@angular/common';
 import localeRU from '@angular/common/locales/ru';
 import localeRUExtra from '@angular/common/locales/extra/ru';
 
+export function getJwtToken(): string {
+  return localStorage.getItem('access_token');
+}
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -52,7 +56,7 @@ import localeRUExtra from '@angular/common/locales/extra/ru';
     RouterModule.forRoot(appRoutes),
     JwtModule.forRoot({
       config: {
-        tokenGetter: () => localStorage.getItem('access_token'),
+        tokenGetter: getJwtToken,
         whitelistedDomains: ['localhost:3000', 'jetti-project.appspot.com', 'jetti-app.com']
       }
     }),

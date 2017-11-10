@@ -24,50 +24,63 @@ exports.router.get('/documents', async (req, res, next) => {
         next(err.message);
     }
 });
+exports.router.get('/operations/groups', async (req, res, next) => {
+    try {
+        res.json(await db_1.db.manyOrNone(`
+      SELECT id, description, code FROM "Documents" WHERE type = 'Catalog.Operation.Group' ORDER BY description`));
+    }
+    catch (err) {
+        next(err.message);
+    }
+});
 async function ExecuteScript(doc, script, tx) {
+    const d1 = new Date();
     const Registers = { Account: [], Accumulation: [], Info: [] };
     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
     const func = new AsyncFunction('doc, Registers, tx, lib', script);
     await func(doc, Registers, tx, std_lib_1.lib);
-    Registers.Account.forEach(async (rec) => {
-        await tx.none(`
-        INSERT INTO "Register.Account" (
-          datetime, document, operation, sum, company,
-          dt, dt_subcount1, dt_subcount2, dt_subcount3, dt_subcount4, dt_qty, dt_cur,
-          kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur )
-        VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
-        );`, [
-            new Date(doc.date), doc.id, rec.operation || doc.doc.Operation, rec.sum, rec.company || doc.company,
-            rec.debit.account, rec.debit.subcounts[0], rec.debit.subcounts[1], rec.debit.subcounts[2], rec.debit.subcounts[3],
-            rec.debit.qty, rec.debit.currency || doc.doc.currency,
-            rec.kredit.account, rec.kredit.subcounts[0], rec.kredit.subcounts[1], rec.kredit.subcounts[2], rec.kredit.subcounts[3],
-            rec.kredit.qty, rec.kredit.currency || doc.doc.currency
-        ]);
-    });
-    Registers.Accumulation.forEach(async (rec) => {
-        await tx.none(`INSERT INTO "Register.Accumulation" (kind, type, date, document, company, data)
-    VALUES ($1,$2,$3,$4,$5,$6)`, [
-            rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
-        ]);
-    });
-    Registers.Info.forEach(async (rec) => {
-        await tx.none(`INSERT INTO "Register.Info" (type, date, document, company, data)
-    VALUES ($1,$2,$3,$4,$5,$6)`, [
-            rec.kind, rec.type, new Date(doc.date), doc.id, rec.company || doc.company, rec.data
-        ]);
-    });
-    if (Registers.Info.length) {
-        const rec = Registers.Info[0];
-        const arr = [];
-        for (const key in rec) {
-            if (rec.hasOwnProperty(key)) {
-                arr.push(rec[key]);
-            }
-        }
-        await tx.none(`INSERT INTO "Register.Info" VALUES ($1,$2,$3,$4)`, arr);
+    // if (JDM[doc.type].post) {  await JDM[doc.type].post(doc, Registers, tx) };
+    // console.log('Registers', (new Date().getTime() - d1.getTime()) / 1000);
+    let query = '';
+    for (const rec of Registers.Account) {
+        query += `
+      INSERT INTO "Register.Account" (
+        datetime, document, operation, sum, company,
+        dt, dt_subcount1, dt_subcount2, dt_subcount3, dt_subcount4, dt_qty, dt_cur,
+        kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur )
+      VALUES (
+        '${new Date(doc.date).toJSON()}',
+        '${doc.id}', '${rec.operation || doc.doc.Operation || doc.type}', ${rec.sum || 0}, '${rec.company || doc.company}',
+        '${rec.debit.account}',
+        '${rec.debit.subcounts[0]}', '${rec.debit.subcounts[1]}',
+        '${rec.debit.subcounts[2]}', '${rec.debit.subcounts[3]}',
+        ${rec.debit.qty || 0}, '${rec.debit.currency || doc.doc.currency}',
+        '${rec.kredit.account}',
+        '${rec.kredit.subcounts[0]}', '${rec.kredit.subcounts[1]}',
+        '${rec.kredit.subcounts[2]}', '${rec.kredit.subcounts[3]}',
+        ${rec.kredit.qty || 0}, '${rec.kredit.currency || doc.doc.currency}'
+      );`;
     }
     ;
+    for (const rec of Registers.Accumulation) {
+        const data = JSON.stringify(rec.data);
+        query += `
+      INSERT INTO "Register.Accumulation" (kind, type, date, document, company, data)
+      VALUES (${rec.kind}, '${rec.type}', '${new Date(doc.date).toJSON()}', '${doc.id}', '${rec.company || doc.company}', '${data}');`;
+    }
+    ;
+    for (const rec of Registers.Info) {
+        const data = JSON.stringify(rec.data);
+        query += `
+      INSERT INTO "Register.Info" (type, date, document, company, data)
+      VALUES ('${rec.type}', '${new Date(doc.date).toJSON()}', '${doc.id}', '${rec.company || doc.company}', '${data}');`;
+    }
+    ;
+    if (query) {
+        await tx.none(query);
+    }
+    ;
+    // console.log('TOTAL SCRIPTS', (new Date().getTime() - d1.getTime()) / 1000);
     return doc;
 }
 async function docOperationResolver(doc, tx) {
@@ -78,12 +91,12 @@ async function docOperationResolver(doc, tx) {
     for (let i = 1; i <= 10; i++) {
         const p = doc['p' + i.toString()];
         if (p instanceof Array) {
-            for (let r = 0; r < p.length; r++) {
-                for (const key in p[r]) {
-                    if (typeof p[r][key] === 'string') {
-                        const data = await std_lib_1.lib.doc.formControlRef(p[r][key]); // todo check types in model
+            for (const el of p) {
+                for (const key in el) {
+                    if (typeof el[key] === 'string') {
+                        const data = await std_lib_1.lib.doc.formControlRef(el[key], tx); // todo check types in model
                         if (data) {
-                            p[r][key] = data;
+                            el[key] = data;
                         }
                     }
                 }
@@ -349,28 +362,26 @@ exports.router.delete('/:id', async (req, res, next) => {
     }
 });
 // Upsert document
-async function post(req, res, next, tx) {
-    try {
-        let doc = req.body;
-        const id = doc.id;
-        const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
-        await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
-        const config_schema = (await tx.one(`
+async function post(doc, tx) {
+    const id = doc.id;
+    const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
+    await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
+    const config_schema = (await tx.one(`
       SELECT "queryObject", replace("beforePost", '$.', 'doc.doc.') "beforePost",
         replace("afterPost", '$.', 'doc.doc.') "afterPost" FROM config_schema WHERE type = $1`, [doc.type]));
-        await tx.none(`
+    await tx.none(`
         DELETE FROM "Register.Account" WHERE document = $1;
         DELETE FROM "Register.Info" WHERE document = $1;
         DELETE FROM "Register.Accumulation" WHERE document = $1;`, id);
-        if (!!doc.posted && config_schema['beforePost']) {
-            await ExecuteScript(doc, config_schema['beforePost'], tx);
-        }
-        if (isNew) {
-            doc = await tx.one(`
+    if (!!doc.posted && config_schema['beforePost']) {
+        await ExecuteScript(doc, config_schema['beforePost'], tx);
+    }
+    if (isNew) {
+        doc = await tx.one(`
       INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1) RETURNING *;`, [doc]);
-        }
-        else {
-            doc = await tx.one(`
+    }
+    else {
+        doc = await tx.one(`
         UPDATE "Documents" d
           SET
             type = i.type, parent = i.parent,
@@ -380,23 +391,19 @@ async function post(req, res, next, tx) {
             doc = i.doc
           FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
           WHERE d.id = i.id RETURNING *;`, [doc]);
-        }
-        if (!!doc.posted && config_schema['afterPost']) {
-            await ExecuteScript(doc, config_schema['afterPost'], tx);
-        }
-        await doSubscriptions(Object.assign({}, doc), isNew ? 'after insert' : 'after update', tx);
-        return doc;
     }
-    catch (err) {
-        next(err.message);
+    if (!!doc.posted && config_schema['afterPost']) {
+        await ExecuteScript(doc, config_schema['afterPost'], tx);
     }
+    await doSubscriptions(JSON.parse(JSON.stringify(doc)), isNew ? 'after insert' : 'after update', tx);
+    return doc;
 }
 // Upsert document
 exports.router.post('/', async (req, res, next) => {
     try {
         let doc;
         await db_1.db.tx(async (tx) => {
-            doc = await post(req, res, next, tx);
+            doc = await post(req.body, tx);
             const config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
             doc = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
             await docOperationResolver(doc, tx);
@@ -410,10 +417,11 @@ exports.router.post('/', async (req, res, next) => {
 // Post by id (without returns posted object to client, for post in cicle many docs)
 exports.router.get('/post/:id', async (req, res, next) => {
     try {
+        const d1 = new Date();
         await db_1.db.tx(async (tx) => {
-            req.body = await DocById(req.params.id, tx);
-            req.body.posted = !req.body.posted;
-            await post(req, res, next, tx);
+            const doc = await DocById(req.params.id, tx);
+            doc.posted = !doc.posted;
+            await post(doc, tx);
         });
         res.json(true);
     }
@@ -425,8 +433,8 @@ async function doSubscriptions(doc, script, tx) {
     const scripts = await tx.manyOrNone(`
     SELECT "then" FROM "Subscriptions" WHERE "what" ? $1 AND "when" = $2 ORDER BY "order"`, [doc.type, script]);
     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-    for (let i = 0; i < scripts.length; i++) {
-        const func = new AsyncFunction('doc, db', scripts[i].then);
+    for (const scr of scripts) {
+        const func = new AsyncFunction('doc, db', scr.then);
         await func(doc, tx);
     }
     ;

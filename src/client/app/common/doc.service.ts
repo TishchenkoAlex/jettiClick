@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
-import { filter, take } from 'rxjs/operators';
+import { filter, take, tap, catchError } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { DocModel } from '../../../server/modules/doc.base';
@@ -15,6 +15,9 @@ export class DocService {
 
   protected _saveDoc = new Subject<DocModel>();
   save$ = this._saveDoc.asObservable();
+
+  protected _saveCloseDoc = new Subject<DocModel>();
+  saveCloseDoc$ = this._saveCloseDoc.asObservable();
 
   protected _deleteDoc = new Subject<DocModel>();
   delete$ = this._deleteDoc.asObservable();
@@ -39,33 +42,27 @@ export class DocService {
     this._closeDoc.next(doc);
   }
 
-  save(doc: DocModel) {
+  save(doc: DocModel, close: boolean = false) {
     this.api.postDoc(doc).pipe(
-      filter(result => {
-        if (result instanceof HttpErrorResponse) {
-          this.openSnackBar(doc.description, 'Error on post! ');
-          return false;
-        };
-        return true;
-      }),
       take(1))
       .subscribe((savedDoc: DocModel) => {
-        this._saveDoc.next(savedDoc);
+        if (close) { this._saveCloseDoc.next(savedDoc) } else { this._saveDoc.next(savedDoc) }
         this.openSnackBar(savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
-      });
+      },
+      (err) => this.openSnackBar(doc.description, 'Error on post! '));
   }
 
   delete(id: string) {
     this.api.deleteDoc(id).pipe(
       take(1))
       .subscribe((deletedDoc: DocModel) => {
-        this._saveDoc.next(deletedDoc);
+        this._deleteDoc.next(deletedDoc);
         this.openSnackBar(deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       });
   }
 
   post(doc: string) {
-    return this.api.postDocById(doc);
+    return this.api.postDocById(doc).toPromise();
   }
 
   openSnackBar(message: string, action: string) {

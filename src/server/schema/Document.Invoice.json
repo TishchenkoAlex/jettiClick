@@ -3,8 +3,8 @@
     "type": "number",
     "order": 13,
     "style": {
-      "max-width": "40px",
-      "min-width": "40px"
+      "max-width": "50px",
+      "min-width": "50px"
     },
     "readOnly": "true"
   },
@@ -14,7 +14,7 @@
       "Qty": {
         "type": "number",
         "order": 3,
-        "change": "return { Amount: $.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}",
+        "change": "return { Amount: doc.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}",
         "required": true
       },
       "SKU": {
@@ -28,7 +28,8 @@
         "style": {
           "max-width": "40px",
           "min-width": "40px"
-        }
+        },
+        "readOnly": "true"
       },
       "Price": {
         "type": "number",
@@ -47,7 +48,8 @@
         "style": {
           "max-width": "110px",
           "min-width": "110px"
-        }
+        },
+        "required": true
       }
     },
     "order": 1,
@@ -57,7 +59,12 @@
   "Amount": {
     "type": "number",
     "order": 12,
-    "readOnly": "false"
+    "readOnly": "true"
+  },
+  "PayDay": {
+    "type": "datetime",
+    "order": 15,
+    "hidden-list": true
   },
   "Status": {
     "order": 9,
@@ -67,12 +74,13 @@
     },
     "required": true
   },
+  "parent": {
+    "type": "Types.Document",
+    "hidden-list": true
+  },
   "Manager": {
     "type": "Catalog.Manager",
-    "order": 7,
-    "style": {
-      "min-width": "110px"
-    }
+    "order": 7
   },
   "Comments": {
     "type": "table",
@@ -80,7 +88,8 @@
     "change": "",
     "Comments": {
       "Date": {
-        "type": "datetime"
+        "type": "datetime",
+        "required": true
       },
       "User": {
         "type": "Catalog.Manager",
@@ -93,14 +102,20 @@
   },
   "Customer": {
     "type": "Catalog.Counterpartie",
+    "order": 8,
+    "required": true
+  },
+  "currency": {
+    "type": "Catalog.Currency",
+    "order": 14
+  },
+  "Department": {
+    "type": "Catalog.Department",
     "order": 6,
-    "style": {
-      "min-width": "110px"
-    },
     "required": true
   },
   "Storehouse": {
     "type": "Catalog.Storehouse",
-    "order": 8
+    "order": 9
   }
 }
