@@ -24,7 +24,7 @@
     <span *ngFor="let col of movements.additionalColumns">
       <ng-container [matColumnDef]="col">
         <mat-header-cell *matHeaderCellDef>{{ col }}</mat-header-cell>
-        <mat-cell *cdkCellDef="let row">{{ row[col]?.value || row[col]}}</mat-cell>
+        <mat-cell *cdkCellDef="let row">{{ row[col]?.value === null ? 'EMPTY' : row[col]?.value || row[col]}}</mat-cell>
       </ng-container>
     </span>
 

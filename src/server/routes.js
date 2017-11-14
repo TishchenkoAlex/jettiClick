@@ -15,6 +15,21 @@ exports.router.get('/catalogs', async (req, res, next) => {
         next(err.message);
     }
 });
+exports.router.get('/:type/dimensions', async (req, res, next) => {
+    try {
+        let result = await db_1.db.oneOrNone(`SELECT dimensions FROM config_schema WHERE type = $1`, [req.params.type]);
+        if (result) {
+            result = result.dimensions || [];
+        }
+        else {
+            result = [];
+        }
+        res.json(result);
+    }
+    catch (err) {
+        next(err.message);
+    }
+});
 exports.router.get('/documents', async (req, res, next) => {
     try {
         res.json(await db_1.db.manyOrNone(`
@@ -27,7 +42,7 @@ exports.router.get('/documents', async (req, res, next) => {
 exports.router.get('/operations/groups', async (req, res, next) => {
     try {
         res.json(await db_1.db.manyOrNone(`
-      SELECT id, description, code FROM "Documents" WHERE type = 'Catalog.Operation.Group' ORDER BY description`));
+      SELECT id, type, description as value, code FROM "Documents" WHERE type = 'Catalog.Operation.Group' ORDER BY description`));
     }
     catch (err) {
         next(err.message);
@@ -194,7 +209,7 @@ exports.router.post('/list', async (req, res, next) => {
         }
         query = `SELECT d.*,
     (select count(*) FROM "Documents" where parent = d.id) "childs",
-    (select count(*) FROM "Documents" where id = d.parent) "parents" FROM (${query}) d ${orderbyAfter}`;
+    (select count(*) FROM "Documents" where id = d.parent) "parents" FROM (${query}) d`;
         // console.log(query);
         const data = await db_1.db.manyOrNone(query);
         let result = [];

@@ -1,6 +1,6 @@
 mat-sidenav {
   width: 260px;
-  background: whitesmoke;
+  background: #fafafa;
 }
 
 .content {
@@ -30,7 +30,7 @@ mat-sidenav {
   overflow: auto;
 }
 
-.sidenav-menu mat-expansion-panel {
+.sidenav-menu .mat-expansion-panel {
   background: lightness($color: lightgray)
 }
 

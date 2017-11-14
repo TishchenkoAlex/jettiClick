@@ -145,7 +145,7 @@ export interface IDoc extends IDocBase {
     });
 
     Registers.Accumulation.push({
-      kind: false,
+      kind: true,
       type: 'Register.Accumulation.Balance',
       data: {
         Department: doc.doc.Department,
@@ -156,7 +156,7 @@ export interface IDoc extends IDocBase {
     });
 
     Registers.Accumulation.push({
-      kind: true,
+      kind: false,
       type: 'Register.Accumulation.Balance',
       data: {
         Department: doc.doc.Department,

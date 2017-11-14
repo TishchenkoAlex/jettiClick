@@ -1,10 +1,13 @@
-import 'hammerjs';
+import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import 'rxjs/add/observable/of';
 
+import { registerLocaleData } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import localeRUExtra from '@angular/common/locales/extra/ru';
+import localeRU from '@angular/common/locales/ru';
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DateAdapter, MAT_DATE_FORMATS, MatPaginatorIntl } from '@angular/material';
@@ -31,9 +34,6 @@ import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
-import { registerLocaleData } from '@angular/common';
-import localeRU from '@angular/common/locales/ru';
-import localeRUExtra from '@angular/common/locales/extra/ru';
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token');
@@ -65,27 +65,23 @@ export function getJwtToken(): string {
     { provide: LOCALE_ID, useValue: 'ru-RU' },
     { provide: DateAdapter, useClass: JettiDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: JETTI_DATE_FORMATS },
-    {
-      provide: RouteReuseStrategy,
-      useClass: AppRouteReuseStrategy
-    },
+    { provide: RouteReuseStrategy, useClass: AppRouteReuseStrategy },
     { provide: MatPaginatorIntl, useClass: CustomPaginator },
-    LoadingService,
     ApiService,
     Auth0Service,
     TabResolver,
     SideNavService,
     AuthGuardService,
     UserSettingsService,
-    {provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true, deps: [LoadingService]}
+    LoadingService,
+    { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true, deps: [LoadingService] }
   ],
-  entryComponents: [
-  ],
+  entryComponents: [],
   bootstrap: [AppComponent]
 })
 export class AppModule {
 
-  constructor (private tcs: TabControllerService) {
+  constructor(private tcs: TabControllerService) {
     registerLocaleData(localeRU, localeRUExtra);
     this.tcs.menuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
   }

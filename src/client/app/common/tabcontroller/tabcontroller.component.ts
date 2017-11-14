@@ -1,8 +1,8 @@
 import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
-import { Observable } from 'rxjs/Rx';
 
 import { DocModel } from '../../../../server/modules/doc.base';
 import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';
@@ -54,7 +54,7 @@ export class TabControllerComponent implements OnInit {
     this.route.data.pipe(filter(r => r.detail)).subscribe(data => {
       const t = this.tcs.tabs.find(i => (i.docType === this.tcs.tabid) && (i.docID === this.tcs.docID));
       if (t && data.detail && data.detail.model && data.detail.model.description) {
-        t.description = (data.detail.model.description as string).slice(0, 25) + '...';
+        t.description = data.detail.model.description;
       }
     });
 

@@ -1,6 +1,12 @@
-<div *ngIf="operationsGroups$ | async as operationsGroups">
-    <button *ngFor="let op of operationsGroups" mat-raised-button (click)="Click(op)">{{ op.description }}</button>
-</div>
 <j-list>
-
 </j-list>
+
+<mat-tab-group class="bottom-tab">
+  <mat-tab *ngFor="let op of operationsGroups">
+    <ng-template mat-tab-label>
+      <div (click)="Click(op)" fxFill fxLayoutAlign="center center" style="white-space: initial;">
+        {{ op.value }}
+      </div>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>

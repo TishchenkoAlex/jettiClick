@@ -7,6 +7,7 @@ import { Continuation, DocListResponse2 } from '../../../../server/models/api';
 import { DocModel } from '../../../../server/modules/doc.base';
 import { FormListSettingsAction, UserSettingsService } from '../../auth/settings/user.settings.service';
 import { ApiService } from '../../services/api.service';
+import { MatSort } from '@angular/material';
 
 export class ApiDataSource extends DataSource<any> {
   paginator = new Subject<string>();
@@ -22,12 +23,13 @@ export class ApiDataSource extends DataSource<any> {
   private result$: Observable<any[]>;
 
   constructor(private apiService: ApiService, private docType: string,
-    private pageSize: number, private uss: UserSettingsService) {
+    private pageSize: number, private uss: UserSettingsService, private sort: MatSort) {
     super();
 
     this.result$ = Observable.merge(...[
       this.paginator,
       this.uss.formListSettings$,
+      this.sort.sortChange
     ]).pipe(
       filter(stream => (stream['type'] === undefined) || (stream['type'] === this.docType)),
       switchMap((stream: string | FormListSettingsAction) => {
@@ -58,7 +60,7 @@ export class ApiDataSource extends DataSource<any> {
 
         const sortArr = stream['type'] ? (stream as FormListSettingsAction).payload.order :
             this.uss.userSettings.formListSettings[this.docType] ?
-              this.uss.userSettings.formListSettings[this.docType].order : [];
+              this.uss.userSettings.formListSettings[this.docType].order : [ { field: this.sort.active, order: this.sort.direction }];
         if (stream['type'] && row.id !== 'first' && (stream as FormListSettingsAction).payload.order) { command = 'sort' }
 
         return this.apiService.getDocList(this.docType, row.id, command, this.pageSize, offset, sortArr, filterArr).pipe(

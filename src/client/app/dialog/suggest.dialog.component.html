@@ -47,6 +47,21 @@
       <mat-cell *cdkCellDef="let row">{{row.code}}</mat-cell>
     </ng-container>
 
+    <ng-container matColumnDef="Amount">
+      <mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 70px; min-width: 70px; display: flex; justify-content: flex-end">Amount</mat-header-cell>
+      <mat-cell *cdkCellDef="let row" style="max-width: 70px; min-width: 70px; font-weight: bold; text-align: right">{{row.Amount | number:'1.2-2'}}</mat-cell>
+    </ng-container>
+
+    <ng-container *ngIf="additianalColumn1" [matColumnDef]="additianalColumn1">
+      <mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 150px; min-width: 150px">{{additianalColumn1}}</mat-header-cell>
+      <mat-cell *cdkCellDef="let row" style="max-width: 150px; min-width: 150px">{{row[additianalColumn1]}}</mat-cell>
+    </ng-container>
+
+    <ng-container *ngIf="additianalColumn2" [matColumnDef]="additianalColumn2">
+      <mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 150px; min-width: 150px">{{additianalColumn2}}</mat-header-cell>
+      <mat-cell *cdkCellDef="let row" style="max-width: 150px; min-width: 150px">{{row[additianalColumn2]}}</mat-cell>
+    </ng-container>
+  
     <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
     <mat-row *cdkRowDef="let row; columns: columns;" (click)="dialogRef.close(row)" style="cursor: pointer;"></mat-row>
 

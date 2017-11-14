@@ -15,7 +15,6 @@ export class UserSettingsService {
   formListSettings$ = new Subject<FormListSettingsAction>();
 
   constructor(private api: ApiService) {
-    console.log('USS CONSTRUCTOR')
     this.selectUserDefaultsSettings();
   }
 

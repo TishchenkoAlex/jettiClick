@@ -1,4 +1,3 @@
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/observable/of';
 
 import { HttpClient } from '@angular/common/http';
@@ -12,6 +11,7 @@ import { ColumnDef } from '../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { DocModel } from '../../../server/modules/doc.base';
 import { environment } from '../../environments/environment';
+import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
 
 @Injectable()
@@ -125,9 +125,9 @@ export class ApiService {
       catchError(err => Observable.of([])));
   }
 
-  getOperationsGroups() {
+  getOperationsGroups(): Observable<JettiComplexObject[]> {
     const query = `${this.url}operations/groups`;
-    return (this.http.get(query) as Observable<any[]>).pipe(
+    return (this.http.get<JettiComplexObject[]>(query)).pipe(
       catchError(err => Observable.of([])));
   }
 
@@ -153,6 +153,12 @@ export class ApiService {
     const query = `${this.url}user/settings/defaults`;
     return (this.http.post(query, value) as Observable<boolean>).pipe(
       catchError(err => Observable.of(false)))
+  }
+
+  getDocDimensions(type: string) {
+    const query = `${this.url}${type}/dimensions`;
+    return (this.http.get<any[]>(query)).pipe(
+      catchError(err => Observable.of([])))
   }
 
 }

@@ -1,0 +1,14 @@
+{
+    "parent": {
+        "type": "Catalog.BankAccount",
+        "hidden-list": true
+    },
+    "Department": {
+        "type": "Catalog.Department",
+        "order": 1
+    },
+    "currency": {
+        "type": "Catalog.Currency",
+        "order": 2
+    }
+}

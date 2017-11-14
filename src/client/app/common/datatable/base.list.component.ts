@@ -69,7 +69,7 @@ export class BaseListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.uss);
+    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, this.uss, this.sort);
 
     this.displayedColumns = this.columns.filter(c =>
       !c.hidden && (this.isDoc ? c.field !== 'description' : (c.field !== 'company') && (c.field !== 'date')))

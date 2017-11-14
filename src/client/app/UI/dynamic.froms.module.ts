@@ -26,6 +26,7 @@ import { MaterialModule } from './../material.module';
 import { CashRegisterFormComponent } from './Catalog/CashRegister/CashRegister.form';
 import { OperationFormComponent } from './Operation/operation.form.component';
 import { OperationListComponent } from './Operation/operation.list.component';
+import { PipesModule } from '../common/pipes';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { OperationListComponent } from './Operation/operation.list.component';
     FilterColumnComponent,
     DynamicFilterControlComponent,
 
+
     CashRegisterFormComponent, // add user froms above
     OperationFormComponent,
     OperationListComponent,
@@ -57,6 +59,7 @@ import { OperationListComponent } from './Operation/operation.list.component';
     ReactiveFormsModule,
     MaterialModule,
     CovalentCodeEditorModule,
+    PipesModule,
   ],
   exports: [
   ],

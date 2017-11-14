@@ -26,7 +26,6 @@ export namespace ExchangeRates {
     tx: ITask<any> | IDatabase<any>) {
 
     for (const row of doc.doc.Rates) {
-      console.log(row);
       Registers.Info.push({
         type: 'ExchangeRates',
         data: {
