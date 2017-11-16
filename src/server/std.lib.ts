@@ -1,29 +1,27 @@
-import { IDatabase, ITask } from 'pg-promise';
-
 import { db } from './db';
-import { IDocBase, Ref, RefValue } from './modules/doc.base';
+import { IDocBase, Ref, RefValue, TX } from './modules/doc.base';
 
 export interface JTL {
   account: {
     balance: (account: Ref, date: string, company: Ref) => Promise<number>,
     debit: (account: Ref, date: string, company: Ref) => Promise<number>,
     kredit: (account: Ref, date: string, company: Ref) => Promise<number>,
-    byCode: (code: string, tx?: ITask<any> | IDatabase<any>) => Promise<string>
+    byCode: (code: string, tx?: TX) => Promise<string>
   },
   register: {
     balance: (type: string, date: string, company: Ref, resource: string[],
-      analytics: { [key: string]: Ref }, tx?: ITask<any> | IDatabase<any>) => Promise<any>,
-    avgCost: (date: string, company: Ref, analytics: { [key: string]: Ref }, tx?: ITask<any> | IDatabase<any>) => Promise<number>
+      analytics: { [key: string]: Ref }, tx?: TX) => Promise<any>,
+    avgCost: (date: string, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>
   }
   doc: {
-    byCode: (type: string, code: string, tx?: ITask<any> | IDatabase<any>) => Promise<string>;
-    byId: (id: string, tx?: ITask<any> | IDatabase<any>) => Promise<IDocBase>;
-    modelById: (id: string, tx?: ITask<any> | IDatabase<any>) => Promise<IDocBase>;
-    formControlRef: (id: string, tx?: ITask<any> | IDatabase<any>) => Promise<RefValue>;
+    byCode: (type: string, code: string, tx?: TX) => Promise<Ref>;
+    byId: <T extends IDocBase>(id: string, tx?: TX) => Promise<T>;
+    modelById: (id: string, tx?: TX) => Promise<IDocBase>;
+    formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
   },
   info: {
     sliceLast: (type: string, date: string, company: Ref, resource: string,
-      analytics: { [key: string]: any }, tx?: ITask<any> | IDatabase<any>) => Promise<any>
+      analytics: { [key: string]: any }, tx?: TX) => Promise<any>
   }
 }
 
@@ -49,31 +47,30 @@ export const lib: JTL = {
   }
 }
 
-async function accountByCode(code: string, tx: ITask<any> | IDatabase<any> = db) {
+async function accountByCode(code: string, tx: TX = db) {
   const result = await tx.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = $1`, [code]);
   return result.result as Ref;
 }
 
-async function byCode(type: string, code: string, tx: ITask<any> | IDatabase<any> = db) {
+async function byCode(type: string, code: string, tx: TX = db) {
   const result = await tx.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = $1 AND code = $2`, [type, code]);
   return result.result as Ref;
 }
 
-async function byId(id: string, tx: ITask<any> | IDatabase<any> = db) {
-  const result = await tx.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
-  return result as IDocBase;
+async function byId<T>(id: string, tx: TX = db) {
+  return await tx.oneOrNone<T>(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
 }
 
-async function modelById(id: string, tx: ITask<any> | IDatabase<any> = db) {
-  const doc = await byId(id, tx);
+async function modelById(id: string, tx: TX = db) {
+  const doc = await byId<IDocBase>(id, tx);
   const config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
   const model = await tx.one(`${config_schema.queryObject} AND d.id = $1`, id);
   return model as IDocBase;
 }
 
-async function formControlRef(id: string, tx: ITask<any> | IDatabase<any> = db) {
+async function formControlRef(id: string, tx: TX = db) {
   const result = await tx.oneOrNone(`
     SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = $1`, [id]);
   return result as RefValue;

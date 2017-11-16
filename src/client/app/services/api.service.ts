@@ -119,6 +119,12 @@ export class ApiService {
     catchError(err => Observable.of([])))
   }
 
+  getDocRegisterInfoList(id: string) {
+    const query = `${this.url}register/info/list/${id}`;
+    return (this.http.get(query) as Observable<any[]>).pipe(
+    catchError(err => Observable.of([])))
+  }
+
   getDocAccumulationMovements(type: string, id: string) {
     const query = `${this.url}register/accumulation/${type}/${id}`;
     return (this.http.get(query) as Observable<any[]>).pipe(

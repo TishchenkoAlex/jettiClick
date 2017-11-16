@@ -90,6 +90,10 @@ body {
   padding: 0 4px;
 }
 
+.mat-sort-header-arrow {
+  margin-left: 2px !important;
+}
+
 .mat-column-currency {
   max-width: 70px !important;
   min-width: 70px !important;
@@ -138,6 +142,6 @@ body {
 
 .bottom-tab .mat-tab-label  {
   padding: 6px;
-  min-width: 110px;
-  min-height: 60px;
+  min-width: 90px;
+  min-height: 52px;
 }

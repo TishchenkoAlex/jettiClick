@@ -1,41 +1,41 @@
+import { IDatabase, ITask } from 'pg-promise';
+
 import { lib } from '../std.lib';
-import { CalalogCompany } from './Catalog.Company';
-import { IDocBase, RefValue, Ref, PatchValue, FileldsAction } from './doc.base';
-import { ITask, IDatabase } from 'pg-promise';
+import { Company } from './Catalog.Company';
+import { FileldsAction, IDocBase, PatchValue, Post, Ref, RefValue, TX } from './doc.base';
 
 export namespace Invoice {
 
-export interface IDoc extends IDocBase {
-  doc: {
-    Department: Ref,
-    Manager: Ref,
-    Customer: Ref;
-    Storehouse: Ref,
-    Status: string,
-    currency: Ref,
-    Amount: number,
-    Tax: number,
-    PayDay: string,
-    Items: {
-      Qty: number,
+  export interface IDoc extends IDocBase {
+    doc: {
+      Department: Ref,
+      Manager: Ref,
+      Customer: Ref;
+      Storehouse: Ref,
+      Status: string,
+      currency: Ref,
       Amount: number,
-      SKU: Ref,
       Tax: number,
-      Price: number,
-      PriceType: Ref
-    }[],
-    Comments: {
-      Date: string,
-      User: Ref,
-      Comment: string
-    }[]
+      PayDay: string,
+      Items: {
+        Qty: number,
+        Amount: number,
+        SKU: Ref,
+        Tax: number,
+        Price: number,
+        PriceType: Ref
+      }[],
+      Comments: {
+        Date: string,
+        User: Ref,
+        Comment: string
+      }[]
+    }
   }
-}
 
-
-  const company_valueChanges = async (doc: Invoice.IDoc, value: RefValue): Promise<PatchValue> => {
+  const company_valueChanges = async (doc: IDoc, value: RefValue): Promise<PatchValue> => {
     if (!value) { return {} }
-    const company = await lib.doc.byId(value.id) as CalalogCompany;
+    const company = await lib.doc.byId<Company.IDoc>(value.id);
     if (!company) { return {} }
     const currency = await lib.doc.formControlRef(company.doc.currency) as RefValue;
     return { currency: currency };
@@ -45,9 +45,7 @@ export interface IDoc extends IDocBase {
     'company': company_valueChanges
   }
 
-
-  export async function post(doc: Invoice.IDoc, Registers: { Account: any[], Accumulation: any[], Info: any[] },
-    tx: ITask<any> | IDatabase<any>) {
+  export const post: Post = async (doc: IDoc, Registers: { Account: any[], Accumulation: any[], Info: any[] }, tx: TX) => {
 
     const acc90 = await lib.account.byCode('90.01', tx);
     const acc41 = await lib.account.byCode('41.01', tx);

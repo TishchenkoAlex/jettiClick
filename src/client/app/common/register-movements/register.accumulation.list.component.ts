@@ -14,14 +14,15 @@ import { DocService } from '../doc.service';
 })
 export class RegisterAccumulationListComponent implements OnInit {
 
-  list$: Observable<any[]>;
+  accumulationList$: Observable<any[]>;
+  infoList$: Observable<any[]>;
   @Input() doc: DocModel;
 
   constructor(private apiService: ApiService, private docService: DocService) { }
 
   ngOnInit() {
 
-    this.list$ = Observable.merge(...[
+    this.accumulationList$ = Observable.merge(...[
       this.docService.save$,
       this.docService.delete$,
       this.docService.do$]
@@ -29,5 +30,14 @@ export class RegisterAccumulationListComponent implements OnInit {
       startWith(this.doc),
       filter(doc => doc.id === this.doc.id),
       switchMap(doc => this.apiService.getDocRegisterAccumulationList(this.doc.id)));
+
+    this.infoList$ = Observable.merge(...[
+      this.docService.save$,
+      this.docService.delete$,
+      this.docService.do$]
+    ).pipe(
+      startWith(this.doc),
+      filter(doc => doc.id === this.doc.id),
+      switchMap(doc => this.apiService.getDocRegisterInfoList(this.doc.id)));
   }
 }

@@ -1,6 +1,7 @@
 import { lib } from '../std.lib';
-import { CalalogCompany } from './Catalog.Company';
-import { IDocBase, RefValue, Ref, PatchValue, FileldsAction } from './doc.base';
+import { Company } from './Catalog.Company';
+import { PriceType } from './Catalog.PriceType';
+import { FileldsAction, IDocBase, PatchValue, Post, Ref, RefValue, TX } from './doc.base';
 
 export namespace PriceList {
 
@@ -16,9 +17,9 @@ export namespace PriceList {
     }
   }
 
-  const company_valueChanges = async (doc: PriceList.IDoc, value: RefValue): Promise<PatchValue> => {
+  const company_valueChanges = async (doc: IDoc, value: RefValue): Promise<PatchValue> => {
     if (!value) { return {} }
-    const company = await lib.doc.byId(value.id) as CalalogCompany;
+    const company = await lib.doc.byId<Company.IDoc>(value.id);
     if (!company) { return {} }
     const currency = await lib.doc.formControlRef(company.doc.currency) as RefValue;
     return { currency: currency };
@@ -28,15 +29,14 @@ export namespace PriceList {
     'company': company_valueChanges
   }
 
-  export async function post(doc: PriceList.IDoc, Registers: { Account: any[], Accumulation: any[], Info: any[] }) {
+  export const post: Post = async (doc: IDoc, Registers: { Account: any[], Accumulation: any[], Info: any[] }, tx: TX) => {
 
-    const PriceType = await lib.doc.byId(doc.doc.PriceType);
-    for (let i = 0; i < doc.doc.Items.length; i++) {
-      const row = doc.doc.Items[i];
+    const priceType = await lib.doc.byId<PriceType.IDoc>(doc.doc.PriceType, tx);
+    for (const row of doc.doc.Items) {
       Registers.Info.push({
-        type: 'PriceList',
+        type: 'Register.Info.PriceList',
         data: {
-          currency: PriceType.doc.currency,
+          currency: priceType.doc.currency,
           PriceType: doc.doc.PriceType,
           Product: row.SKU,
           Price: row.Price,
@@ -44,6 +44,6 @@ export namespace PriceList {
         }
       });
     }
-
   }
+
 }

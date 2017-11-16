@@ -52,18 +52,6 @@
       </div>
     </mat-expansion-panel>
 
-    <mat-expansion-panel #accunt hideToggle="true" *ngIf="this.isDoc && viewModel.model.posted">
-      <mat-expansion-panel-header>
-        <mat-panel-title>Register movements</mat-panel-title>
-        <mat-panel-description>Account
-          <mat-icon>toc</mat-icon>
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-
-      <j-register-movement *ngIf="accunt.expanded" [doc]="viewModel.model"></j-register-movement>
-
-    </mat-expansion-panel>
-
     <mat-expansion-panel #accumulation hideToggle="true" *ngIf="this.isDoc && viewModel.model.posted">
       <mat-expansion-panel-header>
         <mat-panel-title>Register movements</mat-panel-title>
@@ -71,7 +59,8 @@
           <mat-icon>toc</mat-icon>
         </mat-panel-description>
       </mat-expansion-panel-header>
-
+      
+      <j-register-movement *ngIf="accumulation.expanded" [doc]="viewModel.model"></j-register-movement>
       <j-register-accumulation-list *ngIf="accumulation.expanded" [doc]="viewModel.model"></j-register-accumulation-list>
 
     </mat-expansion-panel>
@@ -102,7 +91,7 @@
     </div>
     <div *ngFor="let control of v.view; let i = index">
       <j-control *ngIf="control.order < 1 && ( 
-        (control.key !== 'parent') && (control.key !== 'user') && (control.key !== 'info') && (control.controlType !== 'script'))" 
+        (control.key !== 'parent') && (control.key !== 'user') && (control.key !== 'info') && (control.controlType !== 'script'))"
         [control]="control" [form]="v.formGroup"></j-control>
     </div>
 
@@ -125,32 +114,30 @@
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
-  <div>
-    <button mat-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); PostClose()" matTooltip="post & close"
-      *ngIf="!v.model.deleted">
-      <mat-icon>done_all</mat-icon>
-    </button>
-    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Post()" matTooltip="post"
-      *ngIf="!v.model.deleted">
-      <mat-icon>done</mat-icon>
-    </button>
-    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Copy()" matTooltip="copy"
-      *ngIf="!v.model.deleted && !v.model.id.startsWith('copy')">
-      <mat-icon>content_copy</mat-icon>
-    </button>
-    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); unPost()" matTooltip="unPost"
-      *ngIf="!v.model.deleted && v.model.posted">
-      <mat-icon>undo</mat-icon>
-    </button>
-    <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Save()" matTooltip="save"
-      *ngIf="!v.model.deleted && !v.model.posted">
-      <mat-icon>save</mat-icon>
-    </button>
-    <button mat-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="$event.stopPropagation(); Delete()"
-      [matTooltip]="v.model.deleted ? 'undelete': 'delete'">
-      <mat-icon>delete</mat-icon>
-    </button>
-  </div>
+  <button mat-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); PostClose()" matTooltip="post & close"
+    *ngIf="!v.model.deleted">
+    <mat-icon>done_all</mat-icon>
+  </button>
+  <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Post()" matTooltip="post"
+    *ngIf="!v.model.deleted">
+    <mat-icon>done</mat-icon>
+  </button>
+  <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Copy()" matTooltip="copy"
+    *ngIf="!v.model.deleted && !v.model.id.startsWith('copy')">
+    <mat-icon>content_copy</mat-icon>
+  </button>
+  <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); unPost()" matTooltip="unPost"
+    *ngIf="!v.model.deleted && v.model.posted">
+    <mat-icon>undo</mat-icon>
+  </button>
+  <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Save()" matTooltip="save"
+    *ngIf="!v.model.deleted && !v.model.posted">
+    <mat-icon>save</mat-icon>
+  </button>
+  <button mat-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="$event.stopPropagation(); Delete()"
+    [matTooltip]="v.model.deleted ? 'undelete': 'delete'">
+    <mat-icon>delete</mat-icon>
+  </button>
 </ng-template>
 
 <ng-template #sideNavTepmlate let-sidenav="sidenav">

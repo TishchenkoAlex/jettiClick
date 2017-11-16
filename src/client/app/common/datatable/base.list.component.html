@@ -136,7 +136,6 @@
 </div>
 
 <ng-template #actionTepmlateDefault let-d="data" let-f="filterPanel">
-  <div>
     <button mat-mini-fab color="primary" (click)="$event.stopPropagation(); add()" matTooltip="create new">
       <mat-icon>add</mat-icon>
     </button>
@@ -153,7 +152,6 @@
     <button mat-mini-fab color="default" (click)="$event.stopPropagation(); dataSource.refresh()" matTooltip="refresh">
       <mat-icon>refresh</mat-icon>
     </button>
-  </div>
 </ng-template>
 
 <ng-template #sideNavTepmlate let-sidenav="sidenav">

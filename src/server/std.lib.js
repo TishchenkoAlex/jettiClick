@@ -33,8 +33,7 @@ async function byCode(type, code, tx = db_1.db) {
     return result.result;
 }
 async function byId(id, tx = db_1.db) {
-    const result = await tx.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
-    return result;
+    return await tx.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
 }
 async function modelById(id, tx = db_1.db) {
     const doc = await byId(id, tx);

@@ -1,21 +1,9 @@
-import { ValueChanges, IDocBase, FileldsAction } from './doc.base';
+import { IJDM } from './doc.base';
 import { CashIn } from './Document.CashIn';
-import { Operation } from './Document.Operation';
+import { ExchangeRates } from './Document.ExchangeRates';
 import { Invoice } from './Document.Invoice';
-import { ITask, IDatabase } from 'pg-promise';
-
-export interface IJDM {
-  [x: string]: {
-    post: (doc: IDocBase, Registers: { Account: any[], Accumulation: any[], Info: any[] }, tx?: ITask<any> | IDatabase<any>) => any,
-    valueChanges: FileldsAction
-  }
-}
-
-export const valueChanges: ValueChanges = {
-  'Document.CashIn': CashIn.Actions,
-  'Document.Operation': Operation.Actions,
-  'Document.Invoice': Invoice.Actions
-}
+import { Operation } from './Document.Operation';
+import { PriceList } from './Document.PriceList';
 
 export const JDM: IJDM = {
   'Document.Invoice': {
@@ -23,11 +11,16 @@ export const JDM: IJDM = {
     valueChanges: Invoice.Actions
   },
   'Document.CashIn': {
-    post: CashIn.post,
     valueChanges: CashIn.Actions
   },
   'Document.Operation': {
-    post: null,
-    valueChanges: Operation.Actions
+    valueChanges: Operation.Actions,
+    post: Operation.post
+  },
+  'Document.PriceList': {
+    post: PriceList.post,
+  },
+  'Document.ExchangeRates': {
+    post: ExchangeRates.post,
   }
 }

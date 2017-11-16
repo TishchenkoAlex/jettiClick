@@ -6,8 +6,10 @@ import { CovalentCodeEditorModule } from '@covalent/code-editor';
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
 import { DynamicFilterControlComponent } from '../common/filter-column/dynamic-filter-control.component';
 import { FilterFormComponent } from '../common/filter/filter.component';
+import { PipesModule } from '../common/pipes';
 import { RegisterAccumulationComponent } from '../common/register-movements/register.accumulation.component';
 import { RegisterAccumulationListComponent } from '../common/register-movements/register.accumulation.list.component';
+import { RegisterInfoComponent } from '../common/register-movements/register.info.component';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.component';
 import { BaseListComponent } from './../common/datatable/base.list.component';
 import { DocService } from './../common/doc.service';
@@ -26,7 +28,6 @@ import { MaterialModule } from './../material.module';
 import { CashRegisterFormComponent } from './Catalog/CashRegister/CashRegister.form';
 import { OperationFormComponent } from './Operation/operation.form.component';
 import { OperationListComponent } from './Operation/operation.list.component';
-import { PipesModule } from '../common/pipes';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,7 @@ import { PipesModule } from '../common/pipes';
     RegisterMovementComponent,
     RegisterAccumulationComponent,
     RegisterAccumulationListComponent,
+    RegisterInfoComponent,
     FilterFormComponent,
     FilterColumnComponent,
     DynamicFilterControlComponent,

@@ -1,7 +1,4 @@
-import { lib } from '../std.lib';
-import { CalalogCompany } from './Catalog.Company';
-import { IDocBase, RefValue, Ref, PatchValue, FileldsAction } from './doc.base';
-import { ITask, IDatabase } from 'pg-promise';
+import { FileldsAction, IDocBase, PatchValue, Post, Ref, RefValue, TX } from './doc.base';
 
 export namespace ExchangeRates {
 
@@ -14,20 +11,19 @@ export namespace ExchangeRates {
     }
   }
 
-  const company_valueChanges = async (doc: ExchangeRates.IDoc, value: RefValue): Promise<PatchValue> => {
+  const company_valueChanges = async (doc: IDoc, value: RefValue): Promise<PatchValue> => {
     return {};
   }
 
   export const Actions: FileldsAction = {
-    'company': company_valueChanges
+    // 'company': company_valueChanges
   }
 
-  export async function post(doc: ExchangeRates.IDoc, Registers: { Account: any[], Accumulation: any[], Info: any[] },
-    tx: ITask<any> | IDatabase<any>) {
+  export const post: Post = async (doc: IDoc, Registers: { Account: any[], Accumulation: any[], Info: any[] }, tx: TX) => {
 
     for (const row of doc.doc.Rates) {
       Registers.Info.push({
-        type: 'ExchangeRates',
+        type: 'Register.Info.ExchangeRates',
         data: {
           currency: row.Currency,
           Rate: row.Rate

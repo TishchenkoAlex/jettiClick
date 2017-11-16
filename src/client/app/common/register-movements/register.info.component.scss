@@ -1,0 +1,24 @@
+.mat-cell, .mat-header-cell {
+    min-width: 110px;
+}
+
+.mat-column-date {
+    max-width: 90px !important;
+    margin-right: 12px;
+}
+
+.mat-column-AO {
+    min-width: 210px !important;
+}
+
+.mat-column-SKU {
+    min-width: 210px !important;
+}
+
+.mat-column-Product {
+    min-width: 210px !important;
+}
+
+.mat-table {
+    overflow: auto;
+}
