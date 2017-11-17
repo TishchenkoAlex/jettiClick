@@ -114,9 +114,11 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   Close() {
     if (this.viewModel.formGroup.pristine) {
       this.ds.close(null);
+      this.location.back();
     } else {
       if (confirm('Discard changes and close?')) {
         this.ds.close(null);
+        this.location.back();
       }
     }
   }

@@ -36,6 +36,15 @@ body {
   height: 32px !important;
 }
 
+.mat-header-cell, .mat-cell { 
+  padding: 0 4px;
+  min-width: 80px !important;
+}
+
+.mat-table {
+  overflow: auto;
+}
+
 .mat-column-date {
   max-width: 80px !important;
   min-width: 80px !important;
@@ -86,10 +95,6 @@ body {
   min-height: 32px !important;
 }
 
-.mat-header-cell, .mat-cell { 
-  padding: 0 4px;
-}
-
 .mat-sort-header-arrow {
   margin-left: 2px !important;
 }
@@ -121,7 +126,6 @@ body {
 
 .mat-sort-header-container .mat-icon {
   height: 20px;
-
 }
 
 .cdk-overlay-pane .mat-card {
@@ -145,3 +149,4 @@ body {
   min-width: 90px;
   min-height: 52px;
 }
+

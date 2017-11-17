@@ -1,19 +1,18 @@
-FROM node:6-alpine
-# FROM mhart/alpine-node
+FROM node:latest
 
 # Create app directory
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY package.json /usr/src/app/
-RUN npm install
+COPY package-docker.json /usr/src/app/package.json
+RUN yarn
 
 # Bundle app source
 COPY dist/ /usr/src/app/dist
 COPY src/server/ /usr/src/app/
 
 ENV PORT 80
-# EXPOSE 3000
+EXPOSE 3000
 
 CMD [ "node", "index.js" ]

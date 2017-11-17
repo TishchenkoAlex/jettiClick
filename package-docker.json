@@ -1,0 +1,27 @@
+{
+  "name": "jett-app",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/server/index.js",
+    "build": "ng build"
+  },
+  "private": true,
+  "dependencies": {
+    "@types/uuid": "^3.4.3",
+    "auth0-js": "^8.11.2",
+    "body-parser": "^1.18.2",
+    "compression": "^1.7.1",
+    "core-js": "^2.5.1",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "express-jwt": "^5.3.0",
+    "express-jwt-authz": "^1.0.0",
+    "jwks-rsa": "^1.2.1",
+    "pg-promise": "^7.3.1",
+    "uuid": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=9.1.0"
+  }
+}
