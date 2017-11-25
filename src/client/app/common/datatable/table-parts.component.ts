@@ -60,7 +60,8 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.view = this.control.value as BaseJettiFromControl<any>[];
     this.columns = this.view.filter(c => !(c instanceof ScriptJettiFormControl)).map((el) => {
-      const result = { field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, order: el.order, style: el.style };
+      const result: ColumnDef = { field: el.key, type: el.controlType, label: el.label, required: el.required,
+        readOnly: el.readOnly, hidden: el.hidden, order: el.order, style: el.style };
       return result;
     });
     this.displayedColumns = this.columns.sort((a, b) => a.order - b.order).map((c) => c.field);

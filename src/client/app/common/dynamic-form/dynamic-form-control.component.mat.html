@@ -6,14 +6,16 @@
   </mat-form-field>
 
   <mat-form-field *ngSwitchCase="'textarea'" fxFlex>
-      <textarea [required]="control.required" matInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
-        [readOnly]="control.readOnly" [tabIndex]="control.order" (change)="onChange($event)"></textarea>
+    <textarea [required]="control.required" matInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
+      [readOnly]="control.readOnly" [tabIndex]="control.order" (change)="onChange($event)"></textarea>
   </mat-form-field>
 
   <mat-form-field *ngSwitchCase="'number'" fxFlex>
     <input [required]="control.required" matInput [placeholder]="control.label" [formControlName]="control.key" [id]="control.key"
       style="text-align: right" [readOnly]="control.readOnly" type="number" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)">
-    <button mat-icon-button matSuffix [disabled]="true" [tabindex]="-1" type="button"><mat-icon>attach_money</mat-icon></button>
+    <button type="button" mat-icon-button matSuffix [disabled]="true" [tabindex]="-1">
+      <mat-icon>attach_money</mat-icon>
+    </button>
   </mat-form-field>
 
   <j-autocomplete *ngSwitchCase="'autocomplete'" fxFlex [required]="control.required" [formControlName]="control.key" [id]="control.key"
@@ -22,30 +24,32 @@
 
   <mat-form-field *ngSwitchCase="'date'" fxFlex>
     <input [required]="control.required" matInput [matDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
-      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)" (dateChange)="onChange($event)">
+      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)"
+      (dateChange)="onChange($event)">
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
   </mat-form-field>
 
   <mat-form-field *ngSwitchCase="'datetime'" fxFlex>
     <input [required]="control.required" matInput [matDatepicker]="picker" [placeholder]="control.label" [formControlName]="control.key"
-      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)" (dateChange)="onChange($event)">
+      [id]="control.key" [readOnly]="control.readOnly" autocomplete="off" [tabIndex]="control.order" (change)="onChange($event)"
+      (dateChange)="onChange($event)">
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
   </mat-form-field>
 
-  <mat-checkbox *ngSwitchCase="'checkbox'" [formControlName]="control.key" [id]="control.key" style="margin-top: 16px"
-    fxFlex [tabIndex]="control.order" (change)="onChange($event)">{{control.label}} 
+  <mat-checkbox *ngSwitchCase="'checkbox'" [formControlName]="control.key" [id]="control.key" style="margin-top: 16px" fxFlex
+    [tabIndex]="control.order" (change)="onChange($event)">{{control.label}}
   </mat-checkbox>
 
   <div *ngSwitchCase="'table'">
     <div [formArrayName]="control.key">
-        <j-table-part [formGroup]="form.controls[control.key]" [control]="control" (onChange)="onChange($event)"></j-table-part>
+      <j-table-part [formGroup]="form.controls[control.key]" [control]="control" (onChange)="onChange($event)"></j-table-part>
     </div>
   </div>
 
   <div *ngSwitchCase="'script'" fxLayout="column" fxFlex fxFill>
     <label [for]="control.key">{{ control.label }}:</label>
-    <td-code-editor #script theme="vs" [ngStyle]="control.style" [language]="control.type" (change)="onChange($event)"
-      [tabIndex]="control.order" [id]="control.key" [formControlName]="control.key" [id]="control.key">
+    <td-code-editor #script theme="vs" [ngStyle]="control.style" [language]="control.type" (change)="onChange($event)" [tabIndex]="control.order"
+      [id]="control.key" [formControlName]="control.key" [id]="control.key">
     </td-code-editor>
   </div>
 

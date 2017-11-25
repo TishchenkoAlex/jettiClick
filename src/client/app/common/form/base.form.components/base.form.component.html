@@ -114,27 +114,27 @@
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
-  <button mat-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); PostClose()" matTooltip="post & close"
+  <button type="button" mat-mini-fab color="primary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); PostClose()" matTooltip="post & close"
     *ngIf="!v.model.deleted">
     <mat-icon>done_all</mat-icon>
   </button>
-  <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Post()" matTooltip="post"
+  <button type="button" mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Post()" matTooltip="post"
     *ngIf="!v.model.deleted">
     <mat-icon>done</mat-icon>
   </button>
-  <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Copy()" matTooltip="copy"
+  <button type="button" mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Copy()" matTooltip="copy"
     *ngIf="!v.model.deleted && !v.model.id.startsWith('copy')">
     <mat-icon>content_copy</mat-icon>
   </button>
-  <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); unPost()" matTooltip="unPost"
+  <button type="button" mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); unPost()" matTooltip="unPost"
     *ngIf="!v.model.deleted && v.model.posted">
     <mat-icon>undo</mat-icon>
   </button>
-  <button mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Save()" matTooltip="save"
+  <button type="button" mat-mini-fab color="secondary" [disabled]="!v.formGroup.valid" (click)="$event.stopPropagation(); Save()" matTooltip="save"
     *ngIf="!v.model.deleted && !v.model.posted">
     <mat-icon>save</mat-icon>
   </button>
-  <button mat-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="$event.stopPropagation(); Delete()"
+  <button type="button" mat-mini-fab [disabled]="!v.formGroup.valid" [color]="v.model.deleted ? 'secondary' : 'warn'" (click)="$event.stopPropagation(); Delete()"
     [matTooltip]="v.model.deleted ? 'undelete': 'delete'">
     <mat-icon>delete</mat-icon>
   </button>
@@ -142,7 +142,7 @@
 
 <ng-template #sideNavTepmlate let-sidenav="sidenav">
   <mat-card>
-    <button mat-button (click)="this.Goto(); sidenav.close()">Find in list</button>
-    <button mat-button (click)="sidenav.close()">Close</button>
+    <button type="button" mat-button (click)="this.Goto(); sidenav.close()">Find in list</button>
+    <button type="button" mat-button (click)="sidenav.close()">Close</button>
   </mat-card>
 </ng-template>

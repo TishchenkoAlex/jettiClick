@@ -3,15 +3,16 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
-import { DocModel } from '../../../../server/modules/doc.base';
+import { DocModel, IDocBase } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
-import { cloneFormGroup, toFormGroup } from '../utils';
+import { cloneFormGroup, dateReviver, toFormGroup } from '../utils';
 import {
     AutocompleteJettiFormControl,
     BaseJettiFromControl,
     BooleanJettiFormControl,
     ControlOptions,
     DateJettiFormControl,
+    DateTimeFormControl,
     NumberJettiFormControl,
     ScriptJettiFormControl,
     TableDynamicControl,
@@ -62,7 +63,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
           newControl = new DateJettiFormControl(controlOptions);
           break;
         case 'datetime':
-          newControl = new DateJettiFormControl(controlOptions);
+          newControl = new DateTimeFormControl(controlOptions);
           break;
         case 'number':
           newControl = new NumberJettiFormControl(controlOptions);
@@ -134,8 +135,10 @@ export class DynamicFormService {
     }
     return this.apiService.getViewModel(docType, docID).pipe(
       map(viewModel => {
-        const model = viewModel['model'];
         const view = viewModel['view'];
+        let model: IDocBase = viewModel['model'];
+        model = JSON.parse(JSON.stringify(model), dateReviver);
+        console.log(model);
         return getViewModel(view, model, exclude, docID !== 'new')
       }));
   }

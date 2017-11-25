@@ -16,7 +16,7 @@ export interface IDocBase {
   isfolder: boolean;
   parent: Ref;
   info: string;
-  doc: { [x: string]: boolean | number | string | Ref | any[] }
+  doc: { [x: string]: any }
 }
 
 export interface RefValue {
@@ -35,19 +35,19 @@ export class DocModel implements IDocBase {
   public deleted = false;
   public parent: Ref = null;
   public info = '';
-  public doc: { [x: string]: boolean | number | string | Ref | any[] } = {};
+  public doc: { [x: string]: any } = {};
 
   constructor(
     public type = '',
     public id = v1(),
-    public date = new Date().toJSON(),
+    public date: string = new Date().toJSON(),
     public isfolder = false
   ) { }
 }
 
 export const JETTI_DOC_PROP = Object.keys(new DocModel());
 
-export interface PatchValue { [x: string]: boolean | number | string | RefValue | {} }
+export interface PatchValue { [x: string]: (boolean | number | string | RefValue | {}) }
 
 export interface FileldsAction {
   [field: string]: (doc: IDocBase, value: RefValue) => Promise<PatchValue>

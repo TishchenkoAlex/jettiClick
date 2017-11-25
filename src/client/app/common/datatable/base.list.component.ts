@@ -1,18 +1,18 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-  TemplateRef,
-  ViewChild,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    Input,
+    OnDestroy,
+    OnInit,
+    TemplateRef,
+    ViewChild,
 } from '@angular/core';
 import { MatSort } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
-import { filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -74,7 +74,7 @@ export class BaseListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.displayedColumns = this.columns.filter(c =>
       !c.hidden && (this.isDoc ? c.field !== 'description' : (c.field !== 'company') && (c.field !== 'date')))
       .map(c => c.field);
-    this.displayedColumns.unshift('select');
+    this.displayedColumns.unshift('select', 'posted');
 
     this._docSubscription$ = Observable.merge(...[
       this.ds.save$,

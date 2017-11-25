@@ -61,6 +61,7 @@ export class ApiService {
 
   postDoc(doc: DocModel) {
     const apiDoc = mapDocToApiFormat(doc);
+    console.log('apiDoc', apiDoc);
     const query = `${this.url}`;
     return (this.http.post(query, apiDoc) as Observable<DocModel>);
   }

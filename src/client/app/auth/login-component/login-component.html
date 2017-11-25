@@ -9,10 +9,10 @@
         <mat-card-subtitle>{{ userProfile?.name }}</mat-card-subtitle>
       </mat-card>
       <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
-        <button mat-raised-button color="warn" (click)="appAuth.logout()">LOGOUT</button>
-        <button mat-button>CLOSE</button>
+        <button type="button" mat-raised-button color="warn" (click)="appAuth.logout()">LOGOUT</button>
+        <button type="button" mat-button>CLOSE</button>
       </div>
     </mat-menu>
   </div>
 </div>
-<button mat-button (click)="appAuth.login()" *ngIf="!appAuth.isAuthenticated()">LOGIN</button>
+<button type="button" mat-button (click)="appAuth.login()" *ngIf="!appAuth.isAuthenticated()">LOGIN</button>

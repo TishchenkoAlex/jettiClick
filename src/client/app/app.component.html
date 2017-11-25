@@ -1,6 +1,6 @@
 <div [class.dark-theme]="isDarkTheme" style="height: 100vh;" fxLayout="column">
   <mat-toolbar color="primary" class="mat-elevation-z8">
-    <button mat-icon-button (click)="sideNav.opened = !sideNav.opened">
+    <button type="button" mat-icon-button (click)="sideNav.opened = !sideNav.opened">
       <mat-icon>menu</mat-icon>
     </button>
     <span>Jetti - ClickSales</span>
@@ -12,7 +12,7 @@
     </div>
     <span fxFlex></span>
     <app-login></app-login>
-    <button mat-icon-button (click)="end.toggle()">
+    <button type="button" mat-icon-button (click)="end.toggle()">
       <mat-icon>more_vert</mat-icon>
     </button>
   </mat-toolbar>
@@ -73,13 +73,13 @@
   <!--     <mat-toolbar class="mat-medium-tall" color="primary"></mat-toolbar> -->
 </div>
 <mat-menu #themeMenu x-position="before">
-  <button mat-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
+  <button type="button" mat-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
 </mat-menu>
 
 <ng-template #sideNavTepmlateDefault let-sidenav="sidenav">
   <mat-card>
     STANDART
     <br>
-    <button mat-button (click)="sidenav.close()">Close</button>
+    <button type="button"  mat-button (click)="sidenav.close()">Close</button>
   </mat-card>
 </ng-template>

@@ -96,8 +96,11 @@ export function buildColumnDef(view, settings: FormListSettings): ColumnDef[] {
     const label = (prop['label'] || property.toString()).toLowerCase();
     const type = prop['type'] || 'string';
     const style = prop['style'] || '';
+    const readOnly = !!prop['readOnly'];
+    const required = !!prop['required'];
     columnDef.push({
       field: property, type: type, label: label, hidden: hidden, order: order, style: style,
+      required : required, readOnly: readOnly,
       filter: settings.filter.find(f => f.left === property) || new FormListFilter(property),
       sort: settings.order.find(f => f.field === property) || new FormListOrder(property)
     });

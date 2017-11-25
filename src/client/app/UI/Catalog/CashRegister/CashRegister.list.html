@@ -1,0 +1,43 @@
+<p-dataTable #dt [value]="dataSource?.connect() | async" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id"
+  [reorderableColumns]="true" sortMode="multiple" [lazy]="true" [rows]="pageSize" (onSort)="Sort()" scrollWidth="100%" scrollable="true"
+  scrollHeight="560px" (onRowDblclick)="open()">
+  <p-header style="display: flex; justify-content: space-between">
+    <div style="display: flex; justify-content: flex-start">
+      <button pButton type="button" label="Add" icon="fa-plus" class="ui-button-success" (click)="$event.stopPropagation(); add()"></button>
+      <button pButton type="button" icon="fa-pencil-square-o" *ngIf="dataSource.dataTable?.selection?.length == 1" (click)="$event.stopPropagation(); open()"></button>
+      <button pButton type="button" icon="fa-copy" *ngIf="dataSource.dataTable?.selection?.length == 1" (click)="$event.stopPropagation(); copy()"></button>
+      <button pButton type="button" icon="fa-check" class="ui-button-warning" *ngIf="dataSource.dataTable?.selection?.length >=1"
+        (click)="$event.stopPropagation(); post()"></button>
+      <button pButton type="button" icon="fa-close" class="ui-button-danger" *ngIf="dataSource.dataTable?.selection?.length" (click)="$event.stopPropagation(); delete()"></button>
+      <button pButton type="button" icon="fa-refresh" (click)="$event.stopPropagation(); dataSource.refresh()"></button>
+    </div>
+    <div style="display: flex; justify-content: flex-end">
+      <button pButton type="button" icon="fa-fast-backward" (click)="this.dataSource.first()" [disabled]="!this.dataSource.continuation.first"></button>
+      <button pButton type="button" icon="fa-step-backward" (click)="this.dataSource.prev()" [disabled]="!this.dataSource.continuation.first"></button>
+      <button pButton type="button" icon="fa-step-forward" (click)="this.dataSource.next()" [disabled]="!this.dataSource.continuation.last"></button>
+      <button pButton type="button" icon="fa-fast-forward" (click)="this.dataSource.last()" [disabled]="!this.dataSource.continuation.last"></button>
+    </div>
+  </p-header>
+  <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
+    <ng-template let-row="rowData" pTemplate="body">
+      <i *ngIf="row['posted'] && !row['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
+      <i *ngIf="row['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
+      <i *ngIf="!row['posted'] && !row['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
+    </ng-template>
+  </p-column>
+
+  <p-column *ngFor="let col of columns" [field]="col.field" [header]="col.label" sortable="custom" [style]="col.style ? col.style : {'width': '110px'}">
+    <ng-template let-row="rowData" pTemplate="body">
+      <span [ngSwitch]="col.type">
+        <span *ngSwitchCase="'date'">{{row[col.field] | date:'dd.MM.yyyy'}}</span>
+        <span *ngSwitchCase="'datetime'">{{row[col.field] | date:'dd.MM.yyyy hh:mm:ss'}}</span>
+        <span *ngSwitchCase="'number'">{{row[col.field] | number:'1.2-2'}}</span>
+        <span *ngSwitchCase="'boolean'">
+          <i class="fa fa-check-square"></i>
+        </span>
+        <span *ngSwitchCase="'string'">{{row[col.field]}}</span>
+        <span *ngSwitchDefault>{{row[col.field]}}</span>
+      </span>
+    </ng-template>
+  </p-column>
+</p-dataTable>

@@ -1,7 +1,9 @@
+import { PrimeNGModule } from '../primeNG.module';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CovalentCodeEditorModule } from '@covalent/code-editor';
+import { CashRegisterListComponent } from './Catalog/CashRegister/CashRegister.list';
 
 import { TablePartsComponent } from '../common/datatable/table-parts.component';
 import { DynamicFilterControlComponent } from '../common/filter-column/dynamic-filter-control.component';
@@ -28,10 +30,13 @@ import { MaterialModule } from './../material.module';
 import { CashRegisterFormComponent } from './Catalog/CashRegister/CashRegister.form';
 import { OperationFormComponent } from './Operation/operation.form.component';
 import { OperationListComponent } from './Operation/operation.list.component';
+import { AutocompletePNGComponent } from './../common/autocomplete/autocomplete.png.component';
+import { TablePartsPNGComponent } from './../common/datatable/table-parts.png.component';
 
 @NgModule({
   declarations: [
     AutocompleteComponent,
+    AutocompletePNGComponent,
     HomeComponent,
     TabControllerComponent,
     BaseListComponent,
@@ -40,6 +45,7 @@ import { OperationListComponent } from './Operation/operation.list.component';
     DynamicFormControlComponent,
     BaseFormComponent,
     TablePartsComponent,
+    TablePartsPNGComponent,
     TablePartsDialogComponent,
     SuggestDialogComponent,
     RegisterMovementComponent,
@@ -50,8 +56,8 @@ import { OperationListComponent } from './Operation/operation.list.component';
     FilterColumnComponent,
     DynamicFilterControlComponent,
 
-
     CashRegisterFormComponent, // add user froms above
+    CashRegisterListComponent,
     OperationFormComponent,
     OperationListComponent,
   ],
@@ -60,6 +66,7 @@ import { OperationListComponent } from './Operation/operation.list.component';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
+    PrimeNGModule,
     CovalentCodeEditorModule,
     PipesModule,
   ],
@@ -78,6 +85,8 @@ import { OperationListComponent } from './Operation/operation.list.component';
     BaseFormComponent,
 
     CashRegisterFormComponent, // add user froms above
+    CashRegisterListComponent,
+
     OperationFormComponent,
     OperationListComponent,
     FilterColumnComponent,

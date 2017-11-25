@@ -2,10 +2,6 @@
   "Tax": {
     "type": "number",
     "order": 13,
-    "style": {
-      "max-width": "50px",
-      "min-width": "50px"
-    },
     "readOnly": "true"
   },
   "Items": {
@@ -20,15 +16,14 @@
       "SKU": {
         "type": "Catalog.Product",
         "order": 1,
+        "style": {
+          "width": "40%"
+        },
         "required": true
       },
       "Tax": {
         "type": "number",
         "order": 9,
-        "style": {
-          "max-width": "40px",
-          "min-width": "40px"
-        },
         "readOnly": "true"
       },
       "Price": {
@@ -43,12 +38,9 @@
         "change": "return { Price: value / doc.Qty, Tax: value * 0.18}"
       },
       "PriceType": {
+        "label": "price type",
         "type": "Catalog.PriceType",
         "order": 5,
-        "style": {
-          "max-width": "110px",
-          "min-width": "110px"
-        },
         "required": true
       }
     },
@@ -62,16 +54,12 @@
     "readOnly": "true"
   },
   "PayDay": {
-    "type": "datetime",
+    "type": "date",
     "order": 15,
     "hidden-list": true
   },
   "Status": {
     "order": 9,
-    "style": {
-      "max-width": "90px",
-      "min-width": "90px"
-    },
     "required": true
   },
   "parent": {

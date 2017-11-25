@@ -2,7 +2,7 @@
 
   <mat-form-field *ngSwitchCase="'string'" fxFlex>
     <input matInput [placeholder]="columnDef.label" autocomplete="off" (change)="onChange()" [(ngModel)]="columnDef.filter.right">
-    <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="columnDef.filter.right = null; onChange()"
+    <button type="button" mat-icon-button matSuffix style="cursor: pointer" (click)="columnDef.filter.right = null; onChange()"
       [tabIndex]=-1>
       <mat-icon>clear</mat-icon>
     </button>
@@ -11,10 +11,10 @@
   <mat-form-field *ngSwitchCase="'number'" fxFlex>
     <input matInput [placeholder]="columnDef.label" style="text-align: right" type="number" autocomplete="off" (change)="onChange($event)"
       [(ngModel)]="filterInterval.start">
-    <button mat-icon-button matSuffix [disabled]="true" [tabindex]="-1" type="button">
+    <button type="button" mat-icon-button matSuffix [disabled]="true" [tabindex]="-1">
       <mat-icon>attach_money</mat-icon>
     </button>
-    <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="columnDef.filter.right = null; onChange()"
+    <button type="button" mat-icon-button matSuffix style="cursor: pointer" (click)="columnDef.filter.right = null; onChange()"
       [tabIndex]=-1>
       <mat-icon>clear</mat-icon>
     </button>
@@ -40,7 +40,7 @@
         <input matInput [matDatepicker]="picker1" name="start" [placeholder]="columnDef.label + ' (start)'" autocomplete="off" (change)="onChange($event)"
           (dateChange)="onChange($event)" [(ngModel)]="filterInterval.start">
         <mat-datepicker-toggle matSuffix [for]="picker1" [tabindex]="1"></mat-datepicker-toggle>
-        <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.start = null" [tabIndex]=-1>
+        <button type="button" mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.start = null" [tabIndex]=-1>
           <mat-icon>clear</mat-icon>
         </button>
       </mat-form-field>
@@ -48,7 +48,7 @@
         <input matInput [matDatepicker]="picker2" name="end" [placeholder]="columnDef.label + ' (end)'" autocomplete="off" (change)="onChange($event)"
           (dateChange)="onChange($event)" [(ngModel)]="filterInterval.end" fxFlex>
         <mat-datepicker-toggle matSuffix [for]="picker2" [tabindex]="1"></mat-datepicker-toggle>
-        <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.end = null" [tabIndex]=-1>
+        <button type="button" mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.end = null" [tabIndex]=-1>
           <mat-icon>clear</mat-icon>
         </button>
       </mat-form-field>
@@ -60,7 +60,7 @@
       <input matInput [matDatepicker]="picker1" name="start" [placeholder]="columnDef.label + ' (start)'" autocomplete="off" (change)="onChange($event)"
         (dateChange)="onChange($event)" [(ngModel)]="filterInterval.start">
       <mat-datepicker-toggle matSuffix [for]="picker1" tabindex="1"></mat-datepicker-toggle>
-      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.start = null" [tabIndex]=-1>
+      <button type="button" mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.start = null" [tabIndex]=-1>
         <mat-icon>clear</mat-icon>
       </button>
     </mat-form-field>
@@ -68,7 +68,7 @@
       <input matInput [matDatepicker]="picker2" name="end" [placeholder]="columnDef.label + ' (end)'" autocomplete="off" (change)="onChange($event)"
         (dateChange)="onChange($event)" [(ngModel)]="filterInterval.end">
       <mat-datepicker-toggle matSuffix [for]="picker2" tabindex="1"></mat-datepicker-toggle>
-      <button mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.end = null" [tabIndex]=-1>
+      <button type="button" mat-icon-button matSuffix type="button" style="cursor: pointer" (click)="filterInterval.end = null" [tabIndex]=-1>
         <mat-icon>clear</mat-icon>
       </button>
     </mat-form-field>

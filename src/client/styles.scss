@@ -41,10 +41,6 @@ body {
   min-width: 80px !important;
 }
 
-.mat-table {
-  overflow: auto;
-}
-
 .mat-column-date {
   max-width: 80px !important;
   min-width: 80px !important;
@@ -150,3 +146,35 @@ body {
   min-height: 52px;
 }
 
+.ui-editable-column {
+  padding: 1px 4px !important;
+}
+
+.ui-cell-editing {
+  padding: 0px 1px !important;
+}
+
+.ui-tabview .ui-tabview-panel {
+  padding: 0;
+}
+
+.ui-tabview.ui-tabview-top>.ui-tabview-nav {
+  padding: 0;
+  margin-bottom: -24px;
+}
+
+.ui-tabview {
+  padding: 0;
+}
+
+.ui-datepicker.ui-widget .ui-datepicker-calendar td a {
+  padding: 0px !important; 
+}
+
+.ui-timepicker {
+  padding: 0px !important; 
+}
+
+.ui-spinner-button {
+  display: none !important; 
+}

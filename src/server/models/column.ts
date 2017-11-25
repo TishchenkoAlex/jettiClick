@@ -7,6 +7,9 @@ export interface ColumnDef {
     hidden: boolean;
     order: number;
     style: string;
+    required: boolean;
+    readOnly: boolean;
+    change?: string;
     sort?: FormListOrder;
     filter?: FormListFilter;
 };

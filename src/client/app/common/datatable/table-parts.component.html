@@ -1,19 +1,19 @@
 <div fxLayout="column">
   <div class="search-header" fxLayout="row">
     <div fxLayout="row" fxLayoutGap="4px" fxLayoutAlign="center center" fxFlex>
-      <button mat-mini-fab color="accent" (click)="AddRow()" matTooltip="add row" *ngIf="selection.selected.length === 0">
+      <button type="button" mat-mini-fab color="accent" (click)="AddRow()" matTooltip="add row" *ngIf="selection.selected.length === 0">
         <mat-icon>add</mat-icon>
       </button>
-      <button mat-mini-fab color="default" (click)="Up()" matTooltip="move up" *ngIf="dataSource?.data.length > 1 && selection.selected.length === 1">
+      <button type="button" mat-mini-fab color="default" (click)="Up()" matTooltip="move up" *ngIf="dataSource?.data.length > 1 && selection.selected.length === 1">
         <mat-icon>arrow_upward</mat-icon>
       </button>
-      <button mat-mini-fab color="default" (click)="Down()" matTooltip="move down" *ngIf="dataSource?.data.length > 1 && selection.selected.length === 1">
+      <button type="button" mat-mini-fab color="default" (click)="Down()" matTooltip="move down" *ngIf="dataSource?.data.length > 1 && selection.selected.length === 1">
         <mat-icon>arrow_downward</mat-icon>
       </button>
-      <button mat-mini-fab color="default" (click)="CopyRow()" matTooltip="copy" *ngIf="selection.selected.length === 1">
+      <button type="button" mat-mini-fab color="default" (click)="CopyRow()" matTooltip="copy" *ngIf="selection.selected.length === 1">
         <mat-icon>content_copy</mat-icon>
       </button>
-      <button mat-mini-fab color="warn" (click)="Delete()" matTooltip="delete" *ngIf="selection.selected.length">
+      <button type="button" mat-mini-fab color="warn" (click)="Delete()" matTooltip="delete" *ngIf="selection.selected.length">
         <mat-icon>remove</mat-icon>
       </button>
     </div>

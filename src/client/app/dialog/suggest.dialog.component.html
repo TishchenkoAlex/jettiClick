@@ -3,7 +3,7 @@
     <mat-input-container fxFlex>
       <input matInput #filter placeholder="filter ...">
     </mat-input-container>
-    <button mat-icon-button color="default" mat-dialog-close style="margin-right: -12px">
+    <button type="button" mat-icon-button color="default" mat-dialog-close style="margin-right: -12px">
       <mat-icon>close</mat-icon>
     </button>
   </div>
@@ -67,16 +67,16 @@
 
   </mat-table>
   <div fxLayoutAlign="end center" fxLayoutGap="4px">
-    <button mat-icon-button color="default" (click)="dataSource ? dataSource.first() : undefined" [disabled]="!dataSource?.continuation?.first">
+    <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.first() : undefined" [disabled]="!dataSource?.continuation?.first">
       <mat-icon>first_page</mat-icon>
     </button>
-    <button mat-icon-button color="default" (click)="dataSource ? dataSource?.prev() : undefined" [disabled]="!dataSource?.continuation?.first">
+    <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource?.prev() : undefined" [disabled]="!dataSource?.continuation?.first">
       <mat-icon>navigate_before</mat-icon>
     </button>
-    <button mat-icon-button color="default" (click)="dataSource ? dataSource?.next() : undefined" [disabled]="!dataSource?.continuation?.last">
+    <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource?.next() : undefined" [disabled]="!dataSource?.continuation?.last">
       <mat-icon>navigate_next</mat-icon>
     </button>
-    <button mat-icon-button color="default" (click)="dataSource ? dataSource?.last() : undefined" [disabled]="!dataSource?.continuation?.last">
+    <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource?.last() : undefined" [disabled]="!dataSource?.continuation?.last">
       <mat-icon>last_page</mat-icon>
     </button>
   </div>

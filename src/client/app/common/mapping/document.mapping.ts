@@ -1,7 +1,6 @@
 import { DocModel, JETTI_DOC_PROP } from '../../../../server/modules/doc.base';
 
 export function mapDocToApiFormat(model: DocModel): DocModel {
-  console.log(model);
   const newDoc: DocModel = {
     id: model.id,
     type: model.type,

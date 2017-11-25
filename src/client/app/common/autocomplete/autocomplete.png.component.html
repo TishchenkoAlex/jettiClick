@@ -1,0 +1,65 @@
+<form novalidate [formGroup]="form">
+
+  <div *ngIf="value?.type === 'string'">
+    <div class="ui-inputgroup">
+      <input pInputText formControlName="suggest" [required]="required" [readOnly]="readOnly" ([disabled])="disabled" [tabIndex]="tabIndex"
+        autocomplete="off">
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+      <label for="suggest">{{placeholder}}</label>
+    </div>
+  </div>
+
+  <div *ngIf="value?.type === 'number'">
+    <div class="ui-inputgroup">
+      <p-spinner [required]="required" [readonly]="readOnly" ([disabled])="disabled" [tabIndex]="tabIndex" type="number" autocomplete="off"
+        formControlName="suggest">
+      </p-spinner>
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+      <label for="suggest">{{placeholder}}</label>
+    </div>
+  </div>
+
+  <div *ngIf="value?.type === 'datetime'">
+    <div class="ui-inputgroup">
+      <p-calendar [required]="required" [formControlName]="suggest" showTime="true" hourFormat="24" showButtonBar="true" [id]="suggest"
+        [showOnFocus]="false" autocomplete="off" [tabIndex]="tabIndex" (change)="onChange($event)" [showIcon]="true" dataType="string"
+        [utc]="true" appendTo="body">
+      </p-calendar>
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+      <label for="suggest">{{placeholder}}</label>
+    </div>
+  </div>
+
+  <div *ngIf="value?.type === 'date'">
+    <div class="ui-inputgroup">
+      <p-calendar [required]="required" [formControlName]="suggest" showButtonBar="true" [id]="suggest" autocomplete="off" [tabIndex]="tabIndex"
+        (change)="onChange($event)" [showIcon]="true" dataType="string" [utc]="true" appendTo="body" [showOnFocus]="false">
+      </p-calendar>
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+      <label for="suggest">{{placeholder}}</label>
+    </div>
+  </div>
+
+  <p-checkbox *ngIf="value?.type === 'boolean'" [label]="placeholder" ([disabled])="disabled" [tabIndex]="tabIndex" formControlName="suggest">
+    <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+  </p-checkbox>
+
+
+  <div *ngIf="value?.type?.includes('.') ">
+    <div class="ui-float-label">
+      <div class="ui-inputgroup">
+        <p-autoComplete formControlName="suggest" [suggestions]="suggests$" [required]="required" id="suggest" field="value"
+          [readonly]="readOnly" ([disabled])="disabled" [tabIndex]="tabIndex" autocomplete="off" [style]="{'overflow':'visible'}"
+          appendTo="body" (completeMethod)="getSuggests($event.query)" (onBlur)="onBlur()" (onSelect)="onSelect($event)">
+        </p-autoComplete>
+        <button pButton type="button" icon="fa-search" class="ui-button-secondary" (click)="handleSearch($event)" [tabIndex]=-1></button>
+        <button pButton type="button" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="openButton" [disabled]="!value?.value"
+          (click)="handleOpen($event)" [tabIndex]=-1></button>
+        <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+        <label for="suggest">{{placeholder}}</label>
+      </div>
+    </div>
+  </div>
+
+
+</form>

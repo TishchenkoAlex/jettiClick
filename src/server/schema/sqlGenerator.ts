@@ -8,8 +8,8 @@ export function generateQueryObject(doc: { [x: string]: any }, type: string) {
 
   const complexProperty = (prop: string, type: string) =>
     type.startsWith('Types.') ?
-      `,  CASE WHEN "${prop}".id IS NULL THEN d.doc -> '${prop}' 
-          ELSE jsonb_build_object('id', "${prop}".id, 'value', "${prop}".description, 
+      `,  CASE WHEN "${prop}".id IS NULL THEN d.doc -> '${prop}'
+          ELSE jsonb_build_object('id', "${prop}".id, 'value', "${prop}".description,
           'type', coalesce("${prop}".type, '${type}'), 'code', "${prop}".code) END "${prop}"\n` :
 
       `, jsonb_build_object('id', "${prop}".id, 'value', "${prop}".description, 'type', '${type}', 'code', "${prop}".code) "${prop}"\n`;
@@ -76,12 +76,12 @@ export function generateQueryObject(doc: { [x: string]: any }, type: string) {
 
   delete doc.parent; delete doc.user; delete doc.company;
   let query = `
-          SELECT
-          d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder,d.info,
-          jsonb_build_object('id', "parent".id, 'value', "parent".description, 'type',
-            coalesce("parent".type, 'Types.Document'), 'code', "parent".code) "parent",
-          jsonb_build_object('id', "user".id, 'value', "user".description, 'type', 'Catalog.User', 'code', "user".code) "user",
-          jsonb_build_object('id', "company".id, 'value', "company".description, 'type', 'Catalog.Company', 'code', "company".code) "company"\n`;
+    SELECT
+    d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder,d.info,
+    jsonb_build_object('id', "parent".id, 'value', "parent".description, 'type',
+      coalesce("parent".type, 'Types.Document'), 'code', "parent".code) "parent",
+    jsonb_build_object('id', "user".id, 'value', "user".description, 'type', 'Catalog.User', 'code', "user".code) "user",
+    jsonb_build_object('id', "company".id, 'value', "company".description, 'type', 'Catalog.Company', 'code', "company".code) "company"\n`;
   let LeftJoin = '';
 
   for (const prop in doc) {
@@ -97,12 +97,12 @@ export function generateQueryObject(doc: { [x: string]: any }, type: string) {
   }
 
   query += `
-      FROM "Documents" d
-      LEFT JOIN "Documents" "parent" ON "parent".id = d."parent"
-      LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
-      LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
-      ${LeftJoin}
-      WHERE d.type = '${type}'`;
+    FROM "Documents" d
+    LEFT JOIN "Documents" "parent" ON "parent".id = d."parent"
+    LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
+    LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
+    ${LeftJoin}
+    WHERE d.type = '${type}'`;
   return query;
 }
 
@@ -121,7 +121,7 @@ export function generateQueryList(doc: { [x: string]: any }, type: string) {
       ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = d.doc ->> '${prop}' AND "${prop}".type = '${type}'\n`;
 
   delete doc.parent; delete doc.user; delete doc.company;
-  let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent, 
+  let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent,
     "company".description "company",
     "user".description "user"\n`;
 
@@ -137,12 +137,13 @@ export function generateQueryList(doc: { [x: string]: any }, type: string) {
     }
   }
 
-  query += `FROM "Documents" d
-        LEFT JOIN "Documents" "parent" ON "parent".id = d."parent"
-        LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
-        LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
-        ${LeftJoin}
-        WHERE d.type = '${type}'`;
+  query += `
+    FROM "Documents" d
+    LEFT JOIN "Documents" "parent" ON "parent".id = d."parent"
+    LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
+    LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
+    ${LeftJoin}
+    WHERE d.type = '${type}'`;
 
   return query;
 }
@@ -167,22 +168,21 @@ export function generateQueryNew(doc: { [x: string]: any }, type: string) {
   }
 
   query = `
-          SELECT
-          uuid_generate_v1mc() id,
-          now() date,
-          '${type}' "type",
-          (SELECT prifix from config_schema where type = '${type}') || '-' ||
-            trim(to_char((SELECT nextval(coalesce((SELECT generator from config_schema where type = '${type}'), 'common_generator'))), '0000000')) code,
-          (SELECT description from config_schema where type = '${type}') || '...' description,
-          false posted,
-          false deleted,
-          false isfolder,
-          '' info,
-          '{"id": "", "code": "", "type": "${type}", "value": ""}':: JSONB "parent",
-          '{"id": "", "code": "", "type": "Catalog.User", "value": ""}':: JSONB "user",
-          '{"id": "", "code": "", "type": "Catalog.Company", "value": ""}':: JSONB "company"
-          ${query}
-          `;
+    SELECT
+    uuid_generate_v1mc() id,
+    now() date,
+    '${type}' "type",
+    (SELECT prifix from config_schema where type = '${type}') || '-' ||
+      trim(to_char((SELECT nextval(coalesce((SELECT generator from config_schema where type = '${type}'), 'common_generator'))), '0000000')) code,
+    (SELECT description from config_schema where type = '${type}') || '...' description,
+    false posted,
+    false deleted,
+    false isfolder,
+    '' info,
+    '{"id": "", "code": "", "type": "${type}", "value": ""}':: JSONB "parent",
+    '{"id": "", "code": "", "type": "Catalog.User", "value": ""}':: JSONB "user",
+    '{"id": "", "code": "", "type": "Catalog.Company", "value": ""}':: JSONB "company"
+    ${query}`;
 
   return query;
 }

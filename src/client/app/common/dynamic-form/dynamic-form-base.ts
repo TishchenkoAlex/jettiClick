@@ -93,7 +93,7 @@ export class DateJettiFormControl extends BaseJettiFromControl<Date> {
   }
 }
 
-export class DateTimeDynamicControl extends BaseJettiFromControl<Date> {
+export class DateTimeFormControl extends BaseJettiFromControl<Date> {
   controlType = 'datetime';
   type = 'datetime';
   style = { 'max-width' : '110px' };
@@ -110,19 +110,21 @@ export interface JettiComplexObject {
 
 export class AutocompleteJettiFormControl extends BaseJettiFromControl<JettiComplexObject> {
   controlType = 'autocomplete';
+  style = { 'width' : '170px' };
 
   constructor(options: ControlOptions<JettiComplexObject> = {}) {
     super(options);
     if (!this.value) {
-      this.value = {id: '',  code: '', type: this.type, value: ''}
+      this.value = {id: '',  code: '', type: this.type, value: null}
     }
+    if (options.style) { this.style = options.style }
   }
 }
 
 export class NumberJettiFormControl extends BaseJettiFromControl<number> {
   controlType = 'number';
   type = 'number';
-  style = { 'max-width' : '110px' };
+  style = { 'max-width' : '110px', 'width': '110px' };
 
   constructor(options: ControlOptions<number> = {}) {
     super(options);

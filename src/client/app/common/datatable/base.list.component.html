@@ -5,7 +5,7 @@
       <mat-panel-title>
         <div fxFlex fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px">
           <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table, filterPanel: filterPanel}"></ng-container>
-          <button mat-mini-fab color="accent" (click)="$event.stopPropagation(); close()" matTooltip="close">
+          <button type="button" mat-mini-fab color="accent" (click)="$event.stopPropagation(); close()" matTooltip="close">
             <mat-icon>close</mat-icon>
           </button>
         </div>
@@ -119,16 +119,16 @@
       <mat-row *cdkRowDef="let row; columns: displayedColumns;"></mat-row>
     </mat-table>
     <div fxLayoutAlign="end center" fxLayoutGap="4px" style="padding-right: 12px">
-      <button mat-icon-button color="default" (click)="dataSource ? dataSource.first() : undefined" [disabled]="!dataSource?.continuation?.first">
+      <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.first() : undefined" [disabled]="!dataSource?.continuation?.first">
         <mat-icon>first_page</mat-icon>
       </button>
-      <button mat-icon-button color="default" (click)="dataSource ? dataSource.prev(): undefined" [disabled]="!dataSource?.continuation?.first">
+      <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.prev(): undefined" [disabled]="!dataSource?.continuation?.first">
         <mat-icon>navigate_before</mat-icon>
       </button>
-      <button mat-icon-button color="default" (click)="dataSource ? dataSource.next() : undefined" [disabled]="!dataSource?.continuation?.last">
+      <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.next() : undefined" [disabled]="!dataSource?.continuation?.last">
         <mat-icon>navigate_next</mat-icon>
       </button>
-      <button mat-icon-button color="default" (click)="dataSource ? dataSource.last() : undefined" [disabled]="!dataSource?.continuation?.last">
+      <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.last() : undefined" [disabled]="!dataSource?.continuation?.last">
         <mat-icon>last_page</mat-icon>
       </button>
     </div>
@@ -136,20 +136,20 @@
 </div>
 
 <ng-template #actionTepmlateDefault let-d="data" let-f="filterPanel">
-    <button mat-mini-fab color="primary" (click)="$event.stopPropagation(); add()" matTooltip="create new">
+    <button type="button" mat-mini-fab color="primary" (click)="$event.stopPropagation(); add()" matTooltip="create new">
       <mat-icon>add</mat-icon>
     </button>
-    <button *ngIf="dataSource.selection.selected.length == 1" mat-mini-fab color="default" matTooltip="copy" (click)="$event.stopPropagation(); copy()">
+    <button type="button" *ngIf="dataSource.selection.selected.length == 1" mat-mini-fab color="default" matTooltip="copy" (click)="$event.stopPropagation(); copy()">
       <mat-icon>content_copy</mat-icon>
     </button>
-    <button *ngIf="dataSource.selection.selected.length >=1" mat-mini-fab color="secondary" matTooltip="post" (click)="$event.stopPropagation(); post()">
+    <button type="button" *ngIf="dataSource.selection.selected.length >=1" mat-mini-fab color="secondary" matTooltip="post" (click)="$event.stopPropagation(); post()">
       <mat-icon>done</mat-icon>
     </button>
-    <button *ngIf="dataSource.selection.selected.length" (click)="$event.stopPropagation(); delete()" mat-mini-fab color="warn"
+    <button type="button" *ngIf="dataSource.selection.selected.length" (click)="$event.stopPropagation(); delete()" mat-mini-fab color="warn"
       matTooltip="delete">
       <mat-icon>remove</mat-icon>
     </button>
-    <button mat-mini-fab color="default" (click)="$event.stopPropagation(); dataSource.refresh()" matTooltip="refresh">
+    <button type="button" mat-mini-fab color="default" (click)="$event.stopPropagation(); dataSource.refresh()" matTooltip="refresh">
       <mat-icon>refresh</mat-icon>
     </button>
 </ng-template>

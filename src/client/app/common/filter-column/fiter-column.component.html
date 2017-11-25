@@ -13,8 +13,8 @@
         <j-filter-form-control [columnDef]="columnDef" (change)="onChange()"></j-filter-form-control>
       </mat-card-content>
       <mat-card-actions align="center" style="margin-bottom: 0; padding: 0;">
-        <button mat-raised-button color="primary" (click)="onFilter()" [disabled]="!this.filter?.valid()">Ok</button>
-        <button mat-raised-button (click)="onCancel()">Cancel</button>
+        <button type="button" mat-raised-button color="primary" (click)="onFilter()" [disabled]="!this.filter?.valid()">Ok</button>
+        <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
       </mat-card-actions>
     </div>
   </mat-card>

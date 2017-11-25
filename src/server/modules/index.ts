@@ -14,8 +14,8 @@ export const JDM: IJDM = {
     valueChanges: CashIn.Actions
   },
   'Document.Operation': {
+    post: Operation.post,
     valueChanges: Operation.Actions,
-    post: Operation.post
   },
   'Document.PriceList': {
     post: PriceList.post,

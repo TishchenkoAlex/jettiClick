@@ -1,0 +1,162 @@
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    forwardRef,
+    Input,
+    Output,
+} from '@angular/core';
+import {
+    AbstractControl,
+    ControlValueAccessor,
+    FormControl,
+    FormGroup,
+    NG_VALIDATORS,
+    NG_VALUE_ACCESSOR,
+    ValidationErrors,
+    Validator,
+    Validators,
+} from '@angular/forms';
+import { MatDialog } from '@angular/material';
+import { Router } from '@angular/router';
+import { filter, take } from 'rxjs/operators';
+
+import { DocModel } from '../../../../server/modules/doc.base';
+import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
+import { ApiService } from '../../services/api.service';
+import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'j-autocomplete-png',
+  templateUrl: './autocomplete.png.component.html',
+  providers: [
+    { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompletePNGComponent), multi: true },
+    { provide: NG_VALIDATORS, useExisting: forwardRef(() => AutocompletePNGComponent), multi: true, },
+  ]
+})
+export class AutocompletePNGComponent implements ControlValueAccessor, Validator {
+
+  @Input() readOnly = false;
+  @Input() placeholder = '';
+  @Input() required = false;
+  @Input() disabled = false;
+  @Input() hidden = false;
+  @Input() tabIndex = -1;
+  @Input() type = '';
+  @Input() checkValue = true;
+  @Input() openButton = true;
+  @Output() change = new EventEmitter();
+
+  form: FormGroup = new FormGroup({
+    suggest: this.required ? new FormControl(this.value, Validators.required) : new FormControl(this.value)
+  });
+
+  private NO_EVENT = false;
+
+  get suggest() { return this.form.controls['suggest']; }
+  get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.') }
+  get isTypeControl() { return this.type && this.type.startsWith('Types.') }
+  get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.') }
+  get EMPTY() { return { id: '', code: '', type: this.type, value: null } }
+
+  private _value: JettiComplexObject;
+  @Input() set value(obj) {
+    if (obj) { delete obj.data }
+    if (this.isTypeControl) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']' }
+    this._value = obj;
+    this.suggest.patchValue(obj);
+    if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value) }
+    this.NO_EVENT = false;
+  }
+  get value() { return this._value; }
+
+  suggests$: any[];
+
+  // implement ControlValueAccessor interface
+  private onChange = (value: any) => { }
+  private onTouched = () => { };
+
+  writeValue(obj: any): void {
+    console.log('WRITE', obj)
+    this.NO_EVENT = true;
+    if (!obj) { obj = this.EMPTY }
+    if (!this.type) { this.type = obj.type }
+    if ((this.type && this.type.includes('.')) && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
+        (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) {
+      this.value = this.EMPTY;
+      return;
+    }
+    this.value = obj;
+    if (this.type.includes('.') && (this.value && !this.value.value)) { this.handleReset(null) }
+    this.cd.markForCheck();
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState?(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+  // end of implementation ControlValueAccessor interface
+
+  // implement Validator interface
+  validate(c: AbstractControl): ValidationErrors | null {
+    if (!this.required) { return null }
+    if (c.value.value) { return null }
+    return { 'required': true }
+  };
+  // end of implementation Validator interface
+
+  constructor(private api: ApiService, private router: Router, public dialog: MatDialog, private cd: ChangeDetectorRef) { }
+
+  getSuggests(text) {
+    this.api.getSuggests(this.value.type || this.type, text || '').pipe(take(1)).subscribe(data => {
+      this.suggests$ = data;
+      this.cd.markForCheck();
+    });
+  }
+
+  onBlur() {
+    if (this.value && this.suggest.value && (this.value.id !== this.suggest.value.id)) {
+      this.value = this.value;
+    }
+  }
+
+  onSelect(event) {
+    this.value = this.suggest.value;
+  }
+
+  handleReset(event: Event) {
+    this.value = '' as any;
+    this.suggest.markAsDirty();
+    this._value = this.EMPTY;
+  }
+
+  handleOpen(event: Event) {
+    event.stopPropagation();
+    this.router.navigate([this.value.type || this.type, this.value.id]);
+  }
+
+  handleSearch(event: Event) {
+    this.dialog.open(SuggestDialogComponent,
+      { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
+      .afterClosed().pipe(
+      filter(result => !!result),
+      take(1))
+      .subscribe((data: DocModel) => {
+        this.value = {
+          id: data.id, code: data.code, type: data.type,
+          value: this.isTypeValue ? null : data.description,
+          data: 'NO_SUGGEST'
+        };
+      });
+  }
+
+}

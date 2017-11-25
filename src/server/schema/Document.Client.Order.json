@@ -1,0 +1,51 @@
+{
+    "Tax": {
+        "type": "number",
+        "style": {
+            "width": "60px",
+            "text-align": "right"
+        },
+        "readOnly": "true"
+    },
+    "Items": {
+        "type": "table",
+        "Items": {
+            "Qty": {
+                "type": "number",
+                "required": true
+            },
+            "SKU": {
+                "type": "Catalog.Product",
+                "order": 1,
+                "required": true
+            },
+            "Price": {
+                "type": "number",
+                "required": true
+            }
+        },
+        "label": "Super"
+    },
+    "Amount": {
+        "type": "number",
+        "style": {
+            "width": "110px",
+            "text-align": "right"
+        },
+        "readOnly": "true"
+    },
+    "Status": {
+        "order": "8",
+        "style": {
+            "width": "80px"
+        }
+    },
+    "Manager": {
+        "type": "Catalog.Manager",
+        "order": "7"
+    },
+    "Customer": {
+        "type": "Catalog.Counterpartie",
+        "order": "6"
+    }
+}
