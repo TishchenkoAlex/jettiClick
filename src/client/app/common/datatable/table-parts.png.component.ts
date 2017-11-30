@@ -7,13 +7,8 @@ import {
     OnDestroy,
     OnInit,
     Output,
-    ViewChild,
 } from '@angular/core';
-import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { FormArray, FormGroup } from '@angular/forms';
-import { DataTable } from 'primeng/primeng';
-import { Observable } from 'rxjs/Observable';
-import { catchError, debounceTime, distinctUntilChanged, filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -32,13 +27,12 @@ import { cloneFormGroup } from '../utils';
   selector: 'j-table-part-png',
   templateUrl: './table-parts.png.component.html',
 })
-export class TablePartsPNGComponent implements OnInit, OnDestroy, AfterViewInit {
+export class TablePartsPNGComponent implements OnInit, OnDestroy {
   private view: BaseJettiFromControl<any>[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
 
   @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
-  @ViewChild(DataTable) dataTable: DataTable;
   dataSource: any[];
   columns: ColumnDef[] = [];
   sampleRow: FormGroup;
@@ -46,6 +40,7 @@ export class TablePartsPNGComponent implements OnInit, OnDestroy, AfterViewInit 
   suggests = [];
 
   private _subscription$: Subscription = Subscription.EMPTY;
+  private _valueChanges$: Subscription = Subscription.EMPTY;
 
   constructor(private api: ApiService, private ds: DocService, private cd: ChangeDetectorRef) { }
 
@@ -54,23 +49,22 @@ export class TablePartsPNGComponent implements OnInit, OnDestroy, AfterViewInit 
     this.columns = this.view.filter(c => !(c instanceof ScriptJettiFormControl)).map((el) => {
       const result: ColumnDef = {
         field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, change: el.change,
-        order: el.order, style: el.style, required: el.required, readOnly: el.readOnly
+        order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, data: el
       };
       return result;
     });
-
+    this.view.forEach(v => v.label = null);
     this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
     this.formGroup.removeAt(this.formGroup.length - 1);
     this.dataSource = this.formGroup.getRawValue();
     this._subscription$ = this.ds.save$.subscribe(data => this.dataSource = this.formGroup.getRawValue());
-  }
-
-  ngAfterViewInit() {
     setTimeout(() => this.cd.markForCheck());
+    this._valueChanges$ = this.formGroup.valueChanges.subscribe(data => this.onChange.emit(data));
   }
 
   ngOnDestroy() {
     this._subscription$.unsubscribe();
+    this._valueChanges$.unsubscribe();
   }
 
   private copyFormGroup(formGroup: FormGroup): FormGroup {
@@ -78,45 +72,53 @@ export class TablePartsPNGComponent implements OnInit, OnDestroy, AfterViewInit 
     return newFormGroup;
   }
 
-  add() {
-    const newFormGroup = this.copyFormGroup(this.sampleRow);
+  private addCopy(newFormGroup) {
     newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
     this.formGroup.push(newFormGroup);
     this.dataSource = this.formGroup.getRawValue();
-    this.onChange.emit(this.dataSource);
     this.selection = [newFormGroup.getRawValue()];
+    this.onChange.emit(this.selection[0]);
+  }
+
+  add() {
+    const newFormGroup = this.copyFormGroup(this.sampleRow);
+    this.addCopy(newFormGroup);
+  }
+
+  copy() {
+    const newFormGroup = this.copyFormGroup(this.formGroup.at(this.selection[0].index) as FormGroup);
+    this.addCopy(newFormGroup);
   }
 
   delete() {
     const index = this.selection[0].index;
-    for (const element of this.dataTable.selection) {
-      this.formGroup.removeAt(this.formGroup.controls.findIndex((el: FormGroup) => el.controls['index'].value === element.index));
+    for (const element of this.selection) {
+      const rowIndex = this.formGroup.controls.findIndex((el: FormGroup) => el.controls['index'].value === element.index);
+      this.onChange.emit((this.formGroup.at(rowIndex) as FormGroup).getRawValue());
+      this.formGroup.removeAt(rowIndex);
     }
-    for (let i = 0; i < this.formGroup.length; i++) {
-      this.formGroup.get([i]).get('index').patchValue(i, { emitEvent: false });
-    }
+    for (let i = 0; i < this.formGroup.length; i++) { this.formGroup.get([i]).get('index').patchValue(i, { emitEvent: false })}
     this.dataSource = this.formGroup.getRawValue();
     const selectRow = this.dataSource[index] || this.dataSource[index - 1];
     this.selection = selectRow ? [selectRow] : [];
-    this.onChange.emit(this.dataSource);
   }
 
-  copy() {
-    const index = this.dataTable.selection[0].index;
-    const newFormGroup = this.copyFormGroup(this.formGroup.at(index) as FormGroup);
-    newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
-    this.formGroup.push(newFormGroup);
-    this.dataSource = this.formGroup.getRawValue();
-    this.selection = [newFormGroup.getRawValue()];
-    this.onChange.emit(this.dataSource);
+  onEditComplete(event) {
+    console.log('onEditComplete', event)
   }
 
-  suggestChange() {
-    this.cd.markForCheck();
+  onEdit(event) {
+    console.log('onEdit', event)
   }
 
-  Selection() {
-    this.selection = [];
+  onEditCancel(event) {
+    console.log('onEditCancel', event)
+  }
+
+  calcTotals(field: string): number {
+    let result = 0;
+    for (const c of <FormGroup[]>this.formGroup.controls) { result += c.controls[field].value }
+    return result;
   }
 
 }

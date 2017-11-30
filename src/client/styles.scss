@@ -1,150 +1,12 @@
-@import '~@angular/material/prebuilt-themes/indigo-pink.css';
-@import url('https://fonts.googleapis.com/css?family=Material+Icons');
-@import url('https://fonts.googleapis.com/css?family=Roboto:400,300');
-
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -ms-overflow-style: none;
   margin: 0;
+  font-size: 0.8em !important ;
+
 }
 
-.suggestDialog .mat-dialog-container {
-  padding-bottom: 0px;
-  min-width: 440px;
-  max-width: 780px;
-}
-
-.editRowDialog .mat-dialog-container {
-  padding: 0;
-  min-width: 440px;
-  max-width: 780px;
-}
-
-.sidenav-menu .mat-expansion-panel-body {
-  padding: 0;
-  margin: 0;
-  overflow: auto;
-}
-
-.sidenav-menu .mat-list-item-content {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-}
-
-.sidenav-menu .mat-list-item {
-  height: 32px !important;
-}
-
-.mat-header-cell, .mat-cell { 
-  padding: 0 4px;
-  min-width: 80px !important;
-}
-
-.mat-column-date {
-  max-width: 80px !important;
-  min-width: 80px !important;
-  display: flex;
-  text-align: center;
-  justify-content: center;
-}
-
-.mat-column-Operation {
-  max-width: 180px !important;
-  min-width: 180px !important;
-}
-
-.mat-column-select {
-  overflow: visible !important;
-  max-width: 22px !important;
-  min-width: 22px !important;
-  margin: 0px !important;
-  padding: 0px !important;
-}
-
-.mat-column-code {
-  max-width: 120px !important;
-}
-
-.mat-cell .mat-checkbox-layout {
-  margin-bottom: 2px !important;
-}
-
-.mat-column-index {
-  overflow: visible !important;
-  max-width: 22px !important;
-  min-width: 22px !important;
-  margin: 0px !important;
-  padding: 0px !important;
-}
-
-.mat-column-posted {
-  max-width: 24px !important;
-  min-width: 24px !important;
-  margin: 0px !important;
-  padding: 0px !important;
-  margin-top: 2px !important;
-}
-
-.mat-header-row, .mat-row { 
-  padding: 0 16px !important;
-  min-height: 32px !important;
-}
-
-.mat-sort-header-arrow {
-  margin-left: 2px !important;
-}
-
-.mat-column-currency {
-  max-width: 70px !important;
-  min-width: 70px !important;
-}
-
-.mat-column-description {
-  min-width: 180px !important;
-}
-
-.mat-form-field-infix {
-  width: 0px !important;
-}
-
-.mat-cell {
-  font-size: 13px !important;
-}
-
-.mat-row:hover {
-  background: #f5f5f5;
-}
-
-.mat-sort-header-container {
-  align-items: center;
-}
-
-.mat-sort-header-container .mat-icon {
-  height: 20px;
-}
-
-.cdk-overlay-pane .mat-card {
-  padding-bottom: 12px;
-}
-
-.color-picker {
-  background-color:white;
-  width: 190px;
-  height: 190px;
-  padding: 8px;
-  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-}
-
-.sidenav-menu .mat-list-text {
-  padding: 0 4px !important;
-}
-
-.bottom-tab .mat-tab-label  {
-  padding: 6px;
-  min-width: 90px;
-  min-height: 52px;
-}
 
 .ui-editable-column {
   padding: 1px 4px !important;
@@ -158,17 +20,26 @@ body {
   padding: 0;
 }
 
-.ui-tabview.ui-tabview-top>.ui-tabview-nav {
+.tabViewClassInForm .ui-tabview.ui-tabview-top .ui-tabview-nav {
   padding: 0;
   margin-bottom: -24px;
+  z-index: 31;
+}
+
+.tabViewClassInForm .ui-tabview-panels {
+  border-top: none !important;
+}
+
+.ui-tabview.ui-tabview-top > .ui-tabview-nav {
+  margin-bottom: 0px;
 }
 
 .ui-tabview {
-  padding: 0;
+  padding: 0 !important;
 }
 
 .ui-datepicker.ui-widget .ui-datepicker-calendar td a {
-  padding: 0px !important; 
+  padding: 4px !important; 
 }
 
 .ui-timepicker {
@@ -177,4 +48,24 @@ body {
 
 .ui-spinner-button {
   display: none !important; 
+}
+
+j-control {
+  width: 100% !important;
+}
+
+.ui-button-icon-only {
+  width: 2em !important;
+}
+
+.profile-image {
+  border-radius: 50%;
+}
+
+.my-code-editor {
+    height: calc(100vh - 300px);
+}
+
+.ui-autocomplete .ui-autocomplete-input {
+  padding-right: 0.5em;
 }

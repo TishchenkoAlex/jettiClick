@@ -1,0 +1,11 @@
+<p-tabView [style]="{'display': 'flex', 'flex-direction': 'column'}" [(activeIndex)]="tcs.index" [controlClose]="true" (onClose)="handleClose($event.index)"
+  (onChange)="onChange($event.index)">
+  <p-tabPanel #tp [style]="{'display': 'flex', 'flex-direction': 'column'}" *ngFor="let tab of tcs.tabs" header="{{ (tab.description || tab.header) | bcEllipsis:25 }}"
+    leftIcon="fa-bell-o" [closable]="this.tab.docType !== this.tcs.HOME">
+    <ng-template pTemplate="content">
+    <div class="card">
+      <dynamic-component [component]="tab.component"></dynamic-component>
+    </div>
+    </ng-template>
+  </p-tabPanel>
+</p-tabView>

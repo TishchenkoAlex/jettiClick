@@ -3,10 +3,12 @@
         "type": "Catalog.Operation.Group",
         "label": "Group",
         "order": 4,
-        "hidden": true
+        "hidden": true,
+        "hidden-list": true
     },
     "Amount": {
-        "type": "number"
+        "type": "number",
+        "order": 7
     },
     "parent": {
         "type": "Document.Operation",
@@ -14,23 +16,27 @@
     },
     "column1": {
         "label": "Parameter 1",
-        "order": 6,
+        "order": 16,
         "hidden": true
     },
     "column2": {
         "label": "Parameter 2",
-        "order": 7,
+        "order": 17,
         "hidden": true
     },
     "column3": {
         "label": "Parameter 3",
-        "order": 8,
-        "hidden": true,
-        "hidden-list": true
+        "order": 18,
+        "hidden": true   
     },
     "currency": {
         "type": "Catalog.Currency",
-        "required": true
+        "label": "cur",
+        "style": {
+            "width": "60px"
+        },
+        "required": true,
+        "order": 8
     },
     "Operation": {
         "type": "Catalog.Operation",

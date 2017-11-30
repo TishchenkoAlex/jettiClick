@@ -12,7 +12,7 @@ import {
     BooleanJettiFormControl,
     ControlOptions,
     DateJettiFormControl,
-    DateTimeFormControl,
+    DateTimeJettiFormControl,
     NumberJettiFormControl,
     ScriptJettiFormControl,
     TableDynamicControl,
@@ -43,11 +43,12 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       const required = prop['required'] || false;
       const readOnly = prop['readOnly'] || false;
       const style = prop['style'] || false;
+      const totals = prop['totals'] * 1 || null;
       const change = prop['change'];
       let newControl: BaseJettiFromControl<any>;
       const controlOptions: ControlOptions<any> = {
         key: key, label: label, type: dataType, required: required, readOnly: readOnly,
-        order: order, hidden: hidden, style: style, change: change,
+        order: order, hidden: hidden, style: style, change: change, totals: totals,
       };
       switch (dataType) {
         case 'table':
@@ -63,7 +64,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
           newControl = new DateJettiFormControl(controlOptions);
           break;
         case 'datetime':
-          newControl = new DateTimeFormControl(controlOptions);
+          newControl = new DateTimeJettiFormControl(controlOptions);
           break;
         case 'number':
           newControl = new NumberJettiFormControl(controlOptions);
@@ -138,7 +139,6 @@ export class DynamicFormService {
         const view = viewModel['view'];
         let model: IDocBase = viewModel['model'];
         model = JSON.parse(JSON.stringify(model), dateReviver);
-        console.log(model);
         return getViewModel(view, model, exclude, docID !== 'new')
       }));
   }

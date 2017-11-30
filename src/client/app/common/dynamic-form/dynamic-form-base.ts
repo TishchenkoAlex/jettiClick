@@ -10,6 +10,7 @@ export interface ControlOptions<T> {
   controlType?: string,
   style?: any,
   change?: string,
+  totals?: number
 }
 
 export class BaseJettiFromControl<T> {
@@ -24,6 +25,7 @@ export class BaseJettiFromControl<T> {
   controlType: string;
   style: any;
   change: string;
+  totals: number;
 
   constructor(options: ControlOptions<T> = {}) {
     this.value = options.value;
@@ -37,6 +39,7 @@ export class BaseJettiFromControl<T> {
     this.controlType = options.controlType || '';
     this.style = options.style || {};
     this.change = options.change || '';
+    this.totals = options.totals || null;
   }
 }
 
@@ -73,7 +76,7 @@ export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
 export class BooleanJettiFormControl extends BaseJettiFromControl<boolean> {
   controlType = 'checkbox';
   type = 'boolean';
-  style = { 'max-width': '45px', 'min-width': '24px', 'text-align' : 'center', 'justify-content': 'center' };
+  style = { 'max-width': '45px', 'min-width': '24px', 'width' : '90px', 'text-align' : 'center'};
 
   constructor(options: ControlOptions<boolean> = {}) {
     super(options);
@@ -85,7 +88,7 @@ export class BooleanJettiFormControl extends BaseJettiFromControl<boolean> {
 export class DateJettiFormControl extends BaseJettiFromControl<Date> {
   controlType = 'date';
   type = 'date';
-  style = { 'max-width' : '90px' };
+  style = { 'max-width' : '110px', 'width' : '110px'};
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);
@@ -93,10 +96,10 @@ export class DateJettiFormControl extends BaseJettiFromControl<Date> {
   }
 }
 
-export class DateTimeFormControl extends BaseJettiFromControl<Date> {
+export class DateTimeJettiFormControl extends BaseJettiFromControl<Date> {
   controlType = 'datetime';
   type = 'datetime';
-  style = { 'max-width' : '110px' };
+  style = { 'max-width' : '135px', 'width' : '145px' };
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);
@@ -110,7 +113,7 @@ export interface JettiComplexObject {
 
 export class AutocompleteJettiFormControl extends BaseJettiFromControl<JettiComplexObject> {
   controlType = 'autocomplete';
-  style = { 'width' : '170px' };
+  // style = { 'width' : '210px' };
 
   constructor(options: ControlOptions<JettiComplexObject> = {}) {
     super(options);
@@ -124,7 +127,7 @@ export class AutocompleteJettiFormControl extends BaseJettiFromControl<JettiComp
 export class NumberJettiFormControl extends BaseJettiFromControl<number> {
   controlType = 'number';
   type = 'number';
-  style = { 'max-width' : '110px', 'width': '110px' };
+  style = { 'width': '110px', 'text-align' : 'right' };
 
   constructor(options: ControlOptions<number> = {}) {
     super(options);

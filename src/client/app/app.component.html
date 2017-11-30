@@ -1,85 +1,25 @@
-<div [class.dark-theme]="isDarkTheme" style="height: 100vh;" fxLayout="column">
-  <mat-toolbar color="primary" class="mat-elevation-z8">
-    <button type="button" mat-icon-button (click)="sideNav.opened = !sideNav.opened">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <span>Jetti - ClickSales</span>
-    <span fxFlex></span>
-    <mat-progress-bar *ngIf="lds.loading$ | async" style="position: absolute; bottom: 0; left: 0" [color]="lds.color$ | async"
-      mode="indeterminate"></mat-progress-bar>
-    <div *ngIf="lds.counter$ | async as counter">
-      <mat-progress-bar style="position: absolute; bottom: 0; left: 0" color="accent" [value]="counter"></mat-progress-bar>
-    </div>
-    <span fxFlex></span>
-    <app-login></app-login>
-    <button type="button" mat-icon-button (click)="end.toggle()">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-  </mat-toolbar>
-  <mat-sidenav-container style="height: 100%">
-    <mat-sidenav mode="side" [opened]="this.sideNav.opened" class="mat-elevation-z10">
-      <mat-accordion displayMode="flat" class="sidenav-menu">
-        <mat-expansion-panel hideToggle="true" expanded="true">
-          <mat-expansion-panel-header>
-            <mat-panel-title>Catalogs</mat-panel-title>
-            <mat-icon>map</mat-icon>
-          </mat-expansion-panel-header>
-          <mat-nav-list>
-            <mat-list-item *ngFor="let item of menuCatalogItems | async" class="sidenav-menu" [class.mat-list-item-focus]="selectedItem === item"
-              (click)="selectedItem = item" [routerLink]="'/'+item.type" [routerLinkActive]="['active-route']">
-              <mat-icon mat-list-icon color="primary">{{ item.icon }}</mat-icon>
-              <div mat-line color="primary">{{ item.menu }}</div>
-            </mat-list-item>
-          </mat-nav-list>
-        </mat-expansion-panel>
-        <mat-expansion-panel hideToggle="true">
-          <mat-expansion-panel-header>
-            <mat-icon>list</mat-icon>
-            <mat-panel-title>Documents</mat-panel-title>
-          </mat-expansion-panel-header>
-          <mat-nav-list>
-            <mat-list-item *ngFor="let item of menuDocItems | async" class="sidenav-menu" [class.mat-list-item-focus]="selectedItem === item"
-              (click)="selectedItem = item" [routerLink]="'/'+item.type" [routerLinkActive]="['active-route']">
-              <mat-icon mat-list-icon color="primary">{{ item.icon }}</mat-icon>
-              <div mat-line color="primary">{{ item.menu }}</div>
-            </mat-list-item>
-          </mat-nav-list>
-        </mat-expansion-panel>
-        <mat-expansion-panel hideToggle="true">
-          <mat-expansion-panel-header>
-            <mat-icon>print</mat-icon>
-            <mat-panel-title>Reports</mat-panel-title>
-          </mat-expansion-panel-header>
-        </mat-expansion-panel>
-        <mat-expansion-panel hideToggle="true">
-          <mat-expansion-panel-header>
-            <mat-icon>settings</mat-icon>
-            <mat-panel-title>Settings</mat-panel-title>
-          </mat-expansion-panel-header>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </mat-sidenav>
-    <mat-sidenav #end position="end" mode="over" style="height: 100%;width: 370px;" class="mat-elevation-z10">
-      <div fxLayout="column" fxLayoutGap="8px">
-        <ng-container *ngTemplateOutlet="sideNavService.templateRef ? sideNavService.templateRef : sideNavTepmlateDefault; context: {sidenav: end}"></ng-container>
-      </div>
-    </mat-sidenav>
-    <div class="content">
-      <div class="mat-elevation-z10">
-        <router-outlet></router-outlet>
-      </div>
-    </div>
-  </mat-sidenav-container>
-  <!--     <mat-toolbar class="mat-medium-tall" color="primary"></mat-toolbar> -->
-</div>
-<mat-menu #themeMenu x-position="before">
-  <button type="button" mat-menu-item (click)="isDarkTheme = !isDarkTheme;">Toggle Theme</button>
-</mat-menu>
+<p-growl></p-growl>
+<div class="layout-wrapper" (click)="onLayoutClick()" [ngClass]="{'menu-layout-static': !isOverlay(),
+            'menu-layout-overlay': isOverlay(),
+            'layout-menu-overlay-active': overlayMenuActive,
+            'menu-layout-horizontal': isHorizontal(),
+            'menu-layout-slim': isSlim(),
+            'layout-menu-static-inactive': staticMenuDesktopInactive,
+            'layout-menu-static-active': staticMenuMobileActive}">
 
-<ng-template #sideNavTepmlateDefault let-sidenav="sidenav">
-  <mat-card>
-    STANDART
-    <br>
-    <button type="button"  mat-button (click)="sidenav.close()">Close</button>
-  </mat-card>
-</ng-template>
+    <app-topbar></app-topbar>
+
+    <div class="layout-menu-container" [ngClass]="{'layout-menu-dark':darkMenu}" (click)="onMenuClick($event)">
+        <div #layoutMenuScroller class="nano">
+            <div class="nano-content menu-scroll-content">
+                <app-inline-profile *ngIf="profileMode=='inline'&&!isHorizontal()"></app-inline-profile>
+                <app-menu [reset]="resetMenu"></app-menu>
+            </div>
+        </div>
+    </div>
+
+    <div class="layout-main">
+        <router-outlet></router-outlet>
+    </div>
+
+</div>

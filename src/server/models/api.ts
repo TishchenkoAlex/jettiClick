@@ -8,6 +8,6 @@ export interface DocListRequestBody {
 }
 
 export interface Continuation { first: DocModel, last: DocModel }
-export interface DocListResponse2 { data: any[], continuation: Continuation };
+export interface DocListResponse { data: any[], continuation: Continuation };
 
 export interface MenuItem { type: string; description: string; icon: string; menu: string }

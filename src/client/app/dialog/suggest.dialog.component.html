@@ -1,83 +1,29 @@
-<div fxLayout="column" [style.xs]="{'min-width': '280px'}">
-  <div class="search-header" fxLayout="row">
-    <mat-input-container fxFlex>
-      <input matInput #filter placeholder="filter ...">
-    </mat-input-container>
-    <button type="button" mat-icon-button color="default" mat-dialog-close style="margin-right: -12px">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+<div cdkTrapFocus>
+  <p-toolbar>
+    <div class="ui-toolbar-group-left">
+      <input #filter pInputText placeholder="search by description...">
+    </div>
+    <div class="ui-toolbar-group-right">
+      <button pButton type="button" icon="fa-fast-backward" (click)="this.dataSource.first()" [disabled]="!this.dataSource.continuation.first"></button>
+      <button pButton type="button" icon="fa-step-backward" (click)="this.dataSource.prev()" [disabled]="!this.dataSource.continuation.first"></button>
+      <button pButton type="button" icon="fa-step-forward" (click)="this.dataSource.next()" [disabled]="!this.dataSource.continuation.last"></button>
+      <button pButton type="button" icon="fa-fast-forward" (click)="this.dataSource.last()" [disabled]="!this.dataSource.continuation.last"></button>
+    </div>
+  </p-toolbar>
 
-  <mat-table #table [dataSource]="dataSource" matSort class="mat-table">
-
-    <ng-container matColumnDef="select">
-      <mat-header-cell *matHeaderCellDef>
-        <mat-checkbox (change)="$event ? dataSource.masterToggle() : null" [checked]="dataSource.isAllSelected()" [indeterminate]="dataSource.selection.hasValue() && !dataSource.isAllSelected()">
-        </mat-checkbox>
-      </mat-header-cell>
-      <mat-cell *cdkCellDef="let row">  
-        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? dataSource.selection.toggle(row.id) : null" [checked]="dataSource.selection.isSelected(row.id)"></mat-checkbox>
-      </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="posted">
-      <mat-header-cell *matHeaderCellDef></mat-header-cell>
-      <mat-cell *cdkCellDef="let row">
-        <mat-icon *ngIf="row['deleted']" color="warn">
-          {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'indeterminate_check_box'}}
-        </mat-icon>
-        <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">
-          {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'check_box'}}
-        </mat-icon>
-        <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">
-          {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'check_box_outline_blank'}}
-        </mat-icon>
-      </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="description">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>description</mat-header-cell>
-      <mat-cell *cdkCellDef="let row">
-        <span class="data-table-select" (click)="dialogRef.close(row)" style="cursor: pointer">{{row.description}}</span>
-      </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="code">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>code</mat-header-cell>
-      <mat-cell *cdkCellDef="let row">{{row.code}}</mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="Amount">
-      <mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 70px; min-width: 70px; display: flex; justify-content: flex-end">Amount</mat-header-cell>
-      <mat-cell *cdkCellDef="let row" style="max-width: 70px; min-width: 70px; font-weight: bold; text-align: right">{{row.Amount | number:'1.2-2'}}</mat-cell>
-    </ng-container>
-
-    <ng-container *ngIf="additianalColumn1" [matColumnDef]="additianalColumn1">
-      <mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 150px; min-width: 150px">{{additianalColumn1}}</mat-header-cell>
-      <mat-cell *cdkCellDef="let row" style="max-width: 150px; min-width: 150px">{{row[additianalColumn1]}}</mat-cell>
-    </ng-container>
-
-    <ng-container *ngIf="additianalColumn2" [matColumnDef]="additianalColumn2">
-      <mat-header-cell *matHeaderCellDef mat-sort-header style="max-width: 150px; min-width: 150px">{{additianalColumn2}}</mat-header-cell>
-      <mat-cell *cdkCellDef="let row" style="max-width: 150px; min-width: 150px">{{row[additianalColumn2]}}</mat-cell>
-    </ng-container>
-  
-    <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
-    <mat-row *cdkRowDef="let row; columns: columns;" (click)="dialogRef.close(row)" style="cursor: pointer;"></mat-row>
-
-  </mat-table>
-  <div fxLayoutAlign="end center" fxLayoutGap="4px">
-    <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.first() : undefined" [disabled]="!dataSource?.continuation?.first">
-      <mat-icon>first_page</mat-icon>
-    </button>
-    <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource?.prev() : undefined" [disabled]="!dataSource?.continuation?.first">
-      <mat-icon>navigate_before</mat-icon>
-    </button>
-    <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource?.next() : undefined" [disabled]="!dataSource?.continuation?.last">
-      <mat-icon>navigate_next</mat-icon>
-    </button>
-    <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource?.last() : undefined" [disabled]="!dataSource?.continuation?.last">
-      <mat-icon>last_page</mat-icon>
-    </button>
-  </div>
+  <p-dataTable #dt [value]="(dataSource?.connect() | async)" selectionMode="single" dataKey="id" sortMode="multiple"
+    [lazy]="true" (onSort)="update()" (onRowDblclick)="onSelectHandler(dt.selection)" [resizableColumns]="true">
+    <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
+      <ng-template let-row="rowData" pTemplate="body">
+        <i *ngIf="row['posted'] && !row['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
+        <i *ngIf="row['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
+        <i *ngIf="!row['posted'] && !row['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
+      </ng-template>
+    </p-column>
+    <p-column field="description" header="description" [sortable]="true" [style]="{'width': '70%'}"></p-column>
+    <p-column field="code" header="code" [sortable]="true" [style]="{'width': '130px'}"></p-column>
+    <p-column *ngIf="isDoc" field="Amount" header="Amount" [sortable]="true" [style]="{'width': '110px', 'text-align' : 'right'}"></p-column>
+    <p-column *ngIf="additianalColumn1" [field]="additianalColumn1" [header]="additianalColumn1" [sortable]="true" [style]="{'width': '250px'}"></p-column>
+    <p-column *ngIf="additianalColumn2" [field]="additianalColumn2" [header]="additianalColumn2" [sortable]="true" [style]="{'width': '250px'}"></p-column>
+  </p-dataTable>
 </div>

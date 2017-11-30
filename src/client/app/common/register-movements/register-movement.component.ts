@@ -21,7 +21,6 @@ export class RegisterMovementComponent implements OnInit {
   constructor(private apiService: ApiService, private docService: DocService) { }
 
   ngOnInit() {
-
     this.movements$ = Observable.merge(...[
       this.docService.save$,
       this.docService.delete$,

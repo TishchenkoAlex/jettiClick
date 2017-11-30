@@ -1,19 +1,22 @@
 <p-toolbar>
-  <div class="ui-toolbar-group-left" style="display: flex; flex-direction: row">
+  <div class="ui-toolbar-group-left">
     <button pButton type="button" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
-    <button pButton type="button" icon="fa-clone" *ngIf="selection.length === 1" (click)="copy()"></button>
-    <button pButton type="button" icon="fa-minus" class="ui-button-danger" *ngIf="selection.length > 0" (click)="delete()"></button>
-  </div>
-  <div class="ui-toolbar-group-right" style="display: flex; flex-direction: row">
-    <button pButton type="button" icon="fa-minus" class="ui-button-danger" (click)="Selection()"></button>
+    <button pButton type="button" icon="fa-clone" class="ui-button-secondary" (click)="copy()" *ngIf="selection.length === 1"></button>
+    <button pButton type="button" icon="fa-minus" class="ui-button-danger" (click)="delete()" *ngIf="selection.length > 0"></button>
   </div>
 </p-toolbar>
-<p-dataTable [value]="dataSource" [editable]="true" dataKey="index" [(selection)]="selection"
-  scrollWidth="100%" scrollable="true" sortMode="multiple" [reorderableColumns]="true">
-  <p-column [style]="{'width':'32px'}" selectionMode="multiple"></p-column>
-  <p-column [style]="{'width':'32px'}" field="index" header="#"></p-column>
-  <p-column *ngFor="let col of columns" [editable]="true" [field]="col.field" [header]="col.label" sortable="true" 
-  [style]="col.style">
+
+<p-dataTable [value]="dataSource" [editable]="true" dataKey="index" [(selection)]="selection" [scrollable]="true" 
+  sortMode="multiple" (onEditComplete)="onEditComplete($event)" (onEdit)="onEdit($event)" (onEditCancel)="onEditCancel($event)">
+
+  <p-column [style]="{'width':'40px'}" selectionMode="multiple"></p-column>
+  <p-column [style]="{'width':'50px', 'text-align': 'right'}" field="index" header="#" sortable="true">
+    <ng-template let-row="rowData" pTemplate="body">
+      {{formGroup.controls[row.index].controls['index']?.value+1 | number}}
+    </ng-template>
+  </p-column>
+
+  <p-column *ngFor="let col of columns" [editable]="true" [field]="col.field" [header]="col.label" sortable="true" [style]="col.style">
     <ng-template let-row="rowData" pTemplate="body">
       <span [ngSwitch]="col.type">
         <span *ngSwitchCase="'date'">{{formGroup.controls[row.index].controls[col.field]?.value | date:'dd.MM.yyyy'}}</span>
@@ -22,38 +25,33 @@
         <span *ngSwitchCase="'checkbox'">
           {{formGroup.controls[row.index].controls[col.field]?.value}}
         </span>
-        <span *ngSwitchCase="'string'">{{formGroup.controls[row.index].controls[col.field]?.value}}</span>
-        <span *ngSwitchCase="'textbox'">{{formGroup.controls[row.index].controls[col.field]?.value}}</span>
-        <span *ngSwitchDefault>{{formGroup.controls[row.index].controls[col.field]?.value?.value}}</span>
+        <span *ngSwitchDefault>{{ formGroup.controls[row.index].controls[col.field]?.value?.value || formGroup.controls[row.index].controls[col.field]?.value?.toString()
+          === '[object Object]' ? formGroup.controls[row.index].controls[col.field]?.value?.value || formGroup.controls[row.index].controls[col.field]?.value?.type
+          : formGroup.controls[row.index].controls[col.field]?.value || '' }}
+        </span>
       </span>
     </ng-template>
     <ng-template let-row="rowData" pTemplate="editor">
-      <span [ngSwitch]="col.type">
-        <form novalidate [formGroup]="formGroup.controls[row.index]">
-          <span *ngSwitchCase="'date'">
-            <p-calendar [formControlName]="col.field" dataType="string" appendTo="body" showButtonBar="true" [showOnFocus]="false" [showIcon]="true"
-              dataType="string" [utc]="true" [required]="col.required"></p-calendar>
-          </span>
-          <span *ngSwitchCase="'datetime'">
-            <p-calendar [formControlName]="col.field" dataType="string" appendTo="body" showTime="true" [showOnFocus]="false" hourFormat="24"
-              showButtonBar="true" [showIcon]="true" dataType="string" [utc]="true" [required]="col.required"></p-calendar>
-          </span>
-          <span *ngSwitchCase="'number'">
-            <p-spinner [formControlName]="col.field" decimalSeparator="," thousandSeparator=" " step="0.01" [required]="col.required"></p-spinner>
-          </span>
-          <span *ngSwitchCase="'checkbox'">
-            <p-triStateCheckbox [formControlName]="col.field" [required]="col.required"></p-triStateCheckbox>
-          </span>
-          <span *ngSwitchCase="'autocomplete'">
-            <j-autocomplete-png (change)="suggestChange()" [required]="col.required" [formControlName]="col.field">
-            </j-autocomplete-png>
-          </span>
-          <span *ngSwitchDefault>
-            <input pInput [formControlName]="col.field" [required]="col.required">
-          </span>
-        </form>
-      </span>
+      <j-control [control]="col.data" [form]="formGroup.controls[row.index]"></j-control>
     </ng-template>
   </p-column>
+
+  <p-footerColumnGroup>
+    <p-row>
+      <p-column [style]="{'width':'40px'}"></p-column>
+      <p-column [style]="{'width':'50px', 'text-align': 'right'}"></p-column>
+      <div *ngFor="let col of columns">
+        <p-column [style]="col.style">
+          <ng-template let-row="rowData" pTemplate="footer">
+            <div *ngIf="col.totals">
+              <div style="text-align: right">
+                {{calcTotals(col.field) | number:'1.2-2'}}
+              </div>
+            </div>
+          </ng-template>
+        </p-column>
+      </div>
+    </p-row>
+  </p-footerColumnGroup>
+
 </p-dataTable>
-{{ this.formGroup.value | json }}

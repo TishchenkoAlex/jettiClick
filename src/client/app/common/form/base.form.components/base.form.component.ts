@@ -10,43 +10,42 @@ import {
     ViewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MessageService } from 'primeng/components/common/messageservice';
+import { ConfirmationService } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DocService } from '../../../common/doc.service';
-import { ViewModel } from '../../dynamic-form/dynamic-form.service';
+import { ViewModel } from '../../../common/dynamic-form/dynamic-form.service';
 import { SideNavService } from './../../../services/side-nav.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-form',
-  styleUrls: ['./base.form.component.scss'],
-  templateUrl: './base.form.component.html',
+  templateUrl: './base.form.component.html'
 })
 export class BaseFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
-  viewModel: ViewModel;
-  isDoc: boolean;
-  docId: string;
+  viewModel: ViewModel = this.route.data['value'].detail;
+  docId = this.route.params['value'].id;
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;
   private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
   protected _sideNavService$: Subscription = Subscription.EMPTY;
 
-  constructor(public router: Router, public route: ActivatedRoute, public cd: ChangeDetectorRef,
-    public ds: DocService, public sideNavService: SideNavService, private location: Location) { }
+  get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
+
+  constructor(public router: Router, public route: ActivatedRoute, private messageService: MessageService,
+    private confirmationService: ConfirmationService, private location: Location, public cd: ChangeDetectorRef,
+    public ds: DocService, public sideNavService: SideNavService) { }
 
   ngOnInit() {
-    this.viewModel = this.route.data['value'].detail;
-    this.docId = this.route.params['value'].id;
-    this.isDoc = this.viewModel.model.type.startsWith('Document.')
     this.sideNavService.templateRef = this.sideNavTepmlate;
-
     this._subscription$ = Observable.merge(...[
       this.ds.save$,
       this.ds.delete$]).pipe(
@@ -57,7 +56,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
         this.viewModel.formGroup.markAsPristine();
       });
 
-      this._saveCloseSubscription$ = this.ds.saveCloseDoc$.pipe(
+    this._saveCloseSubscription$ = this.ds.saveCloseDoc$.pipe(
       filter(doc => doc.id === this.viewModel.model.id))
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
@@ -116,10 +115,15 @@ export class BaseFormComponent implements OnInit, OnDestroy {
       this.ds.close(null);
       this.location.back();
     } else {
-      if (confirm('Discard changes and close?')) {
-        this.ds.close(null);
-        this.location.back();
-      }
+      this.confirmationService.confirm({
+        message: 'Discard changes and close?',
+        header: 'Confirmation',
+        icon: 'fa fa-question-circle',
+        accept: () => {
+          this.ds.close(null);
+          this.location.back();
+        }
+      })
     }
   }
 

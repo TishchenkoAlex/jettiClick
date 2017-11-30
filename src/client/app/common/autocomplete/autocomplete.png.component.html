@@ -11,9 +11,8 @@
 
   <div *ngIf="value?.type === 'number'">
     <div class="ui-inputgroup">
-      <p-spinner [required]="required" [readonly]="readOnly" ([disabled])="disabled" [tabIndex]="tabIndex" type="number" autocomplete="off"
-        formControlName="suggest">
-      </p-spinner>
+      <input pInputText formControlName="suggest" [required]="required" type="number" [readOnly]="readOnly" ([disabled])="disabled"
+        [tabIndex]="tabIndex" autocomplete="off">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
       <label for="suggest">{{placeholder}}</label>
     </div>
@@ -46,20 +45,27 @@
 
 
   <div *ngIf="value?.type?.includes('.') ">
-    <div class="ui-float-label">
+    <div [class]="placeholder ? 'ui-float-label' : null">
       <div class="ui-inputgroup">
-        <p-autoComplete formControlName="suggest" [suggestions]="suggests$" [required]="required" id="suggest" field="value"
-          [readonly]="readOnly" ([disabled])="disabled" [tabIndex]="tabIndex" autocomplete="off" [style]="{'overflow':'visible'}"
-          appendTo="body" (completeMethod)="getSuggests($event.query)" (onBlur)="onBlur()" (onSelect)="onSelect($event)">
+        <p-autoComplete formControlName="suggest" [suggestions]="suggests$" [required]="required" id="suggest" field="value" [readonly]="readOnly"
+          ([disabled])="disabled" [tabIndex]="tabIndex" autocomplete="off" appendTo="body" (completeMethod)="getSuggests($event.query)"
+          (onBlur)="onBlur()" (onSelect)="onSelect($event)" [inputStyle]="inputStyle">
         </p-autoComplete>
-        <button pButton type="button" icon="fa-search" class="ui-button-secondary" (click)="handleSearch($event)" [tabIndex]=-1></button>
-        <button pButton type="button" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="openButton" [disabled]="!value?.value"
+        <button pButton type="button" icon="fa-search" class="ui-button-secondary" *ngIf="showFind" (click)="handleSearch($event)"
+          [tabIndex]=-1></button>
+        <button pButton type="button" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="showOpen" [disabled]="!value?.value"
           (click)="handleOpen($event)" [tabIndex]=-1></button>
-        <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+        <button pButton type="button" icon="fa-close" class="ui-button-secondary" *ngIf="showClear" (click)="handleReset($event)"
+          [tabIndex]=-1></button>
         <label for="suggest">{{placeholder}}</label>
       </div>
     </div>
   </div>
-
-
 </form>
+
+<span *ngIf="showDialog">
+  <p-dialog [header]="this.placeholder" [(visible)]="showDialog" modal="modal" [responsive]="true" [closable]="true" [closeOnEscape]="true"
+    [width]="600" [height]="555">
+    <j-suggest-list [docType]="this.value.type || this.type" [docID]="this.value.id" (onSelect)="searchComplete($event)"></j-suggest-list>
+  </p-dialog>
+</span>

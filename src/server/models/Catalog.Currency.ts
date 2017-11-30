@@ -1,5 +1,4 @@
-import { JDocumentBase , Props, Ref, JDocument} from './document';
-import {  } from './documents.types';
+import { JDocument, JDocumentBase, Props, Ref } from './document';
 
 @JDocument({
   type: 'Catalog.Currency',

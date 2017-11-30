@@ -1,3 +1,4 @@
+<h5 style="margin-bottom: 0px">Accounting register movements</h5>
 <div *ngFor="let item of (movements$ | async) as movements" style="min-height: 60px">
   <div fxFlex="105px" fxLayoutAlign="center center">
     <div fxFlex fxFill fxLayoutAlign="center center" class="account-box">
@@ -17,16 +18,16 @@
     </div>
 
     <div fxLayout="column" fxFill fxFlex=50 class="account-box">
-      <div *ngIf="item.debet.subcount1.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [matTooltip]="item.debet.subcount1.code">
+      <div *ngIf="item.debet.subcount1.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debet.subcount1.code" tooltipPosition="bottom">
         {{ item.debet.subcount1.value }}
       </div>
-      <div *ngIf="item.debet.subcount2.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [matTooltip]="item.debet.subcount2.code">
+      <div *ngIf="item.debet.subcount2.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debet.subcount2.code" tooltipPosition="bottom">
         {{ item.debet.subcount2.value }}
       </div>
-      <div *ngIf="item.debet.subcount3.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [matTooltip]="item.debet.subcount3.code">
+      <div *ngIf="item.debet.subcount3.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debet.subcount3.code" tooltipPosition="bottom">
         {{ item.debet.subcount3.value }}
       </div>
-      <div *ngIf="item.debet.subcount4.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [matTooltip]="item.debet.subcount4.code">
+      <div *ngIf="item.debet.subcount4.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debet.subcount4.code" tooltipPosition="bottom">
         {{ item.debet.subcount4.value }}
       </div>
     </div>
@@ -52,16 +53,16 @@
     </div>
 
     <div fxLayout="column" fxFill fxFlex=50 class="account-box">
-      <div *ngIf="item.kredit.subcount1.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [matTooltip]="item.kredit.subcount1.code">
+      <div *ngIf="item.kredit.subcount1.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.kredit.subcount1.code" tooltipPosition="bottom">
         {{ item.kredit.subcount1.value }}
       </div>
-      <div *ngIf="item.kredit.subcount2.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [matTooltip]="item.kredit.subcount2.code">
+      <div *ngIf="item.kredit.subcount2.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.kredit.subcount2.code" tooltipPosition="bottom">
         {{ item.kredit.subcount2.value }}
       </div>
-      <div *ngIf="item.kredit.subcount3.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [matTooltip]="item.kredit.subcount3.code">
+      <div *ngIf="item.kredit.subcount3.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.kredit.subcount3.code" tooltipPosition="bottom">
         {{ item.kredit.subcount3.value }}
       </div>
-      <div *ngIf="item.kredit.subcount4.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [matTooltip]="item.kredit.subcount4.code">
+      <div *ngIf="item.kredit.subcount4.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.kredit.subcount4.code" tooltipPosition="bottom">
         {{ item.kredit.subcount4.value }}
       </div>
     </div>

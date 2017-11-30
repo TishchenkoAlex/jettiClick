@@ -11,7 +11,8 @@
         "type": "number",
         "order": 3,
         "change": "return { Amount: doc.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}",
-        "required": true
+        "required": true,
+        "totals": 3
       },
       "SKU": {
         "type": "Catalog.Product",
@@ -24,7 +25,8 @@
       "Tax": {
         "type": "number",
         "order": 9,
-        "readOnly": "true"
+        "readOnly": "true",
+        "totals": 9
       },
       "Price": {
         "type": "number",
@@ -35,11 +37,12 @@
       "Amount": {
         "type": "number",
         "order": 10,
+        "totals": 10,
         "change": "return { Price: value / doc.Qty, Tax: value * 0.18}"
       },
       "PriceType": {
-        "label": "price type",
         "type": "Catalog.PriceType",
+        "label": "price type",
         "order": 5,
         "required": true
       }
@@ -60,6 +63,9 @@
   },
   "Status": {
     "order": 9,
+    "style": {
+      "width": "80px"
+    },
     "required": true
   },
   "parent": {
@@ -95,15 +101,23 @@
   },
   "currency": {
     "type": "Catalog.Currency",
-    "order": 14
+    "label": "cur",
+    "order": 14,
+    "style": {
+      "width": "60px"
+    },
+    "required": true
   },
   "Department": {
     "type": "Catalog.Department",
     "order": 6,
-    "required": true
+    "required": true,
+    "hidden-list": true
   },
   "Storehouse": {
     "type": "Catalog.Storehouse",
-    "order": 9
+    "order": 9,
+    "required": true,
+    "hidden-list": true
   }
 }

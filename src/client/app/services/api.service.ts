@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { catchError, map, take } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse2, MenuItem } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, MenuItem } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { DocModel } from '../../../server/modules/doc.base';
@@ -22,14 +22,14 @@ export class ApiService {
   constructor(private http: HttpClient) { }
 
   getDocList(type: string, id: string, command: string, count = 10, offset = 0,
-    order: FormListOrder[] = [], filter: FormListFilter[] = []): Observable<DocListResponse2> {
+    order: FormListOrder[] = [], filter: FormListFilter[] = []): Observable<DocListResponse> {
     const query = `${this.url}list`;
     const body: DocListRequestBody = {
       id: id, type: type, command: command, count: count, offset: offset,
       order: order,
       filter: filter
     }
-    return (this.http.post(query, body) as Observable<DocListResponse2>)
+    return (this.http.post(query, body) as Observable<DocListResponse>)
       .pipe(catchError(err => Observable.of({ data: [], continuation: null })));
   }
 
@@ -61,7 +61,6 @@ export class ApiService {
 
   postDoc(doc: DocModel) {
     const apiDoc = mapDocToApiFormat(doc);
-    console.log('apiDoc', apiDoc);
     const query = `${this.url}`;
     return (this.http.post(query, apiDoc) as Observable<DocModel>);
   }

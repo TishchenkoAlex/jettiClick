@@ -47,7 +47,7 @@
         "label": "post script",
         "order": 10,
         "style": {
-            "height": "300px"
+            "height": "400px"
         },
         "required": false,
         "hidden-list": true
@@ -78,7 +78,7 @@
             "change": {
                 "type": "javascript",
                 "label": "change script",
-                "order": 6,
+                "order": 16,
                 "required": false,
                 "hidden-list": true
             },
@@ -91,7 +91,7 @@
             "tableDef": {
                 "type": "json",
                 "label": "table definition",
-                "order": 7,
+                "order": 17,
                 "required": false,
                 "hidden-list": true
             },

@@ -10,12 +10,11 @@ export async function List(req: Request, res: Response) {
     const direction = params.command !== 'prev';
     const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
     const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${config_schema.queryList} AND d.id = $1) q`, [params.id]);
-
     const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
     params.order.filter(el => el.order !== '').forEach(el => {
       valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? row['row'][el.field] || '' : null });
     });
-
+    if (!row && params.command !== 'last') { params.command = 'first' }
     const lastORDER = valueOrder.length ? valueOrder[valueOrder.length - 1].order === 'asc' : true;
     valueOrder.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
 
@@ -33,6 +32,11 @@ export async function List(req: Request, res: Response) {
         const value = f.right['value'] || f.right;
         switch (operator) {
           case '=': case '>=': case '<=': case '>': case '<':
+            if (value instanceof Array) { // time interval
+              if (value[0]) { where += ` AND d."${f.left}" >= '${value[0]}'` }
+              if (value[1]) { where += ` AND d."${f.left}" <= '${value[1]}'` }
+              break;
+            }
             if (typeof value === 'object') { return; }
             where += ` AND d."${f.left}" ${operator} '${value}'`;
             break;
@@ -54,9 +58,9 @@ export async function List(req: Request, res: Response) {
       let result = '';
       const order = valueOrder.slice();
       const char1 = lastORDER ? isAfter ? '>' : '<' : isAfter ? '<' : '>';
-      valueOrder.forEach(o => {
+      valueOrder.filter(o => o.value !== null).forEach(o => {
         let where = filterBuilder(params.filter || []);
-        order.forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
+        order.filter(_o => _o.value !== null).forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
           char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
         order.length--;
         result += `\nSELECT * FROM(SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n${lastORDER ?
@@ -84,7 +88,7 @@ export async function List(req: Request, res: Response) {
     query = `SELECT d.*,
     (select count(*) FROM "Documents" where parent = d.id) "childs",
     (select count(*) FROM "Documents" where id = d.parent) "parents" FROM (${query}) d`;
-    // console.log(query);
+    console.log(query);
     const data = await db.manyOrNone(query);
     let result = [];
 

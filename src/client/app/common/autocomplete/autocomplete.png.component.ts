@@ -18,14 +18,11 @@ import {
     Validator,
     Validators,
 } from '@angular/forms';
-import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
-import { filter, take } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 
-import { DocModel } from '../../../../server/modules/doc.base';
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
-import { SuggestDialogComponent } from './../../dialog/suggest.dialog.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,7 +41,11 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   @Input() disabled = false;
   @Input() hidden = false;
   @Input() tabIndex = -1;
+  @Input() showOpen = true;
+  @Input() showFind = true;
+  @Input() showClear = true;
   @Input() type = '';
+  @Input() inputStyle;
   @Input() checkValue = true;
   @Input() openButton = true;
   @Output() change = new EventEmitter();
@@ -54,6 +55,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   });
 
   private NO_EVENT = false;
+  showDialog = false;
 
   get suggest() { return this.form.controls['suggest']; }
   get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.') }
@@ -64,7 +66,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   private _value: JettiComplexObject;
   @Input() set value(obj) {
     if (obj) { delete obj.data }
-    if (this.isTypeControl) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']' }
+    if (this.isTypeControl && this.placeholder) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']' }
     this._value = obj;
     this.suggest.patchValue(obj);
     if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value) }
@@ -79,7 +81,6 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   private onTouched = () => { };
 
   writeValue(obj: any): void {
-    console.log('WRITE', obj)
     this.NO_EVENT = true;
     if (!obj) { obj = this.EMPTY }
     if (!this.type) { this.type = obj.type }
@@ -114,7 +115,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   };
   // end of implementation Validator interface
 
-  constructor(private api: ApiService, private router: Router, public dialog: MatDialog, private cd: ChangeDetectorRef) { }
+  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
 
   getSuggests(text) {
     this.api.getSuggests(this.value.type || this.type, text || '').pipe(take(1)).subscribe(data => {
@@ -145,18 +146,16 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   }
 
   handleSearch(event: Event) {
-    this.dialog.open(SuggestDialogComponent,
-      { data: { docType: this.value.type, docID: this.value.id }, panelClass: 'suggestDialog' })
-      .afterClosed().pipe(
-      filter(result => !!result),
-      take(1))
-      .subscribe((data: DocModel) => {
-        this.value = {
-          id: data.id, code: data.code, type: data.type,
-          value: this.isTypeValue ? null : data.description,
-          data: 'NO_SUGGEST'
-        };
-      });
+    this.showDialog = true;
   }
 
+  searchComplete(row) {
+    this.showDialog = false;
+    if (!row) { return };
+    this.value = {
+      id: row.id, code: row.code, type: row.type,
+      value: this.isTypeValue ? null : row.description,
+      data: 'NO_SUGGEST'
+    };
+  }
 }

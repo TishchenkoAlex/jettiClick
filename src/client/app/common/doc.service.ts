@@ -1,10 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
-import { filter, take, tap, catchError } from 'rxjs/operators';
+import { MessageService } from 'primeng/components/common/messageservice';
+import { take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { DocModel } from '../../../server/modules/doc.base';
+import { dateReviver } from '../common/utils';
 import { ApiService } from '../services/api.service';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class DocService {
   protected _goto = new Subject<any>();
   goto$ = this._goto.asObservable();
 
-  constructor(public api: ApiService, public snackBar: MatSnackBar) { };
+  constructor(public api: ApiService, private messageService: MessageService) { };
 
   do(doc: DocModel) {
     this._do.next(doc);
@@ -46,6 +46,7 @@ export class DocService {
     this.api.postDoc(doc).pipe(
       take(1))
       .subscribe((savedDoc: DocModel) => {
+        savedDoc = JSON.parse(JSON.stringify(savedDoc), dateReviver);
         if (close) { this._saveCloseDoc.next(savedDoc) } else { this._saveDoc.next(savedDoc) }
         this.openSnackBar(savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
       },
@@ -56,6 +57,7 @@ export class DocService {
     this.api.deleteDoc(id).pipe(
       take(1))
       .subscribe((deletedDoc: DocModel) => {
+        deletedDoc = JSON.parse(JSON.stringify(deletedDoc), dateReviver);
         this._deleteDoc.next(deletedDoc);
         this.openSnackBar(deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       });
@@ -66,7 +68,7 @@ export class DocService {
   }
 
   openSnackBar(message: string, action: string) {
-    this.snackBar.open(message, action, { duration: 5000 });
+    this.messageService.add({severity: 'success', summary: message, detail: action})
   }
 
 }

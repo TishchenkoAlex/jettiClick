@@ -5,33 +5,31 @@ import { BaseDynamicCompoment } from '../../common/dynamic-component/dynamic-com
 import { HomeComponent } from '../../home/home.component';
 import { getDocListComponent, getDocObjectComponent } from '../../UI/userForms';
 
-export interface TabDef { header: string, icon: string, description: string, docType: string, docID: string, params: {[key: string]: any}}
+export interface TabDef { header: string, icon: string, description: string, docType: string, docID: string,
+    params: {[key: string]: any}, component: BaseDynamicCompoment}
 
 export const HOME = 'Home';
-export const homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '', params: {} };
 
 @Injectable()
 export class TabControllerService {
 
   index = 0;
-  tabs: TabDef[] = [];
-  tabid: string;
-  docID: string;
+  tabid = HOME;
+  docID = '';
   params: {[key: string]: any};
   HOME = HOME;
   component: BaseDynamicCompoment;
+  homeComponent = new BaseDynamicCompoment(HomeComponent);
   menuItems: MenuItem[] = [];
+  homeTab: TabDef = { header: HOME, docType: HOME, icon: 'home', docID: '', description: '', params: {}, component: this.homeComponent};
+  tabs: TabDef[] = [this.homeTab];
 
-  constructor() {
-  }
-
-  GetComponent(tab: TabDef) {
-    if (tab.docType === HOME) { return new BaseDynamicCompoment(HomeComponent); }
-    if (!tab.docID) {
-      return new BaseDynamicCompoment(getDocListComponent(tab.docType));
+  GetComponent(docType, docID) {
+    if (docType === HOME) { return this.homeComponent; }
+    if (!docID) {
+      return new BaseDynamicCompoment(getDocListComponent(docType));
     } else {
-      return new BaseDynamicCompoment(getDocObjectComponent(tab.docType));
+      return new BaseDynamicCompoment(getDocObjectComponent(docType));
     }
   }
-
 }

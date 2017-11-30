@@ -1,10 +1,6 @@
 {
     "Tax": {
         "type": "number",
-        "style": {
-            "width": "60px",
-            "text-align": "right"
-        },
         "readOnly": "true"
     },
     "Items": {
@@ -12,7 +8,10 @@
         "Items": {
             "Qty": {
                 "type": "number",
-                "required": true
+                "totals": 4,
+                "order": 2,
+                "required": true,
+                "change": "return { Amount: doc.Price * (value || 0)}"
             },
             "SKU": {
                 "type": "Catalog.Product",
@@ -21,28 +20,33 @@
             },
             "Price": {
                 "type": "number",
-                "required": true
+                "required": true,
+                "order": 3,
+                "change": "return { Amount: doc.Qty * (value || 0)}"
+            },
+            "Amount": {
+                "type": "number",
+                "required": true,
+                "order": 4,
+                "totals": 5,
+                "change": "return { Price: doc.Qty ? value / doc.Qty : 0}"
             }
         },
-        "label": "Super"
+        "label": "Ordered items",
+        "change": "let Amount=0, Tax=0; for(const f of value) { Amount += f.Amount || 0; Tax += f.Amount * 0.2 }; return { Amount: Amount, Tax: Tax }"
     },
     "Amount": {
         "type": "number",
-        "style": {
-            "width": "110px",
-            "text-align": "right"
-        },
         "readOnly": "true"
     },
     "Status": {
         "order": "8",
-        "style": {
-            "width": "80px"
-        }
+        "style": { "width": "110px" }
     },
     "Manager": {
         "type": "Catalog.Manager",
-        "order": "7"
+        "order": "7",
+        "style": { "width": "160px" }
     },
     "Customer": {
         "type": "Catalog.Counterpartie",

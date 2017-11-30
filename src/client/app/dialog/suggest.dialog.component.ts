@@ -4,94 +4,86 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  Inject,
+  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
+  Output,
   ViewChild,
 } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatSort } from '@angular/material';
+import { DataTable, SortMeta } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
 import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
+import { FormListOrder } from '../../../server/models/user.settings';
 import { UserSettingsService } from '../auth/settings/user.settings.service';
-import { ApiDataSource } from '../common/datatable/api.datasource';
+import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { ApiService } from '../services/api.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'j-suggest-list',
   templateUrl: './suggest.dialog.component.html',
-  styleUrls: ['./suggest.dialog.component.scss']
 })
 export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  private _sortChange$: Subscription = Subscription.EMPTY;
   private _filter$: Subscription = Subscription.EMPTY;
 
   dataSource: ApiDataSource | null = null;
-  get isDoc() { return (this.data.docType as string).startsWith('Document.') };
 
-  @Input() pageSize = 10;
-  @ViewChild(MatSort) sort: MatSort;
+  @Input() pageSize = 15;
+  @Input() docType = '';
+  @Input() docID = '';
+  @Output() onSelect = new EventEmitter();
+
   @ViewChild('filter') filter: ElementRef;
+  @ViewChild(DataTable) dataTable: DataTable = null;
 
-  columns = []; additianalColumn1; additianalColumn2;
+  get isDoc() { return this.docType.startsWith('Document.') || this.docType.startsWith('Journal.') }
+  additianalColumn1 = ''; additianalColumn2 = '';
 
-  constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: any,
+  constructor(
     private apiService: ApiService, private uss: UserSettingsService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.dataSource = new ApiDataSource(this.apiService, this.data.docType, this.pageSize, this.uss, this.sort);
-    this.apiService.getDocDimensions(this.data.docType).pipe(take(1))
+    this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize, null, this.uss);
+
+    this.apiService.getDocDimensions(this.docType).pipe(take(1))
       .subscribe(data => {
-        this.columns = ['select', 'posted', 'description', 'code'];
-        if (data.length > 0) {
-          this.additianalColumn1 = data[0]; this.columns.push(data[0]);
-        }
-        if (data.length > 2) {
-          this.additianalColumn2 = data[2]; this.columns.push(data[2]);
-        }
-        if (this.isDoc) { this.columns.push('Amount') };
+        if (data.length > 0) { this.additianalColumn1 = data[0] }
+        if (data.length > 2) { this.additianalColumn2 = data[2] }
       })
   }
 
   ngAfterViewInit() {
-    if (!this.dataSource) { return };
-    if (!this.data.docID || (this.data.docID === this.data.docType)) {
+    this.filter.nativeElement.focus();
+    this.dataSource.dataTable = this.dataTable;
+    if (!this.docID || (this.docID === this.docType)) {
       this.dataSource.first()
-    } else { this.dataSource.goto(this.data.docID) }
-
-    if (this.sort) {
-      this._sortChange$ = this.sort.sortChange.subscribe(() => this.update());
-    }
+    } else { this.dataSource.goto(this.docID) }
 
     this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup').pipe(
       distinctUntilChanged(),
       debounceTime(500))
-      .subscribe((value: string) => {
-        this.dataSource.selection.clear();
-        this.update();
-      });
+      .subscribe(() => this.update());
   }
 
-  private update() {
+  update() {
+    this.dataSource.dataTable.selection = null;
     this.uss.formListSettings$.next({
-      type: this.data.docType,
+      type: this.docType,
       payload: {
         filter: [
           { left: 'description', center: 'like', right: this.filter.nativeElement.value }
         ],
-        order: [
-          { field: this.sort.active, order: this.sort.direction }
-        ]
+        order: ((<SortMeta[]>this.dataTable.multiSortMeta) || [])
+          .map(e => <FormListOrder>{ field: e.field, order: e.order === 1 ? 'asc' : 'desc' })
       }
     });
   }
 
-  ngOnDestroy() {
-    this._filter$.unsubscribe();
-    this._sortChange$.unsubscribe();
-  }
+  onSelectHandler = (row) => this.onSelect.emit(row);
+  ngOnDestroy = () => this._filter$.unsubscribe();
 
 }

@@ -17,9 +17,11 @@ export class FilterInterval {
 
 export type FilterList = number[] | string[];
 
+export type matchOperator = '=' | '>=' | '<=' | 'like' | 'in' | 'beetwen';
+
 export class FormListFilter {
   left: string;
-  center: '=' | '>=' | '<=' | 'like' | 'in' | 'beetwen' = '='
+  center: matchOperator = '='
   right: any = null;
 
   constructor (field: string) {

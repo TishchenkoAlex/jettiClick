@@ -28,8 +28,8 @@ export class SQLGenegator {
     const tableProperty = (prop: string, value: any) => {
 
       const simleProperty = (prop: string, type: string) => {
-        if (type === 'boolean') { return  `, '${prop}', coalesce(x."${prop}", false) \n`; }
-        if (type === 'numeric') { return  `, '${prop}', (x."${prop}")::NUMERIC(15,2) \n`; }
+        if (type === 'boolean') { return `, '${prop}', coalesce(x."${prop}", false) \n`; }
+        if (type === 'numeric') { return `, '${prop}', (x."${prop}")::NUMERIC(15,2) \n`; }
         return `, '${prop}', x."${prop}"\n`;
       }
 
@@ -82,7 +82,6 @@ export class SQLGenegator {
         '[]') "${prop}"\n`;
     }
 
-    excludeProps(doc);
     let query = `
       SELECT
       d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder,d.info,
@@ -92,7 +91,7 @@ export class SQLGenegator {
       jsonb_build_object('id', "company".id, 'value', "company".description, 'type', 'Catalog.Company', 'code', "company".code) "company"\n`;
     let LeftJoin = '';
 
-    for (const prop in doc) {
+    for (const prop in excludeProps(doc)) {
       const type: string = doc[prop].type || 'string';
       if (type.includes('.')) {
         query += complexProperty(prop, type);
@@ -132,14 +131,14 @@ export class SQLGenegator {
         ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = d.doc ->> '${prop}'\n` :
         ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = d.doc ->> '${prop}' AND "${prop}".type = '${type}'\n`;
 
-    excludeProps(doc);
+
     let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent,
             "company".description "company",
             "user".description "user"\n`;
 
     let LeftJoin = '';
 
-    for (const prop in doc) {
+    for (const prop in excludeProps(doc)) {
       const type = doc[prop].type || 'string';
       if (type.includes('.')) {
         query += complexProperty(prop, type);
@@ -162,15 +161,18 @@ export class SQLGenegator {
 
   static QueryNew(doc: { [x: string]: any }, type: string) {
 
-    const simleProperty = (prop: string, type: string) => `, '' "${prop}"\n`;
+    const simleProperty = (prop: string, type: string) => {
+      if (type === 'boolean') { return `, false "${prop}"\n` }
+      if (type === 'numeric') { return `, 0 "${prop}"\n` }
+      return `, '' "${prop}"\n`;
+    }
 
     const complexProperty = (prop: string, type: string) =>
       `, '{"id": "", "code": "", "type": "${type}", "value": ""}':: JSONB "${prop}"\n`;
 
-    excludeProps(doc);
     let query = '';
 
-    for (const prop in doc) {
+    for (const prop in excludeProps(doc)) {
       const type: string = doc[prop].type || 'string';
       if (type.includes('.')) {
         query += complexProperty(prop, type);
@@ -200,19 +202,7 @@ export class SQLGenegator {
 
 }
 
-function excludeProps(doc) {
-  delete doc.user;
-  delete doc.company;
-  delete doc.parent;
-  delete doc.info;
-  delete doc.isfolder;
-  delete doc.description;
-  delete doc.parent;
-  delete doc.id;
-  delete doc.type;
-  delete doc.date;
-  delete doc.code;
-  delete doc.posted;
-  delete doc.deleted;
+export function excludeProps(doc) {
+  const { user, company, parent, info, isfolder, description, id, type, date, code, posted, deleted, ...newObject } = doc;
+  return newObject;
 }
-

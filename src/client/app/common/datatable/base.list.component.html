@@ -1,166 +1,71 @@
-<div fxLayout="column">
+<p-toolbar>
+  <div class="ui-toolbar-group-left">
+    <button pButton type="button" label="Add" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
+    <button pButton type="button" icon="fa-pencil-square-o" *ngIf="dataSource.dataTable?.selection?.length == 1" (click)="open()"></button>
+    <button pButton type="button" icon="fa-copy" *ngIf="dataSource.dataTable?.selection?.length == 1" (click)="copy()"></button>
+    <button pButton type="button" icon="fa-check" class="ui-button-warning" *ngIf="dataSource.dataTable?.selection?.length >=1"
+      (click)="post()"></button>
+    <button pButton type="button" icon="fa-minus" class="ui-button-danger" *ngIf="dataSource.dataTable?.selection?.length" (click)="delete()"></button>
+    <button pButton type="button" icon="fa-refresh" (click)="dataSource.refresh()"></button>
+  </div>
+  <div class="ui-toolbar-group-right">
+    <button pButton type="button" icon="fa-fast-backward" (click)="this.dataSource.first()" [disabled]="!this.dataSource.continuation.first"></button>
+    <button pButton type="button" icon="fa-step-backward" (click)="this.dataSource.prev()" [disabled]="!this.dataSource.continuation.first"></button>
+    <button pButton type="button" icon="fa-step-forward" (click)="this.dataSource.next()" [disabled]="!this.dataSource.continuation.last"></button>
+    <button pButton type="button" icon="fa-fast-forward" (click)="this.dataSource.last()" [disabled]="!this.dataSource.continuation.last"></button>
+    <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>
+  </div>
+</p-toolbar>
 
-  <mat-expansion-panel #filterPanel class="panel-headers-align">
-    <mat-expansion-panel-header style="min-height: 65px;">
-      <mat-panel-title>
-        <div fxFlex fxLayoutAlign="end center" fxLayoutGap="4px" style="height: 65px">
-          <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {data: table, filterPanel: filterPanel}"></ng-container>
-          <button type="button" mat-mini-fab color="accent" (click)="$event.stopPropagation(); close()" matTooltip="close">
-            <mat-icon>close</mat-icon>
-          </button>
+<p-dataTable [value]="(dataSource?.connect() | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id"
+  [reorderableColumns]="true" sortMode="multiple" [lazy]="true" (onSort)="Sort($event)" [resizableColumns]="true" [scrollable]="true" 
+  (onRowDblclick)="open()">
+  <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
+    <ng-template let-row="rowData" pTemplate="body">
+      <i *ngIf="row['posted'] && !row['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
+      <i *ngIf="row['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
+      <i *ngIf="!row['posted'] && !row['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
+    </ng-template>
+  </p-column>
+
+  <p-column *ngFor="let column of columns" [field]="column.field" [header]="column.label" sortable="custom" [filter]="true"
+    filterPlaceholder="Search" [style]="column.style">
+    <ng-template let-row="rowData" pTemplate="body">
+      <span [ngSwitch]="column.type">
+        <span *ngSwitchCase="'date'">{{row[column.field] | date:'dd.MM.yyyy'}}</span>
+        <span *ngSwitchCase="'datetime'">{{row[column.field] | date:'dd.MM.yyyy hh:mm:ss'}}</span>
+        <span *ngSwitchCase="'number'">{{row[column.field] | number:'1.2-2'}}</span>
+        <span *ngSwitchCase="'boolean'">
+          <i *ngIf="row[column.field]" class="fa fa-check-square"></i>
+          <i *ngIf="!row[column.field]" class="fa fa-square-o"></i>
+        </span>
+        <span *ngSwitchCase="'string'">{{row[column.field]}}</span>
+        <span *ngSwitchDefault>{{row[column.field]}}</span>
+      </span>
+    </ng-template>
+    <ng-template pTemplate="filter" let-col>
+      <div [ngSwitch]="column.type" class="ui-fluid" style="font-size: xx-small">
+        <div *ngSwitchCase="'boolean'">
+          <p-triStateCheckbox [(ngModel)]="column.filter.right"></p-triStateCheckbox>
         </div>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-
-  </mat-expansion-panel>
-
-  <mat-card style="padding: 0px">
-
-    <mat-table #table [dataSource]="dataSource" matSort>
-
-      <ng-container matColumnDef="select">
-        <mat-header-cell *matHeaderCellDef>
-          <mat-checkbox (change)="$event ? dataSource.masterToggle() : null" [checked]="dataSource.isAllSelected()" [indeterminate]="dataSource.selection.hasValue() && !dataSource.isAllSelected()">
-          </mat-checkbox>
-        </mat-header-cell>
-        <mat-cell *cdkCellDef="let row">
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? dataSource.selection.toggle(row.id) : null" [checked]="dataSource.selection.isSelected(row.id)">
-          </mat-checkbox>
-        </mat-cell>
-      </ng-container>
-
-      <ng-container *ngFor="let col of columns" [matColumnDef]="col.field">
-        <ng-container [ngSwitch]="col.type">
-
-          <ng-container *ngSwitchCase="'posted'" matColumnDef="posted">
-            <mat-header-cell *matHeaderCellDef></mat-header-cell>
-            <mat-cell *cdkCellDef="let row">
-              <mat-icon *ngIf="row['deleted']" color="warn">
-                {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'indeterminate_check_box'}}
-              </mat-icon>
-              <mat-icon *ngIf="row['posted'] && !row['deleted']" color="primary">
-                {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'check_box'}}
-              </mat-icon>
-              <mat-icon *ngIf="!row['posted'] && !row['deleted']" color="accent">
-                {{row['parents']>0 ? 'low_priority' : row['childs']>0 ? 'filter_' + ((row['childs'] > 9) ? '9_plus' : row['childs']) : 'check_box_outline_blank'}}
-              </mat-icon>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'string'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true"
-              [ngStyle]="col.style">
-              <filter-column [columnDef]="col" [type]="this.docType"></filter-column>
-              {{ col.label }}
-            </mat-header-cell>
-            <mat-cell *cdkCellDef="let row" [ngStyle]="col.style" [fxShow]="col.field === 'description' || col.field === 'code'" [fxShow.gt-xs]="true">
-              <div *ngIf="col.field === 'description'" class="data-table-select" (click)="open(row)">{{row.description}}</div>
-              <div *ngIf="col.field !== 'description'">{{row[col.field]}}</div>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'datetime'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">
-              <filter-column [columnDef]="col" [type]="this.docType"></filter-column>
-              {{ col.label }}
-            </mat-header-cell>
-            <mat-cell *cdkCellDef="let row" [fxShow]="col.field === 'date'" [fxShow.gt-xs]="true">
-              <div *ngIf="(col.field === 'date')" class="data-table-select" (click)="open(row)">
-                {{row.date | date:'dd.MM.yyyy hh:mm:ss'}}
-              </div>
-              <div *ngIf="(col.field !== 'date')">{{row[col.field] | date:'dd.MM.yyyy hh:mm:ss'}}</div>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'date'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true">
-              <filter-column [columnDef]="col" [type]="this.docType"></filter-column>
-              {{ col.label }}
-            </mat-header-cell>
-            <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true">
-              {{row[col.field] | date:'dd.MM.yyyy'}}
-            </mat-cell>
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'number'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="max-width: 70px; min-width: 70px; display: flex; justify-content: center">
-              <filter-column [columnDef]="col" [type]="this.docType"></filter-column>
-              {{ col.label }}
-            </mat-header-cell>
-            <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style" style="max-width: 70px; min-width: 70px; font-weight: bold; text-align: right">
-              {{row[col.field] | number:'1.2-2' }}
-            </mat-cell>
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'boolean'">
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" style="justify-content: center; max-width: 50px;">
-              <filter-column [columnDef]="col" [type]="this.docType"></filter-column>
-              {{ col.label }}
-            </mat-header-cell>
-            <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" style="max-width: 50px; text-align: center">
-              <mat-checkbox [checked]="row[col.field]" disabled="true"></mat-checkbox>
-            </mat-cell>
-          </ng-container>
-
-          <ng-container *ngSwitchDefault>
-            <mat-header-cell *matHeaderCellDef mat-sort-header [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">
-              <filter-column [columnDef]="col" [type]="this.docType"></filter-column>
-              {{ col.label }}
-            </mat-header-cell>
-            <mat-cell *cdkCellDef="let row" [fxShow]="false" [fxShow.gt-xs]="true" [ngStyle]="col.style">
-              {{row[col.field]}}
-            </mat-cell>
-          </ng-container>
-
-        </ng-container>
-      </ng-container>
-
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-      <mat-row *cdkRowDef="let row; columns: displayedColumns;"></mat-row>
-    </mat-table>
-    <div fxLayoutAlign="end center" fxLayoutGap="4px" style="padding-right: 12px">
-      <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.first() : undefined" [disabled]="!dataSource?.continuation?.first">
-        <mat-icon>first_page</mat-icon>
-      </button>
-      <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.prev(): undefined" [disabled]="!dataSource?.continuation?.first">
-        <mat-icon>navigate_before</mat-icon>
-      </button>
-      <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.next() : undefined" [disabled]="!dataSource?.continuation?.last">
-        <mat-icon>navigate_next</mat-icon>
-      </button>
-      <button type="button" mat-icon-button color="default" (click)="dataSource ? dataSource.last() : undefined" [disabled]="!dataSource?.continuation?.last">
-        <mat-icon>last_page</mat-icon>
-      </button>
-    </div>
-  </mat-card>
-</div>
-
-<ng-template #actionTepmlateDefault let-d="data" let-f="filterPanel">
-    <button type="button" mat-mini-fab color="primary" (click)="$event.stopPropagation(); add()" matTooltip="create new">
-      <mat-icon>add</mat-icon>
-    </button>
-    <button type="button" *ngIf="dataSource.selection.selected.length == 1" mat-mini-fab color="default" matTooltip="copy" (click)="$event.stopPropagation(); copy()">
-      <mat-icon>content_copy</mat-icon>
-    </button>
-    <button type="button" *ngIf="dataSource.selection.selected.length >=1" mat-mini-fab color="secondary" matTooltip="post" (click)="$event.stopPropagation(); post()">
-      <mat-icon>done</mat-icon>
-    </button>
-    <button type="button" *ngIf="dataSource.selection.selected.length" (click)="$event.stopPropagation(); delete()" mat-mini-fab color="warn"
-      matTooltip="delete">
-      <mat-icon>remove</mat-icon>
-    </button>
-    <button type="button" mat-mini-fab color="default" (click)="$event.stopPropagation(); dataSource.refresh()" matTooltip="refresh">
-      <mat-icon>refresh</mat-icon>
-    </button>
-</ng-template>
-
-<ng-template #sideNavTepmlate let-sidenav="sidenav">
-  <mat-card>
-    <mat-card-content>
-      <j-filter *ngIf="sidenav.opened" [docType]="docType" [columns]="columns"></j-filter>
-    </mat-card-content>
-    <!--     <mat-card-actions>
-      <button mat-button (click)="sidenav.close()">Close</button>
-    </mat-card-actions> -->
-  </mat-card>
-</ng-template>
+        <div *ngSwitchCase="'number'">
+          <input [(ngModel)]="column.filter.right" pInputText inputmode="numeric">
+        </div>
+        <div *ngSwitchCase="'date'">
+          <p-calendar selectionMode="range" showButtonBar="true" [(ngModel)]="column.filter.right" readonlyInput="true" [appendTo]="'body'"></p-calendar>
+        </div>
+        <div *ngSwitchCase="'datetime'" class="ui-fluid">
+          <p-calendar selectionMode="range" showButtonBar="true" [(ngModel)]="column.filter.right" readonlyInput="true" [appendTo]="'body'"></p-calendar>
+        </div>
+        <div *ngSwitchCase="'string'">
+          <input [(ngModel)]="column.filter.right" pInputText>
+        </div>
+        <div *ngSwitchDefault>
+          <j-autocomplete-png [checkValue]="false" [type]="column.type" [(ngModel)]="column.filter.right" [showOpen]="false" [showFind]="false"
+            [showClear]="true">
+          </j-autocomplete-png>
+        </div>
+      </div>
+    </ng-template>
+  </p-column>
+</p-dataTable>

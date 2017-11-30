@@ -49,6 +49,7 @@ import {
     ConfirmationService,
     MultiSelectModule
 } from 'primeng/primeng';
+import { MessageService } from 'primeng/components/common/messageservice';
 
 @NgModule({
   exports: [
@@ -100,6 +101,6 @@ import {
     MultiSelectModule,
     InplaceModule,
   ],
-  providers: [ConfirmationService]
+  providers: [ConfirmationService, MessageService]
 })
 export class PrimeNGModule { }

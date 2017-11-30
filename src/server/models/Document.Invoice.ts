@@ -1,4 +1,4 @@
-import { JDocumentBase, JDocument, Props, Ref } from './document';
+import { JDocument, JDocumentBase, Props, Ref } from './document';
 
 @JDocument({
   type: 'Document.Invoice',

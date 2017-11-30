@@ -26,7 +26,8 @@ export class DynamicFormControlComponent {
         this.control.key,
         this.form.controls[this.control.key].value,
         this.api.valueChanges.bind(this.api));
-      this.form.patchValue(patch, { emitEvent: false, onlySelf: true });
+      console.log('valueChanges', patch);
+      this.form.patchValue(patch);
     }
   }
 }

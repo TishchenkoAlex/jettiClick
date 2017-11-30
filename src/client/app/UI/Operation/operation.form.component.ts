@@ -7,10 +7,7 @@ import { BaseFormComponent } from '../../common/form/base.form.components/base.f
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: 'operation.form.component.html',
-  styleUrls: [
-    '../../common/form/base.form.components/base.form.component.scss'
-  ]
+  template: `<j-form [formTepmlate]="" [actionTepmlate]=""></j-form>`
 })
 export class OperationFormComponent implements AfterViewInit {
 

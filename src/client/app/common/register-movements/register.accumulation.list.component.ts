@@ -9,7 +9,6 @@ import { DocService } from '../doc.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-register-accumulation-list',
-  styleUrls: ['./register.accumulation.list.component.scss'],
   templateUrl: './register.accumulation.list.component.html',
 })
 export class RegisterAccumulationListComponent implements OnInit {
