@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
+import locale from '@angular/common/locales/ru';
 
 import { ApiService } from '../../services/api.service';
-import { BaseJettiFromControl, JettiComplexObject } from './dynamic-form-base';
+import { BaseJettiFromControl } from './dynamic-form-base';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,7 +14,19 @@ export class DynamicFormControlComponent {
   @Input() control: BaseJettiFromControl<any>;
   @Input() form: FormGroup;
 
-  constructor(public api: ApiService) { }
+  formatDate = 'dd.mm.yy';
+  locale = {
+    firstDayOfWeek: 1,
+    dayNames: locale[3][2],
+    dayNamesShort: locale[3][0],
+    dayNamesMin: locale[3][0],
+    monthNames: locale[5][2],
+    monthNamesShort: locale[5][1],
+    today: 'Today',
+    clear: 'Clear'
+  };
+
+  constructor(public api: ApiService) {}
 
   get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
 

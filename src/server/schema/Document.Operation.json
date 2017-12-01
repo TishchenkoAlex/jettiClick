@@ -3,8 +3,11 @@
         "type": "Catalog.Operation.Group",
         "label": "Group",
         "order": 4,
+        "style": {
+            "display": "none"
+        },
         "hidden": true,
-        "hidden-list": true
+        "hidden-list": false
     },
     "Amount": {
         "type": "number",
@@ -27,20 +30,24 @@
     "column3": {
         "label": "Parameter 3",
         "order": 18,
-        "hidden": true   
+        "hidden": true
     },
     "currency": {
         "type": "Catalog.Currency",
         "label": "cur",
+        "order": 8,
         "style": {
-            "width": "60px"
+            "width": "70px"
         },
-        "required": true,
-        "order": 8
+        "required": true
     },
     "Operation": {
         "type": "Catalog.Operation",
         "order": 5,
-        "required": true
+        "style": {
+            "width": "250px"
+        },
+        "required": true,
+        "owner": "Group"
     }
 }

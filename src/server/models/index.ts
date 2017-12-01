@@ -1,7 +1,7 @@
-import { CatalogCurrency } from './Catalog.Currency';
+import { CatalogCurrency } from './Catalogs/Catalog.Currency';
 import { JDocumentBase } from './document';
-import { DocumentInvoice } from './Document.Invoice';
 import { DocTypes } from './documents.types';
+import { DocumentInvoice } from './Documents/Document.Invoice';
 
 interface IRegisteredDocument<T extends JDocumentBase> {
     type: DocTypes,

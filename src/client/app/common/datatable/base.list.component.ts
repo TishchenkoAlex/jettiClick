@@ -1,15 +1,14 @@
-import { AfterViewInit, ChangeDetectorRef, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DataTable } from 'primeng/primeng';
-import { SortMeta } from 'primeng/primeng';
+import { DataTable, SortMeta } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
-import { FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
-import { DocModel } from '../../../../server/modules/doc.base';
+import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
+import { IDocBase } from '../../../../server/modules/doc.base';
 import { dateReviver } from '../../common/utils';
 import { SideNavService } from '../../services/side-nav.service';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
@@ -35,27 +34,23 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
   @ViewChild(DataTable) dataTable: DataTable = null;
 
-  docType = '';
-  get isDoc() { return this.docType.startsWith('Document.') || this.docType.startsWith('Journal.') }
+  docType = ''; AfterViewInit = false;
+  isDoc: boolean;
   columns: ColumnDef[] = [];
-  selectedRows: DocModel[] = [];
-  formListSettings: FormListSettings;
+  selectedRows: IDocBase[] = [];
 
-  constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, public cd: ChangeDetectorRef,
+  constructor(public route: ActivatedRoute, public router: Router, public ds: DocService,
     private sns: SideNavService, public uss: UserSettingsService, private lds: LoadingService) {
-
-    if (this.uss.userSettings.defaults.rowsInList) {
-      this.pageSize = this.uss.userSettings.defaults.rowsInList
-    }
+    if (this.uss.userSettings.defaults.rowsInList) { this.pageSize = this.uss.userSettings.defaults.rowsInList }
   };
 
   ngOnInit() {
     this.docType = this.route.params['value'].type;
     const view = this.route.data['value'].detail[0]['view'];
+    this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
+
     this.columns = JSON.parse(JSON.stringify(this.route.data['value'].detail[0]['columnDef']), dateReviver);
-    this.formListSettings = { filter: this.columns.map(c => c.filter), order: this.columns.map(c => c.sort) };
-    this.uss.userSettings.formListSettings[this.docType] = this.formListSettings;
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize, null, this.uss);
+    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
 
     const excludeColumns = this.isDoc ? ['description'] : ['date'];
     this.columns.filter(c => excludeColumns.indexOf(c.field) > -1).forEach(c => c.hidden = true);
@@ -76,29 +71,39 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit() {
     this.dataSource.dataTable = this.dataTable;
+
     this.dataTable.multiSortMeta = this.columns
       .map(c => c.sort)
       .filter(e => !!e.order)
       .map(e => <SortMeta>{ field: e.field, order: e.order === 'asc' ? 1 : -1 });
-    this.uss.formListSettings$.next({ type: this.docType, payload: this.formListSettings });
+
+    setTimeout(() => {
+      this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
+      this.dataSource.first();
+      this.AfterViewInit = true;
+    });
   }
 
-  ngOnDestroy() {
-    this._docSubscription$.unsubscribe();
-    this._closeSubscription$.unsubscribe();
-    this._sideNavService$.unsubscribe();
+  update(col: ColumnDef, event) {
+    this.dataTable.filters[col.field] = { matchMode: col.filter.center, value: event };
+    this.Sort(event);
+  }
+
+  Sort(event) {
+    if (this.AfterViewInit) { this.dataSource.sort() }
   }
 
   Close() {
     this.ds.close(null);
   }
 
-  Sort(event) {
+  private saveUserSettings() {
     const formListSettings: FormListSettings = {
-      filter: this.columns.map(c => c.filter),
+      filter: Object.keys(this.dataTable.filters)
+        .map(f => (<FormListFilter>{ left: f, center: this.dataTable.filters[f].matchMode, right: this.dataTable.filters[f].value })),
       order: (<SortMeta[]>this.dataTable.multiSortMeta)
         .map(e => <FormListOrder>{ field: e.field, order: e.order === 1 ? 'asc' : 'desc' })
-    }
+    };
     this.uss.setFormListSettings(this.docType, formListSettings);
   }
 
@@ -107,17 +112,11 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
       this.dataSource.dataTable.selection[0].type : this.docType, 'new']);
   }
 
-  copy() {
-    this.router.navigate([this.dataSource.dataTable.selection[0].type, 'copy-' + this.dataSource.dataTable.selection[0].id]);
-  }
+  copy() { this.router.navigate([this.dataSource.dataTable.selection[0].type, 'copy-' + this.dataSource.dataTable.selection[0].id]) }
 
-  open() {
-    this.router.navigate([this.dataSource.dataTable.selection[0].type, this.dataSource.dataTable.selection[0].id])
-  }
+  open() { this.router.navigate([this.dataSource.dataTable.selection[0].type, this.dataSource.dataTable.selection[0].id]) }
 
-  delete() {
-    this.dataSource.dataTable.selection.forEach(el => this.ds.delete(el.id));
-  }
+  delete() { this.dataSource.dataTable.selection.forEach(el => this.ds.delete(el.id)) }
 
   async post() {
     const tasksCount = this.dataSource.dataTable.selection.length; let i = tasksCount;
@@ -127,6 +126,13 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.lds.counter = 0;
     this.dataSource.refresh();
+  }
+
+  ngOnDestroy() {
+    this._docSubscription$.unsubscribe();
+    this._closeSubscription$.unsubscribe();
+    this._sideNavService$.unsubscribe();
+    this.saveUserSettings();
   }
 
 }

@@ -5,7 +5,7 @@
       <input pInputText formControlName="suggest" [required]="required" [readOnly]="readOnly" ([disabled])="disabled" [tabIndex]="tabIndex"
         autocomplete="off">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
-      <label for="suggest">{{placeholder}}</label>
+      <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
   </div>
 
@@ -14,7 +14,7 @@
       <input pInputText formControlName="suggest" [required]="required" type="number" [readOnly]="readOnly" ([disabled])="disabled"
         [tabIndex]="tabIndex" autocomplete="off">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
-      <label for="suggest">{{placeholder}}</label>
+      <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
   </div>
 
@@ -25,7 +25,7 @@
         [utc]="true" appendTo="body">
       </p-calendar>
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
-      <label for="suggest">{{placeholder}}</label>
+      <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
   </div>
 
@@ -35,17 +35,17 @@
         (change)="onChange($event)" [showIcon]="true" dataType="string" [utc]="true" appendTo="body" [showOnFocus]="false">
       </p-calendar>
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
-      <label for="suggest">{{placeholder}}</label>
+      <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
   </div>
 
-  <p-checkbox *ngIf="value?.type === 'boolean'" [label]="placeholder" ([disabled])="disabled" [tabIndex]="tabIndex" formControlName="suggest">
+  <p-checkbox *ngIf="value?.type === 'boolean'" [label]="showLabel ? placeholder : ''" ([disabled])="disabled" [tabIndex]="tabIndex" formControlName="suggest">
     <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
   </p-checkbox>
 
 
   <div *ngIf="value?.type?.includes('.') ">
-    <div [class]="placeholder ? 'ui-float-label' : null">
+    <div [class]="showLabel ? 'ui-float-label' : ''">
       <div class="ui-inputgroup">
         <p-autoComplete formControlName="suggest" [suggestions]="suggests$" [required]="required" id="suggest" field="value" [readonly]="readOnly"
           ([disabled])="disabled" [tabIndex]="tabIndex" autocomplete="off" appendTo="body" (completeMethod)="getSuggests($event.query)"
@@ -57,15 +57,16 @@
           (click)="handleOpen($event)" [tabIndex]=-1></button>
         <button pButton type="button" icon="fa-close" class="ui-button-secondary" *ngIf="showClear" (click)="handleReset($event)"
           [tabIndex]=-1></button>
-        <label for="suggest">{{placeholder}}</label>
+        <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
       </div>
     </div>
   </div>
 </form>
 
 <span *ngIf="showDialog">
-  <p-dialog [header]="this.placeholder" [(visible)]="showDialog" modal="modal" [responsive]="true" [closable]="true" [closeOnEscape]="true"
-    [width]="600" [height]="555">
-    <j-suggest-list [docType]="this.value.type || this.type" [docID]="this.value.id" (onSelect)="searchComplete($event)"></j-suggest-list>
+  <p-dialog #dialog [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true" [closeOnEscape]="true"
+    [width]="400" [height]="555" appendTo="body">
+    <j-suggest-list #sl [docType]="this.value.type || this.type" [docID]="this.value.id" [filters]="[{left: owner?.owner, center: '=', right: owner?.value}]" 
+      (onSelect)="searchComplete($event)"></j-suggest-list>
   </p-dialog>
 </span>

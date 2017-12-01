@@ -9,63 +9,67 @@
     <button pButton type="button" icon="fa-refresh" (click)="dataSource.refresh()"></button>
   </div>
   <div class="ui-toolbar-group-right">
-    <button pButton type="button" icon="fa-fast-backward" (click)="this.dataSource.first()" [disabled]="!this.dataSource.continuation.first"></button>
-    <button pButton type="button" icon="fa-step-backward" (click)="this.dataSource.prev()" [disabled]="!this.dataSource.continuation.first"></button>
-    <button pButton type="button" icon="fa-step-forward" (click)="this.dataSource.next()" [disabled]="!this.dataSource.continuation.last"></button>
-    <button pButton type="button" icon="fa-fast-forward" (click)="this.dataSource.last()" [disabled]="!this.dataSource.continuation.last"></button>
+    <button pButton type="button" icon="fa-fast-backward" (click)="dataSource.first()" [disabled]="!dataSource.continuation.first"></button>
+    <button pButton type="button" icon="fa-step-backward" (click)="dataSource.prev()" [disabled]="!dataSource.continuation.first"></button>
+    <button pButton type="button" icon="fa-step-forward" (click)="dataSource.next()" [disabled]="!dataSource.continuation.last"></button>
+    <button pButton type="button" icon="fa-fast-forward" (click)="dataSource.last()" [disabled]="!dataSource.continuation.last"></button>
     <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>
   </div>
 </p-toolbar>
 
-<p-dataTable [value]="(dataSource?.connect() | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id"
-  [reorderableColumns]="true" sortMode="multiple" [lazy]="true" (onSort)="Sort($event)" [resizableColumns]="true" [scrollable]="true" 
-  (onRowDblclick)="open()">
-  <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
-    <ng-template let-row="rowData" pTemplate="body">
-      <i *ngIf="row['posted'] && !row['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
-      <i *ngIf="row['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
-      <i *ngIf="!row['posted'] && !row['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
-    </ng-template>
-  </p-column>
+<p-dataTable [value]="(dataSource.result$ | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id" [reorderableColumns]="true"
+  sortMode="multiple" [lazy]="true" (onSort)="Sort($event)" (onFilter)="Sort($event)" [resizableColumns]="true" [scrollable]="true"
+  (onRowDblclick)="open()" [filterDelay]="500">
+  <div *ngIf="dataTable !== null">
+    <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
+      <ng-template let-row="rowData" pTemplate="body">
+        <i *ngIf="row['posted'] && !row['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
+        <i *ngIf="row['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
+        <i *ngIf="!row['posted'] && !row['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
+      </ng-template>
+    </p-column>
 
-  <p-column *ngFor="let column of columns" [field]="column.field" [header]="column.label" sortable="custom" [filter]="true"
-    filterPlaceholder="Search" [style]="column.style">
-    <ng-template let-row="rowData" pTemplate="body">
-      <span [ngSwitch]="column.type">
-        <span *ngSwitchCase="'date'">{{row[column.field] | date:'dd.MM.yyyy'}}</span>
-        <span *ngSwitchCase="'datetime'">{{row[column.field] | date:'dd.MM.yyyy hh:mm:ss'}}</span>
-        <span *ngSwitchCase="'number'">{{row[column.field] | number:'1.2-2'}}</span>
-        <span *ngSwitchCase="'boolean'">
-          <i *ngIf="row[column.field]" class="fa fa-check-square"></i>
-          <i *ngIf="!row[column.field]" class="fa fa-square-o"></i>
+    <p-column *ngFor="let column of columns" [field]="column.field" [header]="column.label" sortable="custom" [filter]="true"
+      filterPlaceholder="Search" [style]="column.style">
+      <ng-template let-row="rowData" pTemplate="body">
+        <span [ngSwitch]="column.type">
+          <span *ngSwitchCase="'date'">{{row[column.field] | date:'dd.MM.yyyy'}}</span>
+          <span *ngSwitchCase="'datetime'">{{row[column.field] | date:'dd.MM.yyyy hh:mm:ss'}}</span>
+          <span *ngSwitchCase="'number'">{{row[column.field] | number:'1.2-2'}}</span>
+          <span *ngSwitchCase="'boolean'">
+            <i *ngIf="row[column.field]" class="fa fa-check-square"></i>
+            <i *ngIf="!row[column.field]" class="fa fa-square-o"></i>
+          </span>
+          <span *ngSwitchCase="'string'">{{row[column.field]}}</span>
+          <span *ngSwitchDefault>{{row[column.field]}}</span>
         </span>
-        <span *ngSwitchCase="'string'">{{row[column.field]}}</span>
-        <span *ngSwitchDefault>{{row[column.field]}}</span>
-      </span>
-    </ng-template>
-    <ng-template pTemplate="filter" let-col>
-      <div [ngSwitch]="column.type" class="ui-fluid" style="font-size: xx-small">
-        <div *ngSwitchCase="'boolean'">
-          <p-triStateCheckbox [(ngModel)]="column.filter.right"></p-triStateCheckbox>
+      </ng-template>
+      <ng-template pTemplate="filter" let-col>
+        <div [ngSwitch]="column.type" class="ui-fluid ui-column-filter">
+          <div *ngSwitchCase="'boolean'">
+            <p-triStateCheckbox [ngModel]="dataTable.filters[col.field]?.value" (ngModelChange)="update(column, $event)"></p-triStateCheckbox>
+          </div>
+          <div *ngSwitchCase="'number'">
+            <input [ngModel]="dataTable.filters[col.field]?.value" pInputText inputmode="numeric" (ngModelChange)="update(column, $event)">
+          </div>
+          <div *ngSwitchCase="'date'">
+            <p-calendar selectionMode="range" showButtonBar="true" [utc]="true" [ngModel]="dataTable.filters[col.field]?.value" readonlyInput="true"
+              [appendTo]="'body'" (ngModelChange)="update(column, $event)"></p-calendar>
+          </div>
+          <div *ngSwitchCase="'datetime'">
+            <p-calendar selectionMode="range" showButtonBar="true" [utc]="true" [ngModel]="dataTable.filters[col.field]?.value" readonlyInput="true"
+              [appendTo]="'body'" (ngModelChange)="update(column, $event)"></p-calendar>
+          </div>
+          <div *ngSwitchCase="'string'">
+            <input [ngModel]="dataTable.filters[col.field]?.value" pInputText (ngModelChange)="update(column, $event)">
+          </div>
+          <div *ngSwitchDefault>
+            <j-autocomplete-png [checkValue]="false" [type]="dataTable.filters[col.field]?.value?.type || column.type || 'string'" [ngModel]="dataTable.filters[col.field]?.value"
+              [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(column, $event)">
+            </j-autocomplete-png>
+          </div>
         </div>
-        <div *ngSwitchCase="'number'">
-          <input [(ngModel)]="column.filter.right" pInputText inputmode="numeric">
-        </div>
-        <div *ngSwitchCase="'date'">
-          <p-calendar selectionMode="range" showButtonBar="true" [(ngModel)]="column.filter.right" readonlyInput="true" [appendTo]="'body'"></p-calendar>
-        </div>
-        <div *ngSwitchCase="'datetime'" class="ui-fluid">
-          <p-calendar selectionMode="range" showButtonBar="true" [(ngModel)]="column.filter.right" readonlyInput="true" [appendTo]="'body'"></p-calendar>
-        </div>
-        <div *ngSwitchCase="'string'">
-          <input [(ngModel)]="column.filter.right" pInputText>
-        </div>
-        <div *ngSwitchDefault>
-          <j-autocomplete-png [checkValue]="false" [type]="column.type" [(ngModel)]="column.filter.right" [showOpen]="false" [showFind]="false"
-            [showClear]="true">
-          </j-autocomplete-png>
-        </div>
-      </div>
-    </ng-template>
-  </p-column>
+      </ng-template>
+    </p-column>
+  </div>
 </p-dataTable>

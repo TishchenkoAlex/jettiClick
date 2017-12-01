@@ -1,54 +1,42 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  ElementRef,
   EventEmitter,
   Input,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
-import { DataTable, SortMeta } from 'primeng/primeng';
-import { Observable } from 'rxjs/Observable';
-import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
-import { Subscription } from 'rxjs/Subscription';
+import { Column, DataTable } from 'primeng/primeng';
+import { take } from 'rxjs/operators';
 
-import { FormListOrder } from '../../../server/models/user.settings';
-import { UserSettingsService } from '../auth/settings/user.settings.service';
+import { FormListFilter } from '../../../server/models/user.settings';
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { ApiService } from '../services/api.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-suggest-list',
-  templateUrl: './suggest.dialog.component.html',
+  templateUrl: './suggest.dialog.component.html'
 })
-export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy {
-
-  private _filter$: Subscription = Subscription.EMPTY;
+export class SuggestDialogComponent implements OnInit, AfterViewInit {
 
   dataSource: ApiDataSource | null = null;
+  private _afterViewInit = false;
 
-  @Input() pageSize = 15;
-  @Input() docType = '';
-  @Input() docID = '';
+  @Input() pageSize = 15; @Input() docType = ''; @Input() docID = ''; @Input() filters: FormListFilter[] = [];
   @Output() onSelect = new EventEmitter();
 
-  @ViewChild('filter') filter: ElementRef;
   @ViewChild(DataTable) dataTable: DataTable = null;
 
-  get isDoc() { return this.docType.startsWith('Document.') || this.docType.startsWith('Journal.') }
-  additianalColumn1 = ''; additianalColumn2 = '';
+  isDoc: boolean; additianalColumn1 = ''; additianalColumn2 = '';
 
-  constructor(
-    private apiService: ApiService, private uss: UserSettingsService, private cd: ChangeDetectorRef) { }
+  constructor(private apiService: ApiService) { }
 
   ngOnInit() {
-    this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize, null, this.uss);
-
+    this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
+    this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize);
     this.apiService.getDocDimensions(this.docType).pipe(take(1))
       .subscribe(data => {
         if (data.length > 0) { this.additianalColumn1 = data[0] }
@@ -57,33 +45,21 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngAfterViewInit() {
-    this.filter.nativeElement.focus();
     this.dataSource.dataTable = this.dataTable;
-    if (!this.docID || (this.docID === this.docType)) {
-      this.dataSource.first()
-    } else { this.dataSource.goto(this.docID) }
-
-    this._filter$ = Observable.fromEvent(this.filter.nativeElement, 'keyup').pipe(
-      distinctUntilChanged(),
-      debounceTime(500))
-      .subscribe(() => this.update());
-  }
-
-  update() {
-    this.dataSource.dataTable.selection = null;
-    this.uss.formListSettings$.next({
-      type: this.docType,
-      payload: {
-        filter: [
-          { left: 'description', center: 'like', right: this.filter.nativeElement.value }
-        ],
-        order: ((<SortMeta[]>this.dataTable.multiSortMeta) || [])
-          .map(e => <FormListOrder>{ field: e.field, order: e.order === 1 ? 'asc' : 'desc' })
-      }
+    setTimeout(() => {
+      this.dataTable.columns.forEach(c => this.dataTable.filters[c.field] = { matchMode: '=', value: null })
+      this.filters.filter(f => f.right).forEach(f => this.dataTable.filters[f.left] = { matchMode: f.center, value: f.right });
+      this.dataSource.goto(this.docID);
+      this._afterViewInit = true;
     });
   }
 
+  update(col: Column, event) {
+    this.dataTable.filters[col.field] = { matchMode: col.filterMatchMode, value: event };
+    this.Sort(event);
+  }
+
+  Sort = (event) => { if (this._afterViewInit) { this.dataSource.sort() } }
   onSelectHandler = (row) => this.onSelect.emit(row);
-  ngOnDestroy = () => this._filter$.unsubscribe();
 
 }

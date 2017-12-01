@@ -9,7 +9,7 @@
 <p-dataTable [value]="dataSource" [editable]="true" dataKey="index" [(selection)]="selection" [scrollable]="true" 
   sortMode="multiple" (onEditComplete)="onEditComplete($event)" (onEdit)="onEdit($event)" (onEditCancel)="onEditCancel($event)">
 
-  <p-column [style]="{'width':'40px'}" selectionMode="multiple"></p-column>
+  <p-column [style]="{'width':'34px'}" selectionMode="multiple"></p-column>
   <p-column [style]="{'width':'50px', 'text-align': 'right'}" field="index" header="#" sortable="true">
     <ng-template let-row="rowData" pTemplate="body">
       {{formGroup.controls[row.index].controls['index']?.value+1 | number}}
@@ -38,7 +38,7 @@
 
   <p-footerColumnGroup>
     <p-row>
-      <p-column [style]="{'width':'40px'}"></p-column>
+      <p-column [style]="{'width':'34px'}"></p-column>
       <p-column [style]="{'width':'50px', 'text-align': 'right'}"></p-column>
       <div *ngFor="let col of columns">
         <p-column [style]="col.style">

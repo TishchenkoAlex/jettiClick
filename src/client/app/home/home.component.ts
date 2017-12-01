@@ -4,8 +4,7 @@ interface PBData { accessToken: string, embedUrl: string, type: string, id: stri
 
 @Component({
   selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  templateUrl: './home.component.html'
 })
 export class HomeComponent {
     reportData: PBData =  {

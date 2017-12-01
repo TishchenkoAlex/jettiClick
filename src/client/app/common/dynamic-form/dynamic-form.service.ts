@@ -45,10 +45,11 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       const style = prop['style'] || false;
       const totals = prop['totals'] * 1 || null;
       const change = prop['change'];
+      const owner = prop['owner'] || '';
       let newControl: BaseJettiFromControl<any>;
       const controlOptions: ControlOptions<any> = {
         key: key, label: label, type: dataType, required: required, readOnly: readOnly,
-        order: order, hidden: hidden, style: style, change: change, totals: totals,
+        order: order, hidden: hidden, style: style, change: change, owner: owner, totals: totals,
       };
       switch (dataType) {
         case 'table':

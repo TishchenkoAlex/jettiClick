@@ -47,7 +47,8 @@ import {
     ProgressSpinnerModule,
     InplaceModule,
     ConfirmationService,
-    MultiSelectModule
+    MultiSelectModule,
+    BlockUIModule
 } from 'primeng/primeng';
 import { MessageService } from 'primeng/components/common/messageservice';
 
@@ -100,6 +101,7 @@ import { MessageService } from 'primeng/components/common/messageservice';
     ProgressSpinnerModule,
     MultiSelectModule,
     InplaceModule,
+    BlockUIModule
   ],
   providers: [ConfirmationService, MessageService]
 })

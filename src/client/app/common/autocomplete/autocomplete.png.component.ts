@@ -36,6 +36,7 @@ import { ApiService } from '../../services/api.service';
 export class AutocompletePNGComponent implements ControlValueAccessor, Validator {
 
   @Input() readOnly = false;
+  @Input() owner;
   @Input() placeholder = '';
   @Input() required = false;
   @Input() disabled = false;
@@ -44,6 +45,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   @Input() showOpen = true;
   @Input() showFind = true;
   @Input() showClear = true;
+  @Input() showLabel = true;
   @Input() type = '';
   @Input() inputStyle;
   @Input() checkValue = true;
@@ -90,7 +92,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
       return;
     }
     this.value = obj;
-    if (this.type.includes('.') && (this.value && !this.value.value)) { this.handleReset(null) }
+    if (this.type && this.type.includes('.') && (this.value && !this.value.value)) { this.handleReset(null) }
     this.cd.markForCheck();
   }
 
@@ -115,7 +117,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   };
   // end of implementation Validator interface
 
-  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
+  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) {}
 
   getSuggests(text) {
     this.api.getSuggests(this.value.type || this.type, text || '').pipe(take(1)).subscribe(data => {

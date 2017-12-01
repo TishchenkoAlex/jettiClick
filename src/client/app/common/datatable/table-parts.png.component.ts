@@ -1,13 +1,4 @@
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    EventEmitter,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -42,7 +33,7 @@ export class TablePartsPNGComponent implements OnInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
   private _valueChanges$: Subscription = Subscription.EMPTY;
 
-  constructor(private api: ApiService, private ds: DocService, private cd: ChangeDetectorRef) { }
+  constructor(private api: ApiService, private ds: DocService) { }
 
   ngOnInit() {
     this.view = this.control.value as BaseJettiFromControl<any>[];
@@ -53,12 +44,11 @@ export class TablePartsPNGComponent implements OnInit, OnDestroy {
       };
       return result;
     });
-    this.view.forEach(v => v.label = null);
+    this.view.forEach(v => v.showLabel = false);
     this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
     this.formGroup.removeAt(this.formGroup.length - 1);
     this.dataSource = this.formGroup.getRawValue();
     this._subscription$ = this.ds.save$.subscribe(data => this.dataSource = this.formGroup.getRawValue());
-    setTimeout(() => this.cd.markForCheck());
     this._valueChanges$ = this.formGroup.valueChanges.subscribe(data => this.onChange.emit(data));
   }
 
@@ -112,7 +102,7 @@ export class TablePartsPNGComponent implements OnInit, OnDestroy {
   }
 
   onEditCancel(event) {
-    console.log('onEditCancel', event)
+    console.log('onEditCancel', event);
   }
 
   calcTotals(field: string): number {

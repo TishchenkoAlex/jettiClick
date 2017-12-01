@@ -9,6 +9,7 @@ export interface ColumnDef {
     style: string;
     required: boolean;
     readOnly: boolean;
+    owner?: string;
     totals?: number;
     change?: string;
     sort?: FormListOrder;

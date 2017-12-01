@@ -3,7 +3,7 @@ import { FormControl } from '@angular/forms';
 import { take } from 'rxjs/operators';
 
 import { getViewModel } from '../../common/dynamic-form/dynamic-form.service';
-import { BaseFormComponent } from '../../common/form/base.form.components/base.form.component';
+import { BaseFormComponent } from './../../common/form/base.form.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

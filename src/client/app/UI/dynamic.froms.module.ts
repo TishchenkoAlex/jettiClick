@@ -15,7 +15,7 @@ import { DocService } from './../common/doc.service';
 import { DynamicComponent, DynamicComponentDirective } from './../common/dynamic-component/dynamic-component';
 import { DynamicFormControlComponent } from './../common/dynamic-form/dynamic-form-control.component';
 import { DynamicFormService } from './../common/dynamic-form/dynamic-form.service';
-import { BaseFormComponent } from './../common/form/base.form.components/base.form.component';
+import { BaseFormComponent } from './../common/form/base.form.component';
 import { RegisterMovementComponent } from './../common/register-movements/register-movement.component';
 import { TabControllerComponent } from './../common/tabcontroller/tabcontroller.component';
 import { TabControllerService } from './../common/tabcontroller/tabcontroller.service';

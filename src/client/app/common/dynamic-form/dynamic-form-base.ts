@@ -9,6 +9,7 @@ export interface ControlOptions<T> {
   order?: number,
   controlType?: string,
   style?: any,
+  owner?: string,
   change?: string,
   totals?: number
 }
@@ -24,8 +25,10 @@ export class BaseJettiFromControl<T> {
   order: number;
   controlType: string;
   style: any;
+  owner?: string;
   change: string;
   totals: number;
+  showLabel = true;
 
   constructor(options: ControlOptions<T> = {}) {
     this.value = options.value;
@@ -40,6 +43,7 @@ export class BaseJettiFromControl<T> {
     this.style = options.style || {};
     this.change = options.change || '';
     this.totals = options.totals || null;
+    this.owner = options.owner;
   }
 }
 

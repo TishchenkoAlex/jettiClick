@@ -1,4 +1,5 @@
 import { v1 } from 'uuid';
+import 'reflect-metadata';
 
 import { AllTypes, DocTypes } from './documents.types';
 

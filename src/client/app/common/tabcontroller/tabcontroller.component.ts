@@ -64,7 +64,7 @@ export class TabControllerComponent implements OnInit {
     this.tcs.index = event;
     const docType = this.tcs.tabs[event].docType;
     const docID = this.tcs.tabs[event].docID;
-    const doc = new DocModel(docType, docID)
+    const doc = new DocModel(docType, docID);
     this.ds.close(doc);
   }
 

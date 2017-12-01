@@ -16,9 +16,9 @@ import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
-import { DocService } from '../../../common/doc.service';
-import { ViewModel } from '../../../common/dynamic-form/dynamic-form.service';
-import { SideNavService } from './../../../services/side-nav.service';
+import { DocService } from '../../common/doc.service';
+import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
+import { SideNavService } from './../../services/side-nav.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -122,7 +122,9 @@ export class BaseFormComponent implements OnInit, OnDestroy {
         accept: () => {
           this.ds.close(null);
           this.location.back();
-        }
+          this.cd.markForCheck();
+        },
+        reject: () => this.cd.markForCheck()
       })
     }
   }

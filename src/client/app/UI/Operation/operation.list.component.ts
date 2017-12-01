@@ -8,8 +8,9 @@ import { BaseListComponent } from './../../common/datatable/base.list.component'
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <p-dropdown [style]="{'width' : '100%'}" [options]="operationsGroups" [(ngModel)]="selectedColumn?.filter.right"
-      (onChange)="super.uss.setFormListSettings(this.super.docType, this.super.formListSettings)"></p-dropdown>
+    <p-dropdown [style]="{'width' : '100%'}" [options]="operationsGroups" [ngModel]="super.dataTable.filters['Group']?.value"
+      (onChange)="this.super.dataTable.filters['Group'] =
+        { matchMode: '=', value: $event.value }; this.super.Sort($event.value)"></p-dropdown>
     <j-list></j-list>
   `
 })
@@ -17,12 +18,12 @@ export class OperationListComponent implements OnInit {
   @ViewChild(BaseListComponent) super: BaseListComponent;
 
   operationsGroups: SelectItem[] = [];
-  selectedColumn: ColumnDef;
 
   ngOnInit() {
     this.super.ds.api.getOperationsGroups().pipe(take(1)).subscribe(data => {
       this.operationsGroups = data.map(el => <SelectItem>({label: el.value, value: el}));
-      this.selectedColumn = this.super.columns.find(c => c.field.toLowerCase() === 'group');
+      this.super.dataTable.filters['Group'].value =
+        this.super.columns.find(c => c.field === 'Group').filter.right || this.operationsGroups[0].value;
     });
   }
 
