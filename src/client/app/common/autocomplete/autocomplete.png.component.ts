@@ -6,6 +6,7 @@ import {
     forwardRef,
     Input,
     Output,
+    ViewChild,
 } from '@angular/core';
 import {
     AbstractControl,
@@ -19,6 +20,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AutoComplete } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
@@ -51,6 +53,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   @Input() checkValue = true;
   @Input() openButton = true;
   @Output() change = new EventEmitter();
+  @ViewChild('ac') input: AutoComplete;
 
   form: FormGroup = new FormGroup({
     suggest: this.required ? new FormControl(this.value, Validators.required) : new FormControl(this.value)
@@ -87,7 +90,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
     if (!obj) { obj = this.EMPTY }
     if (!this.type) { this.type = obj.type }
     if ((this.type && this.type.includes('.')) && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
-        (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) {
+      (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) {
       this.value = this.EMPTY;
       return;
     }
@@ -117,7 +120,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   };
   // end of implementation Validator interface
 
-  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) {}
+  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
 
   getSuggests(text) {
     this.api.getSuggests(this.value.type || this.type, text || '').pipe(take(1)).subscribe(data => {
@@ -159,5 +162,11 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
       value: this.isTypeValue ? null : row.description,
       data: 'NO_SUGGEST'
     };
+  }
+
+  focus() {
+    if (this.input instanceof AutoComplete) {
+      this.input.inputEL.nativeElement.focus();
+    }
   }
 }

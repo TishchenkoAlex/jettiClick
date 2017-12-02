@@ -1,11 +1,12 @@
 // tslint:disable:max-line-length
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/primeng';
 
 import { AppComponent } from './app.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-menu',
   template: `
     <ul app-submenu [item]="model" root="true" class="layout-menu layout-main-menu clearfix" [reset]="reset" visible="true"></ul>
@@ -17,7 +18,7 @@ export class AppMenuComponent implements OnInit {
 
   model: any[];
 
-  constructor(public app: AppComponent) { }
+  constructor(public app: AppComponent, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.model = [
@@ -29,8 +30,15 @@ export class AppMenuComponent implements OnInit {
           { label: 'Overlay Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToOverlayMenu() },
           { label: 'Slim Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToSlimMenu() },
           { label: 'Horizontal Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToHorizontalMenu() },
-          { label: 'Inline Profile', icon: 'fa fa-sun-o fa-fw', command: () => this.app.profileMode = 'inline' },
-          { label: 'Top Profile', icon: 'fa fa-moon-o fa-fw', command: () => this.app.profileMode = 'top' },
+          { label: 'Inline Profile', icon: 'fa fa-sun-o fa-fw', command: () => {
+            this.app.profileMode = 'inline';
+            setTimeout(() => this.cd.markForCheck(), 1000);
+            }
+          },
+          { label: 'Top Profile', icon: 'fa fa-moon-o fa-fw', command: () => {
+            this.app.profileMode = 'top';
+            setTimeout(() => this.cd.markForCheck(), 1000);
+          }},
           { label: 'Light Menu', icon: 'fa fa-sun-o fa-fw', command: () => this.app.darkMenu = false },
           { label: 'Dark Menu', icon: 'fa fa-moon-o fa-fw', command: () => this.app.darkMenu = true }
         ]
@@ -154,34 +162,34 @@ export class AppMenuComponent implements OnInit {
   selector: '[app-submenu]',
   /* tslint:enable:component-selector */
   template: `
-        <ng-template ngFor let-child let-i="index" [ngForOf]="(root ? item : item.items)">
-            <li [ngClass]="{'active-menuitem': isActive(i)}" [class]="child.badgeStyleClass" *ngIf="child.visible === false ? false : true">
-                <a [href]="child.url" (click)="itemClick($event,child,i)" (mouseenter)="onMouseEnter(i)"
-                   class="ripplelink" *ngIf="!child.routerLink"
-                    [attr.tabindex]="!visible ? '-1' : null" [attr.target]="child.target">
-                    <i [ngClass]="child.icon"></i><span>{{child.label}}</span>
-                    <i class="fa fa-fw fa-angle-down menuitem-toggle-icon" *ngIf="child.items"></i>
-                    <span class="menuitem-badge" *ngIf="child.badge">{{child.badge}}</span>
-                </a>
-
-                <a (click)="itemClick($event,child,i)" (mouseenter)="onMouseEnter(i)" class="ripplelink" *ngIf="child.routerLink"
-                    [routerLink]="child.routerLink" routerLinkActive="active-menuitem-routerlink"
-                    [attr.tabindex]="!visible ? '-1' : null" [attr.target]="child.target">
-                    <i [ngClass]="child.icon"></i><span>{{child.label}}</span>
-                    <i class="fa fa-fw fa-angle-down menuitem-toggle-icon" *ngIf="child.items"></i>
-                    <span class="menuitem-badge" *ngIf="child.badge">{{child.badge}}</span>
-                </a>
-                <div class="layout-menu-tooltip">
-                    <div class="layout-menu-tooltip-arrow"></div>
-                    <div class="layout-menu-tooltip-text">{{child.label}}</div>
-                </div>
-                <div class="submenu-arrow" *ngIf="child.items"></div>
-                <ul app-submenu [item]="child" *ngIf="child.items" [visible]="isActive(i)" [reset]="reset"
-                    [@children]="(app.isSlim()||app.isHorizontal())&&root ? isActive(i) ?
-                     'visible' : 'hidden' : isActive(i) ? 'visibleAnimated' : 'hiddenAnimated'"></ul>
-            </li>
-        </ng-template>
-    `,
+    <ng-template ngFor let-child let-i="index" [ngForOf]="(root ? item : item.items)">
+      <li [ngClass]="{'active-menuitem': isActive(i)}" [class]="child.badgeStyleClass" *ngIf="child.visible === false ? false : true">
+        <a [href]="child.url" (click)="itemClick($event,child,i)" (mouseenter)="onMouseEnter(i)"
+           class="ripplelink" *ngIf="!child.routerLink"
+            [attr.tabindex]="!visible ? '-1' : null" [attr.target]="child.target">
+            <i [ngClass]="child.icon"></i><span>{{child.label}}</span>
+            <i class="fa fa-fw fa-angle-down menuitem-toggle-icon" *ngIf="child.items"></i>
+            <span class="menuitem-badge" *ngIf="child.badge">{{child.badge}}</span>
+        </a>
+        <a (click)="itemClick($event,child,i)" (mouseenter)="onMouseEnter(i)" class="ripplelink" *ngIf="child.routerLink"
+            [routerLink]="child.routerLink" routerLinkActive="active-menuitem-routerlink"
+            [attr.tabindex]="!visible ? '-1' : null" [attr.target]="child.target">
+            <i [ngClass]="child.icon"></i><span>{{child.label}}</span>
+            <i class="fa fa-fw fa-angle-down menuitem-toggle-icon" *ngIf="child.items"></i>
+            <span class="menuitem-badge" *ngIf="child.badge">{{child.badge}}</span>
+        </a>
+        <div class="layout-menu-tooltip">
+            <div class="layout-menu-tooltip-arrow"></div>
+            <div class="layout-menu-tooltip-text">{{child.label}}</div>
+        </div>
+        <div class="submenu-arrow" *ngIf="child.items"></div>
+        <ul app-submenu [item]="child" *ngIf="child.items" [visible]="isActive(i)" [reset]="reset"
+            [@children]="(app.isSlim()||app.isHorizontal())&&root ? isActive(i) ?
+             'visible' : 'hidden' : isActive(i) ? 'visibleAnimated' : 'hiddenAnimated'">
+        </ul>
+      </li>
+    </ng-template>
+  `,
   animations: [
     trigger('children', [
       state('hiddenAnimated', style({

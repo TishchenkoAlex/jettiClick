@@ -67,14 +67,12 @@ export class ApiService {
 
   postDocById(id: string): Observable<boolean> {
     const query = `${this.url}post/${id}`;
-    return (this.http.get(query) as Observable<boolean>).pipe(
-      catchError(err => Observable.of(false)))
+    return (this.http.get(query) as Observable<boolean>);
   }
 
   deleteDoc(id: string): Observable<Object> {
     const query = `${this.url}${id}`;
-    return (this.http.delete(query)).pipe(
-      catchError(err => Observable.of(null)))
+    return (this.http.delete(query));
   }
 
   getDocAccountMovementsView(id: string): Observable<AccountRegister[]> {

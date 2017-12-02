@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 
-import { db } from '../db';
-import { DocListRequestBody } from '../models/api';
-import { FilterInterval, FormListFilter } from '../models/user.settings';
+import { db } from './../../db';
+import { DocListRequestBody } from './../../models/api';
+import { FilterInterval, FormListFilter } from './../../models/user.settings';
 
 export async function List(req: Request, res: Response) {
     const params = req.body as DocListRequestBody;
@@ -38,10 +38,10 @@ export async function List(req: Request, res: Response) {
               break;
             }
             if (typeof value === 'object') { return; }
-            where += ` AND d."${f.left}" ${operator} '${value}'`;
+            where += ` AND d."${f.left}" ${operator} '${value.toString().replace('\'', '\'\'')}'`;
             break;
           case 'ILIKE':
-            where += ` AND d."${f.left}" ${operator} '%${value['value'] || value}%'`;
+            where += ` AND d."${f.left}" ${operator} '%${(value['value'] || value).toString().replace('\'', '\'\'')}%'`;
             break;
           case 'beetwen':
             const interval = f.right as FilterInterval;
@@ -88,7 +88,7 @@ export async function List(req: Request, res: Response) {
     query = `SELECT d.*,
     (select count(*) FROM "Documents" where parent = d.id) "childs",
     (select count(*) FROM "Documents" where id = d.parent) "parents" FROM (${query}) d`;
-    console.log(query);
+    // console.log(query);
     const data = await db.manyOrNone(query);
     let result = [];
 

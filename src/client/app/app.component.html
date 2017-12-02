@@ -8,11 +8,10 @@
             'layout-menu-static-active': staticMenuMobileActive}">
 
     <app-topbar></app-topbar>
-
     <div class="layout-menu-container" [ngClass]="{'layout-menu-dark':darkMenu}" (click)="onMenuClick($event)">
         <div #layoutMenuScroller class="nano">
             <div class="nano-content menu-scroll-content">
-                <app-inline-profile *ngIf="profileMode=='inline'&&!isHorizontal()"></app-inline-profile>
+                <app-inline-profile [inline]="true" *ngIf="profileMode=='inline' && !isHorizontal()"></app-inline-profile>
                 <app-menu [reset]="resetMenu"></app-menu>
             </div>
         </div>

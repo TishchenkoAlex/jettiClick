@@ -1,9 +1,8 @@
-import { HOME } from './common/tabcontroller/tabcontroller.service';
-import { HomeComponent } from './home/home.component';
 import { Routes } from '@angular/router';
-import { AuthGuardService as AuthGuard } from './auth/auth.guard.service';
+
 import { TabResolver } from '../app/tab.resolver';
 import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
+import { HOME } from './common/tabcontroller/tabcontroller.service';
 
 export const appRoutes: Routes = [
     { path: 'callback', redirectTo: HOME, pathMatch: 'full' },

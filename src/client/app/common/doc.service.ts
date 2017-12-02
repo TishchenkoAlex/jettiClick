@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { take } from 'rxjs/operators';
+import { catchError, take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { DocModel } from '../../../server/modules/doc.base';
 import { dateReviver } from '../common/utils';
 import { ApiService } from '../services/api.service';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 
 @Injectable()
 export class DocService {
@@ -48,9 +49,11 @@ export class DocService {
       .subscribe((savedDoc: DocModel) => {
         savedDoc = JSON.parse(JSON.stringify(savedDoc), dateReviver);
         if (close) { this._saveCloseDoc.next(savedDoc) } else { this._saveDoc.next(savedDoc) }
-        this.openSnackBar(savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
+        this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
       },
-      (err) => this.openSnackBar(doc.description, 'Error on post! '));
+      (err) => {
+        this.openSnackBar('error', doc.description, err.error)
+      });
   }
 
   delete(id: string) {
@@ -59,16 +62,19 @@ export class DocService {
       .subscribe((deletedDoc: DocModel) => {
         deletedDoc = JSON.parse(JSON.stringify(deletedDoc), dateReviver);
         this._deleteDoc.next(deletedDoc);
-        this.openSnackBar(deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
+        this.openSnackBar('succes', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
+      },
+      (err) => {
+        this.openSnackBar('error', id, err.error)
       });
   }
 
-  post(doc: string) {
-    return this.api.postDocById(doc).toPromise();
+  post(id: string) {
+    return this.api.postDocById(id).toPromise()
   }
 
-  openSnackBar(message: string, action: string) {
-    this.messageService.add({severity: 'success', summary: message, detail: action})
+  openSnackBar(severity: string, message: string, action: string) {
+    this.messageService.add({severity: severity, summary: message, detail: action})
   }
 
 }

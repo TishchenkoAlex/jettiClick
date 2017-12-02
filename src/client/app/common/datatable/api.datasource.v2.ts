@@ -28,8 +28,8 @@ export class ApiDataSource {
         (stream.command === 'next' && !this.continuation.last))),
       switchMap(stream => {
         let offset = 0;
-        let id = this.dataTable.selection && this.dataTable.selection.length ? this.dataTable.selection[0].id : '';
-        console.log('id', id);
+        let id = this.dataTable.selection && this.dataTable.selection.length
+          && this.dataTable.selection[0] ? this.dataTable.selection[0].id : '';
         switch (stream.command) {
           case 'prev': id = this.continuation.first.id; break;
           case 'next': id = this.continuation.last.id; break;

@@ -6,7 +6,7 @@
   </div>
 </p-toolbar>
 
-<p-dataTable [value]="dataSource" [editable]="true" dataKey="index" [(selection)]="selection" [scrollable]="true" 
+<p-dataTable [value]="dataSource" [editable]="true" dataKey="index" [(selection)]="selection" [scrollable]="true" [resizableColumns]="true"
   sortMode="multiple" (onEditComplete)="onEditComplete($event)" (onEdit)="onEdit($event)" (onEditCancel)="onEditCancel($event)">
 
   <p-column [style]="{'width':'34px'}" selectionMode="multiple"></p-column>

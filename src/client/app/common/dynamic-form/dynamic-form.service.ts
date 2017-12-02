@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { DocModel, IDocBase } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
-import { cloneFormGroup, dateReviver, toFormGroup } from '../utils';
+import { cloneFormGroup, dateReviver } from '../utils';
 import {
     AutocompleteJettiFormControl,
     BaseJettiFromControl,
@@ -26,6 +26,26 @@ export interface ViewModel {
   formGroup: FormGroup,
   controlsByKey: { [s: string]: BaseJettiFromControl<any> },
   schema: any;
+}
+
+function toFormGroup(controls: BaseJettiFromControl<any>[]) {
+  const group: any = {};
+
+  controls.forEach(control => {
+    if (control instanceof TableDynamicControl) {
+      const Row = {};
+      const arr: FormGroup[] = [];
+      (control.value as BaseJettiFromControl<any>[]).forEach(item => {
+        Row[item.key] = item.required ? new FormControl(item.value, Validators.required) : new FormControl(item.value);
+      });
+      arr.push(new FormGroup(Row));
+      group[control.key] = control.required ? new FormArray(arr, Validators.required) : new FormArray(arr);
+    } else {
+      group[control.key] = control.required ? new FormControl(control.value, Validators.required) : new FormControl(control.value);
+    }
+  });
+  const result = new FormGroup(group);
+  return result;
 }
 
 export const patchOptionsNoEvents = { onlySelf: false, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };

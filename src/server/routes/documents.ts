@@ -1,53 +1,18 @@
-import { NextFunction, Request, Response } from 'express';
 import * as express from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ITask } from 'pg-promise';
 
-import { db } from './db';
-import { docOperationResolver, doSubscriptions, ExecuteScript, buildColumnDef } from './fuctions/ExecuteScript';
-import { DocListRequestBody } from './models/api';
-import { ColumnDef } from './models/column';
-import {
-    FilterInterval,
-    FormListFilter,
-    FormListOrder,
-    FormListSettings,
-    UserDefaultsSettings,
-} from './models/user.settings';
-import { IDocBase, RefValue } from './modules/doc.base';
-import { JDM } from './modules/index';
-import { lib } from './std.lib';
-import { List } from './fuctions/List';
+import { db } from './../db';
+import { ColumnDef } from './../models/column';
+import { FormListSettings } from './../models/user.settings';
+import { IDocBase, RefValue } from './../modules/doc.base';
+import { JDM } from './../modules/index';
+import { buildColumnDef } from './../routes/utils/columns-def';
+import { lib } from './../std.lib';
+import { docOperationResolver, doSubscriptions, ExecuteScript } from './utils/execute-script';
+import { List } from './utils/list';
 
 export const router = express.Router();
-
-router.get('/catalogs', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    res.json(await db.manyOrNone(`
-      SELECT type, description, icon, menu FROM config_schema WHERE chapter = 'Catalog' ORDER BY description`));
-  } catch (err) { next(err.message); }
-})
-
-router.get('/:type/dimensions', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    let result = await db.oneOrNone(`SELECT dimensions FROM config_schema WHERE type = $1`, [req.params.type]);
-    if (result) { result = result.dimensions || [] } else { result = [] }
-    res.json(result);
-  } catch (err) { next(err.message); }
-})
-
-router.get('/documents', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    res.json(await db.manyOrNone(`
-      SELECT type, description, icon, menu FROM config_schema WHERE chapter = 'Document' ORDER BY description`));
-  } catch (err) { next(err.message); }
-})
-
-router.get('/operations/groups', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    res.json(await db.manyOrNone(`
-      SELECT id, type, description as value, code FROM "Documents" WHERE type = 'Catalog.Operation.Group' ORDER BY description`));
-  } catch (err) { next(err.message); }
-})
 
 // Select documents list for UI (grids/list etc)
 router.post('/list', async (req: Request, res: Response, next: NextFunction) => {
@@ -92,28 +57,6 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
     }
     const result = { view: view, model: model, columnDef: columnDef };
     res.json(result);
-  } catch (err) { next(err.message); }
-})
-
-router.get('/suggest/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const query = `
-      SELECT id as id, description as value, code as code, type as type
-      FROM "Documents" WHERE id = $1`;
-    const data = await db.oneOrNone(query, req.params.id);
-    res.json(data);
-  } catch (err) { next(err.message); }
-})
-
-router.get('/suggest/:type/*', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const query = `
-      SELECT id as id, description as value, code as code, type as type
-      FROM "Documents" WHERE type = '${req.params.type}'
-      AND (description ILIKE '%${req.params[0]}%' OR code ILIKE '%${req.params[0]}%' OR id = '${req.params[0]}')
-      ORDER BY type, description LIMIT 10`;
-    const data = await db.manyOrNone(query);
-    res.json(data);
   } catch (err) { next(err.message); }
 })
 
@@ -203,14 +146,6 @@ router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) =
   } catch (err) { next(err.message); }
 })
 
-router.get('/register/account/movements/view/:id', async (req, res, next) => {
-  try {
-    const query = `SELECT * FROM "Register.Account.View" where document_id = $1`;
-    const data = await db.manyOrNone(query, [req.params.id]);
-    res.json(data);
-  } catch (err) { next(err.message); }
-})
-
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const doc = req.body.doc as IDocBase;
@@ -224,69 +159,4 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
   } catch (err) { next(err.message); }
 })
 
-router.get('/register/accumulation/list/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await db.manyOrNone(`
-      SELECT DISTINCT r.type, s.description FROM "Register.Accumulation" r
-      LEFT JOIN config_schema s ON s.type = r.type
-      WHERE document = $1`, [req.params.id]);
-    res.json(result);
-  } catch (err) { next(err.message); }
-})
 
-router.get('/register/info/list/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await db.manyOrNone(`
-      SELECT DISTINCT r.type, s.description FROM "Register.Info" r
-      LEFT JOIN config_schema s ON s.type = r.type
-      WHERE document = $1`, [req.params.id]);
-    res.json(result);
-  } catch (err) { next(err.message); }
-})
-
-router.get('/register/accumulation/:type/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const config_schema = await db.one(`
-      SELECT "queryObject" query FROM config_schema WHERE type = $1`, [req.params.type]);
-    const result = await db.manyOrNone(`${config_schema.query} AND r.document = $1`, [req.params.id]);
-    res.json(result);
-  } catch (err) { next(err.message); }
-})
-
-router.get('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
-    const query = `select settings->'defaults' result from users where email = '${user}'`;
-    const result = await db.oneOrNone<{ result: UserDefaultsSettings }>(query);
-    res.json(result.result || new UserDefaultsSettings());
-  } catch (err) { next(err.message); }
-})
-
-router.post('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
-    const data = req.body || new UserDefaultsSettings();
-    const query = `update users set settings = jsonb_set(settings, '{"defaults"}, $1) where email = '${user}'`;
-    const result = await db.none(query, [data]);
-    res.json(true);
-  } catch (err) { next(err.message); }
-})
-
-router.get('/user/settings/:type', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
-    const query = `select settings->'${req.params.type}' result from users where email = '${user}'`;
-    const result = await db.oneOrNone<{ result: FormListSettings }>(query);
-    res.json(result.result);
-  } catch (err) { next(err.message); }
-})
-
-router.post('/user/settings/:type', async (req, res, next) => {
-  try {
-    const user = (req.user && req.user.sub && req.user.sub.split('|')[1]) || '';
-    const data = req.body || {};
-    const query = `update users set settings = jsonb_set(settings, '{"${req.params.type}"}', $1) where email = '${user}'`;
-    const settings = await db.none(query, [data]);
-    res.json(true);
-  } catch (err) { next(err.message); }
-})

@@ -1,0 +1,78 @@
+<div *ngIf="inline">
+  <div *ngIf="(appAuth.userProfile$.value) as userProfile">
+    <div *ngIf="appAuth.isAuthenticated()">
+      <div class="profile" [ngClass]="{'profile-expanded':active}">
+        <a href="" (click)="onClick($event)">
+          <img class="profile-image" src={{userProfile?.picture}} />
+          <span class="profile-name">{{ userProfile?.nickname }}</span>
+          <i class="fa fa-fw fa-caret-down"></i>
+          <span class="profile-role">{{ userProfile?.name }}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <ul id="profile-menu" class="layout-menu" [@menu]="appAuth.isAuthenticated() ? 'hidden' : 'visible'">
+    <li role="menuitem">
+      <a style="cursor: pointer" (click)="appAuth.login()" [attr.tabindex]="!active ? '-1' : null">
+        <i class="fa fa-fw fa-sign-out"></i>
+        <span>Login</span>
+      </a>
+      <div class="layout-menu-tooltip">
+        <div class="layout-menu-tooltip-arrow"></div>
+        <div class="layout-menu-tooltip-text">Login</div>
+      </div>
+    </li>
+  </ul>
+  <ul id="profile-menu" class="layout-menu" [@menu]="active ? 'visible' : 'hidden'">
+    <li role="menuitem">
+      <a style="cursor: pointer" [attr.tabindex]="!active ? '-1' : null">
+        <i class="fa fa-fw fa-user"></i>
+        <span>Profile</span>
+      </a>
+      <div class="layout-menu-tooltip">
+        <div class="layout-menu-tooltip-arrow"></div>
+        <div class="layout-menu-tooltip-text">Profile</div>
+      </div>
+    </li>
+    <li role="menuitem">
+      <a style="cursor: pointer" [attr.tabindex]="!active ? '-1' : null">
+        <i class="fa fa-fw fa-user-secret"></i>
+        <span>Privacy</span>
+      </a>
+      <div class="layout-menu-tooltip">
+        <div class="layout-menu-tooltip-arrow"></div>
+        <div class="layout-menu-tooltip-text">Privacy</div>
+      </div>
+    </li>
+    <li role="menuitem">
+      <a style="cursor: pointer" [attr.tabindex]="!active ? '-1' : null">
+        <i class="fa fa-fw fa-cog"></i>
+        <span>Settings</span>
+      </a>
+      <div class="layout-menu-tooltip">
+        <div class="layout-menu-tooltip-arrow"></div>
+        <div class="layout-menu-tooltip-text">Settings</div>
+      </div>
+    </li>
+    <li role="menuitem">
+      <a style="cursor: pointer" (click)="appAuth.logout()" [attr.tabindex]="!active ? '-1' : null">
+        <i class="fa fa-fw fa-sign-out"></i>
+        <span>Logout</span>
+      </a>
+      <div class="layout-menu-tooltip">
+        <div class="layout-menu-tooltip-arrow"></div>
+        <div class="layout-menu-tooltip-text">Logout</div>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<div *ngIf="!inline">
+  <div *ngIf="(appAuth.userProfile$.value) as userProfile">
+    <div *ngIf="appAuth.isAuthenticated()">
+      <div class="profile">
+        <img class="profile-image" src={{userProfile?.picture}} />
+      </div>
+    </div>
+  </div>
+</div>

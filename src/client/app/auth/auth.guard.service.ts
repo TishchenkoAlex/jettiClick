@@ -1,6 +1,5 @@
-import { TabControllerService } from '../common/tabcontroller/tabcontroller.service';
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, CanActivate, Router } from '@angular/router';
+import { CanActivate, Router } from '@angular/router';
 
 import { Auth0Service } from './auth0.service';
 

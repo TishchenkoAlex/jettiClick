@@ -19,7 +19,7 @@ import { TabResolver } from '../app/tab.resolver';
 import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
 import { AppMenuComponent, AppSubMenuComponent } from './app.menu.component';
-import { AppProfileComponent } from './app.profile.component';
+import { AppProfileComponent } from './auth/app.profile.component';
 import { appRoutes } from './app.routes';
 import { AppTopBarComponent } from './app.topbar.component';
 import { AuthGuardService } from './auth/auth.guard.service';

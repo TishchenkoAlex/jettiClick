@@ -8,7 +8,7 @@ export class SQLGenegator {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `,  coalesce((d.doc ->> '${prop}')::BOOLEAN, false) "${prop}"\n`; }
-      if (type === 'numeric') { return `,  (d.doc ->> '${prop}')::NUMERIC(15,2) "${prop}"\n`; }
+      if (type === 'number') { return `,  (d.doc ->> '${prop}')::NUMERIC(15,2) "${prop}"\n`; }
       return `, d.doc ->> '${prop}' "${prop}"\n`;
     }
 
@@ -29,7 +29,7 @@ export class SQLGenegator {
 
       const simleProperty = (prop: string, type: string) => {
         if (type === 'boolean') { return `, '${prop}', coalesce(x."${prop}", false) \n`; }
-        if (type === 'numeric') { return `, '${prop}', (x."${prop}")::NUMERIC(15,2) \n`; }
+        if (type === 'number') { return `, '${prop}', (x."${prop}")::NUMERIC(15,2) \n`; }
         return `, '${prop}', x."${prop}"\n`;
       }
 
@@ -117,7 +117,7 @@ export class SQLGenegator {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `,  coalesce((d.doc ->> '${prop}')::BOOLEAN, false) "${prop}"\n`; }
-      if (type === 'numeric') { return `,  (d.doc ->> '${prop}')::NUMERIC(15,2) "${prop}"\n`; }
+      if (type === 'number') { return `,  (d.doc ->> '${prop}')::NUMERIC(15,2) "${prop}"\n`; }
       return `, d.doc ->> '${prop}' "${prop}"\n`;
     }
 
@@ -163,7 +163,7 @@ export class SQLGenegator {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `, false "${prop}"\n` }
-      if (type === 'numeric') { return `, 0 "${prop}"\n` }
+      if (type === 'number') { return `, 0 "${prop}"\n` }
       return `, '' "${prop}"\n`;
     }
 

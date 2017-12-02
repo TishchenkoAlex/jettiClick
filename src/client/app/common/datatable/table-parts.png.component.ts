@@ -1,4 +1,15 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    ChangeDetectorRef
+} from '@angular/core';
+import {  } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -18,7 +29,7 @@ import { cloneFormGroup } from '../utils';
   selector: 'j-table-part-png',
   templateUrl: './table-parts.png.component.html',
 })
-export class TablePartsPNGComponent implements OnInit, OnDestroy {
+export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy {
   private view: BaseJettiFromControl<any>[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
@@ -33,7 +44,7 @@ export class TablePartsPNGComponent implements OnInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
   private _valueChanges$: Subscription = Subscription.EMPTY;
 
-  constructor(private api: ApiService, private ds: DocService) { }
+  constructor(private api: ApiService, private ds: DocService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.view = this.control.value as BaseJettiFromControl<any>[];
@@ -50,6 +61,10 @@ export class TablePartsPNGComponent implements OnInit, OnDestroy {
     this.dataSource = this.formGroup.getRawValue();
     this._subscription$ = this.ds.save$.subscribe(data => this.dataSource = this.formGroup.getRawValue());
     this._valueChanges$ = this.formGroup.valueChanges.subscribe(data => this.onChange.emit(data));
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => this.cd.markForCheck());
   }
 
   ngOnDestroy() {

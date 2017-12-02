@@ -1,16 +1,21 @@
 import { Location } from '@angular/common';
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    HostListener,
     Input,
     OnDestroy,
     OnInit,
+    QueryList,
     TemplateRef,
     ViewChild,
+    ViewChildren,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/components/common/messageservice';
+import { Calendar } from 'primeng/primeng';
 import { ConfirmationService } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
@@ -18,6 +23,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { DocService } from '../../common/doc.service';
 import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
+import { DynamicFormControlComponent } from './../../common/dynamic-form/dynamic-form-control.component';
 import { SideNavService } from './../../services/side-nav.service';
 
 @Component({
@@ -25,10 +31,11 @@ import { SideNavService } from './../../services/side-nav.service';
   selector: 'j-form',
   templateUrl: './base.form.component.html'
 })
-export class BaseFormComponent implements OnInit, OnDestroy {
+export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
+  @ViewChildren(DynamicFormControlComponent) input: QueryList<DynamicFormControlComponent>;
 
   viewModel: ViewModel = this.route.data['value'].detail;
   docId = this.route.params['value'].id;
@@ -42,7 +49,14 @@ export class BaseFormComponent implements OnInit, OnDestroy {
 
   constructor(public router: Router, public route: ActivatedRoute, private messageService: MessageService,
     private confirmationService: ConfirmationService, private location: Location, public cd: ChangeDetectorRef,
-    public ds: DocService, public sideNavService: SideNavService) { }
+    public ds: DocService, public sideNavService: SideNavService) {
+  }
+
+  @HostListener('keyup', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    event.stopPropagation();
+    if (event.keyCode === 27 && this.viewModel.formGroup.pristine) { this.Close() }
+  }
 
   ngOnInit() {
     this.sideNavService.templateRef = this.sideNavTepmlate;
@@ -73,6 +87,17 @@ export class BaseFormComponent implements OnInit, OnDestroy {
     this._closeSubscription$ = this.ds.close$.pipe(
       filter(data => data && data.type === this.viewModel.model.type && data.id === this.docId))
       .subscribe(data => this.Close())
+  }
+
+  ngAfterViewInit() {
+    const arr = this.input.toArray();
+    // try focus date
+    const date = arr.find(el => el.control.key === 'date');
+    if (date && date.input) { (date.input as Calendar).inputfieldViewChild.nativeElement.focus(); return }
+
+    // try focus description
+    const description = arr.find(el => el.control.key === 'description').input;
+    if (description) { description.nativeElement.focus() }
   }
 
   ngOnDestroy() {
@@ -124,7 +149,9 @@ export class BaseFormComponent implements OnInit, OnDestroy {
           this.location.back();
           this.cd.markForCheck();
         },
-        reject: () => this.cd.markForCheck()
+        reject: () => {
+          this.cd.markForCheck();
+        }
       })
     }
   }

@@ -19,8 +19,7 @@ export class OperationFormComponent implements AfterViewInit {
   ngAfterViewInit() {
     this._countOfControls = this.viewModel.view.length;
     this.addParametersToForm();
-    this.viewModel.formGroup.controls['Operation'].valueChanges
-      .subscribe(value => this.addParametersToForm());
+    this.viewModel.formGroup.controls['Operation'].valueChanges.subscribe(value => this.addParametersToForm());
   }
 
   addParametersToForm() {
@@ -52,7 +51,7 @@ export class OperationFormComponent implements AfterViewInit {
         });
         this.viewModel.view.push.apply(this.viewModel.view, additionalVM.view);
         let i = 1; this.viewModel.view.filter(el => el.order > 0).sort((a, b) => a.order - b.order).forEach(el => el.order = i++);
-        this.super.cd.markForCheck();
+        this.super.cd.detectChanges();
       });
   }
 

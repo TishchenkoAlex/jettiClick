@@ -105,6 +105,19 @@ async function avgCost(date = new Date().toJSON(), company, analytics, tx = db_1
     const result = await tx.oneOrNone(queryText, [date, company, analytics]);
     return result.result;
 }
+async function InventoryBalance(date = new Date().toJSON(), company, analytics, tx = db_1.db) {
+    const queryText = `
+    SELECT
+      SUM((data ->> 'Qty')::NUMERIC(15, 2)  * CASE WHEN kind THEN 1 ELSE -1 END) result
+    FROM "Register.Accumulation"
+    WHERE type = 'Register.Accumulation.Inventory'
+      AND date <= $1
+      AND company = $2
+      AND data @> $3
+    `;
+    const result = await tx.oneOrNone(queryText, [date, company, analytics]);
+    return result.result;
+}
 async function sliceLast(type, date = new Date().toJSON(), company, resource, analytics, tx = db_1.db) {
     const queryText = `
     SELECT data->'${resource}' result FROM "Register.Info"

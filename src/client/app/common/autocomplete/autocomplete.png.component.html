@@ -3,7 +3,7 @@
   <div *ngIf="value?.type === 'string'">
     <div class="ui-inputgroup">
       <input pInputText formControlName="suggest" [required]="required" [readOnly]="readOnly" ([disabled])="disabled" [tabIndex]="tabIndex"
-        autocomplete="off">
+        autocomplete="off" (focus)="$event.target.select()">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
@@ -12,7 +12,7 @@
   <div *ngIf="value?.type === 'number'">
     <div class="ui-inputgroup">
       <input pInputText formControlName="suggest" [required]="required" type="number" [readOnly]="readOnly" ([disabled])="disabled"
-        [tabIndex]="tabIndex" autocomplete="off">
+        [tabIndex]="tabIndex" autocomplete="off" (focus)="$event.target.select()">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
@@ -47,7 +47,7 @@
   <div *ngIf="value?.type?.includes('.') ">
     <div [class]="showLabel ? 'ui-float-label' : ''">
       <div class="ui-inputgroup">
-        <p-autoComplete formControlName="suggest" [suggestions]="suggests$" [required]="required" id="suggest" field="value" [readonly]="readOnly"
+        <p-autoComplete #ac formControlName="suggest" [suggestions]="suggests$" [required]="required" id="suggest" field="value" [readonly]="readOnly"
           ([disabled])="disabled" [tabIndex]="tabIndex" autocomplete="off" appendTo="body" (completeMethod)="getSuggests($event.query)"
           (onBlur)="onBlur()" (onSelect)="onSelect($event)" [inputStyle]="inputStyle">
         </p-autoComplete>

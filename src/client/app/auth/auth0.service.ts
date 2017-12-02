@@ -5,11 +5,12 @@ import * as auth0 from 'auth0-js';
 import { Subject } from 'rxjs/Subject';
 
 import { environment } from '../../environments/environment';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class Auth0Service {
 
-  userProfile$ = new Subject<any>();
+  userProfile$ = new BehaviorSubject<any>(null);
 
   auth0 = new auth0.WebAuth(environment.auth0);
 

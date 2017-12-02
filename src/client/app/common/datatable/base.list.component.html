@@ -9,16 +9,16 @@
     <button pButton type="button" icon="fa-refresh" (click)="dataSource.refresh()"></button>
   </div>
   <div class="ui-toolbar-group-right">
-    <button pButton type="button" icon="fa-fast-backward" (click)="dataSource.first()" [disabled]="!dataSource.continuation.first"></button>
-    <button pButton type="button" icon="fa-step-backward" (click)="dataSource.prev()" [disabled]="!dataSource.continuation.first"></button>
-    <button pButton type="button" icon="fa-step-forward" (click)="dataSource.next()" [disabled]="!dataSource.continuation.last"></button>
-    <button pButton type="button" icon="fa-fast-forward" (click)="dataSource.last()" [disabled]="!dataSource.continuation.last"></button>
+    <button pButton type="button" icon="fa-fast-backward" (click)="dataSource.first()" [disabled]="!dataSource.continuation?.first"></button>
+    <button pButton type="button" icon="fa-step-backward" (click)="dataSource.prev()" [disabled]="!dataSource.continuation?.first"></button>
+    <button pButton type="button" icon="fa-step-forward" (click)="dataSource.next()" [disabled]="!dataSource.continuation?.last"></button>
+    <button pButton type="button" icon="fa-fast-forward" (click)="dataSource.last()" [disabled]="!dataSource.continuation?.last"></button>
     <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>
   </div>
 </p-toolbar>
 
 <p-dataTable [value]="(dataSource.result$ | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id" [reorderableColumns]="true"
-  sortMode="multiple" [lazy]="true" (onSort)="Sort($event)" (onFilter)="Sort($event)" [resizableColumns]="true" [scrollable]="true"
+  sortMode="multiple" [lazy]="true" (onSort)="Sort($event)" (onFilter)="Sort($event)" [resizableColumns]="true" [scrollable]="true" 
   (onRowDblclick)="open()" [filterDelay]="500">
   <div *ngIf="dataTable !== null">
     <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">

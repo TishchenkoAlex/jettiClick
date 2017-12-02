@@ -77,9 +77,9 @@ export class AppComponent implements AfterViewInit {
         });
     });
 
-    this.messageService.messageObserver.subscribe(() => {
-      // setTimeout(() => this.cd.markForCheck(), 4000);
-    });
+    const lm = localStorage.getItem('layoutMode');
+    const a = this.layoutMode.toString();
+    console.log(a);
   }
 
   ngAfterViewInit() {
