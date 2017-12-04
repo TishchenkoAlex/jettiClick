@@ -21,6 +21,7 @@ export class OperationListComponent implements OnInit {
   operationsGroups: SelectItem[] = [];
 
   ngOnInit() {
+    this.super.pageSize = Math.floor((window.innerHeight - 305) / 24);
     this.super.ds.api.getOperationsGroups().pipe(take(1)).subscribe(data => {
       this.operationsGroups = data.map(el => <SelectItem>({label: el.value, value: el}));
       this.operationsGroups.unshift({label: '(All)', value: null})
@@ -29,7 +30,4 @@ export class OperationListComponent implements OnInit {
     });
   }
 
-  innerHeight() {
-    return window.innerHeight;
-  }
 }

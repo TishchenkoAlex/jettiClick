@@ -3,42 +3,84 @@ import 'reflect-metadata';
 
 import { AllTypes, DocTypes } from './documents.types';
 
+export interface PropOptions {
+  type: AllTypes,
+  label?: string,
+  required?: boolean,
+  readOnly?: boolean,
+  hidden?: boolean,
+  hiddenInList?: boolean,
+  order?: number,
+  controlType?: string,
+  style?: { [x: string]: any },
+  change?: string,
+  owner?: string,
+  totals?: number,
+}
+
+export interface DocumentOptions {
+  type: DocTypes,
+  description: string,
+  icon: string,
+  menu: string,
+  chapter: string,
+  dimensions?: { [x: string]: DocTypes }[],
+  prifix: string
+  generator?: string,
+}
+
+export type Ref = string | null;
+export const symbolProps = Symbol('Props');
+
+export function Props(props: PropOptions) {
+  return Reflect.metadata(symbolProps, props);
+}
+
+export function JDocument(props: DocumentOptions) {
+  return function classDecorator<T extends { new(...args: any[]): {} }>(constructor: T) {
+    Reflect.defineMetadata(symbolProps, props, constructor);
+    return class extends constructor {
+      type = props.type;
+    }
+  }
+}
+
 export abstract class JDocumentBase {
 
-  @Props({ type: 'string', hidden: true })
+  @Props({ type: 'string', hidden: true, hiddenInList: true })
   id: Ref = null;
 
-  @Props({ type: 'string', hidden: true })
+  @Props({ type: 'string', hidden: true, hiddenInList: true })
   type = '';
 
-  @Props({ type: 'datetime' })
+  @Props({ type: 'datetime', order: 1 })
   date: Date;
 
-  @Props({ type: 'string' })
+  @Props({ type: 'string', order: 2, style: { width: '110px'} })
   code = '';
 
-  @Props({ type: 'string' })
+  @Props({ type: 'string', order: 3 })
   description = '';
 
-  @Props({ type: 'Catalog.Company' })
+  @Props({ type: 'Catalog.Company', order: 3, required: true, change: 'return call(doc, prop, value)' })
   company: Ref = null;
 
-  @Props({ type: 'Catalog.User', hiddenInList: true })
+  @Props({ type: 'Catalog.User', hiddenInList: true, order: -1 })
   user: Ref = null;
 
-  @Props({ type: 'boolean', hidden: true })
+  @Props({ type: 'boolean', hidden: true, hiddenInList: true })
   posted = false;
 
-  @Props({ type: 'boolean', hidden: true })
+  @Props({ type: 'boolean', hidden: true, hiddenInList: true })
   deleted = false;
 
-  @Props({ type: 'Types.Subcount', hidden: true })
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true, order: -1 })
   parent: Ref = null;
 
-  @Props({ type: 'boolean', hidden: true })
+  @Props({ type: 'boolean', hidden: true, hiddenInList: true })
   isfolder = false;
 
-  @Props({ type: 'string' })
+  @Props({ type: 'string', hiddenInList: true, order: -1 })
   info = '';
 
   constructor(date = new Date(), id = v1(), isfolder = false) {
@@ -48,7 +90,8 @@ export abstract class JDocumentBase {
   }
 
   targetProp(target: Object, propertyKey: string): PropOptions {
-    return (Reflect.getMetadata(symbolProps, target, propertyKey) || { type: 'string' });
+    const result = Reflect.getMetadata(symbolProps, target, propertyKey);
+    return result || { type: 'string' };
   }
 
   Prop(propertyKey: string = 'this'): PropOptions | DocumentOptions {
@@ -98,43 +141,3 @@ export interface DBDocumentBase {
   doc: { [x: string]: any }
 }
 
-export interface PropOptions {
-  type: AllTypes,
-  label?: string,
-  required?: boolean,
-  readOnly?: boolean,
-  hidden?: boolean,
-  hiddenInList?: boolean,
-  order?: number,
-  controlType?: string,
-  style?: { [x: string]: any },
-  change?: string,
-}
-
-export interface DocumentOptions {
-  type: DocTypes,
-  description: string,
-  icon: string,
-  menu: string,
-  chapter: string,
-  dimensions?: { [x: string]: DocTypes }[],
-  prifix: string
-  generator?: string,
-}
-
-export const symbolProps = Symbol('Props');
-
-export function Props(props: PropOptions) {
-  return Reflect.metadata(symbolProps, props);
-}
-
-export function JDocument(props: DocumentOptions) {
-  return function classDecorator<T extends { new(...args: any[]): {} }>(constructor: T) {
-    Reflect.defineMetadata(symbolProps, props, constructor);
-    return class extends constructor {
-      type = props.type;
-    }
-  }
-}
-
-export type Ref = string | null;

@@ -40,6 +40,7 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
   sampleRow: FormGroup;
   selection = [];
   suggests = [];
+  totalsCount = 0;
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _valueChanges$: Subscription = Subscription.EMPTY;
@@ -56,6 +57,7 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
       return result;
     });
     this.view.forEach(v => v.showLabel = false);
+    this.totalsCount = this.view.filter(v => v.totals > 0).length;
     this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
     this.formGroup.removeAt(this.formGroup.length - 1);
     this.dataSource = this.formGroup.getRawValue();

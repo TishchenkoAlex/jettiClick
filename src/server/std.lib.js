@@ -25,15 +25,16 @@ exports.lib = {
 async function accountByCode(code, tx = db_1.db) {
     const result = await tx.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = $1`, [code]);
-    return result.result;
+    return (result ? result.result : null);
 }
 async function byCode(type, code, tx = db_1.db) {
     const result = await tx.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = $1 AND code = $2`, [type, code]);
-    return result.result;
+    return (result ? result.result : null);
 }
 async function byId(id, tx = db_1.db) {
-    return await tx.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
+    const result = await tx.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
+    return result;
 }
 async function modelById(id, tx = db_1.db) {
     const doc = await byId(id, tx);
@@ -116,13 +117,13 @@ async function InventoryBalance(date = new Date().toJSON(), company, analytics, 
       AND data @> $3
     `;
     const result = await tx.oneOrNone(queryText, [date, company, analytics]);
-    return result.result;
+    return result ? result.result : null;
 }
 async function sliceLast(type, date = new Date().toJSON(), company, resource, analytics, tx = db_1.db) {
     const queryText = `
     SELECT data->'${resource}' result FROM "Register.Info"
     WHERE
-      type = '${type}'
+      type = 'Register.Info.${type}'
       AND date <= $1
       AND company = $2
       AND data @> $3
@@ -130,6 +131,6 @@ async function sliceLast(type, date = new Date().toJSON(), company, resource, an
     LIMIT 1
   `;
     const result = await tx.oneOrNone(queryText, [date, company, analytics]);
-    return result.result;
+    return result ? result.result : null;
 }
 //# sourceMappingURL=std.lib.js.map

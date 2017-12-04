@@ -4,7 +4,6 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    HostListener,
     Input,
     OnDestroy,
     OnInit,
@@ -16,7 +15,6 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { Calendar } from 'primeng/primeng';
-import { ConfirmationService } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
@@ -48,17 +46,18 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
 
   constructor(public router: Router, public route: ActivatedRoute, private messageService: MessageService,
-    private confirmationService: ConfirmationService, private location: Location, public cd: ChangeDetectorRef,
-    public ds: DocService, public sideNavService: SideNavService) {
+    private location: Location, public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService) {
   }
 
+  /*
   @HostListener('keyup', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     event.stopPropagation();
-    if (event.keyCode === 27 && this.viewModel.formGroup.pristine) { this.Close() }
+    if (event.keyCode === 27) { this.Close() }
   }
+ */
 
-  ngOnInit() {
+ ngOnInit() {
     this.sideNavService.templateRef = this.sideNavTepmlate;
     this._subscription$ = Observable.merge(...[
       this.ds.save$,
@@ -89,7 +88,7 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(data => this.Close())
   }
 
-  ngAfterViewInit() {
+  private _focus() {
     const arr = this.input.toArray();
     // try focus date
     const date = arr.find(el => el.control.key === 'date');
@@ -98,6 +97,10 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
     // try focus description
     const description = arr.find(el => el.control.key === 'description').input;
     if (description) { description.nativeElement.focus() }
+  }
+
+  ngAfterViewInit() {
+    this._focus();
   }
 
   ngOnDestroy() {
@@ -135,25 +138,18 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ds.delete(this.viewModel.model.id);
   }
 
+  private _close() { ; this.cd.markForCheck(); this.location.back(); this.ds.close(null) };
+
   Close() {
-    if (this.viewModel.formGroup.pristine) {
-      this.ds.close(null);
-      this.location.back();
-    } else {
-      this.confirmationService.confirm({
-        message: 'Discard changes and close?',
-        header: 'Confirmation',
-        icon: 'fa fa-question-circle',
-        accept: () => {
-          this.ds.close(null);
-          this.location.back();
-          this.cd.markForCheck();
-        },
-        reject: () => {
-          this.cd.markForCheck();
-        }
-      })
-    }
+    if (this.viewModel.formGroup.pristine) { this._close(); return }
+    this._focus()
+    this.ds.confirmationService.confirm({
+      message: 'Discard changes and close?',
+      header: 'Confirmation',
+      icon: 'fa fa-question-circle',
+      accept: this._close.bind(this),
+      reject: () => { this._focus(); this.cd.markForCheck() }
+    })
   }
 
   Copy() {
@@ -164,6 +160,15 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate([this.viewModel.model.type]).then(() => {
       setTimeout(() => this.ds.goto(this.viewModel.model));
     });
+  }
+
+  Print() {
+    // tslint:disable-next-line:max-line-length
+    // const strWindowFeatures = 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,directories=no,titlebar=no,width=1024,height=720,top=150,left=200';
+    // tslint:disable-next-line:max-line-length
+    const strWindowFeatures = '';
+    // tslint:disable-next-line:max-line-length
+    window.open(`https://pharm.yuralex.com/ReportServer/Pages/ReportViewer.aspx?%2fReport+Project1%2fReport1&rs:Command=Render&invoiceID=${this.docId}`, 'Print', strWindowFeatures);
   }
 
 }

@@ -17,8 +17,9 @@
   </div>
 </p-toolbar>
 
-<p-dataTable [value]="(dataSource.result$ | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id" [reorderableColumns]="true"
-  sortMode="multiple" [lazy]="true" (onSort)="Sort($event)" (onFilter)="Sort($event)" [resizableColumns]="true" [scrollable]="true" 
+<p-dataTable [value]="(dataSource.result$ | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id" 
+  [lazy]="true" (onSort)="Sort($event)" (onFilter)="Sort($event)" 
+  [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true" [scrollable]="true" scrollWidth="100%"
   (onRowDblclick)="open()" [filterDelay]="500">
   <div *ngIf="dataTable !== null">
     <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
@@ -30,12 +31,12 @@
     </p-column>
 
     <p-column *ngFor="let column of columns" [field]="column.field" [header]="column.label" sortable="custom" [filter]="true"
-      filterPlaceholder="Search" [style]="column.style">
+      filterPlaceholder="Search" [style]="column.style || {}">
       <ng-template let-row="rowData" pTemplate="body">
         <span [ngSwitch]="column.type">
           <span *ngSwitchCase="'date'">{{row[column.field] | date:'dd.MM.yyyy'}}</span>
           <span *ngSwitchCase="'datetime'">{{row[column.field] | date:'dd.MM.yyyy hh:mm:ss'}}</span>
-          <span *ngSwitchCase="'number'">{{row[column.field] | number:'1.2-2'}}</span>
+          <span *ngSwitchCase="'number'">{{row[column.field] | number:'1.2-4'}}</span>
           <span *ngSwitchCase="'boolean'">
             <i *ngIf="row[column.field]" class="fa fa-check-square"></i>
             <i *ngIf="!row[column.field]" class="fa fa-square-o"></i>
@@ -50,7 +51,7 @@
             <p-triStateCheckbox [ngModel]="dataTable.filters[col.field]?.value" (ngModelChange)="update(column, $event)"></p-triStateCheckbox>
           </div>
           <div *ngSwitchCase="'number'">
-            <input [ngModel]="dataTable.filters[col.field]?.value" pInputText inputmode="numeric" (ngModelChange)="update(column, $event)">
+            <input [ngModel]="dataTable.filters[col.field]?.value" pInputText type="numeric" (ngModelChange)="update(column, $event, '>=')">
           </div>
           <div *ngSwitchCase="'date'">
             <p-calendar selectionMode="range" showButtonBar="true" [utc]="true" [ngModel]="dataTable.filters[col.field]?.value" readonlyInput="true"
@@ -71,5 +72,6 @@
         </div>
       </ng-template>
     </p-column>
+    <p-column></p-column>
   </div>
 </p-dataTable>

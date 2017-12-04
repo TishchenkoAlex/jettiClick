@@ -10,8 +10,8 @@ SELECT
     d.isfolder,
     d.info,
     d.doc->>'script' "script",
+    d.doc->>'Prefix' "Prefix",
     jsonb_build_object('id', "group".id, 'value', "group".description, 'type', 'Catalog.Operation.Group', 'code', "group".code) "Group",
-    jsonb_build_object('id', "company".id, 'value', "company".description, 'type', 'Catalog.Company', 'code', "company".code) "company",
     jsonb_build_object('id', "company".id, 'value', "company".description, 'type', 'Catalog.Company', 'code', "company".code) "company",
     jsonb_build_object('id', "user".id, 'value', "user".description, 'type', 'Catalog.User', 'code', "user".code) "user",
 
@@ -61,6 +61,7 @@ FROM
 WHERE d.type = 'Catalog.Operation';
 
 
+--  
 SELECT
     d.id,
     d.type,
@@ -71,14 +72,15 @@ SELECT
     d.deleted,
     d.parent,
     d.isfolder,
-    coalesce("group".description, '') "Group",
-    coalesce("user".description, '') "user",
-    coalesce("company".description, '') "company"
+    d.doc ->> 'Prefix' "Prefix",
+    "user".description "user",
+    "company".description "company",
+    "Operation.Group".description "Group"
 FROM
     "Documents" d
 LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
 LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
-LEFT JOIN "Documents" "group" ON "group".id = d.doc->>'Group' AND "group".type = 'Catalog.Operation.Group'
+LEFT JOIN "Documents" "Operation.Group" ON "Operation.Group".id =  d.doc->>'Group' AND "Operation.Group".type = 'Catalog.Operation.Group'
 WHERE d.type = 'Catalog.Operation';
 
 SELECT
@@ -92,6 +94,7 @@ SELECT
     false isfolder,
     '' info,
     '' script,
+    '' "Prefix",
     '' "category",
     '{"id": "", "code": "", "type": "Catalog.Operation", "value": ""}':: JSONB "parent",
     '{"id": "", "code": "", "type": "Catalog.User", "value": ""}':: JSONB "user",
@@ -99,4 +102,3 @@ SELECT
     '{"id": "", "code": "", "type": "Catalog.Operation.Group", "value": ""}':: JSONB "Group",
     '[]'::JSONB "Rules",
     '[]'::JSONB "Parameters";
-    

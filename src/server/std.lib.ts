@@ -50,17 +50,18 @@ export const lib: JTL = {
 async function accountByCode(code: string, tx: TX = db) {
   const result = await tx.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = $1`, [code]);
-  return result.result as Ref;
+  return (result ? result.result : null) as Ref;
 }
 
 async function byCode(type: string, code: string, tx: TX = db) {
   const result = await tx.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = $1 AND code = $2`, [type, code]);
-  return result.result as Ref;
+  return (result ? result.result : null) as Ref;
 }
 
 async function byId<T>(id: string, tx: TX = db) {
-  return await tx.oneOrNone<T>(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
+  const result = await tx.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
+  return result;
 }
 
 async function modelById(id: string, tx: TX = db) {
@@ -139,7 +140,8 @@ async function avgCost(date = new Date().toJSON(), company: Ref, analytics: { [k
   return result.result as number;
 }
 
-async function InventoryBalance(date = new Date().toJSON(), company: Ref, analytics: { [key: string]: Ref }, tx = db) {
+async function InventoryBalance(date = new Date().toJSON(), company: Ref,
+  analytics: { [key: string]: Ref }, tx = db): Promise<number> {
   const queryText = `
     SELECT
       SUM((data ->> 'Qty')::NUMERIC(15, 2)  * CASE WHEN kind THEN 1 ELSE -1 END) result
@@ -150,7 +152,7 @@ async function InventoryBalance(date = new Date().toJSON(), company: Ref, analyt
       AND data @> $3
     `;
   const result = await tx.oneOrNone(queryText, [date, company, analytics]);
-  return result.result as number;
+  return result ? result.result : null;
 }
 
 async function sliceLast(type: string, date = new Date().toJSON(), company: Ref,
@@ -158,7 +160,7 @@ async function sliceLast(type: string, date = new Date().toJSON(), company: Ref,
   const queryText = `
     SELECT data->'${resource}' result FROM "Register.Info"
     WHERE
-      type = '${type}'
+      type = 'Register.Info.${type}'
       AND date <= $1
       AND company = $2
       AND data @> $3
@@ -166,5 +168,5 @@ async function sliceLast(type: string, date = new Date().toJSON(), company: Ref,
     LIMIT 1
   `;
   const result = await tx.oneOrNone(queryText, [date, company, analytics]);
-  return result.result;
+  return result ? result.result : null;
 }

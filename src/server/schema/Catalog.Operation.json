@@ -2,7 +2,7 @@
     "Group": {
         "type": "Catalog.Operation.Group",
         "label": "Operation group",
-        "order": 4,
+        "order": 5,
         "required": true
     },
     "Rules": {

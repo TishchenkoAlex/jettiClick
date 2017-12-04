@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { catchError, take } from 'rxjs/operators';
+import { ConfirmationService } from 'primeng/primeng';
+import { take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { DocModel } from '../../../server/modules/doc.base';
 import { dateReviver } from '../common/utils';
 import { ApiService } from '../services/api.service';
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 
 @Injectable()
 export class DocService {
@@ -29,7 +29,7 @@ export class DocService {
   protected _goto = new Subject<any>();
   goto$ = this._goto.asObservable();
 
-  constructor(public api: ApiService, private messageService: MessageService) { };
+  constructor(public api: ApiService, private messageService: MessageService, public confirmationService: ConfirmationService) { };
 
   do(doc: DocModel) {
     this._do.next(doc);

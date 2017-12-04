@@ -7,7 +7,8 @@
 </p-toolbar>
 
 <p-dataTable [value]="dataSource" [editable]="true" dataKey="index" [(selection)]="selection" [scrollable]="true" [resizableColumns]="true"
-  sortMode="multiple" (onEditComplete)="onEditComplete($event)" (onEdit)="onEdit($event)" (onEditCancel)="onEditCancel($event)">
+  sortMode="multiple" [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true" [scrollable]="true" scrollWidth="100%"
+  (onEditComplete)="onEditComplete($event)" (onEdit)="onEdit($event)" (onEditCancel)="onEditCancel($event)">
 
   <p-column [style]="{'width':'34px'}" selectionMode="multiple"></p-column>
   <p-column [style]="{'width':'50px', 'text-align': 'right'}" field="index" header="#" sortable="true">
@@ -35,8 +36,9 @@
       <j-control [control]="col.data" [form]="formGroup.controls[row.index]"></j-control>
     </ng-template>
   </p-column>
+  <p-column></p-column>
 
-  <p-footerColumnGroup>
+  <p-footerColumnGroup *ngIf="totalsCount">
     <p-row>
       <p-column [style]="{'width':'34px'}"></p-column>
       <p-column [style]="{'width':'50px', 'text-align': 'right'}"></p-column>
@@ -51,7 +53,9 @@
           </ng-template>
         </p-column>
       </div>
+      <p-column></p-column>
     </p-row>
+
   </p-footerColumnGroup>
 
 </p-dataTable>

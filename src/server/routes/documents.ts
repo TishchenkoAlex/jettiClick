@@ -11,6 +11,9 @@ import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib } from './../std.lib';
 import { docOperationResolver, doSubscriptions, ExecuteScript } from './utils/execute-script';
 import { List } from './utils/list';
+import { createJDocument } from '../models/index';
+import { DocTypes } from '../models/documents.types';
+import { SQLGenegator } from '../fuctions/SQLGenerator';
 
 export const router = express.Router();
 
@@ -25,12 +28,25 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 router.get('/:type/view/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
-    const config_schema = await db.one(`
+    const JDoc = createJDocument(req.params.type as DocTypes);
+    let config_schema; let view;
+    if (!JDoc) {
+      config_schema = await db.one(`
       SELECT "queryObject", "queryNewObject",
         (select settings->'${req.params.type}' result from users where email = '${user}') settings,
         (SELECT schema FROM config_schema WHERE type = 'doc') || config_schema.schema AS "schemaFull"
       FROM config_schema WHERE type = $1`, [req.params.type]);
-    const view = config_schema.schemaFull;
+    } else {
+      view = JDoc.Props();
+      config_schema  = {
+        queryObject : SQLGenegator.QueryObject(view, JDoc.type),
+        queryNewObject: SQLGenegator.QueryNew(view, JDoc.type),
+        settings: (await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)).settings,
+        schemaFull: view
+      }
+    }
+
+    view = config_schema.schemaFull;
     const columnDef: ColumnDef[] = buildColumnDef(view, config_schema.settings || new FormListSettings());
 
     let model; const id = req.params['0'];

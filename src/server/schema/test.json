@@ -1,68 +1,22 @@
-{
-    "defaults": {
-        "rowsInList": 24
+[
+    {
+        "Qty": 90.0000,
+        "Price": 9.3300,
+        "Amount": 840.00
     },
-    "Document.Invoice": {
-        "order": [
-            {
-                "field": "Customer",
-                "order": "desc"
-            }
-        ],
-        "filter": [
-            {
-                "left": "date",
-                "right": [
-                    "2016-06-01T00:00:00.000Z",
-                    "2016-06-30T00:00:00.000Z"
-                ],
-                "center": "="
-            },
-            {
-                "left": "code",
-                "right": "",
-                "center": "like"
-            },
-            {
-                "left": "company",
-                "right": "",
-                "center": "="
-            },
-            {
-                "left": "Manager",
-                "right": "",
-                "center": "="
-            },
-            {
-                "left": "Customer",
-                "right": {
-                    "id": "0effdd4e-c265-11e7-b9f3-f77106d04dbc",
-                    "code": "50",
-                    "type": "Catalog.Counterpartie",
-                    "value": "BEST BUY LIQUORS"
-                },
-                "center": "="
-            },
-            {
-                "left": "Status",
-                "right": null,
-                "center": "like"
-            },
-            {
-                "left": "Amount",
-                "right": null,
-                "center": "="
-            },
-            {
-                "left": "Tax",
-                "right": null,
-                "center": "="
-            },
-            {
-                "left": "currency",
-                "right": "",
-                "center": "="
-            }
-        ]
+    {
+        "Qty": 120.0000,
+        "Price": 5.1700,
+        "Amount": 620.00
+    },
+    {
+        "Qty": 60.0000,
+        "Price": 9.3300,
+        "Amount": 560.00
+    },
+    {
+        "Qty": 180.0000,
+        "Price": 3.3300,
+        "Amount": 600.00
     }
-}
+]

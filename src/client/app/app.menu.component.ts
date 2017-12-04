@@ -32,12 +32,10 @@ export class AppMenuComponent implements OnInit {
           { label: 'Horizontal Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToHorizontalMenu() },
           { label: 'Inline Profile', icon: 'fa fa-sun-o fa-fw', command: () => {
             this.app.profileMode = 'inline';
-            setTimeout(() => this.cd.markForCheck(), 1000);
             }
           },
           { label: 'Top Profile', icon: 'fa fa-moon-o fa-fw', command: () => {
             this.app.profileMode = 'top';
-            setTimeout(() => this.cd.markForCheck(), 1000);
           }},
           { label: 'Light Menu', icon: 'fa fa-sun-o fa-fw', command: () => this.app.darkMenu = false },
           { label: 'Dark Menu', icon: 'fa fa-moon-o fa-fw', command: () => this.app.darkMenu = true }

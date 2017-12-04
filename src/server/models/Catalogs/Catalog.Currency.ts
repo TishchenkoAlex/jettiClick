@@ -10,8 +10,8 @@ import { JDocument, JDocumentBase, Props, Ref } from './../document';
 })
 export class CatalogCurrency extends JDocumentBase {
   @Props({ type: 'datetime', hidden: true })
-  date: Date;
+  date: Date = new Date();
 
-  @Props({ type: 'Catalog.Currency', 'hiddenInList': true })
+  @Props({ type: 'Catalog.Currency', hiddenInList: true })
   parent: Ref = null;
 }

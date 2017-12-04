@@ -79,7 +79,6 @@ export class AppComponent implements AfterViewInit {
 
     const lm = localStorage.getItem('layoutMode');
     const a = this.layoutMode.toString();
-    console.log(a);
   }
 
   ngAfterViewInit() {

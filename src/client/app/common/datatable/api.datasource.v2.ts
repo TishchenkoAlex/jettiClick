@@ -47,13 +47,13 @@ export class ApiDataSource {
 
         const sortArr = (this.dataTable.multiSortMeta || [])
           .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-
+        console.log(id, stream);
         return this.apiService.getDocList(this.docType, id, stream.command, this.pageSize, offset, sortArr, filterArr).pipe(
           tap(data => {
             this.renderedData = data.data;
             this.continuation = data.continuation;
             if (stream.command === 'goto') {
-              const gotoRow = this.renderedData.find(el => el.id === stream.data);
+              const gotoRow = this.renderedData.find(el => el.id === id);
               this.dataTable.selection = [gotoRow] || [];
             }
             if (['first', 'last', 'next', 'prev'].indexOf(stream.command) > -1) { this.dataTable.selection = [] }

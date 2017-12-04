@@ -19,7 +19,6 @@ export class TabResolver implements Resolve<any> {
     if (type === HOME) { return null }
     if (this.tcs.tabs.findIndex(i => i.docType === type && i.docID === id) === -1) {
       if (route.params['id']) {
-        console.log('getViewModel');
         return this.dfs.getViewModel$(route.params['type'], route.params['id']);
       }
       return Observable.forkJoin(

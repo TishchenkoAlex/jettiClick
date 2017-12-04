@@ -57,12 +57,12 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
     Object.keys(v).filter(key => excl.indexOf(key) === -1).map(key => {
       const prop = v[key];
       const hidden = !!prop['hidden'];
-      const order = hidden ? 1000 : prop['order'] * 1 || 999;
+      const order = hidden ? -1 : prop['order'] * 1 || 999;
       const label = prop['label'] || key.toString();
       const dataType = prop['type'] || 'string';
       const required = prop['required'] || false;
       const readOnly = prop['readOnly'] || false;
-      const style = prop['style'] || false;
+      const style = prop['style'];
       const totals = prop['totals'] * 1 || null;
       const change = prop['change'];
       const owner = prop['owner'] || '';
@@ -160,6 +160,7 @@ export class DynamicFormService {
         const view = viewModel['view'];
         let model: IDocBase = viewModel['model'];
         model = JSON.parse(JSON.stringify(model), dateReviver);
+        console.log(view);
         return getViewModel(view, model, exclude, docID !== 'new')
       }));
   }

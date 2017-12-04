@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, OnDestroy, OnInit, HostListener } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { DataTable, SortMeta } from 'primeng/primeng';
@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
-import { IDocBase } from '../../../../server/modules/doc.base';
+import { IDocBase, DocModel } from '../../../../server/modules/doc.base';
 import { dateReviver } from '../../common/utils';
 import { SideNavService } from '../../services/side-nav.service';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
@@ -42,16 +42,9 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedRows: IDocBase[] = [];
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private messageService: MessageService,
-    private sns: SideNavService, public uss: UserSettingsService, private lds: LoadingService, private cd: ChangeDetectorRef) {
-      console.log(window.innerHeight);
-      this.pageSize = Math.floor((window.innerHeight - 305) / 24);
+    private sns: SideNavService, public uss: UserSettingsService, private lds: LoadingService) {
+      this.pageSize = Math.floor((window.innerHeight - 275) / 24);
   };
-
-  @HostListener('window:keyup', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
-    event.stopPropagation();
-    if (event.keyCode === 27) { this.Close() }
-  }
 
   ngOnInit() {
     this.docType = this.route.params['value'].type;
@@ -71,8 +64,8 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
         if (exist) {
           this.dataTable.selection = [exist];
-          this.cd.markForCheck();
-        } else { this.dataSource.goto(doc.id) }
+          this.dataSource.refresh();
+        } else {this.dataSource.goto(doc.id) }
       });
 
     this._sideNavService$ = this.sns.do$.pipe(
@@ -94,13 +87,14 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     setTimeout(() => {
       this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
-      this.dataSource.first();
+      /// this.dataSource.first();
       this.AfterViewInit = true;
+      this.ds.goto(new DocModel(this.docType));
     });
   }
 
-  update(col: ColumnDef, event) {
-    this.dataTable.filters[col.field] = { matchMode: col.filter.center, value: event };
+  update(col: ColumnDef, event, center) {
+    this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
     this.Sort(event);
   }
 
@@ -140,7 +134,6 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
       try {
         await this.ds.post(s.id);
       } catch (err) {
-        console.log('CATCH', err);
         this.messageService.add({ severity: 'error', summary: 'Error on post ' + s.description, detail: err.error })
       }
     }
@@ -155,7 +148,4 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.saveUserSettings();
   }
 
-  innerHeight() {
-    return window.innerHeight;
-  }
 }

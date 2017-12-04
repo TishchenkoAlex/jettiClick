@@ -66,6 +66,7 @@ export class TabControllerComponent implements OnInit {
     const docID = this.tcs.tabs[event].docID;
     const doc = new DocModel(docType, docID);
     this.ds.close(doc);
+    setTimeout(() => this.cd.markForCheck());
   }
 
   onChange(event) {
@@ -73,6 +74,6 @@ export class TabControllerComponent implements OnInit {
     const docType = this.tcs.tabs[event].docType;
     const docID = this.tcs.tabs[event].docID;
     const queryParams = this.tcs.tabs[event].params;
-    this.router.navigate([docType, docID], { queryParams: queryParams });
+    this.router.navigate([docType, docID], { queryParams: queryParams }).then(() => this.cd.markForCheck());
   }
 }

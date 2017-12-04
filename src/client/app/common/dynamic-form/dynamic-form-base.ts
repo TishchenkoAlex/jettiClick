@@ -40,7 +40,7 @@ export class BaseJettiFromControl<T> {
     this.hidden = !!options.hidden;
     this.order = options.order === undefined ? 9999999 : options.order;
     this.controlType = options.controlType || '';
-    this.style = options.style || {};
+    this.style = options.style || { 'width': '150px'};
     this.change = options.change || '';
     this.totals = options.totals || null;
     this.owner = options.owner;
@@ -117,7 +117,7 @@ export interface JettiComplexObject {
 
 export class AutocompleteJettiFormControl extends BaseJettiFromControl<JettiComplexObject> {
   controlType = 'autocomplete';
-  // style = { 'width' : '210px' };
+  style = { 'width' : '250px' };
 
   constructor(options: ControlOptions<JettiComplexObject> = {}) {
     super(options);
@@ -131,7 +131,7 @@ export class AutocompleteJettiFormControl extends BaseJettiFromControl<JettiComp
 export class NumberJettiFormControl extends BaseJettiFromControl<number> {
   controlType = 'number';
   type = 'number';
-  style = { 'width': '110px', 'text-align' : 'right' };
+  style = { 'width': '100px', 'text-align' : 'right' };
 
   constructor(options: ControlOptions<number> = {}) {
     super(options);

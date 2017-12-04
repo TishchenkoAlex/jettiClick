@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 
+import { SQLGenegator } from '../../fuctions/SQLGenerator';
+import { DocTypes } from '../../models/documents.types';
+import { createJDocument } from '../../models/index';
 import { db } from './../../db';
 import { DocListRequestBody } from './../../models/api';
 import { FilterInterval, FormListFilter } from './../../models/user.settings';
@@ -8,7 +11,13 @@ export async function List(req: Request, res: Response) {
     const params = req.body as DocListRequestBody;
     params.command = params.command || 'first';
     const direction = params.command !== 'prev';
-    const config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
+    const newDoc = createJDocument(params.type as DocTypes);
+    let config_schema;
+    if (!newDoc) {
+        config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
+    } else {
+      config_schema  = { queryList : SQLGenegator.QueryList(newDoc.Props(), newDoc.type) }
+    }
     const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${config_schema.queryList} AND d.id = $1) q`, [params.id]);
     const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
     params.order.filter(el => el.order !== '').forEach(el => {

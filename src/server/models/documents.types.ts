@@ -1,7 +1,6 @@
 export type CatalogTypes =
   'Catalog.Department' |
   'Catalog.Manager' |
-  'Catalog.Customer' |
   'Catalog.Storehouse' |
   'Catalog.Currency' |
   'Catalog.Product' |
