@@ -10,7 +10,8 @@ export type CatalogTypes =
   'Catalog.Expense' |
   'Catalog.Income' |
   'Catalog.Balance' |
-  'Catalog.Counterpartie';
+  'Catalog.Counterpartie' |
+  'Catalog.Balance.Analytics';
 
 export type DocumentTypes =
   'Document.Invoice';

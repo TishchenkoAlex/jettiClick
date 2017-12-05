@@ -1,19 +1,18 @@
-import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
+import * as express from 'express';
 import { ITask } from 'pg-promise';
 
+import { DocTypes } from '../models/documents.types';
+import { createServerDocument } from '../models/index.server';
 import { db } from './../db';
 import { ColumnDef } from './../models/column';
 import { FormListSettings } from './../models/user.settings';
-import { IDocBase, RefValue } from './../modules/doc.base';
+import { IDocBase, RefValue, PatchValue } from './../modules/doc.base';
 import { JDM } from './../modules/index';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib } from './../std.lib';
 import { docOperationResolver, doSubscriptions, ExecuteScript } from './utils/execute-script';
 import { List } from './utils/list';
-import { createJDocument } from '../models/index';
-import { DocTypes } from '../models/documents.types';
-import { SQLGenegator } from '../fuctions/SQLGenerator';
 
 export const router = express.Router();
 
@@ -28,7 +27,7 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 router.get('/:type/view/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
-    const JDoc = createJDocument(req.params.type as DocTypes);
+    const JDoc = createServerDocument(req.params.type as DocTypes);
     let config_schema; let view;
     if (!JDoc) {
       config_schema = await db.one(`
@@ -38,9 +37,9 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
       FROM config_schema WHERE type = $1`, [req.params.type]);
     } else {
       view = JDoc.Props();
-      config_schema  = {
-        queryObject : SQLGenegator.QueryObject(view, JDoc.type),
-        queryNewObject: SQLGenegator.QueryNew(view, JDoc.type),
+      config_schema = {
+        queryObject: JDoc.QueryObject,
+        queryNewObject: JDoc.QueryNew,
         settings: (await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)).settings,
         schemaFull: view
       }
@@ -132,11 +131,17 @@ async function post(doc: IDocBase, tx: ITask<any>) {
 // Upsert document
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let doc;
+    let doc: IDocBase;
     await db.tx(async (tx: ITask<any>) => {
       doc = await post(req.body, tx);
-      const config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
-      doc = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
+      let config_schema;
+      const JDoc = createServerDocument(doc.type as DocTypes);
+      if (JDoc) {
+        config_schema = { queryObject: JDoc.QueryObject }
+      } else {
+        config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
+      }
+      doc = await tx.one<IDocBase>(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
       await docOperationResolver(doc, tx);
     });
     res.json(doc);
@@ -167,10 +172,16 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const doc = req.body.doc as IDocBase;
     const value = req.body.value as RefValue;
     const property = req.params.property as string;
-    const type = req.params.type as string;
+    const type = req.params.type as DocTypes;
+    const JDoc = createServerDocument(type);
 
-    const result = JDM[type] && JDM[type].valueChanges && JDM[type].valueChanges[property] ?
-      await JDM[type].valueChanges[property](doc, value) : {};
+    let result: PatchValue = {};
+    if (JDoc) {
+      result = await JDoc.onValueChanged(property, value);
+    } else {
+      result = JDM[type] && JDM[type].valueChanges && JDM[type].valueChanges[property] ?
+        await JDM[type].valueChanges[property](doc, value) : {};
+    }
     res.json(result);
   } catch (err) { next(err.message); }
 })

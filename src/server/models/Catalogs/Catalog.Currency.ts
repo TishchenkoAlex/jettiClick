@@ -1,4 +1,4 @@
-import { JDocument, JDocumentBase, Props, Ref } from './../document';
+import { JDocument, DocumentBase, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Catalog.Currency',
@@ -8,9 +8,7 @@ import { JDocument, JDocumentBase, Props, Ref } from './../document';
   menu: 'Валюты',
   prifix: 'CUR'
 })
-export class CatalogCurrency extends JDocumentBase {
-  @Props({ type: 'datetime', hidden: true })
-  date: Date = new Date();
+export class CatalogCurrency extends DocumentBase {
 
   @Props({ type: 'Catalog.Currency', hiddenInList: true })
   parent: Ref = null;

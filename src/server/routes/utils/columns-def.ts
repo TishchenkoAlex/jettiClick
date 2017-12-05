@@ -7,7 +7,7 @@ export function buildColumnDef(view, settings: FormListSettings): ColumnDef[] {
   Object.keys(view).filter(property => view[property] && view[property]['type'] !== 'table').map((property) => {
     const prop = view[property];
     const hidden = !!prop['hidden-list'] || !!prop['hiddenInList'];
-    const order = hidden ? -1 : prop['order'] * 1 || 1;
+    const order = hidden ? -1 : prop['order'] * 1 || 999;
     const label = (prop['label'] || property.toString()).toLowerCase();
     const type = prop['type'] || 'string';
     const readOnly = !!prop['readOnly'];

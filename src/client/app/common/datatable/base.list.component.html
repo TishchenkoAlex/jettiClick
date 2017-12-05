@@ -1,6 +1,6 @@
 <p-toolbar>
   <div class="ui-toolbar-group-left">
-    <button pButton type="button" label="Add" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
+    <button pButton type="button" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
     <button pButton type="button" icon="fa-pencil-square-o" *ngIf="dataSource.dataTable?.selection?.length == 1" (click)="open()"></button>
     <button pButton type="button" icon="fa-copy" *ngIf="dataSource.dataTable?.selection?.length == 1" (click)="copy()"></button>
     <button pButton type="button" icon="fa-check" class="ui-button-warning" *ngIf="dataSource.dataTable?.selection?.length >=1"

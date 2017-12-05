@@ -74,8 +74,12 @@
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
-  <button pButton type="button" icon="fa-check-square-o" label="Post&Close" class="ui-button-warning" [disabled]="!v.formGroup.valid"
+
+  <button pButton type="button" icon="fa-check-square-o" fxHide fxShow.gt-xs label="Post&Close" class="ui-button-warning" [disabled]="!v.formGroup.valid"
     (click)="PostClose()" *ngIf="!v.model.deleted"></button>
+  <button pButton type="button" icon="fa-check-square-o" fxShow fxHide.gt-xs class="ui-button-warning" [disabled]="!v.formGroup.valid"
+    (click)="PostClose()" *ngIf="!v.model.deleted"></button>
+
   <button pButton type="button" icon="fa-check" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Post()"
     *ngIf="!v.model.deleted"></button>
   <button pButton type="button" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Save()"

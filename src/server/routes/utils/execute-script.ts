@@ -1,14 +1,20 @@
 import { IDatabase, ITask } from 'pg-promise';
 
+import { DocTypes } from '../../models/documents.types';
+import { createServerDocument } from '../../models/index.server';
+import { PostResult } from '../../models/post.interfaces';
 import { JDM } from './../../modules';
 import { IDocBase } from './../../modules/doc.base';
 import { lib } from './../../std.lib';
+import { DocumentBase } from '../../models/document';
 
 export async function ExecuteScript(doc: IDocBase, script, tx: ITask<any>) {
   if (!script) { return doc };
-  const Registers = { Account: [], Accumulation: [], Info: [] };
+  const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
   if (script === 'post') {
-    if (JDM[doc.type] && JDM[doc.type].post) { await JDM[doc.type].post(doc, Registers, tx) };
+    const JDoc = createServerDocument(doc.type as DocTypes, doc);
+    if (JDoc) { await JDoc.onPost(Registers, tx)
+    } else { if (JDM[doc.type] && JDM[doc.type].post) { await JDM[doc.type].post(doc, Registers, tx) }};
   } else {
     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
     const func = new AsyncFunction('doc, Registers, tx, lib', script);

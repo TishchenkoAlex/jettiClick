@@ -54,7 +54,7 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.columns = JSON.parse(JSON.stringify(this.route.data['value'].detail[0]['columnDef']), dateReviver);
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
 
-    const excludeColumns = this.isDoc ? ['description'] : ['date'];
+    const excludeColumns = this.isDoc ? ['description'] : ['date', 'company'];
     this.columns.filter(c => excludeColumns.indexOf(c.field) > -1).forEach(c => c.hidden = true);
     this.columns = this.columns.filter(c => !!!c.hidden);
 

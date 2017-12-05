@@ -1,4 +1,4 @@
-import { JDocument, JDocumentBase, Props, Ref } from './../document';
+import { JDocument, DocumentBase, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Document.Invoice',
@@ -13,7 +13,7 @@ import { JDocument, JDocumentBase, Props, Ref } from './../document';
   menu: 'Invoices',
   prifix: 'INV'
 })
-export class DocumentInvoice extends JDocumentBase {
+export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'Types.Document', hiddenInList: true })
   parent: Ref = null;
 
@@ -23,7 +23,7 @@ export class DocumentInvoice extends JDocumentBase {
   @Props({ type: 'Catalog.Storehouse', hiddenInList: true, required: true, order: 11 })
   Storehouse: Ref = null;
 
-  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12 })
+  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12, style: {width: '250px'} })
   Customer: Ref = null;
 
   @Props({ type: 'Catalog.Manager', order: 13 })
@@ -48,23 +48,15 @@ export class DocumentInvoice extends JDocumentBase {
     type: 'table', required: true, order: 1,
     change: 'let Amount = 0, Tax = 0; value.forEach(el => { Amount += el.Amount; Tax += el.Tax; }); return { Amount: Amount, Tax: Tax }'
   })
-  Items: TableItems[] = [];
+  Items: TableItems[] = [new TableItems()];
 
   @Props({ type: 'table', order: 2 })
-  Comments: TableComments[] = [];
+  Comments: TableComments[] = [new TableComments()];
 
-  Props() {
-    this.Items.push(new TableItems());
-    this.Comments.push(new TableComments());
-    const result = super.Props();
-    this.Items.pop();
-    this.Comments.pop();
-    return result;
-  }
 }
 
 class TableItems {
-  @Props({ type: 'Catalog.Product', required: true, order: 1, style: { width: '370px'} })
+  @Props({ type: 'Catalog.Product', required: true, order: 1, style: { width: '400px'} })
   SKU: Ref = null;
 
   @Props({
@@ -99,5 +91,6 @@ class TableComments {
   @Props({ type: 'Catalog.User' })
   User: Ref = null;
 
+  @Props({ type: 'string' })
   Comment = '';
 }

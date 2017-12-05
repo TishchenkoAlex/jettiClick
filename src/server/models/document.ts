@@ -1,6 +1,8 @@
-import { v1 } from 'uuid';
 import 'reflect-metadata';
 
+import { v1 } from 'uuid';
+
+import { SQLGenegator } from '../fuctions/SQLGenerator';
 import { AllTypes, DocTypes } from './documents.types';
 
 export interface PropOptions {
@@ -45,7 +47,7 @@ export function JDocument(props: DocumentOptions) {
   }
 }
 
-export abstract class JDocumentBase {
+export abstract class DocumentBase {
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
   id: Ref = null;
@@ -56,10 +58,10 @@ export abstract class JDocumentBase {
   @Props({ type: 'datetime', order: 1 })
   date: Date;
 
-  @Props({ type: 'string', order: 2, style: { width: '110px'} })
+  @Props({ type: 'string', order: 2, style: { width: '110px' } })
   code = '';
 
-  @Props({ type: 'string', order: 3 })
+  @Props({ type: 'string', order: 3, style: { width: '300px' } })
   description = '';
 
   @Props({ type: 'Catalog.Company', order: 3, required: true, change: 'return call(doc, prop, value)' })
@@ -89,34 +91,42 @@ export abstract class JDocumentBase {
     this.isfolder = isfolder;
   }
 
-  targetProp(target: Object, propertyKey: string): PropOptions {
+  private targetProp(target: Object, propertyKey: string): PropOptions {
     const result = Reflect.getMetadata(symbolProps, target, propertyKey);
-    return result || { type: 'string' };
+    return result;
   }
 
-  Prop(propertyKey: string = 'this'): PropOptions | DocumentOptions {
+  private Prop(propertyKey: string = 'this'): PropOptions | DocumentOptions {
     if (propertyKey === 'this') {
       return Reflect.getMetadata(symbolProps, this.constructor)
     } else {
-      return Reflect.getMetadata(symbolProps, this.constructor.prototype, propertyKey) || { type: 'string' }
+      return Reflect.getMetadata(symbolProps, this.constructor.prototype, propertyKey);
     }
   }
 
   Props() {
     const result: { [x: string]: any } = {};
     for (const prop of Object.keys(this)) {
-      result[prop] = this.targetProp(this, prop);
+      const Prop = this.targetProp(this, prop);
+      if (!Prop) { continue }
+      result[prop] = Prop;
       const value = (this as any)[prop];
       if (value instanceof Array && value.length) {
         const arrayProp: { [x: string]: any } = {};
         for (const arrProp of Object.keys(value[0])) {
-          arrayProp[arrProp] = this.targetProp(value[0], arrProp);
+          const PropArr = this.targetProp(value[0], arrProp);
+          if (!PropArr) { continue }
+          arrayProp[arrProp] = PropArr;
         }
         result[prop][prop] = arrayProp;
       }
     }
     return result;
   }
+
+  get QueryObject() { return SQLGenegator.QueryObject(this.Props(), this.type) }
+  get QueryList() { return SQLGenegator.QueryList(this.Props(), this.type) }
+  get QueryNew() { return SQLGenegator.QueryNew(this.Props(), this.type) }
 
   get isDoc() { return this.type.startsWith('Document.') }
   get isCatalog() { return this.type.startsWith('Catalog.') }
@@ -125,19 +135,4 @@ export abstract class JDocumentBase {
 
 }
 
-export interface DBDocumentBase {
-  id: Ref;
-  date: string,
-  type: string;
-  code: string;
-  description: string;
-  company: Ref;
-  user: Ref;
-  posted: boolean;
-  deleted: boolean;
-  isfolder: boolean;
-  parent: Ref;
-  info: string;
-  doc: { [x: string]: any }
-}
 
