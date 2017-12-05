@@ -160,7 +160,6 @@ export class DynamicFormService {
         const view = viewModel['view'];
         let model: IDocBase = viewModel['model'];
         model = JSON.parse(JSON.stringify(model), dateReviver);
-        console.log(view);
         return getViewModel(view, model, exclude, docID !== 'new')
       }));
   }

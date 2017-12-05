@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -46,16 +45,8 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
 
   constructor(public router: Router, public route: ActivatedRoute, private messageService: MessageService,
-    private location: Location, public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService) {
+    public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService) {
   }
-
-  /*
-  @HostListener('keyup', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
-    event.stopPropagation();
-    if (event.keyCode === 27) { this.Close() }
-  }
- */
 
  ngOnInit() {
     this.sideNavService.templateRef = this.sideNavTepmlate;
@@ -138,7 +129,7 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ds.delete(this.viewModel.model.id);
   }
 
-  private _close() { ; this.cd.markForCheck(); this.location.back(); this.ds.close(null) };
+  private _close() { this.ds.close(null); this.cd.markForCheck() };
 
   Close() {
     if (this.viewModel.formGroup.pristine) { this._close(); return }
@@ -157,18 +148,13 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   Goto() {
-    this.router.navigate([this.viewModel.model.type]).then(() => {
-      setTimeout(() => this.ds.goto(this.viewModel.model));
-    });
+    this.router.navigate([this.viewModel.model.type], {queryParams: {goto: this.docId}})
+      .then(() =>  this.ds.goto(this.viewModel.model));
   }
 
   Print() {
-    // tslint:disable-next-line:max-line-length
-    // const strWindowFeatures = 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,directories=no,titlebar=no,width=1024,height=720,top=150,left=200';
-    // tslint:disable-next-line:max-line-length
-    const strWindowFeatures = '';
-    // tslint:disable-next-line:max-line-length
-    window.open(`https://pharm.yuralex.com/ReportServer/Pages/ReportViewer.aspx?%2fReport+Project1%2fReport1&rs:Command=Render&invoiceID=${this.docId}`, 'Print', strWindowFeatures);
+    const url = 'https://pharm.yuralex.com/ReportServer/Pages/ReportViewer.aspx';
+    window.open(`${url}?%2fReport+Project1%2fReport1&rs:Command=Render&invoiceID=${this.docId}`, 'Print');
   }
 
 }

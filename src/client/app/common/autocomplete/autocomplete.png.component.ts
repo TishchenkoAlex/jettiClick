@@ -1,23 +1,23 @@
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    EventEmitter,
-    forwardRef,
-    Input,
-    Output,
-    ViewChild,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  forwardRef,
+  Input,
+  Output,
+  ViewChild,
 } from '@angular/core';
 import {
-    AbstractControl,
-    ControlValueAccessor,
-    FormControl,
-    FormGroup,
-    NG_VALIDATORS,
-    NG_VALUE_ACCESSOR,
-    ValidationErrors,
-    Validator,
-    Validators,
+  AbstractControl,
+  ControlValueAccessor,
+  FormControl,
+  FormGroup,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator,
+  Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AutoComplete } from 'primeng/primeng';
@@ -56,7 +56,8 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   @ViewChild('ac') input: AutoComplete;
 
   form: FormGroup = new FormGroup({
-    suggest: this.required ? new FormControl(this.value, Validators.required) : new FormControl(this.value)
+    suggest: this.required ? new FormControl({ value: this.value, disabled: this.disabled }, Validators.required) :
+      new FormControl({ value: this.value, disabled: this.disabled })
   });
 
   private NO_EVENT = false;
@@ -73,7 +74,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
     if (obj) { delete obj.data }
     if (this.isTypeControl && this.placeholder) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']' }
     this._value = obj;
-    this.suggest.patchValue(obj);
+    this.suggest.patchValue(this._value);
     if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value) }
     this.NO_EVENT = false;
   }
@@ -96,7 +97,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
     }
     this.value = obj;
     if (this.type && this.type.includes('.') && (this.value && !this.value.value)) { this.handleReset(null) }
-    this.cd.markForCheck();
+    setTimeout(() => this.cd.markForCheck());
   }
 
   registerOnChange(fn: any): void {

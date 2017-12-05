@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { AfterViewInit, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { DataTable, SortMeta } from 'primeng/primeng';
@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
-import { IDocBase, DocModel } from '../../../../server/modules/doc.base';
+import { DocModel, IDocBase } from '../../../../server/modules/doc.base';
 import { dateReviver } from '../../common/utils';
 import { SideNavService } from '../../services/side-nav.service';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
@@ -80,6 +80,12 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.dataTable = this.dataTable;
 
+    if (this.route.queryParams['value'].goto) {
+      this.ds.goto(new DocModel(this.docType, this.route.queryParams['value'].goto));
+      this.router.navigate([this.docType], {replaceUrl: true});
+      return;
+    }
+
     this.dataTable.multiSortMeta = this.columns
       .map(c => c.sort)
       .filter(e => !!e.order)
@@ -87,9 +93,8 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     setTimeout(() => {
       this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
-      /// this.dataSource.first();
+      this.dataSource.first();
       this.AfterViewInit = true;
-      this.ds.goto(new DocModel(this.docType));
     });
   }
 
@@ -108,9 +113,9 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private saveUserSettings() {
     const formListSettings: FormListSettings = {
-      filter: Object.keys(this.dataTable.filters)
+      filter: (Object.keys(this.dataTable.filters) || [])
         .map(f => (<FormListFilter>{ left: f, center: this.dataTable.filters[f].matchMode, right: this.dataTable.filters[f].value })),
-      order: (<SortMeta[]>this.dataTable.multiSortMeta)
+      order: ((<SortMeta[]>this.dataTable.multiSortMeta) || [])
         .map(e => <FormListOrder>{ field: e.field, order: e.order === 1 ? 'asc' : 'desc' })
     };
     this.uss.setFormListSettings(this.docType, formListSettings);
@@ -145,7 +150,7 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._docSubscription$.unsubscribe();
     this._closeSubscription$.unsubscribe();
     this._sideNavService$.unsubscribe();
-    this.saveUserSettings();
+    if (!this.route.queryParams['value'].goto) { this.saveUserSettings() };
   }
 
 }

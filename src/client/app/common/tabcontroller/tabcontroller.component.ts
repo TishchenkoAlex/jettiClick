@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -15,7 +14,7 @@ import { DocService } from './../../common/doc.service';
 })
 export class TabControllerComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute, private router: Router, private location: Location,
+  constructor(private route: ActivatedRoute, private router: Router,
     public tcs: TabControllerService, private ds: DocService, private cd: ChangeDetectorRef) {
   }
 
@@ -35,18 +34,15 @@ export class TabControllerComponent implements OnInit {
           docID: this.tcs.docID, description: description, params: params[1],
           component: this.tcs.GetComponent(this.tcs.tabid, this.tcs.docID)
         };
-        this.tcs.tabs = [...this.tcs.tabs, newTab]
-        const lastTabIndex = this.tcs.tabs.length - 1;
-        setTimeout(() => { this.tcs.index = lastTabIndex; this.cd.markForCheck() });
+        this.tcs.tabs.push(newTab);
+        setTimeout(() => { this.tcs.index = this.tcs.tabs.length - 1; this.cd.markForCheck() });
       } else { this.tcs.index = index; setTimeout(() => this.cd.markForCheck())};
       this.cd.markForCheck();
     });
 
     this.ds.close$.pipe(filter(data => data === null))
       .subscribe(doc => {
-        const copy = [...this.tcs.tabs];
-        copy.splice(this.tcs.index, 1);
-        this.tcs.tabs = copy;
+        this.tcs.tabs.splice(this.tcs.index, 1);
         if (this.tcs.index === this.tcs.tabs.length) { this.tcs.index-- };
         this.onChange(this.tcs.index);
         this.cd.markForCheck();
@@ -73,7 +69,6 @@ export class TabControllerComponent implements OnInit {
     this.tcs.index = event;
     const docType = this.tcs.tabs[event].docType;
     const docID = this.tcs.tabs[event].docID;
-    const queryParams = this.tcs.tabs[event].params;
-    this.router.navigate([docType, docID], { queryParams: queryParams }).then(() => this.cd.markForCheck());
+    this.router.navigate([docType, docID]).then(() => this.cd.markForCheck());
   }
 }

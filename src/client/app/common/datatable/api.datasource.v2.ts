@@ -47,7 +47,6 @@ export class ApiDataSource {
 
         const sortArr = (this.dataTable.multiSortMeta || [])
           .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-        console.log(id, stream);
         return this.apiService.getDocList(this.docType, id, stream.command, this.pageSize, offset, sortArr, filterArr).pipe(
           tap(data => {
             this.renderedData = data.data;
