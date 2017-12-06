@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 
-import { SQLGenegator } from '../../fuctions/SQLGenerator';
+import { createServerDocument } from '../../models/documents.factory.server';
 import { DocTypes } from '../../models/documents.types';
-import { createServerDocument } from '../../models/index.server';
 import { db } from './../../db';
 import { DocListRequestBody } from './../../models/api';
 import { FilterInterval, FormListFilter } from './../../models/user.settings';

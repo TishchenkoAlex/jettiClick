@@ -1,8 +1,8 @@
-import 'reflect-metadata';
-
 import { v1 } from 'uuid';
 
 import { SQLGenegator } from '../fuctions/SQLGenerator';
+import { PatchValue } from '../modules/doc.base';
+import { IServerDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes } from './documents.types';
 
 export interface PropOptions {
@@ -18,6 +18,7 @@ export interface PropOptions {
   change?: string,
   owner?: string,
   totals?: number,
+  onChange?: (doc: DocumentBase, prop: string, value: any) => Promise<PatchValue>
 }
 
 export interface DocumentOptions {
@@ -29,6 +30,7 @@ export interface DocumentOptions {
   dimensions?: { [x: string]: DocTypes }[],
   prifix: string
   generator?: string,
+  commands?: { label: string, icon: string, command: () => any }[]
 }
 
 export type Ref = string | null;
@@ -82,7 +84,7 @@ export abstract class DocumentBase {
   @Props({ type: 'boolean', hidden: true, hiddenInList: true })
   isfolder = false;
 
-  @Props({ type: 'string', hiddenInList: true, order: -1 })
+  @Props({ type: 'string', hiddenInList: true, order: -1, controlType: 'textarea' })
   info = '';
 
   constructor(date = new Date(), id = v1(), isfolder = false) {
@@ -96,7 +98,7 @@ export abstract class DocumentBase {
     return result;
   }
 
-  private Prop(propertyKey: string = 'this'): PropOptions | DocumentOptions {
+  Prop(propertyKey: string = 'this'): PropOptions | DocumentOptions {
     if (propertyKey === 'this') {
       return Reflect.getMetadata(symbolProps, this.constructor)
     } else {
@@ -133,6 +135,10 @@ export abstract class DocumentBase {
   get isType() { return this.type.startsWith('Types.') }
   get isJornal() { return this.type.startsWith('Journal.') }
 
+  map(document: IServerDocument) {
+    if (document) {
+       const {doc, ...header} = document;
+       Object.assign(this, header, doc);
+    }
+  }
 }
-
-

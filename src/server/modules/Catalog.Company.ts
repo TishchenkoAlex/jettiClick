@@ -1,4 +1,5 @@
-import { IDocBase, Ref } from './doc.base';
+import { IDocBase } from './doc.base';
+import { Ref } from '../models/document';
 
 export namespace Company {
 

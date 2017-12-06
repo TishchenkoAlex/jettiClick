@@ -2,7 +2,8 @@ import { IDatabase, ITask } from 'pg-promise';
 
 import { lib } from '../std.lib';
 import { Company } from './Catalog.Company';
-import { FileldsAction, IDocBase, PatchValue, Post, Ref, RefValue, TX } from './doc.base';
+import { FileldsAction, IDocBase, PatchValue, Post, RefValue, TX } from './doc.base';
+import { Ref } from '../models/document';
 
 export namespace Invoice {
 

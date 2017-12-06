@@ -200,9 +200,50 @@ export class SQLGenegator {
     return query;
   }
 
+  static QueryRegisterAccumulatioList(doc: { [x: string]: any }, type: string) {
+
+    const simleProperty = (prop: string, type: string) => {
+      if (type === 'boolean') { return `,  coalesce((r.data ->> '${prop}')::BOOLEAN, false) "${prop}"\n`; }
+      if (type === 'number') { return `,  (r.data ->> '${prop}')::NUMERIC(15,2) "${prop}"\n`; }
+      return `, r.data ->> '${prop}' "${prop}"\n`;
+    }
+
+    const complexProperty = (prop: string, type: string) =>
+        `, jsonb_build_object('id', "${prop}".id, 'value', "${prop}".description, 'type', '${type}', 'code', "${prop}".code) "${prop}"\n`;
+
+    const addLeftJoin = (prop: string, type: string) =>
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = r.data ->> '${prop}'\n`;
+
+    let LeftJoin = ''; let select = '';
+    for (const prop in excludeRegisterAccumulatioProps(doc)) {
+      const type: string = doc[prop].type || 'string';
+      if (type.includes('.')) {
+        select += complexProperty(prop, type);
+        LeftJoin += addLeftJoin(prop, type)
+      } else {
+        select += simleProperty(prop, type);
+      }
+    }
+
+    const query = `
+      SELECT r.date, r."kind",
+      jsonb_build_object('id', company.id, 'type', company.type, 'code', company.code, 'value', company.description) "company"
+      ${select}
+      FROM "Register.Accumulation" r
+        LEFT JOIN "Documents" "company" ON company.id = r.company AND company.type = 'Catalog.Company'
+        ${LeftJoin}
+      WHERE r.type = '${type}'\n`;
+    return query;
+  }
+
 }
 
 export function excludeProps(doc) {
   const { user, company, parent, info, isfolder, description, id, type, date, code, posted, deleted, ...newObject } = doc;
+  return newObject;
+}
+
+export function excludeRegisterAccumulatioProps(doc) {
+  const { kind, date, type, company, ...newObject } = doc;
   return newObject;
 }

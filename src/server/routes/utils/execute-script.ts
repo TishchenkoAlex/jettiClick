@@ -1,12 +1,11 @@
 import { IDatabase, ITask } from 'pg-promise';
 
+import { createServerDocument } from '../../models/documents.factory.server';
 import { DocTypes } from '../../models/documents.types';
-import { createServerDocument } from '../../models/index.server';
 import { PostResult } from '../../models/post.interfaces';
 import { JDM } from './../../modules';
 import { IDocBase } from './../../modules/doc.base';
 import { lib } from './../../std.lib';
-import { DocumentBase } from '../../models/document';
 
 export async function ExecuteScript(doc: IDocBase, script, tx: ITask<any>) {
   if (!script) { return doc };

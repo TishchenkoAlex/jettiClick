@@ -12,7 +12,6 @@ import {
     ViewChildren,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/components/common/messageservice';
 import { Calendar } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
@@ -44,11 +43,11 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
 
-  constructor(public router: Router, public route: ActivatedRoute, private messageService: MessageService,
+  constructor(public router: Router, public route: ActivatedRoute,
     public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService) {
   }
 
- ngOnInit() {
+  ngOnInit() {
     this.sideNavService.templateRef = this.sideNavTepmlate;
     this._subscription$ = Observable.merge(...[
       this.ds.save$,
@@ -133,14 +132,15 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   Close() {
     if (this.viewModel.formGroup.pristine) { this._close(); return }
-    this._focus()
     this.ds.confirmationService.confirm({
       message: 'Discard changes and close?',
       header: 'Confirmation',
       icon: 'fa fa-question-circle',
       accept: this._close.bind(this),
-      reject: () => { this._focus(); this.cd.markForCheck() }
-    })
+      reject: () => {  this.cd.markForCheck() },
+      key: this.docId
+    });
+    setTimeout(() =>  this.cd.markForCheck());
   }
 
   Copy() {
@@ -148,13 +148,20 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   Goto() {
-    this.router.navigate([this.viewModel.model.type], {queryParams: {goto: this.docId}})
-      .then(() =>  this.ds.goto(this.viewModel.model));
+    this.router.navigate([this.viewModel.model.type], { queryParams: { goto: this.docId } })
+      .then(() => this.ds.goto(this.viewModel.model));
   }
 
   Print() {
     const url = 'https://pharm.yuralex.com/ReportServer/Pages/ReportViewer.aspx';
     window.open(`${url}?%2fReport+Project1%2fReport1&rs:Command=Render&invoiceID=${this.docId}`, 'Print');
+  }
+
+  async onCommand(event) {
+
+    // const result = await this.ds.api.onCommand(this.viewModel.formGroup.getRawValue(), 'company', {Tax: -11});
+    // console.log('onCommand', result);
+    // this.viewModel.formGroup.patchValue(result);
   }
 
 }

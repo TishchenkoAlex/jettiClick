@@ -2,8 +2,10 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/primeng';
+import { share, take } from 'rxjs/operators';
 
 import { AppComponent } from './app.component';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,10 +20,21 @@ export class AppMenuComponent implements OnInit {
 
   model: any[];
 
-  constructor(public app: AppComponent, private cd: ChangeDetectorRef) { }
+  constructor(public app: AppComponent, private cd: ChangeDetectorRef) {
+    this.app.auth.userProfile$.subscribe(userProfile => {
+      const menuCatalogItems = app.apiService.getCatalogs().pipe(share(), take(1));
+      const menuDocItems = app.apiService.getDocuments().pipe(share(), take(1));
+      Observable.forkJoin(menuCatalogItems, menuDocItems).pipe(take(1))
+        .subscribe(data => {
+          app.tsc.menuItems = [...data[0], ...data[1]];
+          localStorage.setItem('menuItems', JSON.stringify(app.tsc.menuItems));
+          this.buildMenu();
+        });
+    });
+  }
 
-  ngOnInit() {
-    this.model = [
+  private buildMenu() {
+    return [
       { label: 'Dashboard', icon: 'fa fa-fw fa-home', routerLink: ['/'] },
       {
         label: 'Customization', icon: 'fa fa-fw fa-bars', badge: '8',
@@ -30,13 +43,16 @@ export class AppMenuComponent implements OnInit {
           { label: 'Overlay Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToOverlayMenu() },
           { label: 'Slim Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToSlimMenu() },
           { label: 'Horizontal Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToHorizontalMenu() },
-          { label: 'Inline Profile', icon: 'fa fa-sun-o fa-fw', command: () => {
-            this.app.profileMode = 'inline';
+          {
+            label: 'Inline Profile', icon: 'fa fa-sun-o fa-fw', command: () => {
+              this.app.profileMode = 'inline';
             }
           },
-          { label: 'Top Profile', icon: 'fa fa-moon-o fa-fw', command: () => {
-            this.app.profileMode = 'top';
-          }},
+          {
+            label: 'Top Profile', icon: 'fa fa-moon-o fa-fw', command: () => {
+              this.app.profileMode = 'top';
+            }
+          },
           { label: 'Light Menu', icon: 'fa fa-sun-o fa-fw', command: () => this.app.darkMenu = false },
           { label: 'Dark Menu', icon: 'fa fa-moon-o fa-fw', command: () => this.app.darkMenu = true }
         ]
@@ -137,6 +153,10 @@ export class AppMenuComponent implements OnInit {
       { label: 'Utils', icon: 'fa fa-fw fa-wrench', routerLink: ['/'] },
       { label: 'Documentation', icon: 'fa fa-fw fa-book', routerLink: ['/'] }
     ];
+  }
+
+  ngOnInit() {
+    this.model = this.buildMenu();
   }
 
   changeTheme(theme: string) {

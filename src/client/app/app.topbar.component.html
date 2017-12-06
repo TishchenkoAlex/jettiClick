@@ -1,3 +1,4 @@
+<p-growl></p-growl>
 <div class="topbar clearfix">
   <div class="topbar-left">
     <img src="assets/layout/images/logo.png" class="topbar-logo" />
@@ -158,7 +159,7 @@
       </li>
     </ul>
   </div>
-  <p-progressBar [style]="this.lds.color === 'warn' ? {'background': 'red'} :  ''" *ngIf="(lds.loading$ | async) && !(lds.counter$ | async) " mode="indeterminate"></p-progressBar>
+  <p-progressBar [style]="(lds.color$ | async) === 'warn' ? {'background': 'red'} :  ''" *ngIf="(lds.loading$ | async) && !(lds.counter$ | async) " mode="indeterminate"></p-progressBar>
   <p-progressBar *ngIf="lds.counter$ | async as counter" [value]="counter"></p-progressBar>
 </div>
 

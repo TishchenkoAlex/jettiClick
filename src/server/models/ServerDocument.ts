@@ -1,8 +1,7 @@
+import { db, TX } from '../db';
+import { PatchValue } from '../modules/doc.base';
 import { DocumentBase, Ref } from './document';
 import { PostResult } from './post.interfaces';
-import { TX, db } from '../db';
-import { PatchValue } from '../modules/doc.base';
-
 
 export interface IServerDocument {
   id: Ref;
@@ -22,6 +21,10 @@ export interface IServerDocument {
 
 export abstract class DocumentBaseServer extends DocumentBase implements ServerDocument {
 
+  onCommand(command: string, args: any, tx: TX = db): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+
   map(document: IServerDocument) {
     throw new Error('Method not implemented.');
   }
@@ -29,6 +32,7 @@ export abstract class DocumentBaseServer extends DocumentBase implements ServerD
   onPost(Registers: PostResult, tx: TX = db): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
   onValueChanged(prop: string, value: any, tx: TX = db): Promise<PatchValue> {
     throw new Error('Method not implemented.');
   }
@@ -38,5 +42,6 @@ export abstract class DocumentBaseServer extends DocumentBase implements ServerD
 export interface ServerDocument {
   onPost(Registers: PostResult, tx?: TX): Promise<void>;
   onValueChanged(prop: string, value: any, tx?: TX): Promise<PatchValue>;
+  onCommand(command: string, args: any, tx?: TX):  Promise<any>;
   map(document: IServerDocument);
 }

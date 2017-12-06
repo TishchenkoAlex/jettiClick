@@ -1,6 +1,7 @@
 import { lib } from '../std.lib';
 import { Company } from './Catalog.Company';
-import { FileldsAction, IDocBase, Ref, RefValue } from './doc.base';
+import { FileldsAction, IDocBase, RefValue } from './doc.base';
+import { Ref } from '../models/document';
 
 export namespace CashIn {
 

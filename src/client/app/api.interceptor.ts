@@ -8,22 +8,24 @@ import { environment } from './../environments/environment';
 import { LoadingService } from './common/loading.service';
 
 export class ApiInterceptor implements HttpInterceptor {
-  constructor(private ls: LoadingService) { }
+  constructor(private lds: LoadingService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (req.url.includes('user/settings')) { // exclude setting requests
       return next.handle(req);
     }
-    this.ls.color = 'accent';
-    this.ls.loading = true;
+    this.lds.color = 'accent';
+    this.lds.loading = true;
     return next.handle(req).pipe(
       tap(data => {
-        this.ls.loading = false;
-        if (data.type !== 0) { if (isDevMode) { console.log('API', req.url.replace(environment.api, '')) } }
+        if (data.type !== 0) {
+          this.lds.loading = false;
+          if (isDevMode) { console.log('API', req.url.replace(environment.api, '')) }
+        }
       }),
       catchError((err: HttpErrorResponse) => {
-        this.ls.loading = true;
-        this.ls.color = 'warn';
+        this.lds.loading = true;
+        this.lds.color = 'warn';
         return ErrorObservable.create(err);
       }));
   }

@@ -1,4 +1,4 @@
-import { Ref } from './document';
+import { Ref } from './../../document';
 
 export interface RegisterAccount {
   debit: { account: Ref, subcounts: any[], qty?: number, currency?: Ref },

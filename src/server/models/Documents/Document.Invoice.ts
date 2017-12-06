@@ -1,4 +1,5 @@
 import { JDocument, DocumentBase, Props, Ref } from './../document';
+import { IServerDocument } from '../ServerDocument';
 
 @JDocument({
   type: 'Document.Invoice',
@@ -11,7 +12,11 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   chapter: 'Document',
   generator: 'document_invoice',
   menu: 'Invoices',
-  prifix: 'INV'
+  prifix: 'INV',
+  commands: [
+    { label: 'refresh', icon: 'fa-refresh', command: () => {}},
+    { label: 'close', icon: 'fa-close', command: () => {} },
+  ],
 })
 export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'Types.Document', hiddenInList: true })
@@ -23,7 +28,7 @@ export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'Catalog.Storehouse', hiddenInList: true, required: true, order: 11 })
   Storehouse: Ref = null;
 
-  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12, style: {width: '250px'} })
+  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12, style: { width: '250px' } })
   Customer: Ref = null;
 
   @Props({ type: 'Catalog.Manager', order: 13 })
@@ -41,12 +46,14 @@ export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'number', readOnly: true, order: 17 })
   Tax = 0;
 
-  @Props({ type: 'Catalog.Currency', required: true, order: 18, style: {width: '100px'} })
+  @Props({ type: 'Catalog.Currency', required: true, order: 18, style: { width: '100px' } })
   currency: Ref = null;
 
   @Props({
     type: 'table', required: true, order: 1,
-    change: 'let Amount = 0, Tax = 0; value.forEach(el => { Amount += el.Amount; Tax += el.Tax; }); return { Amount: Amount, Tax: Tax }'
+    change: `
+      let Amount = 0, Tax = 0; value.forEach(el => { Amount += el.Amount; Tax += el.Tax; });
+      return { Amount: Amount, Tax: Tax }`
   })
   Items: TableItems[] = [new TableItems()];
 
@@ -56,27 +63,29 @@ export class DocumentInvoice extends DocumentBase {
 }
 
 class TableItems {
-  @Props({ type: 'Catalog.Product', required: true, order: 1, style: { width: '400px'} })
+  @Props({ type: 'Catalog.Product', required: true, order: 1, style: { width: '400px' } })
   SKU: Ref = null;
 
   @Props({
     type: 'number', totals: 3, required: true, order: 3,
-    change: 'return { Amount: doc.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}'
+    change: `return { Amount: doc.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}`
   })
   Qty = 0;
 
-  @Props({ type: 'Catalog.PriceType', required: true, order: 5, style: { width: '120px'} })
+  @Props({ type: 'Catalog.PriceType', required: true, order: 5, style: { width: '120px' } })
   PriceType: Ref = null;
 
   @Props({
     type: 'number', required: true, order: 4,
-    change: 'return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18}'
+    change: `return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18}`,
+    onChange: async (doc: any, prop: string, value: any) => {
+      return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18} }
   })
   Price = 0;
 
   @Props({
     type: 'number', required: true, order: 10,
-    change: 'return { Price: value / doc.Qty, Tax: value * 0.18}'
+    change: `return { Price: value / doc.Qty, Tax: value * 0.18}`
   })
   Amount = 0;
 

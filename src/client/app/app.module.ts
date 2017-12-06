@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/fromEvent';
@@ -19,9 +20,9 @@ import { TabResolver } from '../app/tab.resolver';
 import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
 import { AppMenuComponent, AppSubMenuComponent } from './app.menu.component';
-import { AppProfileComponent } from './auth/app.profile.component';
 import { appRoutes } from './app.routes';
 import { AppTopBarComponent } from './app.topbar.component';
+import { AppProfileComponent } from './auth/app.profile.component';
 import { AuthGuardService } from './auth/auth.guard.service';
 import { Auth0Service } from './auth/auth0.service';
 import { UserSettingsService } from './auth/settings/user.settings.service';

@@ -1,33 +1,32 @@
 import { db, TX } from '../../db';
-import { IDocBase } from '../../modules/doc.base';
 import { lib } from '../../std.lib';
+import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
+import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
+import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
+import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
 import { IServerDocument, ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
-import {
-    RegisterAccumulationAR,
-    RegisterAccumulationBalance,
-    RegisterAccumulationInventory,
-    RegisterAccumulationSales,
-} from './../Register.Accumulation';
 import { DocumentInvoice } from './Document.Invoice';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
-
-  map(document: IServerDocument) {
-    if (document) {
-       const {doc, ...header} = document;
-       Object.assign(this, header, doc);
-    }
-  }
 
   async onValueChanged (prop: string, value: any, tx: TX = db) {
     switch (prop) {
       case 'company':
         if (!value) { return {} }
-        const company = await lib.doc.byId<IDocBase>(value.id, tx);
+        const company = await lib.doc.byId<IServerDocument>(value.id, tx);
         if (!company) { return {} }
         const currency = await lib.doc.formControlRef(company.doc.currency, tx);
         return { currency: currency };
+      default:
+        return {}
+    }
+  };
+
+  async onCommand (command: string, args: any, tax: TX = db) {
+    switch (command) {
+      case 'company':
+        return args;
       default:
         return {}
     }
@@ -107,7 +106,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       Amount: totalCost
     }));
 
-    Registers.Accumulation.push(new RegisterAccumulationBalance(false, {
+    Registers.Accumulation.push(new RegisterAccumulationBalance(true, {
       Department: this.Department,
       Balance: await lib.doc.byCode('Catalog.Balance', 'PL', tx),
       Analytics: ExpenseCOST,

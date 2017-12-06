@@ -71,7 +71,6 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
-    if (obj) { delete obj.data }
     if (this.isTypeControl && this.placeholder) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']' }
     this._value = obj;
     this.suggest.patchValue(this._value);
@@ -147,7 +146,6 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   }
 
   handleOpen(event: Event) {
-    event.stopPropagation();
     this.router.navigate([this.value.type || this.type, this.value.id]);
   }
 
@@ -160,8 +158,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
     if (!row) { return };
     this.value = {
       id: row.id, code: row.code, type: row.type,
-      value: this.isTypeValue ? null : row.description,
-      data: 'NO_SUGGEST'
+      value: this.isTypeValue ? null : row.description
     };
   }
 

@@ -1,13 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
 import * as express from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ITask } from 'pg-promise';
 
+import { DocumentOptions } from '../models/document';
+import { createServerDocument } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
-import { createServerDocument } from '../models/index.server';
 import { db } from './../db';
 import { ColumnDef } from './../models/column';
 import { FormListSettings } from './../models/user.settings';
-import { IDocBase, RefValue, PatchValue } from './../modules/doc.base';
+import { IDocBase, PatchValue, RefValue } from './../modules/doc.base';
 import { JDM } from './../modules/index';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib } from './../std.lib';
@@ -41,7 +42,8 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
         queryObject: JDoc.QueryObject,
         queryNewObject: JDoc.QueryNew,
         settings: (await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)).settings,
-        schemaFull: view
+        schemaFull: view,
+        commands: (JDoc.Prop() as DocumentOptions).commands
       }
     }
 
@@ -70,7 +72,7 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
     } else {
       model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
     }
-    const result = { view: view, model: model, columnDef: columnDef };
+    const result = { view: view, model: model, columnDef: columnDef, commands: config_schema.commands || [] };
     res.json(result);
   } catch (err) { next(err.message); }
 })
@@ -186,4 +188,11 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
   } catch (err) { next(err.message); }
 })
 
-
+router.post('/command/:type/:command', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const JDoc = createServerDocument(req.params.type, req.body.doc);
+    let result;
+    if (JDoc) { result = await JDoc.onCommand(req.params.command, req.body.args) }
+    res.json(result);
+  } catch (err) { next(err.message); }
+})

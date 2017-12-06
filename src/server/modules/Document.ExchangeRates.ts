@@ -1,4 +1,5 @@
-import { FileldsAction, IDocBase, PatchValue, Post, Ref, RefValue, TX } from './doc.base';
+import { FileldsAction, IDocBase, PatchValue, Post, RefValue, TX } from './doc.base';
+import { Ref } from '../models/document';
 
 export namespace ExchangeRates {
 

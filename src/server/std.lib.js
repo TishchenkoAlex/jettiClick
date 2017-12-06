@@ -25,12 +25,11 @@ exports.lib = {
 async function accountByCode(code, tx = db_1.db) {
     const result = await tx.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = $1`, [code]);
-    return (result ? result.result : null);
+    return result ? result.result : null;
 }
 async function byCode(type, code, tx = db_1.db) {
-    const result = await tx.oneOrNone(`
-    SELECT id result FROM "Documents" WHERE type = $1 AND code = $2`, [type, code]);
-    return (result ? result.result : null);
+    const result = await tx.oneOrNone(`SELECT id result FROM "Documents" WHERE type = $1 AND code = $2`, [type, code]);
+    return result ? result.result : null;
 }
 async function byId(id, tx = db_1.db) {
     const result = await tx.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
@@ -51,13 +50,13 @@ async function debit(account, date = new Date().toJSON(), company) {
     const result = await db_1.db.oneOrNone(`
     SELECT SUM(sum)::NUMERIC(15,2) result FROM "Register.Account"
     WHERE dt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);
-    return result.result;
+    return result ? result.result : null;
 }
 async function kredit(account, date = new Date().toJSON(), company) {
     const result = await db_1.db.oneOrNone(`
     SELECT SUM(sum)::NUMERIC(15,2) result FROM "Register.Account"
     WHERE kt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);
-    return result.result;
+    return result ? result.result : null;
 }
 async function balance(account, date = new Date().toJSON(), company) {
     const result = await db_1.db.oneOrNone(`
@@ -73,7 +72,7 @@ async function balance(account, date = new Date().toJSON(), company) {
       WHERE kt = $1 AND datetime <= $2 AND company = $3
     ) u
     `, [account, date, company]);
-    return result.result;
+    return result ? result.result : null;
 }
 async function registerBalance(type, date = new Date().toJSON(), company, resource, analytics, tx = db_1.db) {
     const addQuery = (key) => `SUM((data->>'${key}') :: NUMERIC(15, 2) * CASE WHEN kind THEN 1 ELSE -1 END) "${key}",\n`;
@@ -83,13 +82,13 @@ async function registerBalance(type, date = new Date().toJSON(), company, resour
     }
     ;
     const result = await db_1.db.oneOrNone(`
-      SELECT ${query.slice(2)}
-      FROM "Register.Accumulation"
-      WHERE type = $1
-        AND date <= $2
-        AND company = $3
-        AND data @> $4
-    `, [type, date, company, analytics]);
+    SELECT ${query.slice(2)}
+    FROM "Register.Accumulation"
+    WHERE type = $1
+      AND date <= $2
+      AND company = $3
+      AND data @> $4
+  `, [type, date, company, analytics]);
     return (result ? result : {});
 }
 async function avgCost(date = new Date().toJSON(), company, analytics, tx = db_1.db) {
@@ -101,10 +100,9 @@ async function avgCost(date = new Date().toJSON(), company, analytics, tx = db_1
     WHERE type = 'Register.Accumulation.Inventory'
       AND date <= $1
       AND company = $2
-      AND data @> $3
-    `;
+      AND data @> $3`;
     const result = await tx.oneOrNone(queryText, [date, company, analytics]);
-    return result.result;
+    return result ? result.result : null;
 }
 async function InventoryBalance(date = new Date().toJSON(), company, analytics, tx = db_1.db) {
     const queryText = `
@@ -114,8 +112,7 @@ async function InventoryBalance(date = new Date().toJSON(), company, analytics, 
     WHERE type = 'Register.Accumulation.Inventory'
       AND date <= $1
       AND company = $2
-      AND data @> $3
-    `;
+      AND data @> $3`;
     const result = await tx.oneOrNone(queryText, [date, company, analytics]);
     return result ? result.result : null;
 }
@@ -128,8 +125,7 @@ async function sliceLast(type, date = new Date().toJSON(), company, resource, an
       AND company = $2
       AND data @> $3
     ORDER BY date DESC
-    LIMIT 1
-  `;
+    LIMIT 1`;
     const result = await tx.oneOrNone(queryText, [date, company, analytics]);
     return result ? result.result : null;
 }

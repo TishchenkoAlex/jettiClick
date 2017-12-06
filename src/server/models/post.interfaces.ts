@@ -1,6 +1,6 @@
 import { TX } from '../../server/db';
-import { RegisterAccount } from './Register.Account';
-import { RegistersAccumulations } from './Register.Accumulation';
+import { RegisterAccount } from './Registers/Account/Register.Account';
+import { RegistersAccumulations } from './Registers/Accumulation/factory';
 
 export interface PostResult {
     Account: RegisterAccount[];

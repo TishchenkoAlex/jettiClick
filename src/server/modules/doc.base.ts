@@ -1,7 +1,6 @@
 import { IDatabase, ITask } from 'pg-promise';
 import { v1 } from 'uuid';
-
-export type Ref = string;
+import { Ref } from '../models/document';
 
 export interface IDocBase {
   id: Ref;

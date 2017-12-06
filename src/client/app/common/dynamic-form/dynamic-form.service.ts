@@ -3,7 +3,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
-import { DocModel, IDocBase } from '../../../../server/modules/doc.base';
+import { IServerDocument } from '../../../../server/models/ServerDocument';
 import { ApiService } from '../../services/api.service';
 import { cloneFormGroup, dateReviver } from '../utils';
 import {
@@ -22,10 +22,11 @@ import {
 
 export interface ViewModel {
   view: BaseJettiFromControl<any>[];
-  model: DocModel,
+  model: IServerDocument,
   formGroup: FormGroup,
   controlsByKey: { [s: string]: BaseJettiFromControl<any> },
   schema: any;
+  commands?: any[]
 }
 
 function toFormGroup(controls: BaseJettiFromControl<any>[]) {
@@ -59,9 +60,9 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       const hidden = !!prop['hidden'];
       const order = hidden ? -1 : prop['order'] * 1 || 999;
       const label = prop['label'] || key.toString();
-      const dataType = prop['type'] || 'string';
-      const required = prop['required'] || false;
-      const readOnly = prop['readOnly'] || false;
+      const dataType = prop['controlType'] || prop['type'] || 'string';
+      const required = !!prop['required'];
+      const readOnly = !!prop['readOnly'];
       const style = prop['style'];
       const totals = prop['totals'] * 1 || null;
       const change = prop['change'];
@@ -140,7 +141,7 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
   const controlsByKey: { [s: string]: BaseJettiFromControl<any> } = {};
   fields.forEach(c => { controlsByKey[c.key] = c });
   formGroup.patchValue(model, patchOptionsNoEvents);
-  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, schema: view }
+  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, schema: view}
 }
 
 @Injectable()
@@ -158,8 +159,9 @@ export class DynamicFormService {
     return this.apiService.getViewModel(docType, docID).pipe(
       map(viewModel => {
         const view = viewModel['view'];
-        let model: IDocBase = viewModel['model'];
+        let model: IServerDocument = viewModel['model'];
         model = JSON.parse(JSON.stringify(model), dateReviver);
+        const commands = viewModel['commands'];
         return getViewModel(view, model, exclude, docID !== 'new')
       }));
   }

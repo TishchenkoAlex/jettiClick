@@ -16,21 +16,23 @@ export class LoadingService {
 
   set loading(value: boolean) {
     if (value !== this._loading.value) {
-      Promise.resolve().then(() => this._loading.next(value));
+      this._loading.next(value);
     }
   }
   get loading() { return this._loading.value }
 
   set color(value) {
+    this._color.next(value);
     if (value !== this._color.value) {
-      Promise.resolve().then(() => this._color.next(value));
+      this._color.next(value);
     }
   }
   get color() { return this._color.value }
 
   set counter(value) {
+    this._counter.next(value);
     if (value !== this._counter.value) {
-      Promise.resolve().then(() => this._counter.next(value));
+      this._counter.next(value);
     }
   }
   get counter() { return this._counter.value }

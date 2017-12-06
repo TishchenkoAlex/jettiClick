@@ -1,12 +1,7 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/components/common/messageservice';
-import { Observable } from 'rxjs/Observable';
-import { share, take } from 'rxjs/operators';
 
-import { MenuItem } from '../../server/models/api';
 import { Auth0Service } from './auth/auth0.service';
-import { UserSettingsService } from './auth/settings/user.settings.service';
 import { LoadingService } from './common/loading.service';
 import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
@@ -21,9 +16,6 @@ enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
-
-  menuCatalogItems: Observable<MenuItem[]>;
-  menuDocItems: Observable<MenuItem[]>;
 
   layoutCompact = true;
 
@@ -61,21 +53,11 @@ export class AppComponent implements AfterViewInit {
 
   @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ElementRef;
 
-  constructor(private router: Router, private auth: Auth0Service, private ups: UserSettingsService,
-    public sideNavService: SideNavService, private apiService: ApiService, public lds: LoadingService,
-    public tsc: TabControllerService, private cd: ChangeDetectorRef, private messageService: MessageService) {
+  constructor(private router: Router, public auth: Auth0Service,
+    public sideNavService: SideNavService, public apiService: ApiService, public lds: LoadingService,
+    public tsc: TabControllerService) {
 
     auth.handleAuthentication();
-
-    this.auth.userProfile$.subscribe(userProfile => {
-      this.menuCatalogItems = apiService.getCatalogs().pipe(share(), take(1));
-      this.menuDocItems = apiService.getDocuments().pipe(share(), take(1));
-      Observable.forkJoin(this.menuCatalogItems, this.menuDocItems).pipe(take(1))
-        .subscribe(data => {
-          tsc.menuItems = [...data[0], ...data[1]];
-          localStorage.setItem('menuItems', JSON.stringify(tsc.menuItems));
-        });
-    });
 
     const lm = localStorage.getItem('layoutMode');
     const a = this.layoutMode.toString();
