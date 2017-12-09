@@ -9,7 +9,7 @@
 
   <div *ngSwitchCase="'textarea'" [class]="control.showLabel ? 'ui-float-label' : ''">
     <textarea #pc [required]="control.required" pInputTextarea [formControlName]="control.key" [id]="control.key" [readOnly]="control.readOnly"
-     (change)="onChange($event)" (focus)="$event.target.select()">
+      (change)="onChange($event)" (focus)="$event.target.select()">
     </textarea>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
@@ -21,8 +21,8 @@
   </div>
 
   <j-autocomplete-png #pc *ngSwitchCase="'autocomplete'" [required]="control.required" [formControlName]="control.key" [id]="control.key"
-    [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type" (change)="onChange($event)"
-    [owner]="{owner: control.owner, value: form.controls[control.owner]?.value}" [showLabel]="control.showLabel">
+    [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type" (change)="onChange($event)" [owner]="{owner: control.owner, value: form.controls[control.owner]?.value}"
+    [showLabel]="control.showLabel">
   </j-autocomplete-png>
 
   <div *ngSwitchCase="'date'" [class]="control.showLabel ? 'ui-float-label' : ''">
@@ -35,17 +35,15 @@
 
   <div *ngSwitchCase="'datetime'" [class]="control.showLabel ? 'ui-float-label' : ''">
     <p-calendar #pc [required]="control.required" [formControlName]="control.key" showTime="true" hourFormat="24" showButtonBar="true"
-      [id]="control.key" autocomplete="off" (change)="onChange($event)" [showIcon]="true" [utc]="true" [dateFormat]="formatDate" [locale]="locale"
-     (onSelect)="pc.overlayVisible=false" [showOnFocus]="false" appendTo="body"  (focus)="$event.target.select()">
+      [id]="control.key" autocomplete="off" (change)="onChange($event)" [showIcon]="true" [utc]="true" [dateFormat]="formatDate"
+      [locale]="locale" (onSelect)="pc.overlayVisible=false" [showOnFocus]="false" appendTo="body" (focus)="$event.target.select()">
     </p-calendar>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <div *ngSwitchCase="'checkbox'">
-    <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
-    <p-triStateCheckbox #pc *ngSwitchCase="'checkbox'" [formControlName]="control.key" [id]="control.key"
-      (change)="onChange($event)">{{control.label}}
-    </p-triStateCheckbox>
+    <p-triStateCheckbox #pc *ngSwitchCase="'checkbox'" [label]="control.label" [formControlName]="control.key" [id]="control.key"
+      (change)="onChange($event)"></p-triStateCheckbox>
   </div>
 
   <div *ngSwitchCase="'table'">
@@ -56,8 +54,8 @@
 
   <div *ngSwitchCase="'script'">
     <label #pc *ngIf="control.showLabel" [for]="control.key">{{ control.label }}:</label>
-    <ngx-monaco-editor [options]="{language: control.type}" [ngStyle]="control.style" (change)="onChange($event)"
-      [id]="control.key" [formControlName]="control.key" [id]="control.key" >
+    <ngx-monaco-editor [options]="{language: control.type}" [ngStyle]="control.style" (change)="onChange($event)" [id]="control.key"
+      [formControlName]="control.key" [id]="control.key">
     </ngx-monaco-editor>
   </div>
 

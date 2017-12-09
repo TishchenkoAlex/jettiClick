@@ -20,7 +20,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AutoComplete } from 'primeng/primeng';
+import { AutoComplete, Dialog } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
@@ -54,6 +54,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   @Input() openButton = true;
   @Output() change = new EventEmitter();
   @ViewChild('ac') input: AutoComplete;
+  @ViewChild(Dialog) dialog: Dialog = null;
 
   form: FormGroup = new FormGroup({
     suggest: this.required ? new FormControl({ value: this.value, disabled: this.disabled }, Validators.required) :
@@ -61,7 +62,13 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   });
 
   private NO_EVENT = false;
-  showDialog = false;
+
+  private _showDialog = false;
+  set showDialog(value: boolean) {
+    this._showDialog = value;
+    setTimeout(() => { if (this._showDialog) { this.dialog.el.nativeElement.focus() } }, 1);
+  }
+  get showDialog() { return this._showDialog }
 
   get suggest() { return this.form.controls['suggest']; }
   get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.') }

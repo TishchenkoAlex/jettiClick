@@ -10,7 +10,6 @@ import { Subscription } from 'rxjs/Subscription';
 import { ColumnDef } from '../../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
 import { DocModel, IDocBase } from '../../../../server/modules/doc.base';
-import { dateReviver } from '../../common/utils';
 import { SideNavService } from '../../services/side-nav.service';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
@@ -51,7 +50,7 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
     const view = this.route.data['value'].detail[0]['view'];
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
 
-    this.columns = JSON.parse(JSON.stringify(this.route.data['value'].detail[0]['columnDef']), dateReviver);
+    this.columns = this.route.data['value'].detail[0]['columnDef'];
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
 
     const excludeColumns = this.isDoc ? ['description'] : ['date', 'company'];

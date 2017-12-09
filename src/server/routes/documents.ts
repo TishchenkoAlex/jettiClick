@@ -196,3 +196,18 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
     res.json(result);
   } catch (err) { next(err.message); }
 })
+
+
+router.post('/server/:type/:func', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let result: any = {}
+    await db.tx(async (tx: ITask<any>) => {
+      const JDOC = createServerDocument(req.params.type, req.body.doc);
+      const func =  JDOC[req.params.func];
+      if (func) {
+        result = await JDOC[req.params.func](tx, req.body.params);
+      }
+      res.json(result);
+    })
+  } catch (err) { next(err.message); }
+})

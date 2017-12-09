@@ -6,6 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { environment } from './../environments/environment';
 
 import { LoadingService } from './common/loading.service';
+import { dateReviver } from './common/utils';
 
 export class ApiInterceptor implements HttpInterceptor {
   constructor(private lds: LoadingService) { }
@@ -20,6 +21,7 @@ export class ApiInterceptor implements HttpInterceptor {
       tap(data => {
         if (data.type !== 0) {
           this.lds.loading = false;
+          data['body'] = JSON.parse(JSON.stringify(data['body']), dateReviver)
           if (isDevMode) { console.log('API', req.url.replace(environment.api, '')) }
         }
       }),

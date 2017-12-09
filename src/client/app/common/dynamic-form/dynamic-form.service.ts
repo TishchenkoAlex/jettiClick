@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 
 import { IServerDocument } from '../../../../server/models/ServerDocument';
 import { ApiService } from '../../services/api.service';
-import { cloneFormGroup, dateReviver } from '../utils';
+import { cloneFormGroup } from '../utils';
 import {
     AutocompleteJettiFormControl,
     BaseJettiFromControl,
@@ -19,14 +19,13 @@ import {
     TextareaJettiFormControl,
     TextboxJettiFormControl,
 } from './dynamic-form-base';
+import { DocumentBase } from './../../../../server/models/document';
 
 export interface ViewModel {
   view: BaseJettiFromControl<any>[];
   model: IServerDocument,
   formGroup: FormGroup,
-  controlsByKey: { [s: string]: BaseJettiFromControl<any> },
-  schema: any;
-  commands?: any[]
+  controlsByKey: { [s: string]: BaseJettiFromControl<any> }
 }
 
 function toFormGroup(controls: BaseJettiFromControl<any>[]) {
@@ -52,7 +51,7 @@ function toFormGroup(controls: BaseJettiFromControl<any>[]) {
 export const patchOptionsNoEvents = { onlySelf: false, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
 export function getViewModel(view, model, exclude: string[], isExists: boolean) {
-  const fields: BaseJettiFromControl<any>[] = [];
+  let fields: BaseJettiFromControl<any>[] = [];
 
   const processRecursive = (v, f: BaseJettiFromControl<any>[], excl: string[]) => {
     Object.keys(v).filter(key => excl.indexOf(key) === -1).map(key => {
@@ -109,12 +108,13 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       f.push(newControl);
     });
     f.forEach(e => {
-      if (e.key === 'parent' || e.order <= 0 || e.hidden || e.controlType === 'script') {
+      if (e.key === 'parent' || e.order <= 0 || e.hidden) {
         e.order = -1;
       }
       if (e instanceof TableDynamicControl) { e.order = e.order + 101 }
     });
     f.sort((a, b) => a.order - b.order);
+    f = [...f.filter(el => el.order > 0), ...f.filter(el => el.order <= 0)];
     let i = 1; f.filter(e => e.order > 0).forEach(el => el.order = i++);
   };
 
@@ -140,8 +140,9 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
     });
   const controlsByKey: { [s: string]: BaseJettiFromControl<any> } = {};
   fields.forEach(c => { controlsByKey[c.key] = c });
+  fields = [...fields.filter(el => el.order > 0), ...fields.filter(el => el.order <= 0)];
   formGroup.patchValue(model, patchOptionsNoEvents);
-  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, schema: view}
+  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey}
 }
 
 @Injectable()
@@ -159,8 +160,7 @@ export class DynamicFormService {
     return this.apiService.getViewModel(docType, docID).pipe(
       map(viewModel => {
         const view = viewModel['view'];
-        let model: IServerDocument = viewModel['model'];
-        model = JSON.parse(JSON.stringify(model), dateReviver);
+        const model: IServerDocument = viewModel['model'];
         const commands = viewModel['commands'];
         return getViewModel(view, model, exclude, docID !== 'new')
       }));

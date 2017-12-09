@@ -5,7 +5,6 @@ import { take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { DocModel } from '../../../server/modules/doc.base';
-import { dateReviver } from '../common/utils';
 import { ApiService } from '../services/api.service';
 
 @Injectable()
@@ -47,7 +46,6 @@ export class DocService {
     this.api.postDoc(doc).pipe(
       take(1))
       .subscribe((savedDoc: DocModel) => {
-        savedDoc = JSON.parse(JSON.stringify(savedDoc), dateReviver);
         if (close) { this._saveCloseDoc.next(savedDoc) } else { this._saveDoc.next(savedDoc) }
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
       },
@@ -60,7 +58,6 @@ export class DocService {
     this.api.deleteDoc(id).pipe(
       take(1))
       .subscribe((deletedDoc: DocModel) => {
-        deletedDoc = JSON.parse(JSON.stringify(deletedDoc), dateReviver);
         this._deleteDoc.next(deletedDoc);
         this.openSnackBar('succes', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       },

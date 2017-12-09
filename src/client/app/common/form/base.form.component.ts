@@ -11,6 +11,7 @@ import {
     ViewChild,
     ViewChildren,
 } from '@angular/core';
+import { ObservableMedia } from '@angular/flex-layout';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Calendar } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
@@ -42,8 +43,10 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
   protected _sideNavService$: Subscription = Subscription.EMPTY;
 
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
+  get tables() { return this.viewModel.view.filter(t => t.type === 'table') }
+  media$;
 
-  constructor(public router: Router, public route: ActivatedRoute,
+  constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService) {
   }
 
@@ -55,7 +58,7 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
       filter(doc => doc.id === this.docId))
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
-        this.viewModel.formGroup.patchValue(savedDoc, { emitEvent: false });
+        this.viewModel.formGroup.patchValue(this.viewModel.model, { emitEvent: false });
         this.viewModel.formGroup.markAsPristine();
       });
 
@@ -63,7 +66,7 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
       filter(doc => doc.id === this.viewModel.model.id))
       .subscribe(savedDoc => {
         this.viewModel.model = savedDoc;
-        this.viewModel.formGroup.patchValue(savedDoc, { emitEvent: false });
+        this.viewModel.formGroup.patchValue(this.viewModel.model, { emitEvent: false });
         this.viewModel.formGroup.markAsPristine();
         this.Goto();
         this.Close();
@@ -85,8 +88,8 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
     if (date && date.input) { (date.input as Calendar).inputfieldViewChild.nativeElement.focus(); return }
 
     // try focus description
-    const description = arr.find(el => el.control.key === 'description').input;
-    if (description) { description.nativeElement.focus() }
+    const description = arr.find(el => el.control.key === 'description');
+    if (description && description.input) { description.input.nativeElement.focus() }
   }
 
   ngAfterViewInit() {
@@ -137,10 +140,10 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
       header: 'Confirmation',
       icon: 'fa fa-question-circle',
       accept: this._close.bind(this),
-      reject: () => {  this.cd.markForCheck() },
+      reject: () => { this.cd.markForCheck() },
       key: this.docId
     });
-    setTimeout(() =>  this.cd.markForCheck());
+    setTimeout(() => this.cd.markForCheck());
   }
 
   Copy() {
@@ -149,7 +152,7 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   Goto() {
     this.router.navigate([this.viewModel.model.type], { queryParams: { goto: this.docId } })
-      .then(() => this.ds.goto(this.viewModel.model));
+      .then(() => { this.ds.goto(this.viewModel.model) });
   }
 
   Print() {
@@ -158,10 +161,14 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async onCommand(event) {
+    const result = await this.ds.api.onCommand(this.viewModel.formGroup.getRawValue(), 'company', { Tax: -11 });
+    this.viewModel.formGroup.patchValue(result);
+  }
 
-    // const result = await this.ds.api.onCommand(this.viewModel.formGroup.getRawValue(), 'company', {Tax: -11});
-    // console.log('onCommand', result);
-    // this.viewModel.formGroup.patchValue(result);
+  async getPrice() {
+    const result = await this.ds.api.server(this.viewModel.model, 'GetPrice', {}).toPromise();
+    this.viewModel.model = result.doc;
+    this.viewModel.formGroup.patchValue(this.viewModel.model);
   }
 
 }

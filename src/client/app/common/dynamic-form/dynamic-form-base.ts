@@ -71,6 +71,7 @@ export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
   controlType = 'script';
   style = { 'height': '150px', 'width': '500px' };
 
+
   constructor(options: ControlOptions<string> = {}) {
     super(options);
     if (options.style) { this.style = options.style };

@@ -10,7 +10,17 @@ import { DocumentInvoice } from './Document.Invoice';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
-  async onValueChanged (prop: string, value: any, tx: TX = db) {
+  async GetPrice(tx: TX, args) {
+    this.Amount = 0;
+    for (const row of this.Items) {
+      row.Price = 100;
+      row.Amount = row.Qty * row.Price;
+      this.Amount += row.Amount;
+    }
+    return { doc: this, result: {} }
+  }
+
+  async onValueChanged(prop: string, value: any, tx: TX = db) {
     switch (prop) {
       case 'company':
         if (!value) { return {} }
@@ -23,7 +33,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }
   };
 
-  async onCommand (command: string, args: any, tax: TX = db) {
+  async onCommand(command: string, args: any, tax: TX = db) {
     switch (command) {
       case 'company':
         return args;

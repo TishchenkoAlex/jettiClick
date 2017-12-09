@@ -12,4 +12,5 @@ export class CatalogCurrency extends DocumentBase {
 
   @Props({ type: 'Catalog.Currency', hiddenInList: true })
   parent: Ref = null;
+
 }

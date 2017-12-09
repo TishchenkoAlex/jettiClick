@@ -2,13 +2,14 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   EventEmitter,
   Input,
   OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
-import { Column, DataTable } from 'primeng/primeng';
+import { Column, DataTable, InputText } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 
 import { FormListFilter } from '../../../server/models/user.settings';
@@ -27,12 +28,11 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
 
   @Input() pageSize = 15; @Input() docType = ''; @Input() docID = ''; @Input() filters: FormListFilter[] = [];
   @Output() onSelect = new EventEmitter();
-
   @ViewChild(DataTable) dataTable: DataTable = null;
 
   isDoc: boolean; additianalColumn1 = ''; additianalColumn2 = '';
 
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService, private elementRef: ElementRef) { }
 
   ngOnInit() {
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
@@ -51,6 +51,8 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
       this.filters.filter(f => f.right).forEach(f => this.dataTable.filters[f.left] = { matchMode: f.center, value: f.right });
       this.dataSource.goto(this.docID);
       this._afterViewInit = true;
+      const input = this.elementRef.nativeElement.querySelector('input');
+      if (input) { input.focus(); }
     });
   }
 

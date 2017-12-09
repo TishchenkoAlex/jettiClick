@@ -142,4 +142,9 @@ export class ApiService {
     return (this.http.get<any[]>(query));
   }
 
+  server(doc: DocModel, func: string, params: any): Observable<{doc: DocModel, result: any}> {
+    const query = `${this.url}/server/${doc.type}/${func}`;
+    return this.http.post<{doc: DocModel, result: any}>(query, {doc: doc, params: params});
+  }
+
 }

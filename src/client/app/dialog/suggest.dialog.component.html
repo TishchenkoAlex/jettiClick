@@ -1,10 +1,10 @@
 <div cdkTrapFocus>
   <p-toolbar>
     <div class="ui-toolbar-group-right">
-      <button pButton type="button" icon="fa-fast-backward" (click)="dataSource.first()" [disabled]="!dataSource.continuation.first"></button>
-      <button pButton type="button" icon="fa-step-backward" (click)="dataSource.prev()" [disabled]="!dataSource.continuation.first"></button>
-      <button pButton type="button" icon="fa-step-forward" (click)="dataSource.next()" [disabled]="!dataSource.continuation.last"></button>
-      <button pButton type="button" icon="fa-fast-forward" (click)="dataSource.last()" [disabled]="!dataSource.continuation.last"></button>
+      <button pButton type="button" icon="fa-fast-backward" (click)="dataSource.first()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.first"></button>
+      <button pButton type="button" icon="fa-step-backward" (click)="dataSource.prev()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.first"></button>
+      <button pButton type="button" icon="fa-step-forward" (click)="dataSource.next()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.last"></button>
+      <button pButton type="button" icon="fa-fast-forward" (click)="dataSource.last()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.last"></button>
     </div>
   </p-toolbar>
 
@@ -12,41 +12,41 @@
     (onSort)="Sort($event)" (onFilter)="Sort($event)" (onRowDblclick)="onSelectHandler($event.data)" [resizableColumns]="true"
     [scrollable]="true" [filterDelay]="500">
 
-      <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
-        <ng-template let-row="rowData" pTemplate="body">
-          <i *ngIf="row['posted'] && !row['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
-          <i *ngIf="row['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
-          <i *ngIf="!row['posted'] && !row['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
-        </ng-template>
-      </p-column>
+    <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
+      <ng-template let-row="rowData" pTemplate="body">
+        <i *ngIf="row['posted'] && !row['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
+        <i *ngIf="row['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
+        <i *ngIf="!row['posted'] && !row['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
+      </ng-template>
+    </p-column>
 
-      <p-column field="description" header="description" [sortable]="true" [style]="{'width': '70%'}" [filter]="true" filterMatchMode="like"></p-column>
+    <p-column field="description" header="description" [sortable]="true" [style]="{'width': '70%'}" [filter]="true" filterMatchMode="like"></p-column>
 
-      <p-column field="code" header="code" [sortable]="true" [style]="{'width': '130px'}" [filter]="true" filterMatchMode="like"></p-column>
+    <p-column field="code" header="code" [sortable]="true" [style]="{'width': '130px'}" [filter]="true" filterMatchMode="like"></p-column>
 
-      <p-column *ngIf="isDoc" field="Amount" header="Amount" [sortable]="true" [style]="{'width': '110px', 'text-align' : 'right'}"
-        [filter]="true" filterMatchMode=">="></p-column>
+    <p-column *ngIf="isDoc" field="Amount" header="Amount" [sortable]="true" [style]="{'width': '110px', 'text-align' : 'right'}"
+      [filter]="true" filterMatchMode=">="></p-column>
 
-      <p-column *ngIf="additianalColumn1" [field]="additianalColumn1" [header]="additianalColumn1" [sortable]="true" [filter]="true"
-        filterMatchMode="=" [style]="{'width': '250px'}">
-        <ng-template pTemplate="filter" let-col>
-          <div class="ui-column-filter ui-fluid">
-            <j-autocomplete-png [checkValue]="false" [type]="dataTable.filters[col.field]?.value?.type || 'string'" [ngModel]="dataTable.filters[col.field]?.value"
-              [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(col, $event)">
-            </j-autocomplete-png>
-          </div>
-        </ng-template>
-      </p-column>
+    <p-column *ngIf="additianalColumn1" [field]="additianalColumn1" [header]="additianalColumn1" [sortable]="true" [filter]="true"
+      filterMatchMode="=" [style]="{'width': '250px'}">
+      <ng-template pTemplate="filter" let-col>
+        <div class="ui-column-filter ui-fluid">
+          <j-autocomplete-png [checkValue]="false" [type]="dataTable.filters[col.field]?.value?.type || 'string'" [ngModel]="dataTable.filters[col.field]?.value"
+            [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(col, $event)">
+          </j-autocomplete-png>
+        </div>
+      </ng-template>
+    </p-column>
 
-      <p-column *ngIf="additianalColumn2" [field]="additianalColumn2" [header]="additianalColumn2" [sortable]="true" [filter]="true"
-        filterMatchMode="=" [style]="{'width': '250px'}">
-        <ng-template pTemplate="filter" let-col>
-          <div class="ui-column-filter">
-            <j-autocomplete-png [checkValue]="false" [type]="dataTable.filters[col.field]?.value?.type || 'string'" [ngModel]="dataTable.filters[col.field]?.value"
-              [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(col, $event)">
-            </j-autocomplete-png>
-          </div>
-        </ng-template>
-      </p-column>
+    <p-column *ngIf="additianalColumn2" [field]="additianalColumn2" [header]="additianalColumn2" [sortable]="true" [filter]="true"
+      filterMatchMode="=" [style]="{'width': '250px'}">
+      <ng-template pTemplate="filter" let-col>
+        <div class="ui-column-filter">
+          <j-autocomplete-png [checkValue]="false" [type]="dataTable.filters[col.field]?.value?.type || col.type || 'string'" [ngModel]="dataTable.filters[col.field]?.value"
+            [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(col, $event)">
+          </j-autocomplete-png>
+        </div>
+      </ng-template>
+    </p-column>
   </p-dataTable>
 </div>

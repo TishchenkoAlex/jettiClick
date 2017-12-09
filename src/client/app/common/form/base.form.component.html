@@ -1,12 +1,12 @@
 <form novalidate [formGroup]="viewModel.formGroup">
-  <p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>  
+  <p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>
   <p-panel [header]="viewModel.model.description.concat(viewModel.model.posted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
         <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
       </div>
       <div class="ui-toolbar-group-right">
-        <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton>
+        <!--         <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
         <button pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()"></button>
         <button pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="Print()"></button>
         <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>
@@ -17,7 +17,7 @@
     <ng-content></ng-content>
   </p-panel>
 
-  <p-panel [toggleable]="true" header="Additonal Info">
+  <p-panel [toggleable]="true" header="Additonal Info" [collapsed]="true">
     <div fxLayout="row" fxLayoutGap="35px" fxLayout.xs="column">
       <j-control *ngIf="viewModel.controlsByKey['parent']" [control]="viewModel.controlsByKey['parent']" [form]="viewModel.formGroup"></j-control>
       <j-control *ngIf="viewModel.controlsByKey['user']" [control]="viewModel.controlsByKey['user']" [form]="viewModel.formGroup"></j-control>
@@ -39,34 +39,25 @@
 
   <div fxLayout="column">
 
-    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px">
-      <div fxLayoutGap.gt-xs="column" fxFlex>
-        <div *ngFor="let control of v.view; let i = index">
-          <j-control *ngIf="(control.order-1)%3+1 === 1 && control.order && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
-        </div>
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px" fxLayoutGap.xs="0px" *ngFor="let i of [0,3,6,9,12,15]">
+      <div fxFlex>
+        <j-control *ngIf="v.view[i+0] && v.view[i+0].order > 0 && v.view[i+0].type !== 'table' && v.view[i+0].controlType !== 'script'"
+          [control]="v.view[i+0]" [form]="v.formGroup"></j-control>
       </div>
-      <div fxLayoutGap.gt-xs="column" fxFlex>
-        <div *ngFor="let control of v.view; let i = index">
-          <j-control *ngIf="(control.order-1)%3+1 === 2 && control.order && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
-        </div>
+      <div fxFlex>
+        <j-control *ngIf="v.view[i+1] && v.view[i+1].order > 0 && v.view[i+1].type !== 'table' && v.view[i+1].controlType !== 'script'"
+          [control]="v.view[i+1]" [form]="v.formGroup"></j-control>
       </div>
-      <div fxLayoutGap.gt-xs="column" fxFlex>
-        <div *ngFor="let control of v.view; let i = index">
-          <j-control *ngIf="(control.order-1)%3+1 === 3 && control.order && control.type !== 'table'" [control]="control" [form]="v.formGroup"></j-control>
-        </div>
+      <div fxFlex>
+        <j-control *ngIf="v.view[i+2] && v.view[i+2].order > 0 && v.view[i+2].type !== 'table' && v.view[i+2].controlType !== 'script'"
+          [control]="v.view[i+2]" [form]="v.formGroup"></j-control>
       </div>
     </div>
 
-    <div *ngFor="let control of v.view; let i = index">
-      <j-control *ngIf="control.order < 1 && ( 
-            (control.key !== 'parent') && (control.key !== 'user') && (control.key !== 'info') && (control.controlType !== 'script'))"
-        [control]="control" [form]="v.formGroup"></j-control>
-    </div>
-
-    <br *ngIf="hasTables">
-    <p-tabView *ngIf="hasTables" class="tabViewClassInForm">
-      <div *ngFor="let control of v.view; let i = index">
-        <p-tabPanel [style]="{'padding':'0'}" *ngIf="control.type === 'table'" [header]="control.label">
+    <br *ngIf="tables.length">
+    <p-tabView *ngIf="tables.length" class="tabViewClassInForm">
+      <div *ngFor="let control of tables; let i = index">
+        <p-tabPanel [style]="{'padding':'0'}" [header]="control.label">
           <j-control [control]="control" [form]="v.formGroup"></j-control>
         </p-tabPanel>
       </div>
@@ -76,11 +67,8 @@
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
-    
-  <button pButton type="button" icon="fa-check-square-o" fxHide fxShow.gt-xs label="Post&Close" class="ui-button-warning" [disabled]="!v.formGroup.valid"
-    (click)="PostClose()" *ngIf="!v.model.deleted"></button>
-  <button pButton type="button" icon="fa-check-square-o" fxShow fxHide.gt-xs class="ui-button-warning" [disabled]="!v.formGroup.valid"
-    (click)="PostClose()" *ngIf="!v.model.deleted"></button>
+  <button pButton type="button" icon="fa-check-square-o" [label]="(media | async)?.mqAlias === 'xs' ? '.' : 'Post&Close'" class="ui-button-warning"
+    [disabled]="!v.formGroup.valid" (click)="PostClose()" *ngIf="!v.model.deleted"></button>
 
   <button pButton type="button" icon="fa-check" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Post()"
     *ngIf="!v.model.deleted"></button>
@@ -90,8 +78,7 @@
     *ngIf="!v.model.deleted && !v.model.description.toLowerCase().startsWith('copy')"></button>
   <button pButton type="button" icon="fa-undo" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="unPost()"
     *ngIf="!v.model.deleted && v.model.posted"></button>
-  <button pButton type="button" icon="fa-minus" class="ui-button-{{v.model.deleted ? 'warning' : 'danger'}}" 
-    [disabled]="(!v.formGroup.valid ) || (v.model.description.toLowerCase().startsWith('copy')) || (v.model.description.toLowerCase().startsWith('new'))"
+  <button pButton type="button" icon="fa-minus" class="ui-button-{{v.model.deleted ? 'warning' : 'danger'}}" [disabled]="(!v.formGroup.valid ) || (v.model.description.toLowerCase().startsWith('copy')) || (v.model.description.toLowerCase().startsWith('new'))"
     (click)="Delete()"></button>
 </ng-template>
 
@@ -101,4 +88,3 @@
     <button type="button" pButton (click)="sidenav.close()">Close</button>
   </div>
 </ng-template>
-
