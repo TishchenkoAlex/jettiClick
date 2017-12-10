@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core
 import { Observable } from 'rxjs/Observable';
 import { filter, startWith, switchMap } from 'rxjs/operators';
 
-import { DocModel } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
+import { DocumentBase } from './../../../../server/models/document';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,7 +15,7 @@ export class RegisterAccumulationListComponent implements OnInit {
 
   accumulationList$: Observable<any[]>;
   infoList$: Observable<any[]>;
-  @Input() doc: DocModel;
+  @Input() doc: DocumentBase;
 
   constructor(private apiService: ApiService, private docService: DocService) { }
 

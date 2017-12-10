@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
 
-import { DocModel } from '../../../../server/modules/doc.base';
 import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';
 import { DocService } from './../../common/doc.service';
 
@@ -58,10 +57,7 @@ export class TabControllerComponent implements OnInit {
 
   handleClose(event) {
     this.tcs.index = event;
-    const docType = this.tcs.tabs[event].docType;
-    const docID = this.tcs.tabs[event].docID;
-    const doc = new DocModel(docType, docID);
-    this.ds.close(doc);
+    this.ds.close(<any>{id: this.tcs.tabs[event].docID, type: this.tcs.tabs[event].docType});
     setTimeout(() => this.cd.markForCheck());
   }
 

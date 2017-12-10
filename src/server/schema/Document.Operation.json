@@ -6,7 +6,7 @@
         "style": {
             "display": "none"
         },
-        "hidden": true,
+        "hidden": false,
         "hidden-list": false
     },
     "Amount": {
@@ -44,10 +44,10 @@
     "Operation": {
         "type": "Catalog.Operation",
         "order": 5,
+        "owner": "Group",
         "style": {
             "width": "250px"
         },
-        "required": true,
-        "owner": "Group"
+        "required": true
     }
 }

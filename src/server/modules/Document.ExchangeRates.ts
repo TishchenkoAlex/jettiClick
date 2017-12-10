@@ -1,9 +1,11 @@
-import { FileldsAction, IDocBase, PatchValue, Post, RefValue, TX } from './doc.base';
+import { FileldsAction, PatchValue, Post, RefValue } from './doc.base';
 import { Ref } from '../models/document';
+import { IServerDocument } from './../models/ServerDocument';
+import { TX } from '../db';
 
 export namespace ExchangeRates {
 
-  export interface IDoc extends IDocBase {
+  export interface IDoc extends IServerDocument {
     doc: {
       Rates: {
         Currency: Ref,

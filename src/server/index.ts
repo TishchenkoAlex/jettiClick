@@ -8,7 +8,7 @@ import * as express from 'express';
 import * as path from 'path';
 
 import { jwtCheck } from './jwt';
-import { router as routes } from './routes/documents';
+import { router as documents } from './routes/documents';
 import { router as registers } from './routes/registers';
 import { router as suggests } from './routes/suggest';
 import { router as userSettings } from './routes/user.settings';
@@ -24,15 +24,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(root, 'dist')));
 
-app.use('/api', jwtCheck, routes);
+app.use('/api', jwtCheck, documents);
 app.use('/api', jwtCheck, userSettings);
 app.use('/api', jwtCheck, suggests);
 app.use('/api', jwtCheck, utils);
 app.use('/api', jwtCheck, registers);
+app.use('/liveness_check', (req, res, next) => {
+  res.json('OK')
+});
 
 app.get('*', (req, res) => {
   res.sendFile('dist/index.html', { root: root });
 });
 
 const port = process.env.PORT || '3000';
-app.listen(port, () => console.log(`API running on localhost:${port}`));
+app.listen(port, () => console.log(`API running on port:${port}`));

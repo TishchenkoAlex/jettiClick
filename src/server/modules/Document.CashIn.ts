@@ -1,18 +1,19 @@
 import { lib } from '../std.lib';
 import { Company } from './Catalog.Company';
-import { FileldsAction, IDocBase, RefValue } from './doc.base';
+import { FileldsAction, RefValue } from './doc.base';
 import { Ref } from '../models/document';
+import { IServerDocument } from './../models/ServerDocument';
 
 export namespace CashIn {
 
-  export interface IDoc extends IDocBase {
+  export interface IDoc extends IServerDocument {
     doc: {
       currency: Ref,
       Amount: number
     }
   }
 
-  const company_valueChanges = async (doc: IDocBase, value: RefValue) => {
+  const company_valueChanges = async (doc: IServerDocument, value: RefValue) => {
     if (!value) { return {} }
     const company = await lib.doc.byId<Company.IDoc>(value.id);
     if (!company) { return {} }

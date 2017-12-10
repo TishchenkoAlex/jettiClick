@@ -23,7 +23,7 @@ import { DocumentBase } from './../../../../server/models/document';
 
 export interface ViewModel {
   view: BaseJettiFromControl<any>[];
-  model: IServerDocument,
+  model: DocumentBase,
   formGroup: FormGroup,
   controlsByKey: { [s: string]: BaseJettiFromControl<any> }
 }

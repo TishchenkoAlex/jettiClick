@@ -1,11 +1,13 @@
 import { lib } from '../std.lib';
 import { Company } from './Catalog.Company';
-import { FileldsAction, IDocBase, PatchValue, Post, RefValue, TX } from './doc.base';
+import { FileldsAction, PatchValue, Post, RefValue} from './doc.base';
 import { Ref } from '../models/document';
+import { IServerDocument } from './../models/ServerDocument';
+import { TX } from '../db';
 
 export namespace Operation {
 
-  export interface IDoc extends IDocBase {
+  export interface IDoc extends IServerDocument {
     doc: {
       Operation: Ref,
       currency: Ref,

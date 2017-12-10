@@ -4,10 +4,10 @@ import { createServerDocument } from '../../models/documents.factory.server';
 import { DocTypes } from '../../models/documents.types';
 import { PostResult } from '../../models/post.interfaces';
 import { JDM } from './../../modules';
-import { IDocBase } from './../../modules/doc.base';
 import { lib } from './../../std.lib';
+import { IServerDocument } from './../../models/ServerDocument';
 
-export async function ExecuteScript(doc: IDocBase, script, tx: ITask<any>) {
+export async function ExecuteScript(doc: IServerDocument, script, tx: ITask<any>) {
   if (!script) { return doc };
   const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
   if (script === 'post') {
@@ -59,7 +59,7 @@ export async function ExecuteScript(doc: IDocBase, script, tx: ITask<any>) {
   return doc;
 }
 
-export async function docOperationResolver(doc: IDocBase, tx: ITask<any> | IDatabase<any>) {
+export async function docOperationResolver(doc: IServerDocument, tx: ITask<any> | IDatabase<any>) {
   if (doc.type !== 'Document.Operation') { return }; // only for Operations docs
   for (let i = 1; i <= 10; i++) {
     const p = doc['p' + i.toString()];
@@ -76,7 +76,7 @@ export async function docOperationResolver(doc: IDocBase, tx: ITask<any> | IData
   }
 }
 
-export async function doSubscriptions(doc: IDocBase, script: string, tx: ITask<any>) {
+export async function doSubscriptions(doc: IServerDocument, script: string, tx: ITask<any>) {
   const scripts = await tx.manyOrNone(`
     SELECT "then" FROM "Subscriptions" WHERE "what" ? $1 AND "when" = $2 ORDER BY "order"`, [doc.type, script]);
   if (scripts.length) {

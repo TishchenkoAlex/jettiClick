@@ -4,22 +4,22 @@ import { ConfirmationService } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
-import { DocModel } from '../../../server/modules/doc.base';
 import { ApiService } from '../services/api.service';
+import { DocumentBase } from './../../../server/models/document';
 
 @Injectable()
 export class DocService {
 
-  protected _closeDoc = new Subject<DocModel>();
+  protected _closeDoc = new Subject<DocumentBase>();
   close$ = this._closeDoc.asObservable();
 
-  protected _saveDoc = new Subject<DocModel>();
+  protected _saveDoc = new Subject<DocumentBase>();
   save$ = this._saveDoc.asObservable();
 
-  protected _saveCloseDoc = new Subject<DocModel>();
+  protected _saveCloseDoc = new Subject<DocumentBase>();
   saveCloseDoc$ = this._saveCloseDoc.asObservable();
 
-  protected _deleteDoc = new Subject<DocModel>();
+  protected _deleteDoc = new Subject<DocumentBase>();
   delete$ = this._deleteDoc.asObservable();
 
   protected _do = new Subject<any>();
@@ -30,22 +30,22 @@ export class DocService {
 
   constructor(public api: ApiService, private messageService: MessageService, public confirmationService: ConfirmationService) { };
 
-  do(doc: DocModel) {
+  do(doc: DocumentBase) {
     this._do.next(doc);
   }
 
-  goto(doc: DocModel) {
+  goto(doc: DocumentBase) {
     this._goto.next(doc);
   }
 
-  close(doc: DocModel) {
+  close(doc: DocumentBase) {
     this._closeDoc.next(doc);
   }
 
-  save(doc: DocModel, close: boolean = false) {
+  save(doc: DocumentBase, close: boolean = false) {
     this.api.postDoc(doc).pipe(
       take(1))
-      .subscribe((savedDoc: DocModel) => {
+      .subscribe((savedDoc: DocumentBase) => {
         if (close) { this._saveCloseDoc.next(savedDoc) } else { this._saveDoc.next(savedDoc) }
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
       },
@@ -57,7 +57,7 @@ export class DocService {
   delete(id: string) {
     this.api.deleteDoc(id).pipe(
       take(1))
-      .subscribe((deletedDoc: DocModel) => {
+      .subscribe((deletedDoc: DocumentBase) => {
         this._deleteDoc.next(deletedDoc);
         this.openSnackBar('succes', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       },

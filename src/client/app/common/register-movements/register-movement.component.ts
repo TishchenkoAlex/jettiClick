@@ -3,9 +3,9 @@ import { Observable } from 'rxjs/Observable';
 import { filter, startWith, switchMap } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../../server/models/account.register';
-import { DocModel } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
+import { DocumentBase } from './../../../../server/models/document';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,7 +16,7 @@ import { DocService } from '../doc.service';
 export class RegisterMovementComponent implements OnInit {
 
   movements$: Observable<AccountRegister[]>;
-  @Input() doc: DocModel;
+  @Input() doc: DocumentBase;
 
   constructor(private apiService: ApiService, private docService: DocService) { }
 

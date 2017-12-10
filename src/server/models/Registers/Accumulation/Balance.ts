@@ -1,7 +1,7 @@
-import { RegisterAccumulation, JRegister } from './RegisterAccumulation';
+import { RegisterAccumulation, JRegisterAccumulation } from './RegisterAccumulation';
 import { Ref, Props } from '../../document';
 
-@JRegister({
+@JRegisterAccumulation({
   type: 'Register.Accumulation.Balance',
   description: 'Активы/Пассивы'
 })
@@ -33,4 +33,3 @@ export class RegisterAccumulationBalance extends RegisterAccumulation {
     }
   }
 }
-

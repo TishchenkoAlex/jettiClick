@@ -1,10 +1,12 @@
-import { DocModel, JETTI_DOC_PROP } from '../../../../server/modules/doc.base';
+import { JETTI_DOC_PROP } from '../../../../server/modules/doc.base';
+import { DocumentBase } from './../../../../server/models/document';
+import { IServerDocument } from './../../../../server/models/ServerDocument';
 
-export function mapDocToApiFormat(model: DocModel): DocModel {
-  const newDoc: DocModel = {
+export function mapDocToApiFormat(model: DocumentBase): IServerDocument {
+  const newDoc: IServerDocument = {
     id: model.id,
     type: model.type,
-    date: model.date,
+    date: model.date.toJSON(),
     code: model.code,
     description: model.description,
     posted: model.posted,

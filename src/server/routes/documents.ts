@@ -7,8 +7,9 @@ import { createServerDocument } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
 import { db } from './../db';
 import { ColumnDef } from './../models/column';
+import { IServerDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
-import { IDocBase, PatchValue, RefValue } from './../modules/doc.base';
+import { PatchValue, RefValue } from './../modules/doc.base';
 import { JDM } from './../modules/index';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib } from './../std.lib';
@@ -98,7 +99,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 })
 
 // Upsert document
-async function post(doc: IDocBase, tx: ITask<any>) {
+async function post(doc: IServerDocument, tx: ITask<any>) {
   const id = doc.id;
   const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
   await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
@@ -133,7 +134,7 @@ async function post(doc: IDocBase, tx: ITask<any>) {
 // Upsert document
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let doc: IDocBase;
+    let doc: IServerDocument;
     await db.tx(async (tx: ITask<any>) => {
       doc = await post(req.body, tx);
       let config_schema;
@@ -143,7 +144,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       } else {
         config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
       }
-      doc = await tx.one<IDocBase>(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
+      doc = await tx.one<IServerDocument>(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
       await docOperationResolver(doc, tx);
     });
     res.json(doc);
@@ -154,7 +155,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
 router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await db.tx(async (tx: ITask<any>) => {
-      const doc = await lib.doc.byId<IDocBase>(req.params.id, tx);
+      const doc = await lib.doc.byId<IServerDocument>(req.params.id, tx);
       doc.posted = !doc.posted;
       await post(doc, tx);
     });
@@ -171,7 +172,7 @@ router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) =
 
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const doc = req.body.doc as IDocBase;
+    const doc = req.body.doc as IServerDocument;
     const value = req.body.value as RefValue;
     const property = req.params.property as string;
     const type = req.params.type as DocTypes;

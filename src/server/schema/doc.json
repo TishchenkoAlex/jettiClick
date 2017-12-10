@@ -1,18 +1,25 @@
 {
     "id": {
+        "order": -1,
         "hidden": true,
-        "hidden-list": true,
-        "order": -1
+        "hidden-list": true
     },
     "code": {
         "label": "code",
         "order": 2,
+        "style": {
+            "width": "130px"
+        },
         "required": false
     },
     "date": {
         "type": "datetime",
         "label": "date",
         "order": 1,
+        "style": {
+            "width": "135px",
+            "text-align": "center"
+        },
         "required": true
     },
     "info": {
@@ -22,9 +29,9 @@
         "hidden-list": true
     },
     "type": {
+        "order": -1,
         "hidden": true,
-        "hidden-list": true,
-        "order": -1
+        "hidden-list": true
     },
     "user": {
         "type": "Catalog.User",
@@ -35,12 +42,16 @@
     },
     "posted": {
         "type": "posted",
-        "order": -1
+        "order": -1,
+        "hidden-list": true
     },
     "company": {
         "type": "Catalog.Company",
         "label": "company",
         "order": 3,
+        "style": {
+            "width": "150px"
+        },
         "change": "return call(doc, prop, value)",
         "required": true
     },
@@ -59,6 +70,9 @@
     "description": {
         "label": "description",
         "order": 3,
+        "style": {
+            "width": "250px"
+        },
         "required": true
     }
 }

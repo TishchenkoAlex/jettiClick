@@ -7,6 +7,7 @@ import { RegisterAccumulationSales } from './Sales';
 
 export interface IServerRegisterAccumulation {
     kind: boolean,
+    date: Date,
     type: string,
     document: Ref,
     company: Ref,
@@ -35,12 +36,12 @@ const RegisteredRegisterAccumulation: IRegisteredRegisterAccumulation<any>[] = [
     { type: 'Register.Accumulation.AR', class: RegisterAccumulationAR },
 ]
 
-function createRegisterAccumulationInstance<T extends RegisterAccumulation>(c: new () => T): T {
+function createInstance<T extends RegisterAccumulation>(c: new () => T): T {
     return new c();
 }
 
 export function createRegisterAccumulation(type: RegisterAccumulationTypes) {
     const doc = RegisteredRegisterAccumulation.find(el => el.type === type);
-    if (doc) { return createRegisterAccumulationInstance(doc.class) }
+    if (doc) { return createInstance(doc.class) }
 }
 

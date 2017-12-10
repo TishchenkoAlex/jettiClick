@@ -1,7 +1,7 @@
 import { Props, Ref } from '../../document';
-import { JRegister, RegisterAccumulation } from './RegisterAccumulation';
+import { JRegisterAccumulation, RegisterAccumulation } from './RegisterAccumulation';
 
-@JRegister({
+@JRegisterAccumulation({
   type: 'Register.Accumulation.AR',
   description: 'Расчеты с клиентами'
 })

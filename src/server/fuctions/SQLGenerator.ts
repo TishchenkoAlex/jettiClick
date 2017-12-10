@@ -1,3 +1,6 @@
+import { IServerRegisterAccumulation } from '../models/Registers/Accumulation/factory';
+import { IServerRegisterInfo } from '../models/Registers/Info/factory';
+
 // tslint:disable:max-line-length
 // tslint:disable:no-shadowed-variable
 // tslint:disable:forin
@@ -244,6 +247,11 @@ export function excludeProps(doc) {
 }
 
 export function excludeRegisterAccumulatioProps(doc) {
+  const { kind, date, type, company, ...newObject } = doc;
+  return newObject;
+}
+
+export function excludeRegisterInfoProps(doc) {
   const { kind, date, type, company, ...newObject } = doc;
   return newObject;
 }

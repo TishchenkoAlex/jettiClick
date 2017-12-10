@@ -1,13 +1,13 @@
 import { SQLGenegator } from '../../../fuctions/SQLGenerator';
 import { PropOptions, Props, Ref, symbolProps } from './../../document';
-import { RegisterAccumulationTypes } from './factory';
+import { RegisterInfoTypes } from './factory';
 
-export interface RegisterAccumulationOptions {
-  type: RegisterAccumulationTypes,
+export interface RegisterInfoOptions {
+  type: RegisterInfoTypes,
   description: string
 }
 
-export function JRegisterAccumulation(props: RegisterAccumulationOptions) {
+export function JRegisterInfo(props: RegisterInfoOptions) {
   return function classDecorator<T extends { new(...args: any[]): {} }>(constructor: T) {
     Reflect.defineMetadata(symbolProps, props, constructor);
     return class extends constructor {
@@ -15,7 +15,7 @@ export function JRegisterAccumulation(props: RegisterAccumulationOptions) {
     }
   }
 }
-export abstract class RegisterAccumulation {
+export abstract class RegisterInfo {
   @Props({ type: 'boolean' })
   kind: boolean = null;
 
@@ -25,7 +25,7 @@ export abstract class RegisterAccumulation {
   @Props({ type: 'datetime' })
   date: Date = new Date();
 
-  @Props({ type: 'Types.Document', hidden: true, hiddenInList: true })
+  @Props({ type: 'Types.Document', hiddenInList: true })
   document: Ref = null;
 
   @Props({ type: 'Catalog.Company' })
@@ -40,7 +40,7 @@ export abstract class RegisterAccumulation {
     return result;
   }
 
-  public Prop(propertyKey: string = 'this'): PropOptions | RegisterAccumulationOptions {
+  public Prop(propertyKey: string = 'this'): PropOptions | RegisterInfoOptions {
     if (propertyKey === 'this') {
       return Reflect.getMetadata(symbolProps, this.constructor)
     } else {
@@ -60,4 +60,3 @@ export abstract class RegisterAccumulation {
 
   get QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type) }
 }
-

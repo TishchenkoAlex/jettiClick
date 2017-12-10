@@ -1,6 +1,6 @@
-import { db } from './db';
+import { db, TX } from './db';
 import { IServerDocument } from './models/ServerDocument';
-import { RefValue, TX } from './modules/doc.base';
+import { RefValue } from './modules/doc.base';
 import { Ref } from './models/document';
 
 export interface JTL {

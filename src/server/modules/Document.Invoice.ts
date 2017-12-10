@@ -2,12 +2,14 @@ import { IDatabase, ITask } from 'pg-promise';
 
 import { lib } from '../std.lib';
 import { Company } from './Catalog.Company';
-import { FileldsAction, IDocBase, PatchValue, Post, RefValue, TX } from './doc.base';
+import { FileldsAction, PatchValue, Post, RefValue } from './doc.base';
 import { Ref } from '../models/document';
+import { IServerDocument } from './../models/ServerDocument';
+import { TX } from '../db';
 
 export namespace Invoice {
 
-  export interface IDoc extends IDocBase {
+  export interface IDoc extends IServerDocument {
     doc: {
       Department: Ref,
       Manager: Ref,

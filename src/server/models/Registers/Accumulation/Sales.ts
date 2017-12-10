@@ -1,13 +1,14 @@
 import { Ref } from '../../document';
 import { IServerRegisterAccumulation, RegisterAccumulationTypes } from './factory';
-import { JRegister } from './RegisterAccumulation';
+import { JRegisterAccumulation } from './RegisterAccumulation';
 
-@JRegister({
+@JRegisterAccumulation({
   type: 'Register.Accumulation.Sales',
   description: 'Выручка и себестоимость продаж'
 })
 export class RegisterAccumulationSales implements IServerRegisterAccumulation {
   type: RegisterAccumulationTypes = 'Register.Accumulation.Sales';
+  date = new Date();
   company: Ref;
   document: Ref;
   constructor(public kind: boolean, public data: {

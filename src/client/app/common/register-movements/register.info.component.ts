@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
 
-import { DocModel } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
+import { DocumentBase } from './../../../../server/models/document';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,8 +13,8 @@ import { DocService } from '../doc.service';
 export class RegisterInfoComponent implements OnInit {
 
   @Input() register: string;
-  @Input() doc: DocModel;
-  movements: DocModel[] = [];
+  @Input() doc: DocumentBase;
+  movements: DocumentBase[] = [];
   displayedColumns: any[] = ['kind', 'date', 'company'];
   additionalColumns: any[] = [];
 

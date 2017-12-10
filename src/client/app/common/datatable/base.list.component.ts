@@ -9,12 +9,12 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
-import { DocModel, IDocBase } from '../../../../server/modules/doc.base';
 import { SideNavService } from '../../services/side-nav.service';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
+import { DocumentBase } from './../../../../server/models/document';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +38,7 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
   docType = ''; AfterViewInit = false;
   isDoc: boolean;
   columns: ColumnDef[] = [];
-  selectedRows: IDocBase[] = [];
+  selectedRows: DocumentBase[] = [];
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private messageService: MessageService,
     private sns: SideNavService, public uss: UserSettingsService, private lds: LoadingService) {
@@ -59,7 +59,7 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this._docSubscription$ = Observable.merge(...[this.ds.save$, this.ds.delete$, this.ds.saveCloseDoc$, this.ds.goto$]).pipe(
       filter(doc => doc && doc.type === this.docType))
-      .subscribe((doc: IDocBase) => {
+      .subscribe((doc: DocumentBase) => {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
         if (exist) {
           this.dataTable.selection = [exist];
@@ -80,7 +80,7 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.dataSource.dataTable = this.dataTable;
 
     if (this.route.queryParams['value'].goto) {
-      this.ds.goto(new DocModel(this.docType, this.route.queryParams['value'].goto));
+      this.ds.goto(<any>{type: this.docType, id: this.route.queryParams['value'].goto});
       this.router.navigate([this.docType], {replaceUrl: true});
       return;
     }

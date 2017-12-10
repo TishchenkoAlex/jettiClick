@@ -40,21 +40,3 @@ export class FormListSettings {
   order: FormListOrder[] = [];
 }
 
-const userSettings: UserSettings = {
-  formListSettings: {
-    'Catalog.ClientOrder': {
-      filter: [
-        { left: 'Client', center: 'like', right: 'Client' },
-        { left: 'date', center: 'beetwen', right: { start: '2015-01-01', end: '2017-01-01' } }
-      ],
-      order: [
-        { field: 'Amount', order: 'asc' }
-      ]
-    }
-  },
-  defaults: {
-    company: 'NATUSA',
-    department: null,
-    rowsInList: 15
-  }
-}

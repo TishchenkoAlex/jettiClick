@@ -5,23 +5,23 @@ import { Subject } from 'rxjs/Subject';
 
 import { Continuation, DocListResponse } from '../../../../server/models/api';
 import { FormListFilter, FormListOrder } from '../../../../server/models/user.settings';
-import { DocModel, IDocBase } from '../../../../server/modules/doc.base';
 import { ApiService } from '../../services/api.service';
+import { DocumentBase } from './../../../../server/models/document';
 
 interface DatasourceCommand { source: any, command: string, data?: any }
 
 export class ApiDataSource {
   private paginator = new Subject<DatasourceCommand>();
-  private firstDoc = new DocModel(this.docType, 'first');
-  private lastDoc = new DocModel(this.docType, 'last');
-  result$: Observable<IDocBase[]>;
 
-  renderedData: DocModel[] = [];
-  continuation: Continuation = { first: this.firstDoc, last: this.lastDoc };
+  result$: Observable<DocumentBase[]>;
+  renderedData: DocumentBase[] = [];
+
+  continuation: Continuation = { first: {id: 'first', type: this.docType}, last: {id: 'last', type: this.docType} };
   private EMPTY: DocListResponse = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first } };
 
   constructor(private apiService: ApiService, private docType: string, private pageSize: number,
     public dataTable: DataTable = null) {
+
     this.result$ = this.paginator.pipe(
       filter(stream => (this.dataTable !== null) && !(
         (stream.command === 'prev' && !this.continuation.first) ||
