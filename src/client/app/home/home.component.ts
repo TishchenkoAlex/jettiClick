@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { AppComponent } from '../app.component';
+import { TabControllerService } from '../common/tabcontroller/tabcontroller.service';
+import { Component, Input } from '@angular/core';
 
 interface PBData { accessToken: string, embedUrl: string, type: string, id: string }
 
@@ -7,11 +9,5 @@ interface PBData { accessToken: string, embedUrl: string, type: string, id: stri
   templateUrl: './home.component.html'
 })
 export class HomeComponent {
-    reportData: PBData =  {
-    accessToken: 'H4sIAAAAAAAEAB2WtQ70CBKE3',
-    embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=bd851208e',
-    type: 'report',
-    id: 'bd851208e',
-  };
-
- }
+  @Input() show = true;
+}

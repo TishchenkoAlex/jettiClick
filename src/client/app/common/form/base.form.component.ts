@@ -1,26 +1,21 @@
 import {
-    AfterViewInit,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     Input,
     OnDestroy,
     OnInit,
-    QueryList,
     TemplateRef,
     ViewChild,
-    ViewChildren,
 } from '@angular/core';
 import { ObservableMedia } from '@angular/flex-layout';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Calendar } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DocService } from '../../common/doc.service';
 import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
-import { DynamicFormControlComponent } from './../../common/dynamic-form/dynamic-form-control.component';
 import { SideNavService } from './../../services/side-nav.service';
 
 @Component({
@@ -28,11 +23,10 @@ import { SideNavService } from './../../services/side-nav.service';
   selector: 'j-form',
   templateUrl: './base.form.component.html'
 })
-export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BaseFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
-  @ViewChildren(DynamicFormControlComponent) input: QueryList<DynamicFormControlComponent>;
 
   viewModel: ViewModel = this.route.data['value'].detail;
   docId = this.route.params['value'].id;
@@ -79,21 +73,6 @@ export class BaseFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this._closeSubscription$ = this.ds.close$.pipe(
       filter(data => data && data.type === this.viewModel.model.type && data.id === this.docId))
       .subscribe(data => this.Close())
-  }
-
-  private _focus() {
-    const arr = this.input.toArray();
-    // try focus date
-    const date = arr.find(el => el.control.key === 'date');
-    if (date && date.input) { (date.input as Calendar).inputfieldViewChild.nativeElement.focus(); return }
-
-    // try focus description
-    const description = arr.find(el => el.control.key === 'description');
-    if (description && description.input) { description.input.nativeElement.focus() }
-  }
-
-  ngAfterViewInit() {
-    this._focus();
   }
 
   ngOnDestroy() {

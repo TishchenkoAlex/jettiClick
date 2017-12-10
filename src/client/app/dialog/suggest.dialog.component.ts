@@ -1,15 +1,15 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    ViewChild,
 } from '@angular/core';
-import { Column, DataTable, InputText } from 'primeng/primeng';
+import { Column, DataTable } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 
 import { FormListFilter } from '../../../server/models/user.settings';
@@ -51,8 +51,6 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
       this.filters.filter(f => f.right).forEach(f => this.dataTable.filters[f.left] = { matchMode: f.center, value: f.right });
       this.dataSource.goto(this.docID);
       this._afterViewInit = true;
-      const input = this.elementRef.nativeElement.querySelector('input');
-      if (input) { input.focus(); }
     });
   }
 

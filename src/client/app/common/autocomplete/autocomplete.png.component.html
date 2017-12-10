@@ -54,7 +54,8 @@
       <div class="ui-inputgroup">
         <p-autoComplete #ac formControlName="suggest" [suggestions]="suggests$" [required]="required" id="suggest" field="value"
           [readonly]="readOnly" autocomplete="off" appendTo="body" (completeMethod)="getSuggests($event.query)" (onBlur)="onBlur()"
-          (onSelect)="onSelect($event)" [inputStyle]="inputStyle" (onClear)="handleReset($event)" >
+          (onSelect)="onSelect($event)" [inputStyle]="inputStyle" (onClear)="handleReset($event)" 
+          (onFocus)="this.focus.emit($event)">
         </p-autoComplete>
         <button pButton type="button" icon="fa-search" class="ui-button-secondary" *ngIf="showFind" (click)="handleSearch($event)"
           [tabIndex]=-1></button>
@@ -69,7 +70,7 @@
 </form>
 
 
-<div *ngIf="showDialog" cdkTrapFocus>
+<div *ngIf="showDialog">
   <p-dialog #dialog [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true"
     [closeOnEscape]="true" [width]="400" [height]="555" appendTo="body">
     <j-suggest-list #sl [docType]="this.value.type || this.type" [docID]="this.value.id" [filters]="[{left: owner?.owner, center: '=', right: owner?.value}]"

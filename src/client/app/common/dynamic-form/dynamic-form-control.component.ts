@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, Input, ViewChild, ElementRef } from '@angular/core';
-import { FormArray, FormGroup } from '@angular/forms';
 import locale from '@angular/common/locales/ru';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { FormArray, FormGroup } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
 import { BaseJettiFromControl } from './dynamic-form-base';
@@ -13,7 +13,6 @@ import { BaseJettiFromControl } from './dynamic-form-base';
 export class DynamicFormControlComponent {
   @Input() control: BaseJettiFromControl<any>;
   @Input() form: FormGroup;
-  @ViewChild('pc') input: any;
 
   formatDate = 'dd.mm.yy';
   locale = {

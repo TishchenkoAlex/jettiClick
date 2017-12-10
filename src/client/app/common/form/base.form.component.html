@@ -1,5 +1,4 @@
-<form novalidate [formGroup]="viewModel.formGroup">
-  <p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>
+<form novalidate [formGroup]="viewModel.formGroup" cdkTrapFocus>
   <p-panel [header]="viewModel.model.description.concat(viewModel.model.posted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
@@ -37,7 +36,7 @@
 
 <ng-template #formTepmlateDefault let-v="viewModel">
 
-  <div fxLayout="column">
+  <div fxLayout="column" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" cdkFocusInitial>
 
     <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px" fxLayoutGap.xs="0px" *ngFor="let i of [0,3,6,9,12,15]">
       <div fxFlex>
@@ -88,3 +87,5 @@
     <button type="button" pButton (click)="sidenav.close()">Close</button>
   </div>
 </ng-template>
+
+<p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>

@@ -1,26 +1,26 @@
 import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  forwardRef,
-  Input,
-  Output,
-  ViewChild,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    forwardRef,
+    Input,
+    Output,
+    ViewChild,
 } from '@angular/core';
 import {
-  AbstractControl,
-  ControlValueAccessor,
-  FormControl,
-  FormGroup,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator,
-  Validators,
+    AbstractControl,
+    ControlValueAccessor,
+    FormControl,
+    FormGroup,
+    NG_VALIDATORS,
+    NG_VALUE_ACCESSOR,
+    ValidationErrors,
+    Validator,
+    Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AutoComplete, Dialog } from 'primeng/primeng';
+import { AutoComplete } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
@@ -53,8 +53,8 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   @Input() checkValue = true;
   @Input() openButton = true;
   @Output() change = new EventEmitter();
+  @Output() focus = new EventEmitter();
   @ViewChild('ac') input: AutoComplete;
-  @ViewChild(Dialog) dialog: Dialog = null;
 
   form: FormGroup = new FormGroup({
     suggest: this.required ? new FormControl({ value: this.value, disabled: this.disabled }, Validators.required) :
@@ -63,12 +63,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
 
   private NO_EVENT = false;
 
-  private _showDialog = false;
-  set showDialog(value: boolean) {
-    this._showDialog = value;
-    setTimeout(() => { if (this._showDialog) { this.dialog.el.nativeElement.focus() } }, 1);
-  }
-  get showDialog() { return this._showDialog }
+  showDialog = false;
 
   get suggest() { return this.form.controls['suggest']; }
   get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.') }
@@ -169,9 +164,8 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
     };
   }
 
-  focus() {
-    if (this.input instanceof AutoComplete) {
-      this.input.inputEL.nativeElement.focus();
-    }
+  select() {
+    this.input.inputEL.nativeElement.select();
   }
+
 }
