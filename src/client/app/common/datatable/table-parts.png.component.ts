@@ -1,15 +1,14 @@
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     EventEmitter,
     Input,
     OnDestroy,
     OnInit,
     Output,
-    ChangeDetectorRef
 } from '@angular/core';
-import {  } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -75,8 +74,7 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private copyFormGroup(formGroup: FormGroup): FormGroup {
-    const newFormGroup = cloneFormGroup(formGroup);
-    return newFormGroup;
+    return cloneFormGroup(formGroup);
   }
 
   private addCopy(newFormGroup) {
@@ -88,8 +86,7 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   add() {
-    const newFormGroup = this.copyFormGroup(this.sampleRow);
-    this.addCopy(newFormGroup);
+    this.addCopy(this.copyFormGroup(this.sampleRow));
   }
 
   copy() {

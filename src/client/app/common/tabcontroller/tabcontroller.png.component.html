@@ -3,7 +3,7 @@
   <p-tabPanel #tp *ngFor="let tab of tcs.tabs" 
     [style]="{'display': 'flex', 'flex-direction': 'column'}" 
     header="{{ (tab.description || tab.header) | bcEllipsis:25 }}"
-    leftIcon="fa-bell-o" [closable]="this.tab.docType !== this.tcs.HOME">
+    [leftIcon]="tab.icon" [closable]="this.tab.docType !== this.tcs.HOME">
     <ng-template pTemplate="content">
     <div class="card">
       <dynamic-component [component]="tab.component"></dynamic-component>

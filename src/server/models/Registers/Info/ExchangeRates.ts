@@ -12,11 +12,11 @@ export class RegisterInfoExchangeRates extends RegisterInfo {
   @Props({ type: 'number' })
   Rate: number = null;
 
-  constructor(kind: boolean, public data: {
+  constructor(public data: {
     currency: Ref,
     Rate: number,
   }) {
-    super(kind);
+    super();
     if (data) {
       this.currency = data.currency;
       this.Rate = data.Rate;

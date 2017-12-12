@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { createServerDocument } from '../../models/documents.factory.server';
+import { createDocumentServer } from '../../models/documents.factory.server';
 import { DocTypes } from '../../models/documents.types';
 import { db } from './../../db';
 import { DocListRequestBody } from './../../models/api';
@@ -10,12 +10,12 @@ export async function List(req: Request, res: Response) {
     const params = req.body as DocListRequestBody;
     params.command = params.command || 'first';
     const direction = params.command !== 'prev';
-    const newDoc = createServerDocument(params.type as DocTypes);
+    const newDoc = createDocumentServer(params.type as DocTypes);
     let config_schema;
     if (!newDoc) {
         config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
     } else {
-      config_schema  = { queryList : newDoc.QueryList }
+      config_schema  = { queryList : newDoc.QueryList() }
     }
     const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${config_schema.queryList} AND d.id = $1) q`, [params.id]);
     const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];

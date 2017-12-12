@@ -33,7 +33,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }
   };
 
-  async onCommand(command: string, args: any, tax: TX = db) {
+  async onCommand(command: string, args: any, tx: TX = db) {
     switch (command) {
       case 'company':
         return args;
@@ -68,7 +68,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     let totalCost = 0;
     for (const row of this.Items) {
       const avgSumma = await lib.register.avgCost(
-        this.date.toJSON(), this.company, { SKU: row.SKU, Storehouse: this.Storehouse }, tx) * row.Qty;
+        this.date, this.company, { SKU: row.SKU, Storehouse: this.Storehouse }, tx) * row.Qty;
       totalCost += avgSumma;
 
       // Account

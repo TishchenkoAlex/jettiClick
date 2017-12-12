@@ -6,7 +6,7 @@ export function mapDocToApiFormat(model: DocumentBase): IServerDocument {
   const newDoc: IServerDocument = {
     id: model.id,
     type: model.type,
-    date: model.date.toJSON(),
+    date: model.date,
     code: model.code,
     description: model.description,
     posted: model.posted,

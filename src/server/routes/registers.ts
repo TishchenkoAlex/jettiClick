@@ -39,7 +39,7 @@ router.get('/register/accumulation/:type/:id', async (req: Request, res: Respons
     let result; let config_schema;
     const JRegister = createRegisterAccumulation(req.params.type);
     if (JRegister) {
-      config_schema = { queryObject: JRegister.QueryList }
+      config_schema = { queryObject: JRegister.QueryList() }
     } else {
       config_schema = await db.one(`SELECT "queryObject" "queryObject" FROM config_schema WHERE type = $1`, [req.params.type]);
     }

@@ -16,8 +16,6 @@ export function JRegisterInfo(props: RegisterInfoOptions) {
   }
 }
 export abstract class RegisterInfo {
-  @Props({ type: 'boolean' })
-  kind: boolean = null;
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
   type: string = null;
@@ -30,10 +28,6 @@ export abstract class RegisterInfo {
 
   @Props({ type: 'Catalog.Company' })
   company: Ref = null;
-
-  constructor(kind: boolean) {
-    this.kind = kind;
-  }
 
   private targetProp(target: Object, propertyKey: string): PropOptions {
     const result = Reflect.getMetadata(symbolProps, target, propertyKey);

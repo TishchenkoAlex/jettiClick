@@ -6,6 +6,7 @@ import { share, take } from 'rxjs/operators';
 
 import { AppComponent } from './app.component';
 import { Observable } from 'rxjs/Observable';
+import { SubSystemsMenu } from './../../server/models/SubSystems/SubSystems';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,15 +27,13 @@ export class AppMenuComponent implements OnInit {
       const menuDocItems = app.apiService.getDocuments().pipe(share(), take(1));
       Observable.forkJoin(menuCatalogItems, menuDocItems).pipe(take(1))
         .subscribe(data => {
-          app.tsc.menuItems = [...data[0], ...data[1]];
-          localStorage.setItem('menuItems', JSON.stringify(app.tsc.menuItems));
           this.buildMenu();
         });
     });
   }
 
   private buildMenu() {
-    return [
+    return [...[
       { label: 'Dashboard', icon: 'fa fa-fw fa-home', routerLink: ['/'] },
       {
         label: 'Customization', icon: 'fa fa-fw fa-bars', badge: '8',
@@ -123,36 +122,11 @@ export class AppMenuComponent implements OnInit {
           { label: 'Dark Grey', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('darkgrey'); } },
         ]
       },
-      {
-        label: 'Components', icon: 'fa fa-fw fa-sitemap',
-        items: [
-          { label: 'Sample Page', icon: 'fa fa-fw fa-columns', routerLink: ['/sample'] },
-          { label: 'Forms', icon: 'fa fa-fw fa-code', routerLink: ['/forms'] },
-          { label: 'Data', icon: 'fa fa-fw fa-table', routerLink: ['/data'] },
-          { label: 'Panels', icon: 'fa fa-fw fa-list-alt', routerLink: ['/panels'] },
-          { label: 'Overlays', icon: 'fa fa-fw fa-square', routerLink: ['/overlays'] },
-          { label: 'Menus', icon: 'fa fa-fw fa-minus-square-o', routerLink: ['/menus'] },
-          { label: 'Messages', icon: 'fa fa-fw fa-circle-o-notch', routerLink: ['/messages'] },
-          { label: 'Charts', icon: 'fa fa-fw fa-area-chart', routerLink: ['/charts'] },
-          { label: 'File', icon: 'fa fa-fw fa-arrow-circle-o-up', routerLink: ['/file'] },
-          { label: 'Misc', icon: 'fa fa-fw fa-user-secret', routerLink: ['/misc'] }
-        ]
-      },
-      {
-        label: 'Catalogs', icon: 'fa fa-fw fa-sign-in',
-        items: this.app.tsc.menuItems
-          .filter(m => m.type.startsWith('Catalog.'))
-          .map(m => ({ label: m.menu, icon: m.icon, routerLink: ['/' + m.type] }))
-      },
-      {
-        label: 'Documents', icon: 'fa fa-fw fa-sign-in',
-        items: this.app.tsc.menuItems
-          .filter(m => m.type.startsWith('Document.'))
-          .map(m => ({ label: m.menu, icon: m.icon, routerLink: ['/' + m.type] }))
-      },
-      { label: 'Utils', icon: 'fa fa-fw fa-wrench', routerLink: ['/'] },
-      { label: 'Documentation', icon: 'fa fa-fw fa-book', routerLink: ['/'] }
-    ];
+    ],
+    ...SubSystemsMenu(),
+    { label: 'Utils', icon: 'fa fa-fw fa-wrench', routerLink: ['/'] },
+    { label: 'Documentation', icon: 'fa fa-fw fa-book', routerLink: ['/'] }
+    ]
   }
 
   ngOnInit() {

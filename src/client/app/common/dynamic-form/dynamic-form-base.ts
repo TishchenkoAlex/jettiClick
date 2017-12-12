@@ -1,3 +1,4 @@
+
 export interface ControlOptions<T> {
   value?: T,
   type?: string,
@@ -32,14 +33,14 @@ export class BaseJettiFromControl<T> {
 
   constructor(options: ControlOptions<T> = {}) {
     this.value = options.value;
-    this.type = options.type || '';
+    this.type = options.type;
     this.key = options.key || '';
     this.label = options.label || '';
     this.required = !!options.required;
     this.readOnly = !!options.readOnly;
     this.hidden = !!options.hidden;
     this.order = options.order === undefined ? 9999999 : options.order;
-    this.controlType = options.controlType || '';
+    this.controlType = options.controlType;
     this.style = options.style || { 'width': '150px'};
     this.change = options.change || '';
     this.totals = options.totals || null;
@@ -48,12 +49,11 @@ export class BaseJettiFromControl<T> {
 }
 
 export class TextboxJettiFormControl extends BaseJettiFromControl<string> {
-  controlType = 'textbox';
+  controlType = 'string';
   type = 'string';
 
   constructor(options: ControlOptions<string> = {}) {
     super(options);
-
   }
 }
 
@@ -63,14 +63,12 @@ export class TextareaJettiFormControl extends BaseJettiFromControl<string> {
 
   constructor(options: ControlOptions<string> = {}) {
     super(options);
-
   }
 }
 
 export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
   controlType = 'script';
   style = { 'height': '150px', 'width': '500px' };
-
 
   constructor(options: ControlOptions<string> = {}) {
     super(options);
@@ -79,7 +77,7 @@ export class ScriptJettiFormControl extends BaseJettiFromControl<string> {
 }
 
 export class BooleanJettiFormControl extends BaseJettiFromControl<boolean> {
-  controlType = 'checkbox';
+  controlType = 'boolean';
   type = 'boolean';
   style = { 'max-width': '45px', 'min-width': '24px', 'width' : '90px', 'text-align' : 'center'};
 

@@ -91,7 +91,7 @@ async function registerBalance(type, date = new Date().toJSON(), company, resour
   `, [type, date, company, analytics]);
     return (result ? result : {});
 }
-async function avgCost(date = new Date().toJSON(), company, analytics, tx = db_1.db) {
+async function avgCost(date = new Date(), company, analytics, tx = db_1.db) {
     const queryText = `
     SELECT
       SUM((data ->> 'Cost')::NUMERIC(15, 2) * CASE WHEN kind THEN 1 ELSE -1 END) /

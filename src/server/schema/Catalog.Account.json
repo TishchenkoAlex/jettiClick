@@ -35,6 +35,9 @@
             "Subcount": {
                 "type": "Catalog.Subcount",
                 "order": 1,
+                "style": {
+                    "width": "50%"
+                },
                 "required": true
             },
             "isTurnoversOnly": {

@@ -27,7 +27,6 @@ import { AuthGuardService } from './auth/auth.guard.service';
 import { Auth0Service } from './auth/auth0.service';
 import { UserSettingsService } from './auth/settings/user.settings.service';
 import { LoadingService } from './common/loading.service';
-import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { MaterialModule } from './material.module';
 import { PrimeNGModule } from './primeNG.module';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
@@ -82,8 +81,7 @@ export function getJwtToken(): string {
 })
 export class AppModule {
 
-  constructor(private tcs: TabControllerService) {
+  constructor() {
     registerLocaleData(localeRU, localeRUExtra);
-    this.tcs.menuItems = JSON.parse(localStorage.getItem('menuItems')) || [];
   }
 }

@@ -8,18 +8,16 @@ import { IServerDocument } from '../ServerDocument';
     { Customer: 'Catalog.Counterpartie' },
     { Manager: 'Catalog.Manager' }
   ],
-  icon: 'assignment',
-  chapter: 'Document',
-  generator: 'document_invoice',
+  icon: 'fa fa-file-text-o',
   menu: 'Invoices',
-  prifix: 'INV',
+  prefix: 'INV-',
   commands: [
-    { label: 'refresh', icon: 'fa-refresh', command: () => {}},
-    { label: 'close', icon: 'fa-close', command: () => {} },
+    { label: 'refresh', icon: 'fa-refresh', command: () => { } },
+    { label: 'close', icon: 'fa-close', command: () => { } },
   ],
 })
 export class DocumentInvoice extends DocumentBase {
-  @Props({ type: 'Types.Document', hiddenInList: true })
+  @Props({ type: 'Types.Document', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
   @Props({ type: 'Catalog.Department', required: true, hiddenInList: true, order: 10 })
@@ -79,12 +77,13 @@ class TableItems {
     type: 'number', required: true, order: 4,
     change: `return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18}`,
     onChange: async (doc: any, prop: string, value: any) => {
-      return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18} }
+      return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18 }
+    }
   })
   Price = 0;
 
   @Props({
-    type: 'number', required: true, order: 10,
+    type: 'number', required: true, order: 10, totals: 3,
     change: `return { Price: value / doc.Qty, Tax: value * 0.18}`
   })
   Amount = 0;

@@ -1,5 +1,4 @@
-import { IServerRegisterAccumulation } from '../models/Registers/Accumulation/factory';
-import { IServerRegisterInfo } from '../models/Registers/Info/factory';
+import { DocumentOptions } from './../models/document';
 
 // tslint:disable:max-line-length
 // tslint:disable:no-shadowed-variable
@@ -7,7 +6,7 @@ import { IServerRegisterInfo } from '../models/Registers/Info/factory';
 
 export class SQLGenegator {
 
-  static QueryObject(doc: { [x: string]: any }, type: string) {
+  static QueryObject(doc: { [x: string]: any }, options: DocumentOptions) {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `,  coalesce((d.doc ->> '${prop}')::BOOLEAN, false) "${prop}"\n`; }
@@ -112,11 +111,11 @@ export class SQLGenegator {
       LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
       LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
       ${LeftJoin}
-      WHERE d.type = '${type}'`;
+      WHERE d.type = '${options.type}'`;
     return query;
   }
 
-  static QueryList(doc: { [x: string]: any }, type: string) {
+  static QueryList(doc: { [x: string]: any }, options: DocumentOptions) {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `,  coalesce((d.doc ->> '${prop}')::BOOLEAN, false) "${prop}"\n`; }
@@ -157,12 +156,12 @@ export class SQLGenegator {
       LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
       LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
       ${LeftJoin}
-      WHERE d.type = '${type}'`;
+      WHERE d.type = '${options.type}'`;
 
     return query;
   }
 
-  static QueryNew(doc: { [x: string]: any }, type: string) {
+  static QueryNew(doc: { [x: string]: any }, options: DocumentOptions) {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `, false "${prop}"\n` }
@@ -184,19 +183,23 @@ export class SQLGenegator {
       }
     }
 
+    const code =
     query = `
       SELECT
       uuid_generate_v1mc() id,
       now() date,
-      '${type}' "type",
-      (SELECT prifix from config_schema where type = '${type}') || '-' ||
-        trim(to_char((SELECT nextval(coalesce((SELECT generator from config_schema where type = '${type}'), 'common_generator'))), '0000000')) code,
-      (SELECT description from config_schema where type = '${type}') || '...' description,
+      '${options.type}' "type",
+      ${options.prefix ? `'${options.prefix}'` : `''`}
+      ${options.prefix ? ` || trim(to_char((SELECT nextval('"SEQ.${options.type}"')), '000000000'))` : `''`} code,
+      ${options.type.startsWith('Document.') ?
+        `'${options.description} #' ||
+         ${options.prefix ? `'${options.prefix}'` : `''`}
+         ${options.prefix ? ` || trim(to_char((SELECT currval('"SEQ.${options.type}"')), '000000000'))` : `''`} || to_char(now(), ', YYYY-MM-DD HH24:MI:SS')` : `''`} description,
       false posted,
       false deleted,
       false isfolder,
       '' info,
-      '{"id": "", "code": "", "type": "${type}", "value": ""}':: JSONB "parent",
+      '{"id": "", "code": "", "type": "${options.type}", "value": ""}':: JSONB "parent",
       '{"id": "", "code": "", "type": "Catalog.User", "value": ""}':: JSONB "user",
       '{"id": "", "code": "", "type": "Catalog.Company", "value": ""}':: JSONB "company"
       ${query}`;

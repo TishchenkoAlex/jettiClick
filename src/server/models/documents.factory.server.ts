@@ -1,26 +1,20 @@
-import { CatalogCurrency } from './Catalogs/Catalog.Currency';
-import { DocumentBase } from './document';
+import { IRegisteredDocument, RegisteredDocument } from './../models/documents.factory';
 import { DocTypes } from './documents.types';
+import { DocumentExchangeRatesServer } from './Documents/Document.ExchangeRates.server';
 import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
+import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
 import { DocumentBaseServer, IServerDocument } from './ServerDocument';
 
-interface IRegisteredDocument<T extends DocumentBase> {
-  type: DocTypes,
-  class: T
-}
-
-const RegisteredDocument: IRegisteredDocument<any>[] = [
+const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Invoice', class: DocumentInvoiceServer },
-  { type: 'Catalog.Currency', class: CatalogCurrency }
+  { type: 'Document.ExchangeRates', class: DocumentExchangeRatesServer },
+  { type: 'Document.PriceList', class: DocumentPriceListServer },
 ]
 
-function createInstance<T extends DocumentBaseServer>(c: new () => T): T {
-  return new c();
-}
-
-export function createServerDocument(type: DocTypes, document?: IServerDocument) {
-  const doc = RegisteredDocument.find(el => el.type === type);
+export function createDocumentServer(type: DocTypes, document?: IServerDocument) {
+  const doc = RegisteredServerDocument.find(el => el.type === type) || RegisteredDocument.find(el => el.type === type);
   if (doc) {
+    const createInstance = <T extends DocumentBaseServer>(c: new () => T): T => new c();
     const result = createInstance(doc.class);
     result.map(document);
     return result;

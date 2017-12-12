@@ -3,7 +3,7 @@ import { v1 } from 'uuid';
 import { SQLGenegator } from '../fuctions/SQLGenerator';
 import { PatchValue } from '../modules/doc.base';
 import { IServerDocument } from './../models/ServerDocument';
-import { AllTypes, DocTypes } from './documents.types';
+import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
 
 export interface PropOptions {
   type: AllTypes,
@@ -13,7 +13,7 @@ export interface PropOptions {
   hidden?: boolean,
   hiddenInList?: boolean,
   order?: number,
-  controlType?: string,
+  controlType?: PrimitiveTypes,
   style?: { [x: string]: any },
   change?: string,
   owner?: string,
@@ -26,11 +26,10 @@ export interface DocumentOptions {
   description: string,
   icon: string,
   menu: string,
-  chapter: string,
-  dimensions?: { [x: string]: DocTypes }[],
-  prifix: string
-  generator?: string,
-  commands?: { label: string, icon: string, command: () => any }[]
+  dimensions?: { [x: string]: AllTypes }[],
+  prefix: string
+  commands?: { label: string, icon: string, command: () => any }[],
+  presentation?: 'code' | 'description'
 }
 
 export type Ref = string | null;
@@ -107,6 +106,10 @@ export abstract class DocumentBase {
   }
 
   Props() {
+    this.targetProp(this, 'description').hidden = this.isDoc;
+    this.targetProp(this, 'date').hidden = this.isCatalog;
+    this.targetProp(this, 'company').hidden = this.isCatalog;
+
     const result: { [x: string]: any } = {};
     for (const prop of Object.keys(this)) {
       const Prop = this.targetProp(this, prop);
@@ -126,9 +129,9 @@ export abstract class DocumentBase {
     return result;
   }
 
-  get QueryObject() { return SQLGenegator.QueryObject(this.Props(), this.type) }
-  get QueryList() { return SQLGenegator.QueryList(this.Props(), this.type) }
-  get QueryNew() { return SQLGenegator.QueryNew(this.Props(), this.type) }
+  QueryObject() { return SQLGenegator.QueryObject(this.Props(), this.Prop() as DocumentOptions) }
+  QueryList() { return SQLGenegator.QueryList(this.Props(), this.Prop() as DocumentOptions) }
+  QueryNew() { return SQLGenegator.QueryNew(this.Props(), this.Prop() as DocumentOptions) }
 
   get isDoc() { return this.type.startsWith('Document.') }
   get isCatalog() { return this.type.startsWith('Catalog.') }

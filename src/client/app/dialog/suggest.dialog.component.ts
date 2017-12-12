@@ -1,20 +1,21 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    ViewChild,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core';
 import { Column, DataTable } from 'primeng/primeng';
-import { take } from 'rxjs/operators';
 
 import { FormListFilter } from '../../../server/models/user.settings';
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { ApiService } from '../services/api.service';
+import { DocumentOptions } from './../../../server/models/document';
+import { createDocument } from './../../../server/models/documents.factory';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,11 +38,14 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
     this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize);
-    this.apiService.getDocDimensions(this.docType).pipe(take(1))
-      .subscribe(data => {
-        if (data.length > 0) { this.additianalColumn1 = data[0] }
-        if (data.length > 2) { this.additianalColumn2 = data[2] }
-      })
+    const doc = createDocument(this.docType as any)
+    if (doc) {
+      setTimeout(() => {
+        const data = (doc.Prop() as DocumentOptions).dimensions || [];
+        if (data.length > 0) { this.additianalColumn1 = Object.keys(data[0])[0] }
+        if (data.length > 1) { this.additianalColumn2 = Object.keys(data[1])[0] }
+      });
+    }
   }
 
   ngAfterViewInit() {

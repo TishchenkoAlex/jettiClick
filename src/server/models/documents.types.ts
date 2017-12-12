@@ -1,20 +1,37 @@
 export type CatalogTypes =
-  'Catalog.Department' |
-  'Catalog.Manager' |
-  'Catalog.Storehouse' |
-  'Catalog.Currency' |
-  'Catalog.Product' |
-  'Catalog.PriceType' |
-  'Catalog.User' |
-  'Catalog.Company' |
-  'Catalog.Expense' |
-  'Catalog.Income' |
+  'Catalog.Account' |
   'Catalog.Balance' |
+  'Catalog.Balance.Analytics' |
+  'Catalog.BankAccount' |
+  'Catalog.CashFlow' |
+  'Catalog.CashRegister' |
+  'Catalog.Company' |
   'Catalog.Counterpartie' |
-  'Catalog.Balance.Analytics';
+  'Catalog.Currency' |
+  'Catalog.Department' |
+  'Catalog.Expense' |
+  'Catalog.Expense.Analytics' |
+  'Catalog.Income' |
+  'Catalog.Loan' |
+  'Catalog.Operation' |
+  'Catalog.Operation.Group' |
+  'Catalog.Manager' |
+  'Catalog.Person' |
+  'Catalog.PriceType' |
+  'Catalog.Product' |
+  'Catalog.Storehouse' |
+  'Catalog.Subcount' |
+  'Catalog.User' |
+  'Catalog.Unit'
+  ;
 
 export type DocumentTypes =
-  'Document.Invoice';
+  'Document.CashIn' |
+  'Document.ClientOrder' |
+  'Document.ExchangeRates' |
+  'Document.Invoice' |
+  'Document.Operation' |
+  'Document.PriceList';
 
 export type DocTypes =
   CatalogTypes |
@@ -26,7 +43,10 @@ export type PrimitiveTypes =
   'date' |
   'datetime' |
   'boolean' |
-  'table';
+  'table' |
+  'json' |
+  'javascript'|
+  'textarea';
 
 export type ComplexTypes =
   'Types.Document' |

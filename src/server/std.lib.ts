@@ -13,7 +13,7 @@ export interface JTL {
   register: {
     balance: (type: string, date: string, company: Ref, resource: string[],
       analytics: { [key: string]: Ref }, tx?: TX) => Promise<any>,
-    avgCost: (date: string, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>
+    avgCost: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>
   }
   doc: {
     byCode: (type: string, code: string, tx?: TX) => Promise<Ref>;
@@ -126,7 +126,7 @@ async function registerBalance(type: string, date = new Date().toJSON(), company
   return (result ? result : {});
 }
 
-async function avgCost(date = new Date().toJSON(), company: Ref, analytics: { [key: string]: Ref }, tx = db): Promise<number> {
+async function avgCost(date = new Date(), company: Ref, analytics: { [key: string]: Ref }, tx = db): Promise<number> {
   const queryText = `
     SELECT
       SUM((data ->> 'Cost')::NUMERIC(15, 2) * CASE WHEN kind THEN 1 ELSE -1 END) /

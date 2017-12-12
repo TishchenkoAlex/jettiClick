@@ -3,9 +3,9 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
-import { IServerDocument } from '../../../../server/models/ServerDocument';
 import { ApiService } from '../../services/api.service';
 import { cloneFormGroup } from '../utils';
+import { DocumentBase } from './../../../../server/models/document';
 import {
     AutocompleteJettiFormControl,
     BaseJettiFromControl,
@@ -19,7 +19,6 @@ import {
     TextareaJettiFormControl,
     TextboxJettiFormControl,
 } from './dynamic-form-base';
-import { DocumentBase } from './../../../../server/models/document';
 
 export interface ViewModel {
   view: BaseJettiFromControl<any>[];
@@ -50,16 +49,17 @@ function toFormGroup(controls: BaseJettiFromControl<any>[]) {
 
 export const patchOptionsNoEvents = { onlySelf: false, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
-export function getViewModel(view, model, exclude: string[], isExists: boolean) {
+export function getViewModel(view, model, isExists: boolean) {
   let fields: BaseJettiFromControl<any>[] = [];
 
-  const processRecursive = (v, f: BaseJettiFromControl<any>[], excl: string[]) => {
-    Object.keys(v).filter(key => excl.indexOf(key) === -1).map(key => {
+  const processRecursive = (v, f: BaseJettiFromControl<any>[]) => {
+    Object.keys(v).map(key => {
       const prop = v[key];
       const hidden = !!prop['hidden'];
       const order = hidden ? -1 : prop['order'] * 1 || 999;
       const label = prop['label'] || key.toString();
-      const dataType = prop['controlType'] || prop['type'] || 'string';
+      const type = prop['type'] || 'string';
+      const controlType = prop['controlType'] || prop['type'] || 'string';
       const required = !!prop['required'];
       const readOnly = !!prop['readOnly'];
       const style = prop['style'];
@@ -68,13 +68,13 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       const owner = prop['owner'] || '';
       let newControl: BaseJettiFromControl<any>;
       const controlOptions: ControlOptions<any> = {
-        key: key, label: label, type: dataType, required: required, readOnly: readOnly,
+        key: key, label: label, type: controlType, required: required, readOnly: readOnly,
         order: order, hidden: hidden, style: style, change: change, owner: owner, totals: totals,
       };
-      switch (dataType) {
+      switch (controlType) {
         case 'table':
           const value = [];
-          processRecursive(v[key][key] || {}, value, []);
+          processRecursive(v[key][key] || {}, value);
           controlOptions.value = value;
           newControl = new TableDynamicControl(controlOptions);
           break;
@@ -97,8 +97,8 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
           newControl = new TextareaJettiFormControl(controlOptions);
           break;
         default:
-          if (dataType.includes('.')) {
-            controlOptions.type = dataType; // здесь нужен тип ссылки
+          if (type.includes('.')) {
+            controlOptions.type = controlType; // здесь нужен тип ссылки
             newControl = new AutocompleteJettiFormControl(controlOptions);
             break;
           };
@@ -107,18 +107,10 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
       }
       f.push(newControl);
     });
-    f.forEach(e => {
-      if (e.key === 'parent' || e.order <= 0 || e.hidden) {
-        e.order = -1;
-      }
-      if (e instanceof TableDynamicControl) { e.order = e.order + 101 }
-    });
     f.sort((a, b) => a.order - b.order);
-    f = [...f.filter(el => el.order > 0), ...f.filter(el => el.order <= 0)];
-    let i = 1; f.filter(e => e.order > 0).forEach(el => el.order = i++);
   };
 
-  processRecursive(view, fields, exclude);
+  processRecursive(view, fields);
 
   const formGroup = toFormGroup(fields);
 
@@ -140,10 +132,15 @@ export function getViewModel(view, model, exclude: string[], isExists: boolean) 
     });
   const controlsByKey: { [s: string]: BaseJettiFromControl<any> } = {};
   fields.forEach(c => { controlsByKey[c.key] = c });
-  fields = [...fields.filter(el => el.order > 0), ...fields.filter(el => el.order <= 0)];
+  fields = [
+    ...fields.filter(el => el.order > 0 && el.type !== 'table'),
+    ...fields.filter(el => el.order > 0 && el.type === 'table'),
+    ...fields.filter(el => el.order <= 0)
+  ];
   formGroup.patchValue(model, patchOptionsNoEvents);
   return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey}
 }
+
 
 @Injectable()
 export class DynamicFormService {
@@ -151,19 +148,8 @@ export class DynamicFormService {
   constructor(private apiService: ApiService) { };
 
   getViewModel$(docType: string, docID = ''): Observable<ViewModel> {
-    const exclude = ['posted', 'deleted', 'isfolder'];
-    switch (docType.split('.')[0]) {
-      case 'Catalog': { exclude.push('date', 'company'); break; }
-      case 'Document':
-      case 'Journal': { exclude.push('description'); break; }
-    }
     return this.apiService.getViewModel(docType, docID).pipe(
-      map(viewModel => {
-        const view = viewModel['view'];
-        const model: IServerDocument = viewModel['model'];
-        const commands = viewModel['commands'];
-        return getViewModel(view, model, exclude, docID !== 'new')
-      }));
+      map(viewModel => getViewModel(viewModel['view'], viewModel['model'], docID !== 'new')));
   }
 
   getView$(type: string) {

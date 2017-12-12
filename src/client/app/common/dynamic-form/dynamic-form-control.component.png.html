@@ -1,7 +1,7 @@
 <div [formGroup]="form" [ngSwitch]="control.controlType" *ngIf="!control.hidden" [style.marginTop]="control.showLabel ? '24px': ''"
   class="ui-fluid">
 
-  <div *ngSwitchCase="'textbox'" [class]="control.showLabel ? 'ui-float-label' : ''">
+  <div *ngSwitchCase="'string'" [class]="control.showLabel ? 'ui-float-label' : ''">
     <input #pc [required]="control.required" pInputText [formControlName]="control.key" [id]="control.key" [readOnly]="control.readOnly"
       autocomplete="off" (change)="onChange($event)" (focus)="$event.target.select()">
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
@@ -41,8 +41,8 @@
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
-  <div *ngSwitchCase="'checkbox'">
-    <p-triStateCheckbox #pc *ngSwitchCase="'checkbox'" [label]="control.label" [formControlName]="control.key" [id]="control.key"
+  <div *ngSwitchCase="'boolean'">
+    <p-triStateCheckbox #pc *ngSwitchCase="'boolean'" [label]="control.showLabel ? control.label: ''" [formControlName]="control.key" [id]="control.key"
       (change)="onChange($event)"></p-triStateCheckbox>
   </div>
 

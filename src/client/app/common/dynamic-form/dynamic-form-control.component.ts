@@ -1,5 +1,5 @@
 import locale from '@angular/common/locales/ru';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
@@ -26,7 +26,7 @@ export class DynamicFormControlComponent {
     clear: 'Clear'
   };
 
-  constructor(public api: ApiService) {}
+  constructor(public api: ApiService, private cd: ChangeDetectorRef) {}
 
   get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
 
@@ -39,8 +39,10 @@ export class DynamicFormControlComponent {
         this.control.key,
         this.form.controls[this.control.key].value,
         this.api.valueChanges.bind(this.api));
-      console.log('valueChanges', patch);
-      this.form.patchValue(patch);
+      console.log('valueChanges', patch, this.control.key, this.form.controls[this.control.key].value);
+      if (patch) {
+        this.form.patchValue(patch);
+      }
     }
   }
 }

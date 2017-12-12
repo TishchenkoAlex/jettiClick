@@ -5,7 +5,7 @@ import { PostResult } from './post.interfaces';
 
 export interface IServerDocument {
   id: Ref;
-  date: string,
+  date: Date,
   type: string;
   code: string;
   description: string;

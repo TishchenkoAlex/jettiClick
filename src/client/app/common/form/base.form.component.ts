@@ -1,12 +1,12 @@
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    Input,
-    OnDestroy,
-    OnInit,
-    TemplateRef,
-    ViewChild,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
 import { ObservableMedia } from '@angular/flex-layout';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,14 +38,16 @@ export class BaseFormComponent implements OnInit, OnDestroy {
 
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
   get tables() { return this.viewModel.view.filter(t => t.type === 'table') }
-  media$;
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService) {
   }
 
   ngOnInit() {
+    console.log(this.viewModel.view);
+
     this.sideNavService.templateRef = this.sideNavTepmlate;
+
     this._subscription$ = Observable.merge(...[
       this.ds.save$,
       this.ds.delete$]).pipe(
@@ -130,7 +132,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   Goto() {
-    this.router.navigate([this.viewModel.model.type], { queryParams: { goto: this.docId } })
+    this.router.navigate([this.viewModel.model.type], { queryParams: { goto: this.docId }, replaceUrl: true })
       .then(() => { this.ds.goto(this.viewModel.model) });
   }
 

@@ -58,6 +58,6 @@ export abstract class RegisterAccumulation {
     return result;
   }
 
-  get QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type) }
+  QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type) }
 }
 

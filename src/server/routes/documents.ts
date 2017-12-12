@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { ITask } from 'pg-promise';
 
 import { DocumentOptions } from '../models/document';
-import { createServerDocument } from '../models/documents.factory.server';
+import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
 import { db } from './../db';
 import { ColumnDef } from './../models/column';
@@ -29,7 +29,7 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 router.get('/:type/view/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
-    const JDoc = createServerDocument(req.params.type as DocTypes);
+    const JDoc = createDocumentServer(req.params.type as DocTypes);
     let config_schema; let view;
     if (!JDoc) {
       config_schema = await db.one(`
@@ -40,8 +40,8 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
     } else {
       view = JDoc.Props();
       config_schema = {
-        queryObject: JDoc.QueryObject,
-        queryNewObject: JDoc.QueryNew,
+        queryObject: JDoc.QueryObject(),
+        queryNewObject: JDoc.QueryNew(),
         settings: (await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)).settings,
         schemaFull: view,
         commands: (JDoc.Prop() as DocumentOptions).commands
@@ -138,9 +138,9 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     await db.tx(async (tx: ITask<any>) => {
       doc = await post(req.body, tx);
       let config_schema;
-      const JDoc = createServerDocument(doc.type as DocTypes);
+      const JDoc = createDocumentServer(doc.type as DocTypes);
       if (JDoc) {
-        config_schema = { queryObject: JDoc.QueryObject }
+        config_schema = { queryObject: JDoc.QueryObject() }
       } else {
         config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
       }
@@ -176,10 +176,10 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const value = req.body.value as RefValue;
     const property = req.params.property as string;
     const type = req.params.type as DocTypes;
-    const JDoc = createServerDocument(type);
+    const JDoc = createDocumentServer(type);
 
     let result: PatchValue = {};
-    if (JDoc) {
+    if (JDoc && JDoc.onValueChanged) {
       result = await JDoc.onValueChanged(property, value);
     } else {
       result = JDM[type] && JDM[type].valueChanges && JDM[type].valueChanges[property] ?
@@ -191,7 +191,7 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
 
 router.post('/command/:type/:command', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const JDoc = createServerDocument(req.params.type, req.body.doc);
+    const JDoc = createDocumentServer(req.params.type, req.body.doc);
     let result;
     if (JDoc) { result = await JDoc.onCommand(req.params.command, req.body.args) }
     res.json(result);
@@ -203,7 +203,7 @@ router.post('/server/:type/:func', async (req: Request, res: Response, next: Nex
   try {
     let result: any = {}
     await db.tx(async (tx: ITask<any>) => {
-      const JDOC = createServerDocument(req.params.type, req.body.doc);
+      const JDOC = createDocumentServer(req.params.type, req.body.doc);
       const func =  JDOC[req.params.func];
       if (func) {
         result = await JDOC[req.params.func](tx, req.body.params);

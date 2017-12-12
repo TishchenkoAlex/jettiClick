@@ -1,11 +1,11 @@
 <form novalidate [formGroup]="viewModel.formGroup" cdkTrapFocus>
-  <p-panel [header]="viewModel.model.description.concat(viewModel.model.posted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
+  <p-panel [header]="viewModel.formGroup.controls['description']?.value?.concat(viewModel.model.posted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
         <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
       </div>
       <div class="ui-toolbar-group-right">
-        <!--         <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
+        <!--  <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
         <button pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()"></button>
         <button pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="Print()"></button>
         <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>

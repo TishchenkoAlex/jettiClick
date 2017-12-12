@@ -1,6 +1,6 @@
 import { IDatabase, ITask } from 'pg-promise';
 
-import { createServerDocument } from '../../models/documents.factory.server';
+import { createDocumentServer } from '../../models/documents.factory.server';
 import { DocTypes } from '../../models/documents.types';
 import { PostResult } from '../../models/post.interfaces';
 import { JDM } from './../../modules';
@@ -11,8 +11,8 @@ export async function ExecuteScript(doc: IServerDocument, script, tx: ITask<any>
   if (!script) { return doc };
   const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
   if (script === 'post') {
-    const JDoc = createServerDocument(doc.type as DocTypes, doc);
-    if (JDoc) { await JDoc.onPost(Registers, tx)
+    const JDoc = createDocumentServer(doc.type as DocTypes, doc);
+    if (JDoc && JDoc.onPost) { await JDoc.onPost(Registers, tx)
     } else { if (JDM[doc.type] && JDM[doc.type].post) { await JDM[doc.type].post(doc, Registers, tx) }};
   } else {
     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;

@@ -1,4 +1,3 @@
-import { HomeComponent } from '../../home/home.component';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
@@ -27,16 +26,16 @@ export class TabControllerComponent implements OnInit {
       this.tcs.params = params[1];
       const index = this.tcs.tabs.findIndex(i => (i.docType === this.tcs.tabid) && (i.docID === this.tcs.docID))
       if (index === -1) {
-        const menuItem = this.tcs.menuItems.find(el => el.type === this.tcs.tabid);
-        const description = this.tcs.docID ? menuItem.description : menuItem.menu;
+        const menuItem = this.tcs.menuItems.find(el => el.type === this.tcs.tabid) ||
+          { icon: '', label: this.tcs.tabid.split('.')[1], type: this.tcs.tabid, routerLink: ['/' + this.tcs.tabid] };
         const newTab: TabDef = {
-          header: description, docType: this.tcs.tabid, icon: menuItem.icon,
-          docID: this.tcs.docID, description: description, params: params[1],
+          header: menuItem.label, docType: this.tcs.tabid, icon: menuItem.icon,
+          docID: this.tcs.docID, description: menuItem.label, params: params[1],
           component: this.tcs.GetComponent(this.tcs.tabid, this.tcs.docID)
         };
         this.tcs.tabs.push(newTab);
         setTimeout(() => { this.tcs.index = this.tcs.tabs.length - 1; this.cd.markForCheck() });
-      } else { this.tcs.index = index; setTimeout(() => this.cd.markForCheck())};
+      } else { this.tcs.index = index; setTimeout(() => this.cd.markForCheck()) };
       this.cd.markForCheck();
     });
 
@@ -58,7 +57,7 @@ export class TabControllerComponent implements OnInit {
 
   handleClose(event) {
     this.tcs.index = event;
-    this.ds.close(<any>{id: this.tcs.tabs[event].docID, type: this.tcs.tabs[event].docType});
+    this.ds.close(<any>{ id: this.tcs.tabs[event].docID, type: this.tcs.tabs[event].docType });
     setTimeout(() => this.cd.markForCheck());
   }
 

@@ -1,0 +1,18 @@
+import { JDocument, DocumentBase, Props, Ref } from './../document';
+
+@JDocument({
+  type: 'Catalog.CashRegister',
+  description: 'Касса',
+  icon: 'fa fa-money',
+  menu: 'Кассы',
+  prefix: 'CSREG-'
+})
+export class CatalogCashRegister extends DocumentBase {
+
+  @Props({ type: 'Catalog.CashRegister', hiddenInList: true, order: -1 })
+  parent: Ref = null;
+
+  @Props({ type: 'Catalog.Currency', required: true, style: { width: '100px' } })
+  currency: Ref = null;
+
+}

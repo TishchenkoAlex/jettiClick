@@ -3,14 +3,13 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
 @JDocument({
   type: 'Catalog.Currency',
   description: 'Валюта',
-  icon: 'attach_money',
-  chapter: 'Document',
+  icon: 'fa fa-money',
   menu: 'Валюты',
-  prifix: 'CUR'
+  prefix: 'CUR-'
 })
 export class CatalogCurrency extends DocumentBase {
 
-  @Props({ type: 'Catalog.Currency', hiddenInList: true })
+  @Props({ type: 'Catalog.Currency', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
 }

@@ -23,7 +23,9 @@
         <span *ngSwitchCase="'date'">{{formGroup.controls[row.index].controls[col.field]?.value | date:'dd.MM.yyyy'}}</span>
         <span *ngSwitchCase="'datetime'">{{formGroup.controls[row.index].controls[col.field]?.value | date:'dd.MM.yyyy hh:mm:ss'}}</span>
         <span *ngSwitchCase="'number'">{{formGroup.controls[row.index].controls[col.field]?.value | number:'1.2-2'}}</span>
-        <span *ngSwitchCase="'checkbox'">{{formGroup.controls[row.index].controls[col.field]?.value}}</span>
+        <span *ngSwitchCase="'boolean'">
+          <i [class]="formGroup.controls[row.index].controls[col.field]?.value ? 'fa fa-check-square' : 'fa fa-square-o'"></i>
+        </span>
         <span *ngSwitchDefault>{{ formGroup.controls[row.index].controls[col.field]?.value?.value || formGroup.controls[row.index].controls[col.field]?.value?.toString()
           === '[object Object]' ? formGroup.controls[row.index].controls[col.field]?.value?.value || formGroup.controls[row.index].controls[col.field]?.value?.type
           : formGroup.controls[row.index].controls[col.field]?.value || '' }}

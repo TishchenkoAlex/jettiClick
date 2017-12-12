@@ -15,20 +15,25 @@ export class RegisterInfoPriceList extends RegisterInfo {
   @Props({ type: 'Catalog.PriceType' })
   PriceType: Ref = null;
 
+  @Props({ type: 'Catalog.Unit' })
+  Unit: Ref = null;
+
   @Props({ type: 'number' })
   Price: number = null;
 
-  constructor(kind: boolean, public data: {
+  constructor(public data: {
     currency: Ref,
     Product: Ref,
     PriceType: Ref,
+    Unit: Ref,
     Price: number,
   }) {
-    super(kind);
+    super();
     if (data) {
       this.currency = data.currency;
       this.Product = data.Product;
       this.PriceType = data.PriceType;
+      this.Unit = data.Unit;
       this.Price = data.Price;
     }
   }
