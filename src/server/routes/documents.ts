@@ -28,24 +28,16 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 
 router.get('/:type/view/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    let config_schema; let view;
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const JDoc = createDocumentServer(req.params.type as DocTypes);
-    let config_schema; let view;
-    if (!JDoc) {
-      config_schema = await db.one(`
-      SELECT "queryObject", "queryNewObject",
-        (select settings->'${req.params.type}' result from users where email = '${user}') settings,
-        (SELECT schema FROM config_schema WHERE type = 'doc') || config_schema.schema AS "schemaFull"
-      FROM config_schema WHERE type = $1`, [req.params.type]);
-    } else {
-      view = JDoc.Props();
-      config_schema = {
-        queryObject: JDoc.QueryObject(),
-        queryNewObject: JDoc.QueryNew(),
-        settings: (await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)).settings,
-        schemaFull: view,
-        commands: (JDoc.Prop() as DocumentOptions).commands
-      }
+    view = JDoc.Props();
+    config_schema = {
+      queryObject: JDoc.QueryObject(),
+      queryNewObject: JDoc.QueryNew(),
+      settings: (await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)).settings,
+      schemaFull: view,
+      commands: (JDoc.Prop() as DocumentOptions).commands
     }
 
     view = config_schema.schemaFull;
@@ -53,25 +45,27 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
 
     let model; const id = req.params['0'];
     if (id) {
-      if (id.startsWith('copy-')) {
-        model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id.slice(5)]);
-        const newDoc = await db.one('SELECT uuid_generate_v1mc() id, now() date');
-        model.id = newDoc.id; model.date = newDoc.date; model.code = '';
-        model.posted = false; model.deleted = false;
-        model.parent = { ...model.parent, id: null, code: null, value: null };
-        model.description = 'Copy: ' + model.description;
+      if (id === 'new') {
+        model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
       } else {
-        if (id.startsWith('base-')) {
-          model = await db.one(`${config_schema.queryNewObject}`);
-          const source = await lib.doc.modelById(id.slice(5));
-          model = { ...model, ...source };
+        if (id.startsWith('copy-')) {
+          model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id.slice(5)]);
+          const newDoc = await db.one('SELECT uuid_generate_v1mc() id, now() date');
+          model.id = newDoc.id; model.date = newDoc.date; model.code = '';
+          model.posted = false; model.deleted = false;
+          model.parent = { ...model.parent, id: null, code: null, value: null };
+          model.description = 'Copy: ' + model.description;
         } else {
-          model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+          if (id.startsWith('base-')) {
+            model = await db.one(`${config_schema.queryNewObject}`);
+            const source = await lib.doc.modelById(id.slice(5));
+            model = { ...model, ...source };
+          } else {
+            model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+          }
         }
+        await docOperationResolver(model, db);
       }
-      await docOperationResolver(model, db);
-    } else {
-      model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
     }
     const result = { view: view, model: model, columnDef: columnDef, commands: config_schema.commands || [] };
     res.json(result);
@@ -204,7 +198,7 @@ router.post('/server/:type/:func', async (req: Request, res: Response, next: Nex
     let result: any = {}
     await db.tx(async (tx: ITask<any>) => {
       const JDOC = createDocumentServer(req.params.type, req.body.doc);
-      const func =  JDOC[req.params.func];
+      const func = JDOC[req.params.func];
       if (func) {
         result = await JDOC[req.params.func](tx, req.body.params);
       }

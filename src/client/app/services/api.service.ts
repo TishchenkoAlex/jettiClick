@@ -39,7 +39,6 @@ export class ApiService {
   }
 
   getViewModel(type: string, id = ''): Observable<Object> {
-    if (id === 'new') { id = ''; }
     const query = `${this.url}${type}/view/${id}`;
     return (this.http.get(query));
   }

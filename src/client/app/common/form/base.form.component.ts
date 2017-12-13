@@ -44,8 +44,6 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log(this.viewModel.view);
-
     this.sideNavService.templateRef = this.sideNavTepmlate;
 
     this._subscription$ = Observable.merge(...[
