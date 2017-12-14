@@ -1,12 +1,12 @@
-import { db, TX } from '../../db';
+import { TX } from '../../db';
+import { RegisterInfoExchangeRates } from '../Registers/Info/ExchangeRates';
 import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentExchangeRates } from './Document.ExchangeRates';
-import { RegisterInfoExchangeRates } from '../Registers/Info/ExchangeRates';
 
 export class DocumentExchangeRatesServer extends DocumentExchangeRates implements ServerDocument {
 
-  async onValueChanged(prop: string, value: any, tx: TX = db) {
+  async onValueChanged(prop: string, value: any, tx: TX) {
     switch (prop) {
       case 'company':
         return {};
@@ -15,7 +15,7 @@ export class DocumentExchangeRatesServer extends DocumentExchangeRates implement
     }
   };
 
-  async onCommand(command: string, args: any, tx: TX = db) {
+  async onCommand(command: string, args: any, tx: TX) {
     switch (command) {
       case 'company':
         return {};
@@ -24,13 +24,15 @@ export class DocumentExchangeRatesServer extends DocumentExchangeRates implement
     }
   };
 
-  async onPost(Registers: PostResult, tx: TX = db) {
+  async onPost(tx: TX) {
+    const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
     for (const row of this.Rates) {
       Registers.Info.push(new RegisterInfoExchangeRates({
           currency: row.Currency,
           Rate: row.Rate
         }));
     }
+    return Registers;
   }
 
 }

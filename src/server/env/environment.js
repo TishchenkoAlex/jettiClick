@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.connString = 'postgres://postgres:Pa$$word@db.jetti-app.com/jetti';
+exports.connString = 'postgres://postgres:Pa$$word@pg.jetti-app.com/jetti';
 exports.JwtConfig = {
     JwtSecret: {
         cache: true,

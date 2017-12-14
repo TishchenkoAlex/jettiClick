@@ -1,7 +1,15 @@
 import { db, TX } from './db';
 import { IServerDocument } from './models/ServerDocument';
-import { RefValue } from './modules/doc.base';
 import { Ref } from './models/document';
+
+export interface RefValue {
+  id: Ref,
+  type: string,
+  code: string,
+  value: string | number | boolean
+}
+
+export interface PatchValue { [x: string]: (boolean | number | string | RefValue | {}) }
 
 export interface JTL {
   account: {

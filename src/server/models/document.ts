@@ -1,7 +1,7 @@
 import { v1 } from 'uuid';
 
 import { SQLGenegator } from '../fuctions/SQLGenerator';
-import { PatchValue } from '../modules/doc.base';
+import { PatchValue } from '../std.lib';
 import { IServerDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
 
@@ -129,9 +129,9 @@ export abstract class DocumentBase {
     return result;
   }
 
-  QueryObject() { return SQLGenegator.QueryObject(this.Props(), this.Prop() as DocumentOptions) }
-  QueryList() { return SQLGenegator.QueryList(this.Props(), this.Prop() as DocumentOptions) }
-  QueryNew() { return SQLGenegator.QueryNew(this.Props(), this.Prop() as DocumentOptions) }
+  QueryObject() { return Reflect.getMetadata('QueryObject', this.constructor) }
+  QueryList() { return Reflect.getMetadata('QueryList', this.constructor) }
+  QueryNew() { return Reflect.getMetadata('QueryNew', this.constructor) }
 
   get isDoc() { return this.type.startsWith('Document.') }
   get isCatalog() { return this.type.startsWith('Catalog.') }

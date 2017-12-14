@@ -1,7 +1,7 @@
 import { db, TX } from '../db';
-import { PatchValue } from '../modules/doc.base';
 import { DocumentBase, Ref } from './document';
 import { PostResult } from './post.interfaces';
+import { PatchValue, RefValue } from '../std.lib';
 
 export interface IServerDocument {
   id: Ref;
@@ -21,27 +21,38 @@ export interface IServerDocument {
 
 export abstract class DocumentBaseServer extends DocumentBase implements ServerDocument {
 
-  onCommand(command: string, args: any, tx: TX = db): Promise<any> {
+  beforePost(tx: TX): Promise<void> {
     throw new Error('Method not implemented.');
   }
-
-  map(document: IServerDocument) {
+  onPost(tx: TX): Promise<PostResult> {
     throw new Error('Method not implemented.');
   }
-
-  onPost(Registers: PostResult, tx: TX = db): Promise<void> {
+  afterPost(tx: TX): Promise<void> {
     throw new Error('Method not implemented.');
   }
-
-  onValueChanged(prop: string, value: any, tx: TX = db): Promise<PatchValue> {
+  beforeDelete(tx: TX): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  afterDelete(tx: TX): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  onValueChanged?(prop: string, value: any, tx: TX): Promise<PatchValue> {
+    throw new Error('Method not implemented.');
+  }
+  onCommand(command: string, args: any, tx: TX): Promise<any> {
     throw new Error('Method not implemented.');
   }
 
 }
 
 export interface ServerDocument {
-  onPost(Registers: PostResult, tx?: TX): Promise<void>;
-  onValueChanged(prop: string, value: any, tx?: TX): Promise<PatchValue>;
-  onCommand(command: string, args: any, tx?: TX):  Promise<any>;
-  map(document: IServerDocument);
+  beforePost?(tx: TX): Promise<void>;
+  onPost?(tx: TX): Promise<PostResult>;
+  afterPost?(tx: TX): Promise<void>;
+
+  beforeDelete?(tx: TX): Promise<void>;
+  afterDelete?(tx: TX): Promise<void>;
+
+  onValueChanged?(prop: string, value: any, tx: TX): Promise<PatchValue>;
+  onCommand?(command: string, args: any, tx: TX): Promise<any>;
 }

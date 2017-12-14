@@ -11,7 +11,7 @@ router.get('/user/settings/defaults', async (req: Request, res: Response, next: 
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const query = `select settings->'defaults' result from users where email = '${user}'`;
     const result = await db.oneOrNone<{ result: UserDefaultsSettings }>(query);
-    res.json(result.result || new UserDefaultsSettings());
+    res.json(result ? result.result : new UserDefaultsSettings());
   } catch (err) { next(err.message); }
 })
 
@@ -30,8 +30,8 @@ router.get('/user/settings/:type', async (req: Request, res: Response, next: Nex
   try {
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
     const query = `select settings->'${req.params.type}' result from users where email = '${user}'`;
-    const result = await db.oneOrNone<{ result: FormListSettings }>(query);
-    res.json(result.result);
+    const result = (await db.oneOrNone<{ result: FormListSettings }>(query));
+    res.json(result ? result.result : new FormListSettings());
   } catch (err) { next(err.message); }
 });
 

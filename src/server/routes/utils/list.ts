@@ -11,13 +11,8 @@ export async function List(req: Request, res: Response) {
     params.command = params.command || 'first';
     const direction = params.command !== 'prev';
     const newDoc = createDocumentServer(params.type as DocTypes);
-    let config_schema;
-    if (!newDoc) {
-        config_schema = await db.one(`SELECT "queryList" FROM config_schema WHERE type = $1`, [params.type]);
-    } else {
-      config_schema  = { queryList : newDoc.QueryList() }
-    }
-    const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${config_schema.queryList} AND d.id = $1) q`, [params.id]);
+    const queryList = newDoc.QueryList();
+    const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${queryList} AND d.id = $1) q`, [params.id]);
     const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
     params.order.filter(el => el.order !== '').forEach(el => {
       valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? row['row'][el.field] || '' : null });
@@ -71,7 +66,7 @@ export async function List(req: Request, res: Response) {
         order.filter(_o => _o.value !== null).forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
           char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
         order.length--;
-        result += `\nSELECT * FROM(SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n${lastORDER ?
+        result += `\nSELECT * FROM(SELECT * FROM(${queryList}) d WHERE ${where}\n${lastORDER ?
           (char1 === '>') ? orderbyAfter : orderbyBefore :
           (char1 === '<') ? orderbyAfter : orderbyBefore} LIMIT ${params.count + 1}) "tmp${o.field}"\nUNION ALL`;
       });
@@ -81,11 +76,11 @@ export async function List(req: Request, res: Response) {
     let query = '';
     if (params.command === 'first') {
       const where = filterBuilder(params.filter || []);
-      query = `SELECT * FROM (SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n${orderbyAfter} LIMIT ${params.count + 1}) d`;
+      query = `SELECT * FROM (SELECT * FROM(${queryList}) d WHERE ${where}\n${orderbyAfter} LIMIT ${params.count + 1}) d`;
     } else {
       if (params.command === 'last') {
         const where = filterBuilder(params.filter || []);
-        query = `SELECT * FROM (SELECT * FROM(${config_schema.queryList}) d WHERE ${where}\n${orderbyBefore} LIMIT ${params.count + 1}) d`;
+        query = `SELECT * FROM (SELECT * FROM(${queryList}) d WHERE ${where}\n${orderbyBefore} LIMIT ${params.count + 1}) d`;
       } else {
         const queryBefore = queryBuilder(true);
         const queryAfter = queryBuilder(false);

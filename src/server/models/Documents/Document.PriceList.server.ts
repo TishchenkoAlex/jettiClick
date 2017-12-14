@@ -1,15 +1,13 @@
-import { db, TX } from '../../db';
-import { ServerDocument, IServerDocument } from '../ServerDocument';
-import { PostResult } from './../post.interfaces';
-import { DocumentExchangeRates } from './Document.ExchangeRates';
-import { RegisterInfoExchangeRates } from '../Registers/Info/ExchangeRates';
-import { DocumentPriceList } from './Document.PriceList';
-import { RegisterInfoPriceList } from '../Registers/Info/PriceList';
 import { lib } from '../../std.lib';
+import { RegisterInfoPriceList } from '../Registers/Info/PriceList';
+import { ServerDocument } from '../ServerDocument';
+import { PostResult } from './../post.interfaces';
+import { DocumentPriceList } from './Document.PriceList';
+import { TX } from '../../db';
 
 export class DocumentPriceListServer extends DocumentPriceList implements ServerDocument {
 
-  async onValueChanged(prop: string, value: any, tx: TX = db) {
+  async onValueChanged(prop: string, value: any, tx: TX) {
     switch (prop) {
       case 'company':
         return {};
@@ -18,7 +16,7 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
     }
   };
 
-  async onCommand(command: string, args: any, tx: TX = db) {
+  async onCommand(command: string, args: any, tx: TX) {
     switch (command) {
       case 'company':
         return {};
@@ -27,7 +25,9 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
     }
   };
 
-  async onPost(Registers: PostResult, tx: TX = db) {
+  async onPost(tx: TX) {
+    const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
+
     const priceType = await lib.doc.byId(this.PriceType, tx);
     for (const row of this.Items) {
       Registers.Info.push(new RegisterInfoPriceList({
@@ -38,6 +38,7 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
         Unit: row.Unit
       }));
     }
+    return Registers;
   }
 
 }

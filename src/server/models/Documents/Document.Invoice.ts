@@ -53,14 +53,14 @@ export class DocumentInvoice extends DocumentBase {
       let Amount = 0, Tax = 0; value.forEach(el => { Amount += el.Amount; Tax += el.Tax; });
       return { Amount: Amount, Tax: Tax }`
   })
-  Items: TableItems[] = [new TableItems()];
+  Items: DocumentInvoiceItem[] = [new DocumentInvoiceItem()];
 
   @Props({ type: 'table', order: 2 })
-  Comments: TableComments[] = [new TableComments()];
+  Comments: DocumentInvoiceComment[] = [new DocumentInvoiceComment()];
 
 }
 
-class TableItems {
+export class DocumentInvoiceItem {
   @Props({ type: 'Catalog.Product', required: true, order: 1, style: { width: '400px' } })
   SKU: Ref = null;
 
@@ -92,7 +92,7 @@ class TableItems {
   Tax = 0;
 }
 
-class TableComments {
+export class DocumentInvoiceComment {
   @Props({ type: 'datetime' })
   Date = new Date();
 

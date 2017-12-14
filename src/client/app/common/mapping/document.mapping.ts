@@ -1,4 +1,3 @@
-import { JETTI_DOC_PROP } from '../../../../server/modules/doc.base';
 import { DocumentBase } from './../../../../server/models/document';
 import { IServerDocument } from './../../../../server/models/ServerDocument';
 
@@ -18,6 +17,8 @@ export function mapDocToApiFormat(model: DocumentBase): IServerDocument {
     info: model.info,
     doc: {}
   };
+
+  const JETTI_DOC_PROP = Object.keys(newDoc);
 
   for (const property in model) {
     if (!model.hasOwnProperty(property)) { continue };

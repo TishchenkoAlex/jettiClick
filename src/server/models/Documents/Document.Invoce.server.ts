@@ -1,4 +1,4 @@
-import { db, TX } from '../../db';
+import { TX } from '../../db';
 import { lib } from '../../std.lib';
 import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
 import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
@@ -6,11 +6,11 @@ import { RegisterAccumulationInventory } from '../Registers/Accumulation/Invento
 import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
 import { IServerDocument, ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
-import { DocumentInvoice } from './Document.Invoice';
+import { DocumentInvoice, DocumentInvoiceItem, DocumentInvoiceComment } from './Document.Invoice';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
-  async GetPrice(tx: TX, args) {
+  async GetPrice(args, tx: TX) {
     this.Amount = 0;
     for (const row of this.Items) {
       row.Price = 100;
@@ -20,7 +20,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     return { doc: this, result: {} }
   }
 
-  async onValueChanged(prop: string, value: any, tx: TX = db) {
+  async onValueChanged(prop: string, value: any, tx: TX) {
     switch (prop) {
       case 'company':
         if (!value) { return {} }
@@ -33,7 +33,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }
   };
 
-  async onCommand(command: string, args: any, tx: TX = db) {
+  async onCommand(command: string, args: any, tx: TX) {
     switch (command) {
       case 'company':
         return args;
@@ -42,7 +42,9 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }
   };
 
-  async onPost(Registers: PostResult, tx: TX = db) {
+  async onPost(tx: TX): Promise<PostResult> {
+    const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
+
     const acc90 = await lib.account.byCode('90.01', tx);
     const acc41 = await lib.account.byCode('41.01', tx);
     const acc62 = await lib.account.byCode('62.01', tx);
@@ -129,5 +131,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       Analytics: IncomeSALES,
       Amount: this.Amount,
     }));
+
+    return Registers;
   }
 }

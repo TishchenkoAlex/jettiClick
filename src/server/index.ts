@@ -29,9 +29,8 @@ app.use('/api', jwtCheck, userSettings);
 app.use('/api', jwtCheck, suggests);
 app.use('/api', jwtCheck, utils);
 app.use('/api', jwtCheck, registers);
-app.use('/liveness_check', (req, res, next) => {
-  res.json('OK')
-});
+
+app.use('/liveness_check', (req, res, next) => res.json('OK'));
 
 app.get('*', (req, res) => {
   res.sendFile('dist/index.html', { root: root });

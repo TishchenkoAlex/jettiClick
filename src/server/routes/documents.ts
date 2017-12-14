@@ -1,19 +1,16 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-import { ITask } from 'pg-promise';
 
 import { DocumentOptions } from '../models/document';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
-import { db } from './../db';
+import { db, TX } from './../db';
 import { ColumnDef } from './../models/column';
-import { IServerDocument } from './../models/ServerDocument';
+import { DocumentBaseServer, IServerDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
-import { PatchValue, RefValue } from './../modules/doc.base';
-import { JDM } from './../modules/index';
 import { buildColumnDef } from './../routes/utils/columns-def';
-import { lib } from './../std.lib';
-import { docOperationResolver, doSubscriptions, ExecuteScript } from './utils/execute-script';
+import { lib, PatchValue, RefValue } from './../std.lib';
+import { docOperationResolver, doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
 import { List } from './utils/list';
 
 export const router = express.Router();
@@ -35,9 +32,9 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
     config_schema = {
       queryObject: JDoc.QueryObject(),
       queryNewObject: JDoc.QueryNew(),
-      settings: (await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)).settings,
+      settings: ((await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)) || {}).settings,
       schemaFull: view,
-      commands: (JDoc.Prop() as DocumentOptions).commands
+      prop: JDoc.Prop() as DocumentOptions
     }
 
     view = config_schema.schemaFull;
@@ -67,7 +64,7 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
         await docOperationResolver(model, db);
       }
     }
-    const result = { view: view, model: model, columnDef: columnDef, commands: config_schema.commands || [] };
+    const result = { view: view, model: model, columnDef: columnDef, prop: config_schema.prop || [] };
     res.json(result);
   } catch (err) { next(err.message); }
 })
@@ -78,14 +75,13 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
     await db.tx(async tx => {
       const id = req.params.id;
       let doc = await lib.doc.byId(id, tx)
+      const documentServer = createDocumentServer(doc.type as DocTypes, doc);
       await doSubscriptions(doc, 'before detele', tx);
-      const config_schema = (await tx.one(`
-        SELECT "queryObject", "beforeDelete", "afterDelete" FROM config_schema WHERE type = $1`, [doc.type]));
-      if (config_schema['beforeDelete']) { await ExecuteScript(doc, config_schema['beforeDelete'], tx); }
+      if (documentServer && documentServer.beforeDelete) { documentServer.beforeDelete(tx) }
       doc = await tx.one('UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;', [id]);
-      if (config_schema['afterDelete']) { await ExecuteScript(doc, config_schema['afterDelete'], tx); }
+      if (documentServer && documentServer.afterDelete) { documentServer.afterDelete(tx) }
       await doSubscriptions(doc, 'after detele', tx);
-      const model = await tx.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+      const model = await tx.one(`${documentServer.QueryObject()} AND d.id = $1`, [id]);
       await docOperationResolver(model, tx);
       res.json(model);
     });
@@ -93,65 +89,57 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 })
 
 // Upsert document
-async function post(doc: IServerDocument, tx: ITask<any>) {
+async function post(doc: IServerDocument, serverDoc: DocumentBaseServer, tx: TX) {
   const id = doc.id;
   const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1', [id]) === null);
   await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
-  const config_schema = (await tx.one(`
-      SELECT "queryObject", replace("beforePost", '$.', 'doc.doc.') "beforePost",
-        replace("afterPost", '$.', 'doc.doc.') "afterPost" FROM config_schema WHERE type = $1`, [doc.type]));
   await tx.none(`
-        DELETE FROM "Register.Account" WHERE document = $1;
-        DELETE FROM "Register.Info" WHERE document = $1;
-        DELETE FROM "Register.Accumulation" WHERE document = $1;`, id);
-  if (!!doc.posted && config_schema['beforePost']) { await ExecuteScript(doc, config_schema['beforePost'], tx); }
+    DELETE FROM "Register.Account" WHERE document = $1;
+    DELETE FROM "Register.Info" WHERE document = $1;
+    DELETE FROM "Register.Accumulation" WHERE document = $1;`, id);
+  if (!!doc.posted && serverDoc.beforePost) { await serverDoc.beforePost(tx) }
   if (isNew) {
     doc = await tx.one(`
       INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1) RETURNING *;`, [doc]);
   } else {
     doc = await tx.one(`
-        UPDATE "Documents" d
-          SET
-            type = i.type, parent = i.parent,
-            date = i.date, code = i.code, description = i.description,
-            posted = i.posted, deleted = i.deleted, isfolder = i.isfolder,
-            "user" = i.user, company = i.company, info = i.info,
-            doc = i.doc
-          FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
-          WHERE d.id = i.id RETURNING *;`, [doc]);
+      UPDATE "Documents" d
+        SET
+          type = i.type, parent = i.parent,
+          date = i.date, code = i.code, description = i.description,
+          posted = i.posted, deleted = i.deleted, isfolder = i.isfolder,
+          "user" = i.user, company = i.company, info = i.info,
+          doc = i.doc
+        FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
+        WHERE d.id = i.id RETURNING *;`, [doc]);
   }
-  if (!!doc.posted) { await ExecuteScript(doc, config_schema['afterPost'] || 'post', tx); }
-  await doSubscriptions(JSON.parse(JSON.stringify(doc)), isNew ? 'after insert' : 'after update', tx);
+  if (!!doc.posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx) }
+  await doSubscriptions(doc, isNew ? 'after insert' : 'after update', tx);
   return doc;
 }
 
 // Upsert document
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let doc: IServerDocument;
-    await db.tx(async (tx: ITask<any>) => {
-      doc = await post(req.body, tx);
-      let config_schema;
-      const JDoc = createDocumentServer(doc.type as DocTypes);
-      if (JDoc) {
-        config_schema = { queryObject: JDoc.QueryObject() }
-      } else {
-        config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
-      }
-      doc = await tx.one<IServerDocument>(`${config_schema.queryObject} AND d.id = $1`, [doc.id]);
-      await docOperationResolver(doc, tx);
+    await db.tx(async (tx: TX) => {
+      const doc: IServerDocument = req.body;
+      const JDoc = createDocumentServer(doc.type as DocTypes, doc);
+      await post(doc, JDoc, tx);
+      const docServer = await tx.one<DocumentBaseServer>(`${JDoc.QueryObject()} AND d.id = $1`, [doc.id]);
+      await docOperationResolver(docServer, tx);
+      res.json(docServer);
     });
-    res.json(doc);
   } catch (err) { next(err.message); }
 })
 
 // Post by id (without returns posted object to client, for post in cicle many docs)
 router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await db.tx(async (tx: ITask<any>) => {
-      const doc = await lib.doc.byId<IServerDocument>(req.params.id, tx);
+    await db.tx(async (tx: TX) => {
+      const doc = await lib.doc.byId(req.params.id, tx);
       doc.posted = !doc.posted;
-      await post(doc, tx);
+      const JDoc = createDocumentServer(doc.type as DocTypes, doc);
+      await post(doc, JDoc, tx);
     });
     res.json(true);
   } catch (err) { next(err.message); }
@@ -170,14 +158,11 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const value = req.body.value as RefValue;
     const property = req.params.property as string;
     const type = req.params.type as DocTypes;
-    const JDoc = createDocumentServer(type);
+    const JDoc = createDocumentServer(type, doc);
 
     let result: PatchValue = {};
-    if (JDoc && JDoc.onValueChanged) {
-      result = await JDoc.onValueChanged(property, value);
-    } else {
-      result = JDM[type] && JDM[type].valueChanges && JDM[type].valueChanges[property] ?
-        await JDM[type].valueChanges[property](doc, value) : {};
+    if (JDoc && JDoc.onValueChanged && typeof JDoc.onValueChanged === 'function' ) {
+      result = await JDoc.onValueChanged(property, value, db);
     }
     res.json(result);
   } catch (err) { next(err.message); }
@@ -185,9 +170,9 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
 
 router.post('/command/:type/:command', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const JDoc = createDocumentServer(req.params.type, req.body.doc);
-    let result;
-    if (JDoc) { result = await JDoc.onCommand(req.params.command, req.body.args) }
+    let result: any = {};
+    const doc = createDocumentServer(req.params.type, req.body.doc);
+    if (doc && doc.onCommand && typeof doc.onCommand === 'function') { result = await doc.onCommand(req.params.command, req.body.args, db) }
     res.json(result);
   } catch (err) { next(err.message); }
 })
@@ -196,12 +181,10 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
 router.post('/server/:type/:func', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result: any = {}
-    await db.tx(async (tx: ITask<any>) => {
-      const JDOC = createDocumentServer(req.params.type, req.body.doc);
-      const func = JDOC[req.params.func];
-      if (func) {
-        result = await JDOC[req.params.func](tx, req.body.params);
-      }
+    await db.tx(async (tx: TX) => {
+      const doc = createDocumentServer(req.params.type, req.body.doc);
+      const func = doc[req.params.func];
+      if (func && typeof func === 'function') { result = await func(tx, req.body.params, tx) }
       res.json(result);
     })
   } catch (err) { next(err.message); }
