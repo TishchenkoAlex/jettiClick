@@ -12,7 +12,9 @@ RUN yarn
 COPY dist/ /usr/src/app/dist
 COPY src/server/ /usr/src/app/
 
-ENV PORT 8080
-EXPOSE 3000
+ENV PORT 4200
+EXPOSE 4200
+
+
 
 CMD [ "node", "index.js" ]

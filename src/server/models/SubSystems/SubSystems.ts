@@ -1,11 +1,11 @@
 import { DocumentOptions } from '../document';
-import { createDocument } from '../documents.factory';
+import { createDocument } from './../../models/documents.factory';
 import { DocTypes } from './../../models/documents.types';
 import { CatalogsSubSystem } from './Catalogs';
 import { CommonSubSystem } from './Common';
 import { FinanceSubSystem } from './Finance';
-import { SalesSubSystem } from './Sales';
 import { OperationsSubSystem } from './Operations';
+import { SalesSubSystem } from './Sales';
 
 export type SubSystem =
   'Common' |

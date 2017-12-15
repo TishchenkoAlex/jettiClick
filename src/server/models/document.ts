@@ -1,9 +1,9 @@
 import { v1 } from 'uuid';
 
 import { SQLGenegator } from '../fuctions/SQLGenerator';
-import { PatchValue } from '../std.lib';
 import { IServerDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
+import { PatchValue } from './api';
 
 export interface PropOptions {
   type: AllTypes,

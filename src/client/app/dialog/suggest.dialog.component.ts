@@ -1,21 +1,21 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output,
+    ViewChild,
 } from '@angular/core';
 import { Column, DataTable } from 'primeng/primeng';
+import { DocumentOptions } from '../../../server/models/document';
+import { createDocument } from '../../../server/models/documents.factory';
 
 import { FormListFilter } from '../../../server/models/user.settings';
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { ApiService } from '../services/api.service';
-import { DocumentOptions } from './../../../server/models/document';
-import { createDocument } from './../../../server/models/documents.factory';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

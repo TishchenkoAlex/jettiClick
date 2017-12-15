@@ -90,8 +90,7 @@ export class DocumentOperation extends DocumentBase {
     "p3".description "column3",
     "Operation.Group".description "Group",
     (d.doc ->> 'Amount')::NUMERIC(15, 2) "Amount"
-  FROM
-    "Documents" d
+  FROM "Documents" d
     LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
     LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
     LEFT JOIN "Documents" "Currency" ON "Currency".id = d.doc ->> 'currency' AND "Currency".type = 'Catalog.Currency'

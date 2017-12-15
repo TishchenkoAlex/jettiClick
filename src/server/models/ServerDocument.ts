@@ -1,7 +1,7 @@
 import { db, TX } from '../db';
 import { DocumentBase, Ref } from './document';
 import { PostResult } from './post.interfaces';
-import { PatchValue, RefValue } from '../std.lib';
+import { PatchValue } from './api';
 
 export interface IServerDocument {
   id: Ref;

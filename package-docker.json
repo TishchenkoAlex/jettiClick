@@ -19,7 +19,9 @@
     "express-jwt-authz": "^1.0.0",
     "jwks-rsa": "^1.2.1",
     "pg-promise": "^7.3.1",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "reflect-metadata": "^0.1.10",
+    "@types/reflect-metadata": "^0.0.5"
   },
   "engines": {
     "node": ">=9.1.0"

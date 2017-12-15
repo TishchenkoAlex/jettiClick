@@ -66,9 +66,14 @@ export async function List(req: Request, res: Response) {
         order.filter(_o => _o.value !== null).forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
           char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
         order.length--;
-        result += `\nSELECT * FROM(SELECT * FROM(${queryList}) d WHERE ${where}\n${lastORDER ?
+        let addQuery = `\nSELECT * FROM(SELECT * FROM(${queryList}) d WHERE ${where}\n${lastORDER ?
           (char1 === '>') ? orderbyAfter : orderbyBefore :
-          (char1 === '<') ? orderbyAfter : orderbyBefore} LIMIT ${params.count + 1}) "tmp${o.field}"\nUNION ALL`;
+          (char1 === '<') ? orderbyAfter : orderbyBefore} LIMIT ${params.count + 1})`;
+        const idQuery = `SELECT d.id FROM (${addQuery} d) d`;
+        addQuery = addQuery.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
+        const split = addQuery.split('WHERE d.type =');
+        result += split[0] + 'WHERE d.type = ' + split[1] + ') d) ';
+        result += ` "tmp${o.field}"\nUNION ALL`;
       });
       return result.slice(0, -9);
     }
@@ -77,10 +82,14 @@ export async function List(req: Request, res: Response) {
     if (params.command === 'first') {
       const where = filterBuilder(params.filter || []);
       query = `SELECT * FROM (SELECT * FROM(${queryList}) d WHERE ${where}\n${orderbyAfter} LIMIT ${params.count + 1}) d`;
+      const idQuery = `SELECT d.id FROM (${query}) d`;
+      query = query.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
     } else {
       if (params.command === 'last') {
         const where = filterBuilder(params.filter || []);
         query = `SELECT * FROM (SELECT * FROM(${queryList}) d WHERE ${where}\n${orderbyBefore} LIMIT ${params.count + 1}) d`;
+        const idQuery = `SELECT d.id FROM (${query}) d`;
+        query = query.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`)
       } else {
         const queryBefore = queryBuilder(true);
         const queryAfter = queryBuilder(false);
