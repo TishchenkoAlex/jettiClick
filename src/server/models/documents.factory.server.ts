@@ -1,16 +1,18 @@
+import { SQLGenegator } from '../fuctions/SQLGenerator';
 import { IRegisteredDocument, RegisteredDocument } from './../models/documents.factory';
+import { DocumentOptions } from './document';
 import { DocTypes } from './documents.types';
 import { DocumentExchangeRatesServer } from './Documents/Document.ExchangeRates.server';
 import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
+import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
 import { DocumentBaseServer, IServerDocument } from './ServerDocument';
-import { SQLGenegator } from '../fuctions/SQLGenerator';
-import { DocumentOptions } from './document';
 
 const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Invoice', class: DocumentInvoiceServer },
   { type: 'Document.ExchangeRates', class: DocumentExchangeRatesServer },
   { type: 'Document.PriceList', class: DocumentPriceListServer },
+  { type: 'Document.Operation', class: DocumentOperationServer },
 ]
 
 export function createDocumentServer(type: DocTypes, document?: IServerDocument) {

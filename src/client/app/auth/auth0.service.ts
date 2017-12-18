@@ -1,20 +1,26 @@
-import { HOME } from '../common/tabcontroller/tabcontroller.service';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import * as auth0 from 'auth0-js';
-import { Subject } from 'rxjs/Subject';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { take } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { HOME } from '../common/tabcontroller/tabcontroller.service';
+import { RoleObject, RoleType } from './../../../server/models/Roles/base';
+import { ApiService } from './../services/api.service';
 
 @Injectable()
 export class Auth0Service {
 
   userProfile$ = new BehaviorSubject<any>(null);
+  userRoles: RoleType[] = [];
+  userRoleObjects: RoleObject[] = [];
+
+  get isAdmin() { return this.userRoles.findIndex(r => r === 'Admin') >= 0 };
 
   auth0 = new auth0.WebAuth(environment.auth0);
 
-  constructor(public router: Router) { }
+  constructor(public router: Router, public api: ApiService) { }
 
   public login(): void {
     this.auth0.authorize();
@@ -56,7 +62,13 @@ export class Auth0Service {
     const accessToken = localStorage.getItem('access_token');
     if (accessToken) {
       this.auth0.client.userInfo(accessToken, (err, profile) => {
-        if (profile) { this.userProfile$.next(profile) }
+        if (profile) {
+          this.userProfile$.next(profile);
+          this.api.getUserRoles().pipe(take(1)).subscribe(data => {
+            this.userRoleObjects = data.Objects;
+            this.userRoles = data.roles;
+          });
+        }
       });
     }
   }

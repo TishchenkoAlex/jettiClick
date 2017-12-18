@@ -1,9 +1,11 @@
 import locale from '@angular/common/locales/ru';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input } from '@angular/core';
+
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
 import { BaseJettiFromControl } from './dynamic-form-base';
+import { calendarLocale, dateFormat } from './../../primeNG.module';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,36 +15,36 @@ import { BaseJettiFromControl } from './dynamic-form-base';
 export class DynamicFormControlComponent {
   @Input() control: BaseJettiFromControl<any>;
   @Input() form: FormGroup;
+  locale = calendarLocale;
+  dateFormat = dateFormat;
 
-  formatDate = 'dd.mm.yy';
-  locale = {
-    firstDayOfWeek: 1,
-    dayNames: locale[3][2],
-    dayNamesShort: locale[3][0],
-    dayNamesMin: locale[3][0],
-    monthNames: locale[5][2],
-    monthNamesShort: locale[5][1],
-    today: 'Today',
-    clear: 'Clear'
-  };
-
-  constructor(public api: ApiService, private cd: ChangeDetectorRef) {}
+  constructor(public api: ApiService) { }
 
   get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
 
-  async onChange(event: Event) {
-    if (this.control.change) {
-      const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-      const func = new AsyncFunction('doc, prop, value, call', this.control.change);
-      const patch = await func(
+  onChange(event: Event) {
+
+    if (this.control.onChange) {
+      const patch = this.control.onChange(
         this.form.getRawValue(),
-        this.control.key,
-        this.form.controls[this.control.key].value,
-        this.api.valueChanges.bind(this.api));
-      console.log('valueChanges', patch, this.control.key, this.form.controls[this.control.key].value);
+        this.form.controls[this.control.key].value);
+      console.log(this.control.key, patch);
       if (patch) {
         this.form.patchValue(patch);
       }
     }
+
+    if (this.control.onChangeServer) {
+      this.api.valueChanges(
+        this.form.getRawValue(),
+        this.control.key,
+        this.form.controls[this.control.key].value).then(patch => {
+          console.log(this.control.key, patch);
+          if (patch) {
+            this.form.patchValue(patch);
+          }
+        })
+    }
+
   }
 }

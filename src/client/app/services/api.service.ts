@@ -6,13 +6,15 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, MenuItem } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, MenuItem, PatchValue } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
 import { DocumentBase } from './../../../server/models/document';
+import { switchMap } from 'rxjs/operators/switchMap';
+import { getRoleObjects, RoleType, RoleObject } from './../../../server/models/Roles/base';
 
 @Injectable()
 export class ApiService {
@@ -74,23 +76,13 @@ export class ApiService {
     return (this.http.get<AccountRegister[]>(query));
   }
 
-  getCatalogs(): Observable<MenuItem[]> {
-    const query = `${this.url}Catalogs`;
-    return (this.http.get<MenuItem[]>(query));
-  }
-
-  getDocuments(): Observable<MenuItem[]> {
-    const query = `${this.url}Documents`;
-    return (this.http.get<MenuItem[]>(query));
-  }
-
   valueChanges(doc: DocumentBase, property: string, value: string) {
     const query = `${this.url}valueChanges/${doc.type}/${property}`;
     const callConfig = { doc: doc, value: value }
-    return this.http.post(query, callConfig).toPromise();
+    return this.http.post<PatchValue>(query, callConfig).toPromise();
   }
 
-  onCommand(doc: DocumentBase, command: string, args: {[x: string]: any}) {
+  onCommand(doc: DocumentBase, command: string, args: { [x: string]: any }) {
     const query = `${this.url}command/${doc.type}/${command}`;
     const callConfig = { doc: doc, args: args }
     return this.http.post(query, callConfig).toPromise()
@@ -141,9 +133,16 @@ export class ApiService {
     return (this.http.get<any[]>(query));
   }
 
-  server(doc: DocumentBase, func: string, params: any): Observable<{doc: DocumentBase, result: any}> {
+  server(doc: DocumentBase, func: string, params: any): Observable<{ doc: DocumentBase, result: any }> {
     const query = `${this.url}/server/${doc.type}/${func}`;
-    return this.http.post<{doc: DocumentBase, result: any}>(query, {doc: doc, params: params});
+    return this.http.post<{ doc: DocumentBase, result: any }>(query, { doc: doc, params: params });
+  }
+
+  getUserRoles() {
+    const query = `${this.url}user/roles`;
+    return this.http.get<RoleType[]>(query).pipe(
+      map(data => ({ roles: data as RoleType[] || [], Objects: getRoleObjects(data) }))
+    );
   }
 
 }

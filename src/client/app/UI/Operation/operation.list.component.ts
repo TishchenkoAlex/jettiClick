@@ -8,8 +8,8 @@ import { BaseListComponent } from './../../common/datatable/base.list.component'
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <p-dropdown [style]="{'width' : '100%', 'background': 'beige'}"
-      [options]="operationsGroups" [ngModel]="super.dataTable.filters['Group']?.value"
+    <p-dropdown [style]="{'width' : '100%', 'background': 'beige'}" [scrollHeight]="500"
+      [options]="operationsGroups" [ngModel]="super.dataTable.filters['Group']?.value" [autofocus]="true"
       (onChange)="this.super.dataTable.filters['Group'] =
         { matchMode: '=', value: $event.value }; this.super.Sort($event.value)"></p-dropdown>
     <j-list></j-list>

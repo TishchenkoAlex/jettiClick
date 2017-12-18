@@ -55,7 +55,7 @@ export class SQLGenegator {
           case 'number': return `, "${prop}" NUMERIC\n`;
           case 'boolean': return `, "${prop}" BOOLEAN\n`;
           case 'date': return `, "${prop}" TIMESTAMP(0) WITHOUT TIME ZONE\n`;
-          case 'datetime': return `, "${prop}" TIMESTAMP(0) WITH TIME ZONE\n`;
+          case 'datetime': return `, "${prop}" TIMESTAMP(0) WITHOUT TIME ZONE\n`;
           default: return `, "${prop}" TEXT\n`;
         }
       }
@@ -86,7 +86,7 @@ export class SQLGenegator {
 
     let query = `
       SELECT
-      d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder,d.info,
+      d.id, d.type, d.date::TIMESTAMP(0) WITHOUT TIME ZONE, d.code, d.description, d.posted, d.deleted, d.isfolder,d.info,
       jsonb_build_object('id', "parent".id, 'value', "parent".description, 'type',
         coalesce("parent".type, 'Types.Document'), 'code', "parent".code) "parent",
       jsonb_build_object('id', "user".id, 'value', "user".description, 'type', 'Catalog.User', 'code', "user".code) "user",
@@ -134,7 +134,7 @@ export class SQLGenegator {
         ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = d.doc ->> '${prop}' AND "${prop}".type = '${type}'\n`;
 
 
-    let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent,
+    let query = `SELECT d.id, d.type, d.date::TIMESTAMP(0) WITHOUT TIME ZONE, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent,
             "company".description "company",
             "user".description "user"\n`;
 
@@ -187,7 +187,7 @@ export class SQLGenegator {
     query = `
       SELECT
       uuid_generate_v1mc() id,
-      now() date,
+      now()::TIMESTAMP(0) WITHOUT TIME ZONE date,
       '${options.type}' "type",
       ${options.prefix ? `'${options.prefix}'` : `''`}
       ${options.prefix ? ` || trim(to_char((SELECT nextval('"SEQ.${options.type}"')), '000000000'))` : `''`} code,
@@ -232,7 +232,7 @@ export class SQLGenegator {
     }
 
     const query = `
-      SELECT r.date, r."kind",
+      SELECT r.date::TIMESTAMP(0) WITHOUT TIME ZONE, r."kind",
       jsonb_build_object('id', company.id, 'type', company.type, 'code', company.code, 'value', company.description) "company"
       ${select}
       FROM "Register.Accumulation" r

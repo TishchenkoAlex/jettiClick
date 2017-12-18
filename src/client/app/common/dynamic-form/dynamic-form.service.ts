@@ -19,6 +19,7 @@ import {
     TextareaJettiFormControl,
     TextboxJettiFormControl,
 } from './dynamic-form-base';
+import { createDocument } from './../../../../server/models/documents.factory';
 
 export interface ViewModel {
   view: BaseJettiFromControl<any>[];
@@ -66,10 +67,12 @@ export function getViewModel(view, model, isExists: boolean) {
       const totals = prop['totals'] * 1 || null;
       const change = prop['change'];
       const owner = prop['owner'] || '';
+      const onChange = prop['onChange'];
+      const onChangeServer = !!prop['onChangeServer'];
       let newControl: BaseJettiFromControl<any>;
       const controlOptions: ControlOptions<any> = {
-        key: key, label: label, type: controlType, required: required, readOnly: readOnly,
-        order: order, hidden: hidden, style: style, change: change, owner: owner, totals: totals,
+        key: key, label: label, type: controlType, required: required, readOnly: readOnly, hidden: hidden,
+        order: order, style: style, onChange: onChange, owner: owner, totals: totals, onChangeServer: onChangeServer
       };
       switch (controlType) {
         case 'table':
@@ -148,8 +151,10 @@ export class DynamicFormService {
   constructor(private apiService: ApiService) { };
 
   getViewModel$(docType: string, docID = ''): Observable<ViewModel> {
+    const doc = createDocument(docType as any);
+    const view = doc.Props();
     return this.apiService.getViewModel(docType, docID).pipe(
-      map(viewModel => getViewModel(viewModel['view'], viewModel['model'], docID !== 'new')));
+      map(viewModel => getViewModel(view, viewModel['model'], docID !== 'new')));
   }
 
   getView$(type: string) {

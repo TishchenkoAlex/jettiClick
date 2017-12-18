@@ -41,6 +41,25 @@ export class DocumentOperation extends DocumentBase {
   @Props({ type: 'string', hidden: true, label: 'Parameter 3' })
   column3: string = null;
 
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p1: any = null;
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p2: any = null;
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p3: any = null;
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p4: any = null;
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p5: any = null;
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p6: any = null;
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p7: any = null;
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p8: any = null;
+  @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
+  p9: any = null;
+
   // tslint:disable:max-line-length
   QueryNew() {
     const options = this.Prop() as DocumentOptions;

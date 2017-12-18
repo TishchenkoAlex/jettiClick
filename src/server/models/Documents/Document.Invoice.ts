@@ -49,15 +49,15 @@ export class DocumentInvoice extends DocumentBase {
 
   @Props({
     type: 'table', required: true, order: 1,
-    change: `
+    onChange: function(doc: DocumentInvoiceItem, value: DocumentInvoiceItem[]) {
       let Amount = 0, Tax = 0; value.forEach(el => { Amount += el.Amount; Tax += el.Tax; });
-      return { Amount: Amount, Tax: Tax }`
+      return { Amount: Math.round(Amount * 100) / 100, Tax: Math.round(Tax * 100) / 100 }
+    }
   })
   Items: DocumentInvoiceItem[] = [new DocumentInvoiceItem()];
 
   @Props({ type: 'table', order: 2 })
   Comments: DocumentInvoiceComment[] = [new DocumentInvoiceComment()];
-
 }
 
 export class DocumentInvoiceItem {
@@ -66,7 +66,9 @@ export class DocumentInvoiceItem {
 
   @Props({
     type: 'number', totals: 3, required: true, order: 3,
-    change: `return { Amount: doc.Price * (value || 0), Tax: doc.Price * (value || 0) * 0.18}`
+    onChange: function(doc: DocumentInvoiceItem, value: number) {
+      return { Amount: Math.round(doc.Price * (value || 0) * 10000) / 10000, Tax: doc.Price * (value || 0) * 0.18 }
+    }
   })
   Qty = 0;
 
@@ -75,16 +77,17 @@ export class DocumentInvoiceItem {
 
   @Props({
     type: 'number', required: true, order: 4,
-    change: `return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18}`,
-    onChange: async (doc: any, prop: string, value: any) => {
-      return { Amount: doc.Qty * (value || 0), Tax: doc.Qty * (value || 0) * 0.18 }
+    onChange: function(doc: DocumentInvoiceItem, value: number) {
+      return { Amount: Math.round(doc.Qty * (value || 0) * 100) / 100, Tax: doc.Qty * (value || 0) * 0.18}
     }
   })
   Price = 0;
 
   @Props({
     type: 'number', required: true, order: 10, totals: 3,
-    change: `return { Price: value / doc.Qty, Tax: value * 0.18}`
+    onChange: function(doc: DocumentInvoiceItem, value: number) {
+      return { Price: Math.round(value / doc.Qty * 10000) / 10000, Tax: value * 0.18}
+    }
   })
   Amount = 0;
 

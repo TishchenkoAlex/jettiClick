@@ -1,5 +1,4 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
 
 import { Auth0Service } from './auth/auth0.service';
 import { LoadingService } from './common/loading.service';
@@ -53,7 +52,7 @@ export class AppComponent implements AfterViewInit {
 
   @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ElementRef;
 
-  constructor(private router: Router, public auth: Auth0Service,
+  constructor(public auth: Auth0Service,
     public sideNavService: SideNavService, public apiService: ApiService, public lds: LoadingService,
     public tsc: TabControllerService) {
 

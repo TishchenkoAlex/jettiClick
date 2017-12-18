@@ -25,6 +25,7 @@ import { take } from 'rxjs/operators';
 
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
+import { calendarLocale, dateFormat } from './../../primeNG.module';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +37,9 @@ import { ApiService } from '../../services/api.service';
   ]
 })
 export class AutocompletePNGComponent implements ControlValueAccessor, Validator {
+
+  locale = calendarLocale;
+  dateFormat = dateFormat;
 
   @Input() readOnly = false;
   @Input() owner;

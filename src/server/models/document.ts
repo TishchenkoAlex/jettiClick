@@ -1,6 +1,5 @@
 import { v1 } from 'uuid';
 
-import { SQLGenegator } from '../fuctions/SQLGenerator';
 import { IServerDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
 import { PatchValue } from './api';
@@ -15,10 +14,10 @@ export interface PropOptions {
   order?: number,
   controlType?: PrimitiveTypes,
   style?: { [x: string]: any },
-  change?: string,
   owner?: string,
   totals?: number,
-  onChange?: (doc: DocumentBase, prop: string, value: any) => Promise<PatchValue>
+  onChange?: Function,
+  onChangeServer?: boolean
 }
 
 export interface DocumentOptions {
@@ -62,10 +61,10 @@ export abstract class DocumentBase {
   @Props({ type: 'string', order: 2, style: { width: '110px' } })
   code = '';
 
-  @Props({ type: 'string', order: 3, style: { width: '300px' } })
+  @Props({ type: 'string', order: 3, required: true, style: { width: '300px' } })
   description = '';
 
-  @Props({ type: 'Catalog.Company', order: 3, required: true, change: 'return call(doc, prop, value)' })
+  @Props({ type: 'Catalog.Company', order: 3, required: true, onChangeServer: true})
   company: Ref = null;
 
   @Props({ type: 'Catalog.User', hiddenInList: true, order: -1 })

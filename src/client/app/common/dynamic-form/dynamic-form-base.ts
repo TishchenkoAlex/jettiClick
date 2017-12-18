@@ -1,3 +1,7 @@
+import { FormControl } from '@angular/forms/src/model';
+
+import { PatchValue } from './../../../../server/models/api';
+
 
 export interface ControlOptions<T> {
   value?: T,
@@ -11,8 +15,9 @@ export interface ControlOptions<T> {
   controlType?: string,
   style?: any,
   owner?: string,
-  change?: string,
-  totals?: number
+  totals?: number,
+  onChange?: (doc, value) => Promise<PatchValue>,
+  onChangeServer?: boolean
 }
 
 export class BaseJettiFromControl<T> {
@@ -27,9 +32,10 @@ export class BaseJettiFromControl<T> {
   controlType: string;
   style: any;
   owner?: string;
-  change: string;
   totals: number;
   showLabel = true;
+  onChange?: (doc, value) => Promise<PatchValue>;
+  onChangeServer?: boolean;
 
   constructor(options: ControlOptions<T> = {}) {
     this.value = options.value;
@@ -42,9 +48,10 @@ export class BaseJettiFromControl<T> {
     this.order = options.order === undefined ? 9999999 : options.order;
     this.controlType = options.controlType;
     this.style = options.style || { 'width': '150px'};
-    this.change = options.change || '';
     this.totals = options.totals || null;
     this.owner = options.owner;
+    this.onChange = options.onChange;
+    this.onChangeServer = options.onChangeServer;
   }
 }
 

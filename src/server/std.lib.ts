@@ -22,7 +22,7 @@ export interface JTL {
     formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
   },
   info: {
-    sliceLast: (type: string, date: string, company: Ref, resource: string,
+    sliceLast: (type: string, date: Date, company: Ref, resource: string,
       analytics: { [key: string]: any }, tx?: TX) => Promise<any>
   }
 }
@@ -130,7 +130,7 @@ async function avgCost(date = new Date(), company: Ref, analytics: { [key: strin
   const queryText = `
     SELECT
       SUM((data ->> 'Cost')::NUMERIC(15, 2) * CASE WHEN kind THEN 1 ELSE -1 END) /
-      SUM((data ->> 'Qty')::NUMERIC(15, 2)  * CASE WHEN kind THEN 1 ELSE -1 END) result
+      NullIf(SUM((data ->> 'Qty')::NUMERIC(15, 2)  * CASE WHEN kind THEN 1 ELSE -1 END), 0) result
     FROM "Register.Accumulation"
     WHERE type = 'Register.Accumulation.Inventory'
       AND date <= $1
@@ -154,7 +154,7 @@ async function InventoryBalance(date = new Date().toJSON(), company: Ref,
   return result ? result.result : null;
 }
 
-async function sliceLast(type: string, date = new Date().toJSON(), company: Ref,
+async function sliceLast(type: string, date = new Date(), company: Ref,
   resource: string, analytics: { [key: string]: any }, tx = db): Promise<number> {
   const queryText = `
     SELECT data->'${resource}' result FROM "Register.Info"

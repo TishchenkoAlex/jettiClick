@@ -1,12 +1,12 @@
 import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-  TemplateRef,
-  ViewChild,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    Input,
+    OnDestroy,
+    OnInit,
+    TemplateRef,
+    ViewChild,
 } from '@angular/core';
 import { ObservableMedia } from '@angular/flex-layout';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,7 +15,7 @@ import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DocService } from '../../common/doc.service';
-import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
+import { patchOptionsNoEvents, ViewModel } from '../../common/dynamic-form/dynamic-form.service';
 import { SideNavService } from './../../services/side-nav.service';
 
 @Component({
@@ -38,6 +38,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
 
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
   get tables() { return this.viewModel.view.filter(t => t.type === 'table') }
+  get posted() { return this.viewModel.formGroup.controls['posted'] }
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService) {
@@ -92,17 +93,17 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   Post() {
-    this.viewModel.model.posted = true;
+    this.posted.setValue(true, patchOptionsNoEvents);
     this.Save();
   }
 
   PostClose() {
-    this.viewModel.model.posted = true;
+    this.posted.setValue(true, patchOptionsNoEvents);
     this.Save(true);
   }
 
   unPost() {
-    this.viewModel.model.posted = false;
+    this.posted.setValue(false, patchOptionsNoEvents);
     this.Save();
   }
 

@@ -8,8 +8,10 @@ import {
     OnDestroy,
     OnInit,
     Output,
+    ViewChild,
 } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
+import { DataTable } from 'primeng/primeng';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -34,6 +36,8 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
   @Input() control: TableDynamicControl;
 
   @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
+  @ViewChild(DataTable) dataTable: DataTable;
+
   dataSource: any[];
   columns: ColumnDef[] = [];
   sampleRow: FormGroup;
@@ -50,7 +54,7 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
     this.view = this.control.value as BaseJettiFromControl<any>[];
     this.columns = this.view.filter(c => !(c instanceof ScriptJettiFormControl)).map((el) => {
       const result: ColumnDef = {
-        field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, change: el.change,
+        field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, onChange: el.onChange, onChangeServer: el.onChangeServer,
         order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, data: el
       };
       return result;
@@ -87,11 +91,13 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
 
   add() {
     this.addCopy(this.copyFormGroup(this.sampleRow));
+    (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
 
   copy() {
     const newFormGroup = this.copyFormGroup(this.formGroup.at(this.selection[0].index) as FormGroup);
     this.addCopy(newFormGroup);
+    (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
 
   delete() {

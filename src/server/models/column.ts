@@ -11,7 +11,8 @@ export interface ColumnDef {
     readOnly: boolean;
     owner?: string;
     totals?: number;
-    change?: string;
+    onChange?: Function;
+    onChangeServer?: boolean;
     sort?: FormListOrder;
     filter?: FormListFilter;
     data?: any;

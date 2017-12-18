@@ -2,11 +2,9 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/primeng';
-import { share, take } from 'rxjs/operators';
 
-import { AppComponent } from './app.component';
-import { Observable } from 'rxjs/Observable';
 import { SubSystemsMenu } from './../../server/models/SubSystems/SubSystems';
+import { AppComponent } from './app.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,12 +21,7 @@ export class AppMenuComponent implements OnInit {
 
   constructor(public app: AppComponent, private cd: ChangeDetectorRef) {
     this.app.auth.userProfile$.subscribe(userProfile => {
-      const menuCatalogItems = app.apiService.getCatalogs().pipe(share(), take(1));
-      const menuDocItems = app.apiService.getDocuments().pipe(share(), take(1));
-      Observable.forkJoin(menuCatalogItems, menuDocItems).pipe(take(1))
-        .subscribe(data => {
-          this.buildMenu();
-        });
+      this.buildMenu();
     });
   }
 

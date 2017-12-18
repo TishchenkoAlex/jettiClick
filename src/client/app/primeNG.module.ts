@@ -106,3 +106,18 @@ import { MessageService } from 'primeng/components/common/messageservice';
   providers: [ConfirmationService, MessageService]
 })
 export class PrimeNGModule { }
+
+import locale from '@angular/common/locales/ru';
+
+export const calendarLocale = {
+  firstDayOfWeek: 1,
+  dayNames: locale[3][2],
+  dayNamesShort: locale[3][0],
+  dayNamesMin: locale[3][0],
+  monthNames: locale[5][2],
+  monthNamesShort: locale[5][1],
+  today: 'Today',
+  clear: 'Clear'
+};
+
+export const dateFormat = 'dd.mm.yy';

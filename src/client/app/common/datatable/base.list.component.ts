@@ -15,6 +15,7 @@ import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
 import { DocumentBase } from './../../../../server/models/document';
+import { calendarLocale, dateFormat } from './../../primeNG.module';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +23,8 @@ import { DocumentBase } from './../../../../server/models/document';
   templateUrl: 'base.list.component.html',
 })
 export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
+  locale = calendarLocale;
+  dateFormat = dateFormat;
 
   private _docSubscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;

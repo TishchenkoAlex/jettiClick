@@ -15,8 +15,11 @@ export class CatalogOperation extends DocumentBase {
   @Props({ type: 'Catalog.Operation', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
-  @Props({ type: 'Catalog.Operation.Group', label: 'Operation group', required: true })
+  @Props({ type: 'Catalog.Operation.Group', order: 2, label: 'Operation group', required: true, style: { width: '30%' } })
   Group: Ref = null;
+
+  @Props({ type: 'string', order: 3, required: true, style: { width: '50%' }})
+  description = null;
 
   @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '400px' } })
   script: string = null;

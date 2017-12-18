@@ -1,5 +1,5 @@
-import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
+import * as express from 'express';
 
 import { PatchValue, RefValue } from '../models/api';
 import { DocumentOptions } from '../models/document';
@@ -19,8 +19,7 @@ export const router = express.Router();
 // Select documents list for UI (grids/list etc)
 router.post('/list', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await List(req, res);
-    res.json(result);
+    res.json(await List(req, res));
   } catch (err) { next(err.message); }
 });
 
@@ -76,13 +75,17 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
     await db.tx(async tx => {
       const id = req.params.id;
       let doc = await lib.doc.byId(id, tx)
-      const documentServer = createDocumentServer(doc.type as DocTypes, doc);
+      const serverDoc = createDocumentServer(doc.type as DocTypes, doc);
       await doSubscriptions(doc, 'before detele', tx);
-      if (documentServer && documentServer.beforeDelete) { documentServer.beforeDelete(tx) }
-      doc = await tx.one('UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;', [id]);
-      if (documentServer && documentServer.afterDelete) { documentServer.afterDelete(tx) }
+      if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx) }
+      doc = await tx.one(`
+        DELETE FROM "Register.Account" WHERE document = $1;
+        DELETE FROM "Register.Info" WHERE document = $1;
+        DELETE FROM "Register.Accumulation" WHERE document = $1;
+        UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;`, [id]);
+      if (serverDoc && serverDoc.afterDelete) { serverDoc.afterDelete(tx) }
       await doSubscriptions(doc, 'after detele', tx);
-      const model = await tx.one(`${documentServer.QueryObject()} AND d.id = $1`, [id]);
+      const model = await tx.one(`${serverDoc.QueryObject()} AND d.id = $1`, [id]);
       await docOperationResolver(model, tx);
       res.json(model);
     });
@@ -118,10 +121,12 @@ async function post(doc: IServerDocument, serverDoc: DocumentBaseServer, tx: TX)
   }
   if (!!doc.posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx) }
   await doSubscriptions(doc, isNew ? 'after insert' : 'after update', tx);
+  return doc;
 }
 
 // Upsert document
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+  Date.prototype['toPostgres'] = (a: Date) => a.getTime();
   try {
     await db.tx(async (tx: TX) => {
       const doc: IServerDocument = req.body;
@@ -134,23 +139,31 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   } catch (err) { next(err.message); }
 })
 
-// Post by id (without returns posted object to client, for post in cicle many docs)
-router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const start = new Date();
-    await db.tx(async (tx: TX) => {
-      const doc = await lib.doc.byId(req.params.id, tx);
-      const JDoc = createDocumentServer(doc.type as DocTypes, doc);
-      if (JDoc.isDoc) {
-        await tx.none(`
+async function _post(req: express.Request, posted: boolean, tx: TX) {
+  const doc = await lib.doc.byId(req.params.id, tx);
+  const serverDoc = createDocumentServer(doc.type as DocTypes, doc);
+  if (serverDoc.isDoc) {
+    await tx.none(`
         DELETE FROM "Register.Account" WHERE document = $1;
         DELETE FROM "Register.Info" WHERE document = $1;
         DELETE FROM "Register.Accumulation" WHERE document = $1;
-        UPDATE "Documents" d SET posted = not posted WHERE d.id = $1`, doc.id);
-      }
-      if (!doc.posted && JDoc.onPost) { await InsertRegisterstoDB(doc, await JDoc.onPost(tx), tx) }
-    });
-    console.log('end', (new Date().getTime() - start.getTime()));
+        UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [doc.id, posted]);
+  }
+  if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx) }
+}
+
+// unPost by id (without returns posted object to client, for post in cicle many docs)
+router.get('/unpost/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await db.tx(async (tx: TX) => await _post(req, false, tx));
+    res.json(true);
+  } catch (err) { next(err.message); }
+})
+
+// Post by id (without returns posted object to client, for post in cicle many docs)
+router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await db.tx(async (tx: TX) => await _post(req, true, tx));
     res.json(true);
   } catch (err) { next(err.message); }
 })
@@ -168,11 +181,11 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const value = req.body.value as RefValue;
     const property = req.params.property as string;
     const type = req.params.type as DocTypes;
-    const JDoc = createDocumentServer(type, doc);
+    const serverDoc = createDocumentServer(type, doc);
 
     let result: PatchValue = {};
-    if (JDoc && JDoc.onValueChanged && typeof JDoc.onValueChanged === 'function') {
-      result = await JDoc.onValueChanged(property, value, db);
+    if (serverDoc && serverDoc.onValueChanged && typeof serverDoc.onValueChanged === 'function') {
+      result = await serverDoc.onValueChanged(property, value, db);
     }
     res.json(result);
   } catch (err) { next(err.message); }
@@ -199,3 +212,4 @@ router.post('/server/:type/:func', async (req: Request, res: Response, next: Nex
     })
   } catch (err) { next(err.message); }
 })
+

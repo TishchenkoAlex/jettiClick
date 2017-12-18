@@ -22,12 +22,12 @@ export class DocumentPriceList extends DocumentBase {
 }
 
 class TableItems {
-  @Props({ type: 'Catalog.Product', required: true })
+  @Props({ type: 'Catalog.Product', required: true, style: {width: '50%'} })
   SKU: Ref = null;
 
-  @Props({ type: 'Catalog.Unit', required: true })
+  @Props({ type: 'Catalog.Unit', required: true, style: {width: '30%'} })
   Unit: Ref = null;
 
-  @Props({ type: 'number', required: true })
+  @Props({ type: 'number',  required: true, style: {width: '20%'} })
   Price: number = null;
 }

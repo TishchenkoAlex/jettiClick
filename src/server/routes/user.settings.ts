@@ -2,9 +2,19 @@ import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 
 import { db } from './../db';
+import { RoleType } from './../models/Roles/base';
 import { FormListSettings, UserDefaultsSettings } from './../models/user.settings';
 
 export const router = express.Router();
+
+router.get('/user/roles', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const query = `select roles result from users where email = '${user}'`;
+    const result = await db.oneOrNone(query);
+    res.json(result ? result.result : []);
+  } catch (err) { next(err.message); }
+})
 
 router.get('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {

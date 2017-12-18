@@ -23,8 +23,8 @@
   <div class="ui-float-label" *ngIf="value?.type === 'datetime'">
     <div class="ui-inputgroup">
       <p-calendar [required]="required" [(ngModel)]="suggest.value.value" [ngModelOptions]="{standalone: true}" showTime="true"
-        hourFormat="24" showButtonBar="true" id="suggest" [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body"
-        (ngModelChange)="this.value = {id: 'datetime', code: '', type: 'datetime', value: $event}">
+        [locale]="locale" showButtonBar="true" id="suggest" [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body"
+        (ngModelChange)="this.value = {id: 'datetime', code: '', type: 'datetime', value: $event}" [dateFormat]="dateFormat">
       </p-calendar>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
@@ -35,7 +35,7 @@
     <div class="ui-inputgroup">
       <p-calendar [required]="required" [(ngModel)]="suggest.value.value" [ngModelOptions]="{standalone: true}" showButtonBar="true"
         id="suggest" [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body"
-        (ngModelChange)="this.value = {id: 'datetime', code: '', type: 'datetime', value: $event}">
+        (ngModelChange)="this.value = {id: 'datetime', code: '', type: 'datetime', value: $event}" [locale]="locale" [dateFormat]="dateFormat">
       </p-calendar>
     </div>
     <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>

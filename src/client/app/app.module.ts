@@ -74,7 +74,7 @@ export function getJwtToken(): string {
     AuthGuardService,
     UserSettingsService,
     LoadingService,
-    { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true, deps: [LoadingService] }
+    { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true }
   ],
   entryComponents: [],
   bootstrap: [AppComponent]
