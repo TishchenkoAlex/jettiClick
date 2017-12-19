@@ -1,5 +1,4 @@
-export const connString = 'postgres://postgres:Pa$$word@pg.jetti-app.com/jetti';
-
+export const connString = 'postgres://postgres@jetti-app:Pa$$word@jetti-app.postgres.database.azure.com/jetti';
 export const JwtConfig = {
   JwtSecret: {
     cache: true,
