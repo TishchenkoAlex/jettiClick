@@ -2,13 +2,13 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 
 import { BaseJettiFromControl, TableDynamicControl } from './dynamic-form/dynamic-form-base';
-import { dateReviver } from './../../../server/fuctions/dateReviver';
+import { dateReviver, dateReviverUTC } from './../../../server/fuctions/dateReviver';
 
 export function cloneFormGroup(formGroup: FormGroup): FormGroup {
   const newFormGroup = new FormGroup({});
   Object.keys(formGroup.controls).forEach(key => {
     const sourceFormControl = formGroup.controls[key];
-    const newValue = JSON.parse(JSON.stringify(sourceFormControl.value), dateReviver);
+    const newValue = JSON.parse(JSON.stringify(sourceFormControl.value), dateReviverUTC);
     const newFormControl = sourceFormControl.validator ?
       new FormControl(newValue, Validators.required) :
       new FormControl(newValue);

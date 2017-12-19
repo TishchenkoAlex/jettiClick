@@ -2,7 +2,6 @@ import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 
 import { db } from './../db';
-import { RoleType } from './../models/Roles/base';
 import { FormListSettings, UserDefaultsSettings } from './../models/user.settings';
 
 export const router = express.Router();
@@ -44,7 +43,6 @@ router.get('/user/settings/:type', async (req: Request, res: Response, next: Nex
     res.json(result ? result.result : new FormListSettings());
   } catch (err) { next(err.message); }
 });
-
 
 router.post('/user/settings/:type', async (req, res, next) => {
   try {

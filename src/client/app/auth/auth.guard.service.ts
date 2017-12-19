@@ -13,9 +13,9 @@ export class AuthGuardService implements CanActivate {
   constructor(private auth: Auth0Service) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
+    if (route.params['type'] === HOME) { return true }
 
     const check = (roles: RoleType[], objects: RoleObject[]) =>
-      route.params['type'] === HOME ||
       roles.findIndex(r => r === 'Admin') >= 0 ||
       objects.findIndex(el => el.type === route.params['type']) >= 0;
 

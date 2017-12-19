@@ -20,9 +20,6 @@ export function createDocumentServer(type: DocTypes, document?: IServerDocument)
   if (doc) {
     const createInstance = <T extends DocumentBaseServer>(c: new () => T): T => new c();
     const result = createInstance(doc.class);
-    Reflect.defineMetadata('QueryObject', SQLGenegator.QueryObject(result.Props(), result.Prop() as DocumentOptions), result.constructor);
-    Reflect.defineMetadata('QueryList', SQLGenegator.QueryList(result.Props(), result.Prop() as DocumentOptions), result.constructor);
-    Reflect.defineMetadata('QueryNew', SQLGenegator.QueryNew(result.Props(), result.Prop() as DocumentOptions), result.constructor);
     result.map(document);
     return result;
   }

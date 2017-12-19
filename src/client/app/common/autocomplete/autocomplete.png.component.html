@@ -61,8 +61,8 @@
           [tabIndex]=-1></button>
         <button pButton type="button" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="showOpen" [disabled]="!value?.value"
           (click)="handleOpen($event)" [tabIndex]=-1></button>
-<!--         <button pButton type="button" icon="fa-close" class="ui-button-secondary" *ngIf="showClear" (click)="handleReset($event)"
-          [tabIndex]=-1></button> -->
+        <button pButton type="button" icon="fa-close" class="ui-button-secondary" *ngIf="showClear" (click)="handleReset($event)"
+          [tabIndex]=-1></button>
         <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
       </div>
     </div>

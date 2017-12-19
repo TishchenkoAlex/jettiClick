@@ -1,17 +1,18 @@
 import { Request, Response } from 'express';
 
 import { createDocumentServer } from '../../models/documents.factory.server';
-import { DocTypes } from '../../models/documents.types';
+import { DocTypes, ComplexTypes } from '../../models/documents.types';
 import { db } from './../../db';
 import { DocListRequestBody } from './../../models/api';
 import { FilterInterval, FormListFilter } from './../../models/user.settings';
+import { createTypes } from '../../models/Types/Types.factory';
+import { configSchema } from './../../models/config';
 
 export async function List(req: Request, res: Response) {
     const params = req.body as DocListRequestBody;
     params.command = params.command || 'first';
     const direction = params.command !== 'prev';
-    const newDoc = createDocumentServer(params.type as DocTypes);
-    const queryList = newDoc.QueryList();
+    const queryList = configSchema.get(params.type as any).QueryList;
     const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${queryList} AND d.id = $1) q`, [params.id]);
     const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
     params.order.filter(el => el.order !== '').forEach(el => {
@@ -72,7 +73,7 @@ export async function List(req: Request, res: Response) {
         const idQuery = `SELECT d.id FROM (${addQuery} d) d`;
         addQuery = addQuery.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
         const split = addQuery.split('WHERE d.type =');
-        result += split[0] + 'WHERE d.type = ' + split[1] + ') d) ';
+        result += split[0] + (split[1] ? ' WHERE d.type = ' + split[1] + ') d) ' : ' ');
         result += ` "tmp${o.field}"\nUNION ALL`;
       });
       return result.slice(0, -9);

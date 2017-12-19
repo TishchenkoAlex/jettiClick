@@ -1,4 +1,5 @@
 import { JDocument, DocumentBase, Props, Ref } from './../document';
+import { SQLGenegator } from './../../fuctions/SQLGenerator';
 
 @JDocument({
   type: 'Catalog.Manager',

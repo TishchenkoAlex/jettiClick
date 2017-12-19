@@ -27,7 +27,7 @@
 
   <div *ngSwitchCase="'date'" [class]="control.showLabel ? 'ui-float-label' : ''">
     <p-calendar #pc [required]="control.required" [formControlName]="control.key" showButtonBar="true" [id]="control.key" autocomplete="off"
-      (change)="onChange($event)" [showIcon]="true" [showOnFocus]="false" [locale]="locale" [dateFormat]="dateFormat"
+      (change)="onChange($event)" [showIcon]="true" [showOnFocus]="false" [locale]="locale" [dateFormat]="dateFormat" [utc]="true"
       (onSelect)="pc.overlayVisible=false" appendTo="body" (onFocus)="$event.target.select()">
     </p-calendar>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
@@ -35,7 +35,7 @@
 
   <div *ngSwitchCase="'datetime'" [class]="control.showLabel ? 'ui-float-label' : ''">
     <p-calendar #pc [required]="control.required" [formControlName]="control.key" showTime="true" showButtonBar="true"
-      [id]="control.key" autocomplete="off" (change)="onChange($event)" [showIcon]="true" [dateFormat]="dateFormat" 
+      [id]="control.key" autocomplete="off" (change)="onChange($event)" [showIcon]="true" [dateFormat]="dateFormat" [utc]="true"
       [locale]="locale" (onSelect)="pc.overlayVisible=false" [showOnFocus]="false" appendTo="body" (onFocus)="$event.target.select()">
     </p-calendar>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>

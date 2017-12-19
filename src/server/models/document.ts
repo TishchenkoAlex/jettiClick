@@ -128,10 +128,6 @@ export abstract class DocumentBase {
     return result;
   }
 
-  QueryObject() { return Reflect.getMetadata('QueryObject', this.constructor) }
-  QueryList() { return Reflect.getMetadata('QueryList', this.constructor) }
-  QueryNew() { return Reflect.getMetadata('QueryNew', this.constructor) }
-
   get isDoc() { return this.type.startsWith('Document.') }
   get isCatalog() { return this.type.startsWith('Catalog.') }
   get isType() { return this.type.startsWith('Types.') }

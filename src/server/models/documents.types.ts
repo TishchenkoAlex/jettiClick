@@ -37,6 +37,10 @@ export type DocTypes =
   CatalogTypes |
   DocumentTypes;
 
+export type AllDocTypes =
+  DocTypes |
+  ComplexTypes;
+
 export type PrimitiveTypes =
   'string' |
   'number' |

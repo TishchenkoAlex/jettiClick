@@ -27,6 +27,7 @@ export class OperationFormComponent implements AfterViewInit {
   addParametersToForm() {
     this.viewModel.view = [...this._originalView];
     const OperationId = this.viewModel.formGroup.controls['Operation'].value.id;
+    if (!OperationId) { return }
     this.super.ds.api.getViewModel('Catalog.Operation', OperationId).pipe(
       take(1))
       .subscribe(data => {

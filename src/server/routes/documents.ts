@@ -13,6 +13,7 @@ import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib } from './../std.lib';
 import { docOperationResolver, doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
 import { List } from './utils/list';
+import { configSchema } from './../models/config';
 
 export const router = express.Router();
 
@@ -27,17 +28,16 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
   try {
     let config_schema; let view;
     const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
-    const JDoc = createDocumentServer(req.params.type as DocTypes);
-    view = JDoc.Props();
+    const serverDoc = configSchema.get(req.params.type);
+    view = serverDoc.Props;
     config_schema = {
-      queryObject: JDoc.QueryObject(),
-      queryNewObject: JDoc.QueryNew(),
+      queryObject: serverDoc.QueryObject,
+      queryNewObject: serverDoc.QueryNew,
       settings: ((await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)) || {}).settings,
       schemaFull: view,
-      prop: JDoc.Prop() as DocumentOptions
+      prop: serverDoc.Prop
     }
 
-    view = config_schema.schemaFull;
     const columnDef: ColumnDef[] = buildColumnDef(view, config_schema.settings || new FormListSettings());
 
     let model; const id = req.params['0'];
@@ -85,7 +85,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
         UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;`, [id]);
       if (serverDoc && serverDoc.afterDelete) { serverDoc.afterDelete(tx) }
       await doSubscriptions(doc, 'after detele', tx);
-      const model = await tx.one(`${serverDoc.QueryObject()} AND d.id = $1`, [id]);
+      const model = await tx.one(`${configSchema.get(serverDoc.type as any).QueryList} AND d.id = $1`, [id]);
       await docOperationResolver(model, tx);
       res.json(model);
     });
@@ -132,7 +132,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const doc: IServerDocument = req.body;
       const JDoc = createDocumentServer(doc.type as DocTypes, doc);
       await post(doc, JDoc, tx);
-      const docServer = await tx.one<DocumentBaseServer>(`${JDoc.QueryObject()} AND d.id = $1`, [doc.id]);
+      const docServer = await tx.one<DocumentBaseServer>(`${configSchema.get(doc.type as any).QueryObject} AND d.id = $1`, [doc.id]);
       await docOperationResolver(docServer, tx);
       res.json(docServer);
     });

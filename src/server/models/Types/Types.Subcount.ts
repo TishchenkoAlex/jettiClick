@@ -1,19 +1,9 @@
+import { DocumentOptions } from '../document';
+import { createDocument, RegisteredDocument } from '../documents.factory';
 import { AllTypes } from '../documents.types';
-import { createDocument, RegisteredDocument } from './../../models/documents.factory';
-import { buildSubcountQueryList } from './../../models/Types/Types.factory';
-import { DocumentBase, DocumentOptions, JDocument, Props, Ref } from './../document';
+import { buildTypesQueryList } from './Types.factory';
 
-@JDocument({
-  type: 'Catalog.Subcount',
-  description: 'Субконко',
-  icon: '',
-  menu: 'Субконто',
-  prefix: null
-})
-export class CatalogSubcount extends DocumentBase {
-  @Props({ type: 'Catalog.Subcount', hiddenInList: true, order: -1 })
-  parent: Ref = null;
-
+export class TypesSubcount {
 
   QueryList() {
     const select = RegisteredDocument
@@ -26,7 +16,8 @@ export class CatalogSubcount extends DocumentBase {
     select.push({type: 'boolean', description: 'boolean'});
     select.push({type: 'table', description: 'table'});
 
-    return buildSubcountQueryList(select);
+    return buildTypesQueryList(select);
   }
 
 }
+
