@@ -2,9 +2,9 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@a
 import { FormControl } from '@angular/forms';
 import { take } from 'rxjs/operators';
 
-import { BaseJettiFromControl } from '../../common/dynamic-form/dynamic-form-base';
+import { BaseJettiFormControl } from '../../common/dynamic-form/dynamic-form-base';
 import { getViewModel } from '../../common/dynamic-form/dynamic-form.service';
-import { BaseFormComponent } from './../../common/form/base.form.component';
+import { BaseDocFormComponent } from './../../common/form/base.form.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,9 +13,9 @@ import { BaseFormComponent } from './../../common/form/base.form.component';
 })
 export class OperationFormComponent implements AfterViewInit {
 
-  private _originalView: BaseJettiFromControl<any>[] = [];
+  private _originalView: BaseJettiFormControl<any>[] = [];
 
-  @ViewChild(BaseFormComponent) super: BaseFormComponent;
+  @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
   get viewModel() { return this.super.viewModel }
 
   ngAfterViewInit() {

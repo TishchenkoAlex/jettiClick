@@ -11,7 +11,7 @@ router.get('/register/account/movements/view/:id', async (req, res, next) => {
     const query = `SELECT * FROM "Register.Account.View" where document_id = $1`;
     const data = await db.manyOrNone(query, [req.params.id]);
     res.json(data);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })
 
 router.get('/register/accumulation/list/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -21,7 +21,7 @@ router.get('/register/accumulation/list/:id', async (req: Request, res: Response
         LEFT JOIN config_schema s ON s.type = r.type
         WHERE document = $1`, [req.params.id]);
     res.json(result);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })
 
 router.get('/register/info/list/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -31,7 +31,7 @@ router.get('/register/info/list/:id', async (req: Request, res: Response, next: 
         LEFT JOIN config_schema s ON s.type = r.type
         WHERE document = $1`, [req.params.id]);
     res.json(result);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })
 
 router.get('/register/accumulation/:type/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -45,6 +45,6 @@ router.get('/register/accumulation/:type/:id', async (req: Request, res: Respons
     }
     result = await db.manyOrNone(`${config_schema.queryObject} AND r.document = $1`, [req.params.id]);
     res.json(result);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })
 

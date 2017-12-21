@@ -1,4 +1,3 @@
-import { SQLGenegator } from '../fuctions/SQLGenerator';
 import { IServerDocument } from './../../server/models/ServerDocument';
 import { CatalogAccount } from './Catalogs/Catalog.Account';
 import { CatalogBalance } from './Catalogs/Catalog.Balance';
@@ -24,7 +23,7 @@ import { CatalogStorehouse } from './Catalogs/Catalog.Storehouse';
 import { CatalogSubcount } from './Catalogs/Catalog.Subcount';
 import { CatalogUnit } from './Catalogs/Catalog.Unit';
 import { CatalogUser } from './Catalogs/Catalog.User';
-import { DocumentBase, DocumentOptions } from './document';
+import { DocumentBase } from './document';
 import { DocTypes } from './documents.types';
 import { DocumentExchangeRates } from './Documents/Document.ExchangeRates';
 import { DocumentInvoice } from './Documents/Document.Invoice';
@@ -41,9 +40,6 @@ export function createDocument(type: DocTypes, document?: IServerDocument) {
   if (doc) {
     const createInstance = <T extends DocumentBase>(c: new () => T): T => new c();
     const result = createInstance(doc.class);
-    Reflect.defineMetadata('QueryObject', SQLGenegator.QueryObject(result.Props(), result.Prop() as DocumentOptions), result.constructor);
-    Reflect.defineMetadata('QueryList', SQLGenegator.QueryList(result.Props(), result.Prop() as DocumentOptions), result.constructor);
-    Reflect.defineMetadata('QueryNew', SQLGenegator.QueryNew(result.Props(), result.Prop() as DocumentOptions), result.constructor);
     result.map(document);
     return result;
   }

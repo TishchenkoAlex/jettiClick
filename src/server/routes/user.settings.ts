@@ -12,7 +12,7 @@ router.get('/user/roles', async (req: Request, res: Response, next: NextFunction
     const query = `select roles result from users where email = '${user}'`;
     const result = await db.oneOrNone(query);
     res.json(result ? result.result : []);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })
 
 router.get('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
@@ -21,7 +21,7 @@ router.get('/user/settings/defaults', async (req: Request, res: Response, next: 
     const query = `select settings->'defaults' result from users where email = '${user}'`;
     const result = await db.oneOrNone<{ result: UserDefaultsSettings }>(query);
     res.json(result ? result.result : new UserDefaultsSettings());
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })
 
 router.post('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
@@ -31,7 +31,7 @@ router.post('/user/settings/defaults', async (req: Request, res: Response, next:
     const query = `update users set settings = jsonb_set(settings, '{"defaults"}, $1) where email = '${user}'`;
     const result = await db.none(query, [data]);
     res.json(true);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 });
 
 
@@ -41,7 +41,7 @@ router.get('/user/settings/:type', async (req: Request, res: Response, next: Nex
     const query = `select settings->'${req.params.type}' result from users where email = '${user}'`;
     const result = (await db.oneOrNone<{ result: FormListSettings }>(query));
     res.json(result ? result.result : new FormListSettings());
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 });
 
 router.post('/user/settings/:type', async (req, res, next) => {
@@ -51,5 +51,5 @@ router.post('/user/settings/:type', async (req, res, next) => {
     const query = `update users set settings = jsonb_set(settings, '{"${req.params.type}"}', $1) where email = '${user}'`;
     const settings = await db.none(query, [data]);
     res.json(true);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 });

@@ -3,7 +3,7 @@ import { SelectItem } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 
 import { ColumnDef } from '../../../../server/models/column';
-import { BaseListComponent } from './../../common/datatable/base.list.component';
+import { BaseDocListComponent } from './../../common/datatable/base.list.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,7 +16,7 @@ import { BaseListComponent } from './../../common/datatable/base.list.component'
   `
 })
 export class OperationListComponent implements OnInit {
-  @ViewChild(BaseListComponent) super: BaseListComponent;
+  @ViewChild(BaseDocListComponent) super: BaseDocListComponent;
 
   operationsGroups: SelectItem[] = [];
 

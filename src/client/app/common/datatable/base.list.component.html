@@ -20,7 +20,7 @@
 <p-dataTable [value]="(dataSource.result$ | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id" 
   [lazy]="true" (onSort)="Sort($event)" (onFilter)="Sort($event)" 
   [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true" [scrollable]="true" scrollWidth="100%"
-  (onRowDblclick)="open()" [filterDelay]="500">
+  (onRowDblclick)="open()" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm">
   <div *ngIf="dataTable !== null">
     <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
       <ng-template let-row="rowData" pTemplate="body">
@@ -31,18 +31,18 @@
     </p-column>
 
     <p-column *ngFor="let column of columns" [field]="column.field" [header]="column.label" sortable="custom" [filter]="true"
-      filterPlaceholder="Search" [style]="column.style || {}">
+      filterPlaceholder="Search" [style]="column.style || {}" [id]="column.field" [id]="column.field" [colId]="column.field">
       <ng-template let-row="rowData" pTemplate="body">
-        <span [ngSwitch]="column.type">
-          <span *ngSwitchCase="'date'">{{row[column.field] | date:'dd.MM.yyyy'}}</span>
-          <span *ngSwitchCase="'datetime'">{{row[column.field] | date:'dd.MM.yyyy HH:mm:ss'}}</span>
-          <span *ngSwitchCase="'number'">{{row[column.field] | number:'1.2-4'}}</span>
-          <span *ngSwitchCase="'boolean'">
-            <i *ngIf="row[column.field]" class="fa fa-check-square"></i>
-            <i *ngIf="!row[column.field]" class="fa fa-square-o"></i>
+        <span [ngSwitch]="column.type" [id]="column.field">
+          <span *ngSwitchCase="'date'" [id]="column.field">{{row[column.field] | date:'dd.MM.yyyy'}}</span>
+          <span *ngSwitchCase="'datetime'" [id]="column.field">{{row[column.field] | date:'dd.MM.yyyy HH:mm:ss'}}</span>
+          <span *ngSwitchCase="'number'" [id]="column.field">{{row[column.field] | number:'1.2-4'}}</span>
+          <span *ngSwitchCase="'boolean'" [id]="column.field">
+            <i *ngIf="row[column.field]" class="fa fa-check-square" [id]="column.field"></i>
+            <i *ngIf="!row[column.field]" class="fa fa-square-o" [id]="column.field"></i>
           </span>
-          <span *ngSwitchCase="'string'">{{row[column.field]}}</span>
-          <span *ngSwitchDefault>{{row[column.field]}}</span>
+          <span *ngSwitchCase="'string'" [id]="column.field">{{row[column.field]}}</span>
+          <span *ngSwitchDefault [id]="column.field">{{row[column.field]}}</span>
         </span>
       </ng-template>
       <ng-template pTemplate="filter" let-col>
@@ -75,3 +75,5 @@
     <p-column></p-column>
   </div>
 </p-dataTable>
+
+<p-contextMenu #cm [model]="ctxItems"></p-contextMenu>

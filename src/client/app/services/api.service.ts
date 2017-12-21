@@ -6,15 +6,14 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, MenuItem, PatchValue } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, PatchValue } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
 import { DocumentBase } from './../../../server/models/document';
-import { switchMap } from 'rxjs/operators/switchMap';
-import { getRoleObjects, RoleType, RoleObject } from './../../../server/models/Roles/base';
+import { getRoleObjects, RoleType } from './../../../server/models/Roles/base';
 
 @Injectable()
 export class ApiService {
@@ -40,7 +39,7 @@ export class ApiService {
       map(data => ({ view: data['view'], columnDef: data['columnDef'] })));
   }
 
-  getViewModel(type: string, id = ''): Observable<Object> {
+  getViewModel(type: string, id = ''): Observable<any> {
     const query = `${this.url}${type}/view/${id}`;
     return (this.http.get(query));
   }
@@ -50,7 +49,7 @@ export class ApiService {
     return (this.http.get(query) as Observable<any[]>);
   }
 
-  getSuggestsById(id: string): Observable<Object> {
+  getSuggestsById(id: string): Observable<any> {
     const query = `${this.url}suggest/${id}`;
     return (this.http.get(query));
   }
@@ -63,6 +62,11 @@ export class ApiService {
 
   postDocById(id: string): Observable<boolean> {
     const query = `${this.url}post/${id}`;
+    return (this.http.get(query) as Observable<boolean>);
+  }
+
+  unpostDocById(id: string): Observable<boolean> {
+    const query = `${this.url}unpost/${id}`;
     return (this.http.get(query) as Observable<boolean>);
   }
 
@@ -143,6 +147,16 @@ export class ApiService {
     return this.http.get<RoleType[]>(query).pipe(
       map(data => ({ roles: data as RoleType[] || [], Objects: getRoleObjects(data) }))
     );
+  }
+
+  call(type: string, formView: any, method: string, params: any[]): Observable<any> {
+    const query = `${this.url}/call`;
+    return this.http.post(query, {
+      type: type,
+      method: method,
+      formView: formView,
+      params: params
+    });
   }
 
 }

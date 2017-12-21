@@ -70,6 +70,11 @@ export class DocService {
     return this.api.postDocById(id).toPromise()
   }
 
+  unpost(id: string) {
+    return this.api.unpostDocById(id).toPromise()
+  }
+
+
   openSnackBar(severity: string, message: string, action: string) {
     this.messageService.add({severity: severity, summary: message, detail: action, id: Math.random()})
   }

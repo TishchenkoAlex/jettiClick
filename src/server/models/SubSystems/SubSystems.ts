@@ -6,6 +6,9 @@ import { CommonSubSystem } from './Common';
 import { FinanceSubSystem } from './Finance';
 import { OperationsSubSystem } from './Operations';
 import { SalesSubSystem } from './Sales';
+import { FormTypes } from '../Forms/form.types';
+import { createForm } from '../Forms/form.factory';
+import { FormOptions } from '../Forms/form';
 
 export type SubSystem =
   'Common' |
@@ -18,7 +21,7 @@ export interface ISubSystem {
   type: SubSystem,
   icon: string;
   description: string;
-  Objects: DocTypes[]
+  Objects: (DocTypes | FormTypes)[]
 }
 
 export const SubSystems: ISubSystem[] = [
@@ -36,9 +39,9 @@ export function SubSystemsMenu() {
   for (const s of SubSystems) {
     const menuItem: MenuItem = {type: s.type, icon: s.icon, label: s.description, items: [] };
     for (const o of s.Objects) {
-      const doc = createDocument(o);
+      const doc = createDocument(o as DocTypes) || createForm(o as FormTypes);
       if (doc) {
-        const prop = doc.Prop() as DocumentOptions;
+        const prop = <DocumentOptions | FormOptions>doc.Prop();
         const subMenuItem: MenuItem = {type: prop.type, icon: prop.icon, label: prop.menu, routerLink: ['/' + prop.type] };
         menuItem.items.push(subMenuItem);
       }

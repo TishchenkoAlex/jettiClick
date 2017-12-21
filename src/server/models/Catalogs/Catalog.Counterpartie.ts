@@ -18,7 +18,7 @@ export class CatalogCounterpartie extends DocumentBase {
   @Props({ type: 'boolean', required: true })
   Supplier: boolean = null;
 
-  @Props({ type: 'string', required: true })
+  @Props({ type: 'string', required: true, style: {width: '50%'} })
   FillName: string = null;
 
 }

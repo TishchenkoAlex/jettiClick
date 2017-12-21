@@ -12,7 +12,7 @@ router.get('/suggest/:id', async (req: Request, res: Response, next: NextFunctio
         FROM "Documents" WHERE id = $1`;
     const data = await db.oneOrNone(query, req.params.id);
     res.json(data);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })
 
 router.get('/suggest/:type/*', async (req: Request, res: Response, next: NextFunction) => {
@@ -24,5 +24,5 @@ router.get('/suggest/:type/*', async (req: Request, res: Response, next: NextFun
         ORDER BY type, description LIMIT 10`;
     const data = await db.manyOrNone(query, '%' + req.params[0] + '%');
     res.json(data);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })

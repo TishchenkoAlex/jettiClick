@@ -1,6 +1,5 @@
 <div [formGroup]="form" [ngSwitch]="control.controlType" *ngIf="!control.hidden" [style.marginTop]="control.showLabel ? '24px': ''"
   class="ui-fluid">
-
   <div *ngSwitchCase="'string'" [class]="control.showLabel ? 'ui-float-label' : ''">
     <input #pc [required]="control.required" pInputText [formControlName]="control.key" [id]="control.key" [readOnly]="control.readOnly"
       autocomplete="off" (change)="onChange($event)" (focus)="$event.target.select()">

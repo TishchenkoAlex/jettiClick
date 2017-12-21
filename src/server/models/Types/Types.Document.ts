@@ -1,6 +1,6 @@
 import { DocumentOptions } from '../document';
 import { createDocument, RegisteredDocument } from '../documents.factory';
-import { buildTypesQueryList } from './Types.factory';
+import { buildTypesQueryList } from './../../fuctions/SQLGenerator';
 
 export class TypesDocument {
 

@@ -6,7 +6,7 @@ export const environment = {
     domain: 'jetti-app.auth0.com',
     responseType: 'token id_token',
     audience: 'https://jetti-app.com/api',
-    redirectUri: 'https://jetti.azurewebsites.net/callback',
+    redirectUri: 'https://jetti-pg.appspot.com/callback',
     scope: 'openid profile email',
   }
 };

@@ -6,7 +6,7 @@
   </div>
 </p-toolbar>
 
-<p-dataTable [value]="dataSource" [editable]="true" dataKey="index" [(selection)]="selection" [scrollable]="true" [resizableColumns]="true"
+<p-dataTable #dt [value]="dataSource" [editable]="true" dataKey="index" [(selection)]="selection" [scrollable]="true" [resizableColumns]="true"
   sortMode="multiple" [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true"  scrollWidth="100%"
   [rows]="10" [paginator]="true" [alwaysShowPaginator] = "false"
   (onEditComplete)="onEditComplete($event)" (onEdit)="onEdit($event)" (onEditCancel)="onEditCancel($event)">
@@ -24,6 +24,7 @@
         <span *ngSwitchCase="'date'">{{formGroup.controls[row.index].controls[col.field]?.value | date:'dd.MM.yyyy'}}</span>
         <span *ngSwitchCase="'datetime'">{{formGroup.controls[row.index].controls[col.field]?.value | date:'dd.MM.yyyy hh:mm:ss'}}</span>
         <span *ngSwitchCase="'number'">{{formGroup.controls[row.index].controls[col.field]?.value | number:'1.2-2'}}</span>
+        <span *ngSwitchCase="'script'">{{formGroup.controls[row.index].controls[col.field]?.value}}</span>
         <span *ngSwitchCase="'boolean'">
           <i [class]="formGroup.controls[row.index].controls[col.field]?.value ? 'fa fa-check-square' : 'fa fa-square-o'"></i>
         </span>

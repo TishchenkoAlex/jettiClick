@@ -126,7 +126,6 @@ async function post(doc: IServerDocument, serverDoc: DocumentBaseServer, tx: TX)
 
 // Upsert document
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
-  Date.prototype['toPostgres'] = (a: Date) => a.getTime();
   try {
     await db.tx(async (tx: TX) => {
       const doc: IServerDocument = req.body;
@@ -168,12 +167,21 @@ router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) 
   } catch (err) { next(err.message); }
 })
 
-// Get document by id ROUTE
+// Get raw document by id
 router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await lib.doc.byId(req.params.id, db));
   } catch (err) { next(err.message); }
 })
+
+// Get document viewModel by id
+router.get(':type/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const serverDoc = configSchema.get(req.params.type);
+    res.json(await db.one(`${serverDoc.QueryObject} AND d.id = $1`, [req.params.id]));
+  } catch (err) { next(err.message); }
+})
+
 
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {

@@ -8,7 +8,7 @@ import { cloneFormGroup } from '../utils';
 import { DocumentBase } from './../../../../server/models/document';
 import {
     AutocompleteJettiFormControl,
-    BaseJettiFromControl,
+    BaseJettiFormControl,
     BooleanJettiFormControl,
     ControlOptions,
     DateJettiFormControl,
@@ -20,22 +20,23 @@ import {
     TextboxJettiFormControl,
 } from './dynamic-form-base';
 import { createDocument } from './../../../../server/models/documents.factory';
+import { createForm } from './../../../../server/models/Forms/form.factory';
 
 export interface ViewModel {
-  view: BaseJettiFromControl<any>[];
+  view: BaseJettiFormControl<any>[];
   model: DocumentBase,
   formGroup: FormGroup,
-  controlsByKey: { [s: string]: BaseJettiFromControl<any> }
+  controlsByKey: { [s: string]: BaseJettiFormControl<any> }
 }
 
-function toFormGroup(controls: BaseJettiFromControl<any>[]) {
+function toFormGroup(controls: BaseJettiFormControl<any>[]) {
   const group: any = {};
 
   controls.forEach(control => {
     if (control instanceof TableDynamicControl) {
       const Row = {};
       const arr: FormGroup[] = [];
-      (control.value as BaseJettiFromControl<any>[]).forEach(item => {
+      (control.value as BaseJettiFormControl<any>[]).forEach(item => {
         Row[item.key] = item.required ? new FormControl(item.value, Validators.required) : new FormControl(item.value);
       });
       arr.push(new FormGroup(Row));
@@ -51,9 +52,9 @@ function toFormGroup(controls: BaseJettiFromControl<any>[]) {
 export const patchOptionsNoEvents = { onlySelf: false, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
 export function getViewModel(view, model, isExists: boolean) {
-  let fields: BaseJettiFromControl<any>[] = [];
+  let fields: BaseJettiFormControl<any>[] = [];
 
-  const processRecursive = (v, f: BaseJettiFromControl<any>[]) => {
+  const processRecursive = (v, f: BaseJettiFormControl<any>[]) => {
     Object.keys(v).map(key => {
       const prop = v[key];
       const hidden = !!prop['hidden'];
@@ -69,7 +70,7 @@ export function getViewModel(view, model, isExists: boolean) {
       const owner = prop['owner'] || '';
       const onChange = prop['onChange'];
       const onChangeServer = !!prop['onChangeServer'];
-      let newControl: BaseJettiFromControl<any>;
+      let newControl: BaseJettiFormControl<any>;
       const controlOptions: ControlOptions<any> = {
         key: key, label: label, type: controlType, required: required, readOnly: readOnly, hidden: hidden,
         order: order, style: style, onChange: onChange, owner: owner, totals: totals, onChangeServer: onChangeServer
@@ -133,7 +134,7 @@ export function getViewModel(view, model, isExists: boolean) {
         }
       }
     });
-  const controlsByKey: { [s: string]: BaseJettiFromControl<any> } = {};
+  const controlsByKey: { [s: string]: BaseJettiFormControl<any> } = {};
   fields.forEach(c => { controlsByKey[c.key] = c });
   fields = [
     ...fields.filter(el => el.order > 0 && el.type !== 'table'),
@@ -159,6 +160,14 @@ export class DynamicFormService {
 
   getView$(type: string) {
     return this.apiService.getView(type);
+  }
+
+  getFormView$(type: string) {
+    const form = createForm(type as any);
+    const view = form.Props();
+    const viewModel = getViewModel(view, {}, false);
+    console.log('FormViewModel', viewModel);
+    return viewModel;
   }
 
 }

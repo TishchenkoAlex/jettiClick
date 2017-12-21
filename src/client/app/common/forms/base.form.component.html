@@ -1,0 +1,54 @@
+<form novalidate [formGroup]="viewModel.formGroup" cdkTrapFocus>
+  <p-panel [toggleable]="true">
+    <p-toolbar>
+      <div class="ui-toolbar-group-left">
+        <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
+      </div>
+      <div class="ui-toolbar-group-right">
+        <!--  <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
+        <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>
+      </div>
+    </p-toolbar>
+
+    <ng-container *ngTemplateOutlet="formTepmlate? formTepmlate: formTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
+    <ng-content></ng-content>
+  </p-panel>
+</form>
+
+<ng-template #formTepmlateDefault let-v="viewModel">
+
+  <div fxLayout="column" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" cdkFocusInitial>
+
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px" fxLayoutGap.xs="0px" *ngFor="let i of [0,3,6,9,12,15]">
+      <div fxFlex>
+        <j-control *ngIf="v.view[i+0] && v.view[i+0].order > 0 && v.view[i+0].type !== 'table' && v.view[i+0].controlType !== 'script'"
+          [control]="v.view[i+0]" [form]="v.formGroup"></j-control>
+      </div>
+      <div fxFlex>
+        <j-control *ngIf="v.view[i+1] && v.view[i+1].order > 0 && v.view[i+1].type !== 'table' && v.view[i+1].controlType !== 'script'"
+          [control]="v.view[i+1]" [form]="v.formGroup"></j-control>
+      </div>
+      <div fxFlex>
+        <j-control *ngIf="v.view[i+2] && v.view[i+2].order > 0 && v.view[i+2].type !== 'table' && v.view[i+2].controlType !== 'script'"
+          [control]="v.view[i+2]" [form]="v.formGroup"></j-control>
+      </div>
+    </div>
+
+    <br *ngIf="tables.length">
+    <p-tabView *ngIf="tables.length" class="tabViewClassInForm">
+      <div *ngFor="let control of tables; let i = index">
+        <p-tabPanel [style]="{'padding':'0'}" [header]="control.label">
+          <j-control [control]="control" [form]="v.formGroup"></j-control>
+        </p-tabPanel>
+      </div>
+    </p-tabView>
+
+  </div>
+</ng-template>
+
+<ng-template #actionTepmlateDefault let-v="viewModel">
+  <button pButton type="button" icon="fa-check-square-o" [label]="(media | async)?.mqAlias === 'xs' ? '.' : 'Execute'" class="ui-button-warning"
+    [disabled]="!v.formGroup.valid" (click)="Execute()"></button>
+</ng-template>
+
+<p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>

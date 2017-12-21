@@ -9,7 +9,6 @@ export class UserDefaultsSettings {
   rowsInList = 14;
 }
 
-
 export class FilterInterval {
   start: number | string | boolean = null;
   end: number | string | boolean = null;

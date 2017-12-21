@@ -20,25 +20,25 @@ export class DocumentOperation extends DocumentBase {
   @Props({ type: 'Document.Operation', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
-  @Props({ type: 'Catalog.Operation.Group', label: 'Group', style: { display: 'none' } })
+  @Props({ type: 'Catalog.Operation.Group', order: 4, label: 'Group', style: { display: 'none' } })
   Group: Ref = null;
 
-  @Props({ type: 'Catalog.Operation', owner: 'Group', required: true })
+  @Props({ type: 'Catalog.Operation', owner: 'Group', required: true, order: 5, style: { width: '270px' } })
   Operation: Ref = null;
 
-  @Props({ type: 'number' })
+  @Props({ type: 'number', order: 6  })
   Amount: number = null;
 
-  @Props({ type: 'Catalog.Currency', required: true, label: 'Cur', style: { width: '70px' } })
+  @Props({ type: 'Catalog.Currency', required: true, order: 7, label: 'Cur', style: { width: '70px' } })
   currency: Ref = null;
 
-  @Props({ type: 'string', hidden: true, label: 'Parameter 1' })
+  @Props({ type: 'string', hidden: true, label: 'Parameter 1', order: 20 })
   column1: string = null;
 
-  @Props({ type: 'string', hidden: true, label: 'Parameter 2' })
+  @Props({ type: 'string', hidden: true, label: 'Parameter 2', order: 21 })
   column2: string = null;
 
-  @Props({ type: 'string', hidden: true, label: 'Parameter 3' })
+  @Props({ type: 'string', hidden: true, label: 'Parameter 3', order: 22 })
   column3: string = null;
 
   @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true})
@@ -73,7 +73,7 @@ export class DocumentOperation extends DocumentBase {
     ${options.type.startsWith('Document.') ?
     `'${options.description} #' ||
      ${options.prefix ? `'${options.prefix}'` : `''`}
-     ${options.prefix ? ` || trim(to_char((SELECT currval('"SEQ.${options.type}"')), '000000000'))` : `''`} || to_char(now(), ', YYYY-MM-DD HH24:MI:SS')` : `''`} description,
+     ${options.prefix ? ` || trim(to_char((SELECT currval('"SEQ.${options.type}"')), '000000000'))` : `''`} || to_char(now(), ', YYYY-MM-DD HH24:MI:SS GMT')` : `''`} description,
     false posted,
     false deleted,
     '{"id": "", "code": "", "type": "Document.Operation", "value": ""}':: JSONB "parent",
@@ -104,9 +104,9 @@ export class DocumentOperation extends DocumentBase {
     "company".description "company",
     "Operation".description "Operation",
     "Currency".description "currency",
-    "p1".description "column1",
-    "p2".description "column2",
-    "p3".description "column3",
+    COALESCE(CASE WHEN "p1".id IS NULL THEN d.doc ->> 'p1' ELSE "p1".description END, '') "column1",
+    COALESCE(CASE WHEN "p2".id IS NULL THEN d.doc ->> 'p2' ELSE "p2".description END, '') "column2",
+    COALESCE(CASE WHEN "p3".id IS NULL THEN d.doc ->> 'p3' ELSE "p3".description END, '') "column3",
     "Operation.Group".description "Group",
     (d.doc ->> 'Amount')::NUMERIC(15, 2) "Amount"
   FROM "Documents" d
@@ -118,7 +118,8 @@ export class DocumentOperation extends DocumentBase {
     LEFT JOIN "Documents" "p1" ON "p1".id = d.doc ->> 'p1'
     LEFT JOIN "Documents" "p2" ON "p2".id = d.doc ->> 'p2'
     LEFT JOIN "Documents" "p3" ON "p3".id = d.doc ->> 'p3'
-    WHERE d.type = 'Document.Operation' `;
+    LEFT JOIN "Documents" "p4" ON "p4".id = d.doc ->> 'p4'
+    WHERE d.type = 'Document.Operation'  `;
   }
 
   QueryObject() {
@@ -139,6 +140,9 @@ export class DocumentOperation extends DocumentBase {
     jsonb_build_object('id', "Operation".id, 'value', "Operation".description, 'type', 'Catalog.Operation', 'code', "Operation".code) "Operation",
     jsonb_build_object('id', "Operation.Group".id, 'value', "Operation.Group".description, 'type', 'Catalog.Operation.Group', 'code', "Operation.Group".code) "Group",
     jsonb_build_object('id', "Currency".id, 'value', "Currency".description, 'type', 'Catalog.Currency', 'code', "Currency".code) "currency",
+    CASE WHEN "p1".id IS NULL THEN d.doc -> 'p1' ELSE jsonb_build_object('id', "p1".id, 'value', "p1".description, 'type', "p1".type, 'code', "p1".code) END "column1",
+    CASE WHEN "p2".id IS NULL THEN d.doc -> 'p2' ELSE jsonb_build_object('id', "p2".id, 'value', "p2".description, 'type', "p2".type, 'code', "p2".code) END "column2",
+    CASE WHEN "p3".id IS NULL THEN d.doc -> 'p3' ELSE jsonb_build_object('id', "p3".id, 'value', "p3".description, 'type', "p3".type, 'code', "p3".code) END "column3",
     CASE WHEN "p1".id IS NULL THEN d.doc -> 'p1' ELSE jsonb_build_object('id', "p1".id, 'value', "p1".description, 'type', "p1".type, 'code', "p1".code) END "p1",
     CASE WHEN "p2".id IS NULL THEN d.doc -> 'p2' ELSE jsonb_build_object('id', "p2".id, 'value', "p2".description, 'type', "p2".type, 'code', "p2".code) END "p2",
     CASE WHEN "p3".id IS NULL THEN d.doc -> 'p3' ELSE jsonb_build_object('id', "p3".id, 'value', "p3".description, 'type', "p3".type, 'code', "p3".code) END "p3",

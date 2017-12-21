@@ -13,41 +13,6 @@ export interface IRegisteredTypes<T> {
   class: T
 }
 
-export function buildTypesQueryList(select: { type: any; description: string; }[]) {
-  let query = '';
-  for (const row of select) {
-    query += `SELECT
-      '${row.type}' AS id,
-      '${row.type}' "type",
-      '${row.type}' code,
-      '${row.description}' description,
-      TRUE posted,
-      FALSE deleted,
-      NULL parent
-      UNION ALL\n`;
-  }
-  query = `SELECT * FROM (${query.slice(0, -10)}) d WHERE TRUE `;
-  return query;
-}
-
-export function buildSubcountQueryList(select: { type: any; description: string; }[]) {
-  let query = '';
-  for (const row of select) {
-    query += `SELECT
-      '${row.type}' AS id,
-      'Catalog.Subcount' "type",
-      '${row.type}' code,
-      '${row.description}' description,
-      TRUE posted,
-      FALSE deleted,
-      NULL parent
-      UNION ALL\n`;
-  }
-  query = `SELECT * FROM (${query.slice(0, -10)}) d WHERE TRUE `;
-  return query;
-}
-
-
 export function createTypes(type: ComplexTypes) {
   const doc = RegisteredTypes.find(el => el.type === type);
   if (doc) {

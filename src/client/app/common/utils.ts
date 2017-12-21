@@ -1,7 +1,7 @@
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 
-import { BaseJettiFromControl, TableDynamicControl } from './dynamic-form/dynamic-form-base';
+import { BaseJettiFormControl, TableDynamicControl } from './dynamic-form/dynamic-form-base';
 import { dateReviver, dateReviverUTC } from './../../../server/fuctions/dateReviver';
 
 export function cloneFormGroup(formGroup: FormGroup): FormGroup {

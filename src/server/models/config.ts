@@ -38,7 +38,6 @@ export const configSchema = new Map([
       Props: Props,
       Prop: Prop
     });
-    console.log('Building config schema...', el.type);
     if (el.type === 'Catalog.Subcount') { result.QueryList = (doc as CatalogSubcount).QueryList() }
     if (el.type === 'Document.Operation') { // Opeations specific implementation
       result.QueryList = (doc as DocumentOperation).QueryList();
@@ -53,7 +52,6 @@ export const configSchema = new Map([
       type: el.type as DocumentTypes,
       QueryList: doc.QueryList()
     }
-    console.log('Building config schema...', el.type)
     return ({
       type: el.type as ComplexTypes,
       QueryList: doc.QueryList()

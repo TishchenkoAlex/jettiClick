@@ -17,6 +17,9 @@ export class TabResolver implements Resolve<any> {
     const id: string = route.params['id'] || '';
     this.sns.do({id: id, type: type});
     if (type === HOME) { return null }
+    if (type.startsWith('Form.')) {
+      return this.dfs.getFormView$(route.params['type']);
+    }
     if (this.tcs.tabs.findIndex(i => i.docType === type && i.docID === id) === -1) {
       if (route.params['id']) {
         return this.dfs.getViewModel$(route.params['type'], route.params['id']);

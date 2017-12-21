@@ -2,8 +2,9 @@ import { DocTypes } from '../documents.types';
 import { AdminObjects } from './Admin';
 import { FinanceRoleObject } from './Finance';
 import { SalesRoleObjects } from './Sales';
+import { FormTypes } from '../Forms/form.types';
 
-export interface RoleObject { type: DocTypes, read: boolean, write: boolean }
+export interface RoleObject { type: DocTypes | FormTypes, read: boolean, write: boolean }
 
 export type RoleType =
   'Finance' |

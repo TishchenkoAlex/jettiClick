@@ -16,7 +16,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import {
-    BaseJettiFromControl,
+    BaseJettiFormControl,
     ScriptJettiFormControl,
     TableDynamicControl,
 } from '../../common/dynamic-form/dynamic-form-base';
@@ -31,7 +31,7 @@ import { cloneFormGroup } from '../utils';
   templateUrl: './table-parts.png.component.html',
 })
 export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy {
-  private view: BaseJettiFromControl<any>[];
+  private view: BaseJettiFormControl<any>[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
 
@@ -51,8 +51,8 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
   constructor(private api: ApiService, private ds: DocService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.view = this.control.value as BaseJettiFromControl<any>[];
-    this.columns = this.view.filter(c => !(c instanceof ScriptJettiFormControl)).map((el) => {
+    this.view = this.control.value as BaseJettiFormControl<any>[];
+    this.columns = this.view.map((el) => {
       const result: ColumnDef = {
         field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, onChange: el.onChange, onChangeServer: el.onChangeServer,
         order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, data: el

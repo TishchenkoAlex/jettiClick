@@ -2,9 +2,9 @@ import { AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { DataTable, SortMeta } from 'primeng/primeng';
+import { DataTable, SortMeta, MenuItem } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
-import { filter } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -22,7 +22,7 @@ import { calendarLocale, dateFormat } from './../../primeNG.module';
   selector: 'j-list',
   templateUrl: 'base.list.component.html',
 })
-export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   locale = calendarLocale;
   dateFormat = dateFormat;
 
@@ -42,10 +42,12 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
   isDoc: boolean;
   columns: ColumnDef[] = [];
   selectedRows: DocumentBase[] = [];
+  ctxItems: MenuItem[] = [];
+  ctxData = { column: '', value: undefined };
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private messageService: MessageService,
     private sns: SideNavService, public uss: UserSettingsService, private lds: LoadingService) {
-      this.pageSize = Math.floor((window.innerHeight - 275) / 24);
+    this.pageSize = Math.floor((window.innerHeight - 275) / 24);
   };
 
   ngOnInit() {
@@ -60,6 +62,15 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.columns.filter(c => excludeColumns.indexOf(c.field) > -1).forEach(c => c.hidden = true);
     this.columns = this.columns.filter(c => !!!c.hidden);
 
+    this.ctxItems = [
+      {
+        label: 'Quick filter', icon: 'fa-search', command: (event) =>
+          this.update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
+      },
+      { label: 'unPost', icon: 'fa-reply', command: (event) => { this.post('unpost') } },
+      { label: 'Delete', icon: 'fa-minus', command: (event) => { this.delete() } }
+    ];
+
     this._docSubscription$ = Observable.merge(...[this.ds.save$, this.ds.delete$, this.ds.saveCloseDoc$, this.ds.goto$]).pipe(
       filter(doc => doc && doc.type === this.docType))
       .subscribe((doc: DocumentBase) => {
@@ -67,7 +78,7 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
         if (exist) {
           this.dataTable.selection = [exist];
           this.dataSource.refresh();
-        } else {this.dataSource.goto(doc.id) }
+        } else { this.dataSource.goto(doc.id) }
       });
 
     this._sideNavService$ = this.sns.do$.pipe(
@@ -82,16 +93,22 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.dataTable = this.dataTable;
 
-    if (this.route.queryParams['value'].goto) {
-      this.ds.goto(<any>{type: this.docType, id: this.route.queryParams['value'].goto});
-      this.router.navigate([this.docType], {replaceUrl: true});
-      return;
-    }
-
     this.dataTable.multiSortMeta = this.columns
       .map(c => c.sort)
       .filter(e => !!e.order)
       .map(e => <SortMeta>{ field: e.field, order: e.order === 'asc' ? 1 : -1 });
+
+    // обработка команды найти в списке
+    const id = this.route.queryParams['value'].goto;
+    if (id) {
+      setTimeout(() => {
+        this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: null })
+        this.dataSource.goto(id);
+        this.router.navigate([this.docType], { replaceUrl: true });
+        this.AfterViewInit = true;
+      });
+      return;
+    }
 
     setTimeout(() => {
       this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
@@ -101,8 +118,10 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   update(col: ColumnDef, event, center) {
-    this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
-    this.Sort(event);
+    if (this.AfterViewInit) {
+      this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
+      this.Sort(event);
+    }
   }
 
   Sort(event) {
@@ -134,18 +153,30 @@ export class BaseListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   delete() { this.dataSource.dataTable.selection.forEach(el => this.ds.delete(el.id)) }
 
-  async post() {
+  async post(mode = 'post') {
     const tasksCount = this.dataSource.dataTable.selection.length; let i = tasksCount;
     for (const s of this.dataSource.dataTable.selection) {
       this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
       try {
-        await this.ds.post(s.id);
+        if (mode === 'post') { await this.ds.post(s.id) } else { await this.ds.unpost(s.id) }
       } catch (err) {
         this.messageService.add({ severity: 'error', summary: 'Error on post ' + s.description, detail: err.error })
       }
     }
     this.lds.counter = 0;
     this.dataSource.refresh();
+  }
+
+  onContextMenuSelect(event) {
+    this.ds.api.getViewModel(this.docType, event.data.id).pipe(
+      take(1))
+      .subscribe((data: any) => {
+      const model = data.model as DocumentBase;
+      let el = (event.originalEvent as MouseEvent).srcElement;
+      while (!el.id && el.lastElementChild) { el = el.lastElementChild }
+      this.ctxData.column = el.id;
+      this.ctxData.value = model[this.ctxData.column];
+    });
   }
 
   ngOnDestroy() {

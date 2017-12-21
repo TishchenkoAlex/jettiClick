@@ -17,13 +17,14 @@ import { Subscription } from 'rxjs/Subscription';
 import { DocService } from '../../common/doc.service';
 import { patchOptionsNoEvents, ViewModel } from '../../common/dynamic-form/dynamic-form.service';
 import { SideNavService } from './../../services/side-nav.service';
+import { Location } from '@angular/common';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-form',
   templateUrl: './base.form.component.html'
 })
-export class BaseFormComponent implements OnInit, OnDestroy {
+export class BaseDocFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
@@ -41,7 +42,8 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   get posted() { return this.viewModel.formGroup.controls['posted'] }
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
-    public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService) {
+    public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService,
+    private location: Location) {
   }
 
   ngOnInit() {
@@ -111,7 +113,11 @@ export class BaseFormComponent implements OnInit, OnDestroy {
     this.ds.delete(this.viewModel.model.id);
   }
 
-  private _close() { this.ds.close(null); this.cd.markForCheck() };
+  private _close() {
+    this.ds.close(null);
+    this.cd.markForCheck();
+    this.location.back();
+  };
 
   Close() {
     if (this.viewModel.formGroup.pristine) { this._close(); return }

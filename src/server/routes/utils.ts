@@ -9,7 +9,7 @@ router.get('/operations/groups', async (req: Request, res: Response, next: NextF
   try {
     res.json(await db.manyOrNone(`
         SELECT id, type, description as value, code FROM "Documents" WHERE type = 'Catalog.Operation.Group' ORDER BY description`));
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })
 
 router.get('/:type/dimensions', async (req: Request, res: Response, next: NextFunction) => {
@@ -17,5 +17,5 @@ router.get('/:type/dimensions', async (req: Request, res: Response, next: NextFu
     let result = await db.oneOrNone(`SELECT dimensions FROM config_schema WHERE type = $1`, [req.params.type]);
     if (result) { result = result.dimensions || [] } else { result = [] }
     res.json(result);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 })

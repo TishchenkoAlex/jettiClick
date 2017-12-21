@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
-import { BaseJettiFromControl } from './dynamic-form-base';
+import { BaseJettiFormControl } from './dynamic-form-base';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
 
 @Component({
@@ -13,7 +13,7 @@ import { calendarLocale, dateFormat } from './../../primeNG.module';
   templateUrl: './dynamic-form-control.component.png.html'
 })
 export class DynamicFormControlComponent {
-  @Input() control: BaseJettiFromControl<any>;
+  @Input() control: BaseJettiFormControl<any>;
   @Input() form: FormGroup;
   locale = calendarLocale;
   dateFormat = dateFormat;

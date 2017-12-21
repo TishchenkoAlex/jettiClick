@@ -12,6 +12,7 @@ export const FinanceRoleObject: RoleObject[] = [
     { type: 'Catalog.Loan', read: true, write: true },
     { type: 'Document.Invoice', read: true, write: true },
     { type: 'Document.CashIn', read: true, write: true },
-    { type: 'Document.ExchangeRates', read: true, write: true }
+    { type: 'Document.ExchangeRates', read: true, write: true },
+    { type: 'Form.Post', read: true, write: true}
   ]
 

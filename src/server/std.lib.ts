@@ -11,7 +11,7 @@ export interface JTL {
     byCode: (code: string, tx?: TX) => Promise<string>
   },
   register: {
-    balance: (type: string, date: string, company: Ref, resource: string[],
+    balance: (type: string, date: Date, company: Ref, resource: string[],
       analytics: { [key: string]: Ref }, tx?: TX) => Promise<any>,
     avgCost: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>
   }
@@ -109,28 +109,28 @@ async function balance(account: Ref, date = new Date().toJSON(), company: Ref): 
   return result ? result.result : null;
 }
 
-async function registerBalance(type: string, date = new Date().toJSON(), company: Ref,
+async function registerBalance(type: string, date = new Date(), company: Ref,
   resource: string[], analytics: { [key: string]: Ref }, tx = db) {
 
-  const addQuery = (key) => `SUM((data->>'${key}') :: NUMERIC(15, 2) * CASE WHEN kind THEN 1 ELSE -1 END) "${key}",\n`
-  let query = ''; for (const el of resource) { query += addQuery(el) };
+  const addQuery = (key) => `SUM((data->>'${key}')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) "${key}",\n`
+  let query = ''; for (const el of resource) { query += addQuery(el) }; query = query.slice(0, -2);
 
   const result = await db.oneOrNone(`
-    SELECT ${query.slice(2)}
+    SELECT ${query}
     FROM "Register.Accumulation"
     WHERE type = $1
       AND date <= $2
       AND company = $3
       AND data @> $4
-  `, [type, date, company, analytics]);
+  `, ['Register.Accumulation.' + type, date, company, analytics]);
   return (result ? result : {});
 }
 
 async function avgCost(date = new Date(), company: Ref, analytics: { [key: string]: Ref }, tx = db): Promise<number> {
   const queryText = `
     SELECT
-      SUM((data ->> 'Cost')::NUMERIC(15, 2) * CASE WHEN kind THEN 1 ELSE -1 END) /
-      NullIf(SUM((data ->> 'Qty')::NUMERIC(15, 2)  * CASE WHEN kind THEN 1 ELSE -1 END), 0) result
+      SUM((data ->> 'Cost')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) /
+      NullIf(SUM((data ->> 'Qty')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END), 0) result
     FROM "Register.Accumulation"
     WHERE type = 'Register.Accumulation.Inventory'
       AND date <= $1

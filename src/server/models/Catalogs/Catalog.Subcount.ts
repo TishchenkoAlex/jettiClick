@@ -1,7 +1,7 @@
 import { AllTypes } from '../documents.types';
 import { createDocument, RegisteredDocument } from './../../models/documents.factory';
-import { buildSubcountQueryList } from './../../models/Types/Types.factory';
 import { DocumentBase, DocumentOptions, JDocument, Props, Ref } from './../document';
+import { buildSubcountQueryList } from './../../fuctions/SQLGenerator';
 
 @JDocument({
   type: 'Catalog.Subcount',
