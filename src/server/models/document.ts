@@ -2,7 +2,6 @@ import { v1 } from 'uuid';
 
 import { IServerDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
-import { PatchValue } from './api';
 
 export interface PropOptions {
   type: AllTypes,
@@ -47,7 +46,7 @@ export function JDocument(props: DocumentOptions) {
   }
 }
 
-export abstract class DocumentBase {
+export class DocumentBase {
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
   id: Ref = null;

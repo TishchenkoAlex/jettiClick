@@ -10,7 +10,7 @@ import { ColumnDef } from './../models/column';
 import { DocumentBaseServer, IServerDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
-import { lib } from './../std.lib';
+import { lib, postById } from './../std.lib';
 import { docOperationResolver, doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
 import { List } from './utils/list';
 import { configSchema } from './../models/config';
@@ -138,23 +138,10 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   } catch (err) { next(err.message); }
 })
 
-async function _post(req: express.Request, posted: boolean, tx: TX) {
-  const doc = await lib.doc.byId(req.params.id, tx);
-  const serverDoc = createDocumentServer(doc.type as DocTypes, doc);
-  if (serverDoc.isDoc) {
-    await tx.none(`
-        DELETE FROM "Register.Account" WHERE document = $1;
-        DELETE FROM "Register.Info" WHERE document = $1;
-        DELETE FROM "Register.Accumulation" WHERE document = $1;
-        UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [doc.id, posted]);
-  }
-  if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx) }
-}
-
 // unPost by id (without returns posted object to client, for post in cicle many docs)
 router.get('/unpost/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await db.tx(async (tx: TX) => await _post(req, false, tx));
+    await db.tx(async (tx: TX) => await postById(req.params.id, false, tx));
     res.json(true);
   } catch (err) { next(err.message); }
 })
@@ -162,7 +149,7 @@ router.get('/unpost/:id', async (req: Request, res: Response, next: NextFunction
 // Post by id (without returns posted object to client, for post in cicle many docs)
 router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await db.tx(async (tx: TX) => await _post(req, true, tx));
+    await db.tx(async (tx: TX) => await postById(req.params.id, true, tx));
     res.json(true);
   } catch (err) { next(err.message); }
 })
@@ -181,7 +168,6 @@ router.get(':type/:id', async (req: Request, res: Response, next: NextFunction) 
     res.json(await db.one(`${serverDoc.QueryObject} AND d.id = $1`, [req.params.id]));
   } catch (err) { next(err.message); }
 })
-
 
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {

@@ -1,9 +1,9 @@
+import { TX } from '../../db';
 import { lib } from '../../std.lib';
 import { RegisterInfoPriceList } from '../Registers/Info/PriceList';
 import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentPriceList } from './Document.PriceList';
-import { TX } from '../../db';
 
 export class DocumentPriceListServer extends DocumentPriceList implements ServerDocument {
 

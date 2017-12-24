@@ -2,8 +2,9 @@ import { DocumentOptions } from '../document';
 import { createDocument, RegisteredDocument } from '../documents.factory';
 import { AllTypes } from '../documents.types';
 import { buildTypesQueryList } from './../../fuctions/SQLGenerator';
+import { TypesBase } from './TypesBase';
 
-export class TypesSubcount {
+export class TypesSubcount extends TypesBase {
 
   QueryList() {
     const select = RegisteredDocument

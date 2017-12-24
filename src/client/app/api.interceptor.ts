@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { catchError, map, tap } from 'rxjs/operators';
 
-import { dateReviver, dateReviverUTC } from './../../server/fuctions/dateReviver';
+import { dateReviverUTC } from './../../server/fuctions/dateReviver';
 import { environment } from './../environments/environment';
 import { Auth0Service } from './auth/auth0.service';
 import { LoadingService } from './common/loading.service';

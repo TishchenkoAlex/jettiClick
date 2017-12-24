@@ -14,7 +14,7 @@ export const server = new Map<FormTypes | DocTypes, any>([
 ]);
 
 // Select documents list for UI (grids/list etc)
-router.post('/call', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/call/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const CR: ICallRequest = req.body;
     const ClassType = server.get(CR.type);
@@ -22,9 +22,12 @@ router.post('/call', async (req: Request, res: Response, next: NextFunction) => 
     const Class = new ClassType(CR);
     const ClassMethod = Class[CR.method];
     if (!ClassMethod) { throw new Error(`Server Method '${CR.method}' for '${CR.type}'  not found.`) }
-    const result = await Class[CR.method]();
-    res.json(result);
+    if (req.params[0] === 'async') {
+      Class[CR.method]().then(() => {})
+    } else {
+      await Class[CR.method]();
+    }
+    res.json(true);
   } catch (err) { next(err) }
 });
-
 

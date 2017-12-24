@@ -21,6 +21,7 @@ export type CatalogTypes =
   'Catalog.Product' |
   'Catalog.Storehouse' |
   'Catalog.Subcount' |
+  'Catalog.Documents' |
   'Catalog.User' |
   'Catalog.Unit'
   ;

@@ -1,6 +1,4 @@
-import { SQLGenegator } from '../fuctions/SQLGenerator';
-import { IRegisteredDocument, RegisteredDocument } from './../models/documents.factory';
-import { DocumentOptions } from './document';
+import { createDocument, IRegisteredDocument } from './../models/documents.factory';
 import { DocTypes } from './documents.types';
 import { DocumentExchangeRatesServer } from './Documents/Document.ExchangeRates.server';
 import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
@@ -8,19 +6,19 @@ import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
 import { DocumentBaseServer, IServerDocument } from './ServerDocument';
 
-const RegisteredServerDocument: IRegisteredDocument<any>[] = [
-  { type: 'Document.Invoice', class: DocumentInvoiceServer },
-  { type: 'Document.ExchangeRates', class: DocumentExchangeRatesServer },
-  { type: 'Document.PriceList', class: DocumentPriceListServer },
-  { type: 'Document.Operation', class: DocumentOperationServer },
-]
-
-export function createDocumentServer(type: DocTypes, document?: IServerDocument) {
-  const doc = RegisteredServerDocument.find(el => el.type === type) || RegisteredDocument.find(el => el.type === type);
+export function createDocumentServer(type: DocTypes, document?: IServerDocument): DocumentBaseServer {
+  const doc = RegisteredServerDocument.find(el => el.type === type);
   if (doc) {
-    const createInstance = <T extends DocumentBaseServer>(c: new () => T): T => new c();
-    const result = createInstance(doc.class);
-    result.map(document);
-    return result;
+    const serverResult = <DocumentBaseServer> new doc.Class;
+    serverResult.map(document);
+    return serverResult;
   }
+  return createDocument(type) as DocumentBaseServer;
 }
+
+const RegisteredServerDocument: IRegisteredDocument[] = [
+  { type: 'Document.Invoice', Class: DocumentInvoiceServer },
+  { type: 'Document.ExchangeRates', Class: DocumentExchangeRatesServer },
+  { type: 'Document.PriceList', Class: DocumentPriceListServer },
+  { type: 'Document.Operation', Class: DocumentOperationServer },
+]

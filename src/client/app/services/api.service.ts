@@ -149,8 +149,8 @@ export class ApiService {
     );
   }
 
-  call(type: string, formView: any, method: string, params: any[]): Observable<any> {
-    const query = `${this.url}/call`;
+  call(type: string, formView: any, method: string, params: any[], async = false): Observable<any> {
+    const query = `${this.url}call/${async ? 'async' : ''}`;
     return this.http.post(query, {
       type: type,
       method: method,

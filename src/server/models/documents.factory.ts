@@ -29,52 +29,48 @@ import { DocumentExchangeRates } from './Documents/Document.ExchangeRates';
 import { DocumentInvoice } from './Documents/Document.Invoice';
 import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentPriceList } from './Documents/Document.PriceList';
+import { CatalogDocuments } from './Catalogs/Catalog.Documents';
 
-export interface IRegisteredDocument<T extends DocumentBase> {
-  type: DocTypes,
-  class: T
-}
+export interface IRegisteredDocument { type: DocTypes, Class: typeof DocumentBase };
 
-export function createDocument(type: DocTypes, document?: IServerDocument) {
+export function createDocument(type: DocTypes, document?: IServerDocument): DocumentBase {
   const doc = RegisteredDocument.find(el => el.type === type);
   if (doc) {
-    const createInstance = <T extends DocumentBase>(c: new () => T): T => new c();
-    const result = createInstance(doc.class);
+    const result = <DocumentBase> new doc.Class;
     result.map(document);
     return result;
   }
 }
 
-export const RegisteredDocument: IRegisteredDocument<any>[] = [
-  { type: 'Catalog.Account', class: CatalogAccount },
-  { type: 'Catalog.Balance', class: CatalogBalance },
-  { type: 'Catalog.Balance.Analytics', class: CatalogBalanceAnalytics },
-  { type: 'Catalog.BankAccount', class: CatalogBankAccount },
-  { type: 'Catalog.CashFlow', class: CatalogCashFlow },
-  { type: 'Catalog.CashRegister', class: CatalogCashRegister },
-  { type: 'Catalog.Currency', class: CatalogCurrency },
-  { type: 'Catalog.Company', class: CatalogCompany },
-  { type: 'Catalog.Counterpartie', class: CatalogCounterpartie },
-  { type: 'Catalog.Department', class: CatalogDepartment },
-  { type: 'Catalog.Expense', class: CatalogExpense },
-  { type: 'Catalog.Expense.Analytics', class: CatalogExpenseAnalytics },
-  { type: 'Catalog.Income', class: CatalogIncome },
-  { type: 'Catalog.Loan', class: CatalogLoan },
-  { type: 'Catalog.Manager', class: CatalogManager },
-  { type: 'Catalog.Person', class: CatalogPerson },
-  { type: 'Catalog.PriceType', class: CatalogPriceType },
-  { type: 'Catalog.Product', class: CatalogProduct },
-  { type: 'Catalog.Storehouse', class: CatalogStorehouse },
-  { type: 'Catalog.Operation', class: CatalogOperation },
-  { type: 'Catalog.Operation.Group', class: CatalogOperationGroup },
-  { type: 'Catalog.Subcount', class: CatalogSubcount },
-  { type: 'Catalog.User', class: CatalogUser },
-  { type: 'Catalog.Unit', class: CatalogUnit },
+export const RegisteredDocument: IRegisteredDocument[] = [
+  { type: 'Catalog.Account', Class: CatalogAccount },
+  { type: 'Catalog.Balance', Class: CatalogBalance },
+  { type: 'Catalog.Balance.Analytics', Class: CatalogBalanceAnalytics },
+  { type: 'Catalog.BankAccount', Class: CatalogBankAccount },
+  { type: 'Catalog.CashFlow', Class: CatalogCashFlow },
+  { type: 'Catalog.CashRegister', Class: CatalogCashRegister },
+  { type: 'Catalog.Currency', Class: CatalogCurrency },
+  { type: 'Catalog.Company', Class: CatalogCompany },
+  { type: 'Catalog.Counterpartie', Class: CatalogCounterpartie },
+  { type: 'Catalog.Department', Class: CatalogDepartment },
+  { type: 'Catalog.Expense', Class: CatalogExpense },
+  { type: 'Catalog.Expense.Analytics', Class: CatalogExpenseAnalytics },
+  { type: 'Catalog.Income', Class: CatalogIncome },
+  { type: 'Catalog.Loan', Class: CatalogLoan },
+  { type: 'Catalog.Manager', Class: CatalogManager },
+  { type: 'Catalog.Person', Class: CatalogPerson },
+  { type: 'Catalog.PriceType', Class: CatalogPriceType },
+  { type: 'Catalog.Product', Class: CatalogProduct },
+  { type: 'Catalog.Storehouse', Class: CatalogStorehouse },
+  { type: 'Catalog.Operation', Class: CatalogOperation },
+  { type: 'Catalog.Operation.Group', Class: CatalogOperationGroup },
+  { type: 'Catalog.Unit', Class: CatalogUnit },
+  { type: 'Catalog.User', Class: CatalogUser },
+  { type: 'Catalog.Documents', Class: CatalogDocuments },
+  { type: 'Catalog.Subcount', Class: CatalogSubcount },
 
-  { type: 'Document.ExchangeRates', class: DocumentExchangeRates },
-  { type: 'Document.Invoice', class: DocumentInvoice },
-  { type: 'Document.Operation', class: DocumentOperation },
-  { type: 'Document.PriceList', class: DocumentPriceList },
+  { type: 'Document.ExchangeRates', Class: DocumentExchangeRates },
+  { type: 'Document.Invoice', Class: DocumentInvoice },
+  { type: 'Document.Operation', Class: DocumentOperation },
+  { type: 'Document.PriceList', Class: DocumentPriceList },
 ]
-
-

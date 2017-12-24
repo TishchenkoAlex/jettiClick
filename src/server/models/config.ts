@@ -1,6 +1,7 @@
 import { SQLGenegator } from '../fuctions/SQLGenerator';
 import { CatalogSubcount } from './../models/Catalogs/Catalog.Subcount';
 import { DocumentOperation } from './../models/Documents/Document.Operation';
+import { CatalogDocuments } from './Catalogs/Catalog.Documents';
 import { DocumentOptions } from './document';
 import { createDocument, RegisteredDocument } from './documents.factory';
 import { AllDocTypes, AllTypes, ComplexTypes, DocumentTypes } from './documents.types';
@@ -39,6 +40,7 @@ export const configSchema = new Map([
       Prop: Prop
     });
     if (el.type === 'Catalog.Subcount') { result.QueryList = (doc as CatalogSubcount).QueryList() }
+    if (el.type === 'Catalog.Documents') { result.QueryList = (doc as CatalogDocuments).QueryList() }
     if (el.type === 'Document.Operation') { // Opeations specific implementation
       result.QueryList = (doc as DocumentOperation).QueryList();
       result.QueryObject = (doc as DocumentOperation).QueryObject();

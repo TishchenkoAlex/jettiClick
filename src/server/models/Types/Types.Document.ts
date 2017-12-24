@@ -1,8 +1,9 @@
 import { DocumentOptions } from '../document';
 import { createDocument, RegisteredDocument } from '../documents.factory';
 import { buildTypesQueryList } from './../../fuctions/SQLGenerator';
+import { TypesBase } from './TypesBase';
 
-export class TypesDocument {
+export class TypesDocument extends TypesBase {
 
   QueryList(): string {
     const select = RegisteredDocument.filter(d => d.type.startsWith('Document.'))

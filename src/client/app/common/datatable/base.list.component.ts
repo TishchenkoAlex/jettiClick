@@ -119,6 +119,8 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   update(col: ColumnDef, event, center) {
     if (this.AfterViewInit) {
+      // if value is date interval, then set EndDate to end id day 23.59.59
+      if (event[1]) { event[1].setHours(23, 59, 59, 999) };
       this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
       this.Sort(event);
     }

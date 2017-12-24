@@ -2,6 +2,9 @@ import { db, TX } from './db';
 import { IServerDocument } from './models/ServerDocument';
 import { Ref } from './models/document';
 import { RefValue } from './models/api';
+import { createDocumentServer } from './models/documents.factory.server';
+import { DocTypes } from './models/documents.types';
+import { InsertRegisterstoDB } from './routes/utils/execute-script';
 
 export interface JTL {
   account: {
@@ -20,6 +23,7 @@ export interface JTL {
     byId: <T extends IServerDocument>(id: string, tx?: TX) => Promise<T>;
     modelById: (id: string, tx?: TX) => Promise<IServerDocument>;
     formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
+    postById: (id: string, posted: boolean, tx?: TX) => Promise<Ref>;
   },
   info: {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
@@ -42,7 +46,8 @@ export const lib: JTL = {
     byCode: byCode,
     byId: byId,
     modelById: modelById,
-    formControlRef: formControlRef
+    formControlRef: formControlRef,
+    postById: postById
   },
   info: {
     sliceLast: sliceLast
@@ -167,4 +172,19 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
     LIMIT 1`;
   const result = await tx.oneOrNone(queryText, [date, company, analytics]);
   return result ? result.result : null;
+}
+
+export async function postById(id: string, posted: boolean, tx: TX = db) {
+  const doc = await lib.doc.byId(id, tx);
+  let serverDoc = createDocumentServer(doc.type as DocTypes, doc);
+  if (serverDoc.isDoc) {
+    await tx.none(`
+        DELETE FROM "Register.Account" WHERE document = $1;
+        DELETE FROM "Register.Info" WHERE document = $1;
+        DELETE FROM "Register.Accumulation" WHERE document = $1;
+        UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [doc.id, posted]);
+  }
+  if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx) }
+  serverDoc = undefined;
+  return id;
 }

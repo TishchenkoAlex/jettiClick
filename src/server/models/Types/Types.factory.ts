@@ -2,27 +2,22 @@ import { ComplexTypes } from '../documents.types';
 import { TypesCatalog } from './Types.Catalog';
 import { TypesDocument } from './Types.Document';
 import { TypesSubcount } from './Types.Subcount';
+import { TypesBase } from './TypesBase';
 
-export type TypesType =
-  TypesDocument |
-  TypesCatalog |
-  TypesSubcount;
-
-export interface IRegisteredTypes<T> {
+export interface IRegisteredTypes {
   type: ComplexTypes,
-  class: T
+  Class: typeof TypesBase
 }
 
-export function createTypes(type: ComplexTypes) {
+export function createTypes(type: ComplexTypes): TypesBase {
   const doc = RegisteredTypes.find(el => el.type === type);
   if (doc) {
-    const createInstance = <T>(c: new () => T): T => new c();
-    return createInstance<TypesType>(doc.class as any)
+    return new doc.Class;
   }
 }
 
-export const RegisteredTypes: IRegisteredTypes<any>[] = [
-  { type: 'Types.Document', class: TypesDocument },
-  { type: 'Types.Catalog', class: TypesCatalog },
-  { type: 'Types.Subcount', class: TypesSubcount },
+export const RegisteredTypes: IRegisteredTypes[] = [
+  { type: 'Types.Document', Class: TypesDocument },
+  { type: 'Types.Catalog', Class: TypesCatalog },
+  { type: 'Types.Subcount', Class: TypesSubcount },
 ]

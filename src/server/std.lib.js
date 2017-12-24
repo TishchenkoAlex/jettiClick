@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("./db");
+const documents_factory_server_1 = require("./models/documents.factory.server");
+const execute_script_1 = require("./routes/utils/execute-script");
 exports.lib = {
     account: {
         balance: balance,
@@ -16,7 +18,8 @@ exports.lib = {
         byCode: byCode,
         byId: byId,
         modelById: modelById,
-        formControlRef: formControlRef
+        formControlRef: formControlRef,
+        postById: postById
     },
     info: {
         sliceLast: sliceLast
@@ -130,4 +133,21 @@ async function sliceLast(type, date = new Date(), company, resource, analytics, 
     const result = await tx.oneOrNone(queryText, [date, company, analytics]);
     return result ? result.result : null;
 }
+async function postById(id, posted, tx = db_1.db) {
+    const doc = await exports.lib.doc.byId(id, tx);
+    let serverDoc = documents_factory_server_1.createDocumentServer(doc.type, doc);
+    if (serverDoc.isDoc) {
+        await tx.none(`
+        DELETE FROM "Register.Account" WHERE document = $1;
+        DELETE FROM "Register.Info" WHERE document = $1;
+        DELETE FROM "Register.Accumulation" WHERE document = $1;
+        UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [doc.id, posted]);
+    }
+    if (posted && serverDoc.onPost) {
+        await execute_script_1.InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx);
+    }
+    serverDoc = undefined;
+    return id;
+}
+exports.postById = postById;
 //# sourceMappingURL=std.lib.js.map

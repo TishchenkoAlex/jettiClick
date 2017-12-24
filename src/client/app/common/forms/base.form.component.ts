@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { DocService } from '../../common/doc.service';
 import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
+import { LoadingService } from './../../common/loading.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +29,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService,
-    private location: Location) {
+    private location: Location, private lds: LoadingService) {
   }
 
   ngOnInit() {
@@ -64,13 +65,24 @@ export class BaseFormComponent implements OnInit, OnDestroy {
     this.viewModel.formGroup.patchValue(result);
   }
 
-  async Execute() {
-    try {
-      const result = await this.ds.api.call('Form.Post', this.viewModel.formGroup.getRawValue(), 'Execute', []).toPromise();
-      this.viewModel.formGroup.patchValue(result);
-    } catch (err) {
-      this.ds.openSnackBar('error', 'Error on execute', err.error)
+  async Execute2(mode = 'post') {
+    const result = await this.ds.api.call('Form.Post', this.viewModel.formGroup.getRawValue(), 'Execute2', []).toPromise();
+    const tasksCount = result.length; let i = tasksCount;
+    for (const s of result) {
+      this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
+      try {
+        if (mode === 'post') { await this.ds.post(s.id) } else { await this.ds.unpost(s.id) }
+      } catch (err) {
+        console.log(err.error);
+        this.ds.openSnackBar('error', 'Error on execute', err.error)
+      }
     }
+    this.lds.counter = 0;
   }
+
+  async Execute(mode = 'post') {
+    const result = await this.ds.api.call('Form.Post', this.viewModel.formGroup.getRawValue(), 'Execute', [], true).toPromise();
+  }
+
 
 }

@@ -1,7 +1,7 @@
-import { db, TX } from '../db';
+import { TX } from '../db';
+import { PatchValue } from './api';
 import { DocumentBase, Ref } from './document';
 import { PostResult } from './post.interfaces';
-import { PatchValue } from './api';
 
 export interface IServerDocument {
   id: Ref;
@@ -36,7 +36,7 @@ export abstract class DocumentBaseServer extends DocumentBase implements ServerD
   afterDelete(tx: TX): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  onValueChanged?(prop: string, value: any, tx: TX): Promise<PatchValue> {
+  onValueChanged(prop: string, value: any, tx: TX): Promise<PatchValue> {
     throw new Error('Method not implemented.');
   }
   onCommand(command: string, args: any, tx: TX): Promise<any> {
