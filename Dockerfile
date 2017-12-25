@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:alpine
 
 # Create app directory
 RUN mkdir -p /usr/src/app
@@ -12,6 +12,11 @@ RUN yarn
 COPY dist/ /usr/src/app/dist
 COPY src/server/ /usr/src/app/
 
-ENV PORT 80
+ENV PORT 8080
+EXPOSE 8080
 
 CMD [ "node", "index.js" ]
+
+#docker build --rm -f Dockerfile -t jetti-fs-mat:latest .
+#docker tag jetti-fs-mat jetti.azurecr.io/jetti-fs-mat
+#docker push jetti.azurecr.io/jetti-fs-mat

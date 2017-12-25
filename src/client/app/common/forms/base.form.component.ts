@@ -26,9 +26,8 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   viewModel: ViewModel = this.route.data['value'].detail;
   docId = Math.random().toString();
 
-  private _subscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;
-  private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
+  private _authSubscription$: Subscription = Subscription.EMPTY;
 
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
   get tables() { return this.viewModel.view.filter(t => t.type === 'table') }
@@ -39,18 +38,19 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.auth.userProfile$.subscribe(u => {
-      this.socket = socketIOClient(environment.socket, {query: 'user=' + u.sub});
-      this.socket
-        .on('Form.Post', data => console.log(data))
-        .on('sql', data => console.log(data));
+    this._authSubscription$ = this.auth.userProfile$.subscribe(u => {
+      if (u && u.sub) {
+        this.socket = socketIOClient(environment.socket, { query: 'user=' + u.sub });
+        this.socket
+          .on('Form.Post', data => console.log(data))
+          .on('sql', data => console.log(data));
+      }
     })
   }
 
   ngOnDestroy() {
-    this._subscription$.unsubscribe();
-    this._saveCloseSubscription$.unsubscribe();
     this._closeSubscription$.unsubscribe();
+    this._authSubscription$.unsubscribe();
     this.socket.disconnect();
   }
 

@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class SocketIOService {
-/* 
+/*
   socket = socketIOClient.connect(environment.socket)
     .on('event', data => this._do.next(data))
     .on('sql', data => this._sql.next(data));
