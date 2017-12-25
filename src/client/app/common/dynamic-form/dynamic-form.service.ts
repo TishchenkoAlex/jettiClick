@@ -166,7 +166,6 @@ export class DynamicFormService {
     const form = createForm(type as any);
     const view = form.Props();
     const viewModel = getViewModel(view, {}, false);
-    console.log('FormViewModel', viewModel);
     return viewModel;
   }
 

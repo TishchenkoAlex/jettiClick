@@ -7,6 +7,11 @@ import { Subscription } from 'rxjs/Subscription';
 import { DocService } from '../../common/doc.service';
 import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
 import { LoadingService } from './../../common/loading.service';
+import { SocketIOService } from './../../services/socket-io.sevice';
+import { take, filter } from 'rxjs/operators';
+import { environment } from './../../../environments/environment';
+import * as socketIOClient from 'socket.io-client';
+import { Auth0Service } from './../../auth/auth0.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,6 +22,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
 
+  socket;
   viewModel: ViewModel = this.route.data['value'].detail;
   docId = Math.random().toString();
 
@@ -28,17 +34,24 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   get tables() { return this.viewModel.view.filter(t => t.type === 'table') }
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
-    public cd: ChangeDetectorRef, public ds: DocService,
+    public cd: ChangeDetectorRef, public ds: DocService, private auth: Auth0Service,
     private location: Location, private lds: LoadingService) {
   }
 
   ngOnInit() {
+    this.auth.userProfile$.subscribe(u => {
+      this.socket = socketIOClient(environment.socket, {query: 'user=' + u.sub});
+      this.socket
+        .on('Form.Post', data => console.log(data))
+        .on('sql', data => console.log(data));
+    })
   }
 
   ngOnDestroy() {
     this._subscription$.unsubscribe();
     this._saveCloseSubscription$.unsubscribe();
     this._closeSubscription$.unsubscribe();
+    this.socket.disconnect();
   }
 
   private _close() {

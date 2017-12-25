@@ -5,5 +5,6 @@ export interface ICallRequest {
     type: FormTypes | DocTypes,
     formView: { [x: string]: any },
     method: string,
-    params: any[]
+    params: any[],
+    user: string
 }

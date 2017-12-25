@@ -17,6 +17,7 @@ export const server = new Map<FormTypes | DocTypes, any>([
 router.post('/call/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const CR: ICallRequest = req.body;
+    CR.user = req.user && req.user.sub;
     const ClassType = server.get(CR.type);
     if (!ClassType) { throw new Error(`Server module for '${CR.type}' is not registered.`) }
     const Class = new ClassType(CR);

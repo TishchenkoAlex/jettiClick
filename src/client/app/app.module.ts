@@ -33,6 +33,7 @@ import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
 import { SideNavService } from './services/side-nav.service';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
+import { SocketIOService } from './services/socket-io.sevice';
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token');
@@ -74,6 +75,7 @@ export function getJwtToken(): string {
     AuthGuardService,
     UserSettingsService,
     LoadingService,
+    SocketIOService,
     { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true }
   ],
   entryComponents: [],

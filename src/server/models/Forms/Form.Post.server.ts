@@ -1,9 +1,9 @@
-import { db, TX } from '../../db';
+import { db } from '../../db';
 import { ICallRequest } from '../../routes/utils/interfaces';
 import { lib } from '../../std.lib';
 import { PatchValue } from '../api';
 import { FormPost } from './Form.Post';
-import { ITask } from 'pg-promise';
+import { userSocketsEmit } from './../../sockets';
 
 export default class FormPostServer extends FormPost {
 
@@ -23,8 +23,8 @@ export default class FormPostServer extends FormPost {
     const endDate = new Date(this.CallRequest.formView.EndDate);
     endDate.setHours(23, 59, 59, 999);
     const list = await db.manyOrNone(query, [
-      this.CallRequest.formView.type.type,
-      this.CallRequest.formView.company,
+      this.CallRequest.formView.type.id,
+      this.CallRequest.formView.company.id,
       this.CallRequest.formView.StartDate,
       endDate,
     ]);
@@ -32,13 +32,13 @@ export default class FormPostServer extends FormPost {
     while (offset < count) {
       let i = 0;
       for (i = 0; i < 25; i++) {
-        if (!list[i + offset]) { break };
+        if (!list[i + offset]) { userSocketsEmit(this.CallRequest.user, 'Form.Post', 100) };
         const q = lib.doc.postById(list[i + offset].id, true, db);
         TaskList.push(q);
       }
       offset = offset + i;
       try { await Promise.all(TaskList) } catch (err) { console.log(err) }
-      console.log('offset', offset)
+      userSocketsEmit(this.CallRequest.user, 'Form.Post', offset / count * 100);
       TaskList.length = 0;
     }
     return this.CallRequest.formView;
