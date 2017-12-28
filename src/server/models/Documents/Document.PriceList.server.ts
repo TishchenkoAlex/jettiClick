@@ -4,6 +4,11 @@ import { RegisterInfoPriceList } from '../Registers/Info/PriceList';
 import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentPriceList } from './Document.PriceList';
+import { Ref, DocumentBase } from '../document';
+import { createDocumentServer } from '../documents.factory.server';
+import { configSchema } from '../config';
+import { RefValue } from '../api';
+import { DocumentInvoice } from './Document.Invoice';
 
 export class DocumentPriceListServer extends DocumentPriceList implements ServerDocument {
 
@@ -24,6 +29,27 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
         return {}
     }
   };
+
+  async baseOn(docId: Ref, tx: TX): Promise<DocumentPriceList> {
+    const ISource = await lib.doc.byId(docId, tx);
+    let documentPriceList = await tx.one<DocumentPriceList>(`${configSchema.get(this.type).QueryNew}`);
+    Object.keys(documentPriceList).forEach(k => this[k] = documentPriceList[k]);
+    switch (ISource.type) {
+      case 'Document.Invoice':
+        const documentInvoice = await tx.one<DocumentInvoice>(`${configSchema.get(ISource.type).QueryObject} AND d.id = $1`, [docId]);
+        const { id, code, date, description, user } = documentPriceList;
+        documentPriceList = Object.assign(documentPriceList, documentInvoice, { id, code, date, description, user } );
+        const unitID = await lib.doc.byCode('Catalog.Unit', 'bottle', tx);
+        const unitFC = await lib.doc.formControlRef(unitID, tx);
+        documentPriceList.parent = <RefValue>{id: docId, code: ISource.code, type: ISource.type, value: ISource.description};
+        documentPriceList.Items.forEach(el => el.Unit = unitFC as any);
+        documentPriceList.TaxInclude = true;
+        documentPriceList.posted = false;
+        return documentPriceList;
+      default:
+        return documentPriceList;
+    }
+  }
 
   async onPost(tx: TX) {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };

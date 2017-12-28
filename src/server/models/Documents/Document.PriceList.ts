@@ -9,10 +9,10 @@ import { DocumentBase, JDocument, Props, Ref } from './../document';
 })
 export class DocumentPriceList extends DocumentBase {
   @Props({ type: 'Types.Document', hiddenInList: true, order: -1 })
-  parent: Ref = null;
+  parent = null;
 
   @Props({ type: 'Catalog.PriceType', required: true, label: 'price type' })
-  PriceType: Ref = null;
+  PriceType = null;
 
   @Props({ type: 'boolean', required: true, label: 'tax include' })
   TaxInclude: boolean = null;
@@ -23,10 +23,10 @@ export class DocumentPriceList extends DocumentBase {
 
 class TableItems {
   @Props({ type: 'Catalog.Product', required: true, style: {width: '50%'} })
-  SKU: Ref = null;
+  SKU = null;
 
   @Props({ type: 'Catalog.Unit', required: true, style: {width: '30%'} })
-  Unit: Ref = null;
+  Unit = null;
 
   @Props({ type: 'number',  required: true, style: {width: '20%'} })
   Price: number = null;

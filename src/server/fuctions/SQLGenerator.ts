@@ -218,7 +218,9 @@ export class SQLGenegator {
         `, jsonb_build_object('id', "${prop}".id, 'value', "${prop}".description, 'type', '${type}', 'code', "${prop}".code) "${prop}"\n`;
 
     const addLeftJoin = (prop: string, type: string) =>
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = r.data ->> '${prop}'\n`;
+      type.startsWith('Types.') ?
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = r.data ->> '${prop}'\n` :
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = r.data ->> '${prop}' AND "${prop}".type = '${type}'\n`
 
     let LeftJoin = ''; let select = '';
     for (const prop in excludeRegisterAccumulatioProps(doc)) {

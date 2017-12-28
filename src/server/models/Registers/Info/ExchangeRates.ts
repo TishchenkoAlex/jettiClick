@@ -16,11 +16,7 @@ export class RegisterInfoExchangeRates extends RegisterInfo {
     currency: Ref,
     Rate: number,
   }) {
-    super();
-    if (data) {
-      this.currency = data.currency;
-      this.Rate = data.Rate;
-    }
+    super(data);
   }
 }
 

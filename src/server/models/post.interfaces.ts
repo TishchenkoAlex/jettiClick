@@ -1,10 +1,10 @@
 import { TX } from '../../server/db';
 import { RegisterAccount } from './Registers/Account/Register.Account';
-import { RegistersAccumulations } from './Registers/Accumulation/factory';
+import { RegisterAccumulation} from './Registers/Accumulation/RegisterAccumulation';
 
 export interface PostResult {
     Account: RegisterAccount[];
-    Accumulation: RegistersAccumulations[];
+    Accumulation: RegisterAccumulation[];
     Info: any[]
 }
 

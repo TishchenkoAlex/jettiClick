@@ -5,20 +5,24 @@ import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
 import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
 import { DocumentBaseServer, IServerDocument } from './ServerDocument';
+import { CatalogAccount } from './Catalogs/Catalog.Account';
+import { DocumentBase } from './document';
 
-export function createDocumentServer(type: DocTypes, document?: IServerDocument): DocumentBaseServer {
+export function createDocumentServer<T extends DocumentBaseServer | DocumentBase>(type: DocTypes, document?: IServerDocument): T {
   const doc = RegisteredServerDocument.find(el => el.type === type);
   if (doc) {
-    const serverResult = <DocumentBaseServer> new doc.Class;
+    const serverResult = <T> new doc.Class;
     serverResult.map(document);
     return serverResult;
   }
-  return createDocument(type) as DocumentBaseServer;
+  return createDocument<T>(type);
 }
 
-const RegisteredServerDocument: IRegisteredDocument[] = [
+const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Invoice', Class: DocumentInvoiceServer },
   { type: 'Document.ExchangeRates', Class: DocumentExchangeRatesServer },
   { type: 'Document.PriceList', Class: DocumentPriceListServer },
   { type: 'Document.Operation', Class: DocumentOperationServer },
 ]
+
+const a = createDocumentServer<CatalogAccount>('Catalog.Account');

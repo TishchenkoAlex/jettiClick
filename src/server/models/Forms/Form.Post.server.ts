@@ -11,14 +11,11 @@ export default class FormPostServer extends FormPost {
     super(CallRequest.formView as FormPost);
   }
 
-  async Execute(): Promise<PatchValue> {
+  async Execute2(): Promise<PatchValue> {
     const query = `
-      select id, date, code
-      from "Documents"
-      where
-        type = $1 and company = $2
-        and date between $3 and $4
-      order by date, code`;
+      SELECT id, date, code FROM "Documents"
+      WHERE type = $1 AND company = $2 AND date between $3 AND $4
+      ORDER BY date, code`;
     const TaskList = [];
     const endDate = new Date(this.CallRequest.formView.EndDate);
     endDate.setHours(23, 59, 59, 999);
@@ -44,13 +41,23 @@ export default class FormPostServer extends FormPost {
     return this.CallRequest.formView;
   }
 
-  async Execute2() {
-    const query = `select id, date, code from "Documents"
-    where date >= '2017-02-01' and date < '2017-03-01' and type = 'Document.Invoice' and company = 'PHARM'
-    order by date, code limit $1`;
+  async Execute() {
+    const query = `
+      SELECT id, date, code FROM "Documents"
+      WHERE type = $1 AND company = $2 AND date between $3 AND $4
+      ORDER BY date, code`;
+    const endDate = new Date(this.CallRequest.formView.EndDate);
+    endDate.setHours(23, 59, 59, 999);
+    const list = await db.manyOrNone(query, [
+      this.CallRequest.formView.type.id,
+      this.CallRequest.formView.company.id,
+      this.CallRequest.formView.StartDate,
+      endDate
+    ]);
 
-    const list = await db.manyOrNone(query, [this.CallRequest.formView.code]);
+    let count = 0;
     for (const row of list) {
+      userSocketsEmit(this.CallRequest.user, 'Form.Post', ++count / list.length * 100);
       try {
         await lib.doc.postById(row.id, true, db);
       } catch (err) {

@@ -1,5 +1,5 @@
-// const domain = 'https://jetti-pg.appspot.com';
-const domain = 'http://cl.jetti-app.com';
+const domain = 'https://jetti-pg.appspot.com';
+// const domain = 'http://cl.jetti-app.com';
 
 export const environment = {
   production: true,

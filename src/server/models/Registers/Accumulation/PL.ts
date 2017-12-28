@@ -2,17 +2,17 @@ import { RegisterAccumulation, JRegisterAccumulation } from './RegisterAccumulat
 import { Ref, Props } from '../../document';
 
 @JRegisterAccumulation({
-  type: 'Register.Accumulation.Balance',
+  type: 'Register.Accumulation.PL',
   description: 'Активы/Пассивы'
 })
-export class RegisterAccumulationBalance extends RegisterAccumulation {
+export class RegisterAccumulationPL extends RegisterAccumulation {
   @Props({ type: 'Catalog.Department' })
   Department: Ref = null;
 
-  @Props({ type: 'Catalog.Balance' })
-  Balance: Ref = null;
+  @Props({ type: 'Types.Catalog' })
+  PL: Ref = null;
 
-  @Props({ type: 'Catalog.Balance.Analytics' })
+  @Props({ type: 'Types.Catalog' })
   Analytics: Ref = null;
 
   @Props({ type: 'number' })

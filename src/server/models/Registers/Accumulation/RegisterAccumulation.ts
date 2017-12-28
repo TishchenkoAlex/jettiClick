@@ -15,12 +15,12 @@ export function JRegisterAccumulation(props: RegisterAccumulationOptions) {
     }
   }
 }
-export abstract class RegisterAccumulation {
+export class RegisterAccumulation {
   @Props({ type: 'boolean' })
   kind: boolean = null;
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
-  type: string = null;
+  type: RegisterAccumulationTypes = null;
 
   @Props({ type: 'datetime' })
   date: Date = new Date();
@@ -31,8 +31,9 @@ export abstract class RegisterAccumulation {
   @Props({ type: 'Catalog.Company' })
   company: Ref = null;
 
-  constructor(kind: boolean) {
+  constructor (kind: boolean, public data: { [x: string]: any } = {}) {
     this.kind = kind;
+    Object.keys(data).forEach(k => this[k] = data[k]);
   }
 
   private targetProp(target: Object, propertyKey: string): PropOptions {

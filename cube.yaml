@@ -12,8 +12,8 @@ spec:
         tier: web
     spec:
       containers:
-      - name: jetti
-        image: eu.gcr.io/jetti-pg/jetti-fs-mat:latest
+      - name: jetti-fs-mat
+        image: eu.gcr.io/jetti-pg/jetti-fs-mat
         ports:
         - containerPort: 8080
 ---
@@ -27,16 +27,17 @@ metadata:
     app: jetti
 spec:
   backend:
-    serviceName: jetti-api
+    serviceName: jetti
     servicePort: 8080
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: jetti-api
+  name: jetti
   labels:
     app: jetti
 spec:
+  sessionAffinity: ClientIP
   type: NodePort
   selector:
     app: jetti

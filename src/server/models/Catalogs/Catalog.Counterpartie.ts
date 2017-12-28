@@ -5,7 +5,10 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   description: 'Контрагент',
   icon: 'fa fa-money',
   menu: 'Контрагенты',
-  prefix: 'CPE-'
+  prefix: 'CPE-',
+  copyTo: [
+    'Document.Invoice'
+  ]
 })
 export class CatalogCounterpartie extends DocumentBase {
 

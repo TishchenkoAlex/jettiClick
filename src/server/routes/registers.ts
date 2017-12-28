@@ -37,7 +37,7 @@ router.get('/register/info/list/:id', async (req: Request, res: Response, next: 
 router.get('/register/accumulation/:type/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result; let config_schema;
-    const JRegister = createRegisterAccumulation(req.params.type);
+    const JRegister = createRegisterAccumulation(req.params.type, true, {});
     if (JRegister) {
       config_schema = { queryObject: JRegister.QueryList() }
     } else {

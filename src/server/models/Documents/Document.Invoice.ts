@@ -15,6 +15,9 @@ import { IServerDocument } from '../ServerDocument';
     { label: 'refresh', icon: 'fa-refresh', command: () => { } },
     { label: 'close', icon: 'fa-close', command: () => { } },
   ],
+  copyTo: [
+    'Document.PriceList'
+  ]
 })
 export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'Types.Document', hiddenInList: true, order: -1 })

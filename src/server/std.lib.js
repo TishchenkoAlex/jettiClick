@@ -12,7 +12,8 @@ exports.lib = {
     },
     register: {
         balance: registerBalance,
-        avgCost: avgCost
+        inventoryBalance: inventoryBalance,
+        avgCost: avgCost,
     },
     doc: {
         byCode: byCode,
@@ -92,7 +93,7 @@ async function registerBalance(type, date = new Date(), company, resource, analy
       AND date <= $2
       AND company = $3
       AND data @> $4
-  `, ['Register.Accumulation.' + type, date, company, analytics]);
+  `, [type, date, company, analytics]);
     return (result ? result : {});
 }
 async function avgCost(date = new Date(), company, analytics, tx = db_1.db) {
@@ -108,7 +109,7 @@ async function avgCost(date = new Date(), company, analytics, tx = db_1.db) {
     const result = await tx.oneOrNone(queryText, [date, company, analytics]);
     return result ? result.result : null;
 }
-async function InventoryBalance(date = new Date().toJSON(), company, analytics, tx = db_1.db) {
+async function inventoryBalance(date = new Date(), company, analytics, tx = db_1.db) {
     const queryText = `
     SELECT
       SUM((data ->> 'Qty')::NUMERIC(15, 2)  * CASE WHEN kind THEN 1 ELSE -1 END) result
@@ -134,20 +135,21 @@ async function sliceLast(type, date = new Date(), company, resource, analytics, 
     return result ? result.result : null;
 }
 async function postById(id, posted, tx = db_1.db) {
-    const doc = await exports.lib.doc.byId(id, tx);
-    let serverDoc = documents_factory_server_1.createDocumentServer(doc.type, doc);
-    if (serverDoc.isDoc) {
-        await tx.none(`
-        DELETE FROM "Register.Account" WHERE document = $1;
-        DELETE FROM "Register.Info" WHERE document = $1;
-        DELETE FROM "Register.Accumulation" WHERE document = $1;
-        UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [doc.id, posted]);
-    }
-    if (posted && serverDoc.onPost) {
-        await execute_script_1.InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx);
-    }
-    serverDoc = undefined;
-    return id;
+    return tx.task(async (subtx) => {
+        const doc = await exports.lib.doc.byId(id, subtx);
+        let serverDoc = documents_factory_server_1.createDocumentServer(doc.type, doc);
+        if (serverDoc.isDoc) {
+            await subtx.none(`
+          DELETE FROM "Register.Account" WHERE document = $1;
+          DELETE FROM "Register.Info" WHERE document = $1;
+          DELETE FROM "Register.Accumulation" WHERE document = $1;
+          UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [id, posted]);
+        }
+        if (posted && serverDoc.onPost) {
+            await execute_script_1.InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx);
+        }
+        serverDoc = undefined;
+    });
 }
 exports.postById = postById;
 //# sourceMappingURL=std.lib.js.map

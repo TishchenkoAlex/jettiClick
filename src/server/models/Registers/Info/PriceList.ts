@@ -28,14 +28,7 @@ export class RegisterInfoPriceList extends RegisterInfo {
     Unit: Ref,
     Price: number,
   }) {
-    super();
-    if (data) {
-      this.currency = data.currency;
-      this.Product = data.Product;
-      this.PriceType = data.PriceType;
-      this.Unit = data.Unit;
-      this.Price = data.Price;
-    }
+    super(data);
   }
 }
 

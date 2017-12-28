@@ -27,7 +27,8 @@ export interface DocumentOptions {
   dimensions?: { [x: string]: AllTypes }[],
   prefix: string
   commands?: { label: string, icon: string, command: () => any }[],
-  presentation?: 'code' | 'description'
+  presentation?: 'code' | 'description',
+  copyTo?: DocTypes[]
 }
 
 export type Ref = string | null;
@@ -49,13 +50,13 @@ export function JDocument(props: DocumentOptions) {
 export class DocumentBase {
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
-  id: Ref = null;
+  id = v1();
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
-  type = '';
+  type: DocTypes = null;
 
   @Props({ type: 'datetime', order: 1 })
-  date: Date;
+  date = new Date();
 
   @Props({ type: 'string', order: 2, style: { width: '110px' } })
   code = '';
@@ -64,10 +65,10 @@ export class DocumentBase {
   description = '';
 
   @Props({ type: 'Catalog.Company', order: 3, required: true, onChangeServer: true})
-  company: Ref = null;
+  company = null;
 
   @Props({ type: 'Catalog.User', hiddenInList: true, order: -1 })
-  user: Ref = null;
+  user = null;
 
   @Props({ type: 'boolean', hidden: true, hiddenInList: true })
   posted = false;
@@ -76,19 +77,13 @@ export class DocumentBase {
   deleted = false;
 
   @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true, order: -1 })
-  parent: Ref = null;
+  parent = null;
 
   @Props({ type: 'boolean', hidden: true, hiddenInList: true })
   isfolder = false;
 
   @Props({ type: 'string', hiddenInList: true, order: -1, controlType: 'textarea' })
   info = '';
-
-  constructor(date = new Date(), id = v1(), isfolder = false) {
-    this.date = date;
-    this.id = id;
-    this.isfolder = isfolder;
-  }
 
   private targetProp(target: Object, propertyKey: string): PropOptions {
     const result = Reflect.getMetadata(symbolProps, target, propertyKey);

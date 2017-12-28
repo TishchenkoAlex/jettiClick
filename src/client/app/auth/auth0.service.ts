@@ -5,7 +5,6 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { take } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { HOME } from '../common/tabcontroller/tabcontroller.service';
 import { RoleObject, RoleType } from './../../../server/models/Roles/base';
 import { ApiService } from './../services/api.service';
 
@@ -32,7 +31,7 @@ export class Auth0Service {
         window.location.hash = '';
         this.setSession(authResult);
       } else if (err) {
-        this.router.navigate([HOME]);
+        this.router.navigate(['Home']);
       }
       this.getProfile();
     });
@@ -50,7 +49,7 @@ export class Auth0Service {
     localStorage.removeItem('id_token');
     localStorage.removeItem('expires_at');
     this.userProfile$.next(null);
-    this.router.navigate([HOME]);
+    this.router.navigate(['Home']);
   }
 
   public isAuthenticated(): boolean {

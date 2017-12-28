@@ -1,21 +1,34 @@
-import { Ref } from '../../document';
-import { JRegisterAccumulation } from './RegisterAccumulation';
-import { RegisterAccumulationTypes, IServerRegisterAccumulation } from './factory';
+import { Ref, Props } from '../../document';
+import { JRegisterAccumulation, RegisterAccumulation } from './RegisterAccumulation';
+import { RegisterAccumulationTypes } from './factory';
 
 @JRegisterAccumulation({
   type: 'Register.Accumulation.Inventory',
   description: 'Товары на складах'
 })
-export class RegisterAccumulationInventory implements IServerRegisterAccumulation {
-  type = 'Register.Accumulation.Inventory';
-  date = new Date();
-  company: Ref;
-  document: Ref;
-  constructor(public kind: boolean, public data: {
+export class RegisterAccumulationInventory extends RegisterAccumulation {
+  @Props({ type: 'Catalog.Expense' })
+  Expense: Ref = null;
+
+  @Props({ type: 'Catalog.Storehouse' })
+  Storehouse: Ref = null;
+
+  @Props({ type: 'Catalog.Product' })
+  SKU: Ref = null;
+
+  @Props({ type: 'number' })
+  Cost: number = null;
+
+  @Props({ type: 'number' })
+  Qty: number = null;
+
+  constructor(kind: boolean, public data: {
     Expense: Ref,
     Storehouse: Ref,
     SKU: Ref,
     Cost: number,
     Qty: number,
-  }) { };
+  }) {
+    super(kind, data);
+  }
 }

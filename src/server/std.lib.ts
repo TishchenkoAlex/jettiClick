@@ -1,9 +1,10 @@
 import { db, TX } from './db';
-import { IServerDocument } from './models/ServerDocument';
-import { Ref } from './models/document';
 import { RefValue } from './models/api';
+import { Ref } from './models/document';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
+import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
+import { IServerDocument, DocumentBaseServer } from './models/ServerDocument';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
 
 export interface JTL {
@@ -14,16 +15,17 @@ export interface JTL {
     byCode: (code: string, tx?: TX) => Promise<string>
   },
   register: {
-    balance: (type: string, date: Date, company: Ref, resource: string[],
-      analytics: { [key: string]: Ref }, tx?: TX) => Promise<any>,
-    avgCost: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>
-  }
+    balance: (type: RegisterAccumulationTypes, date: Date, company: Ref, resource: string[],
+      analytics: { [key: string]: Ref }, tx?: TX) => Promise<{ [x: string]: number }>,
+    avgCost: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
+    inventoryBalance: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
+  },
   doc: {
-    byCode: (type: string, code: string, tx?: TX) => Promise<Ref>;
+    byCode: (type: DocTypes, code: string, tx?: TX) => Promise<Ref>;
     byId: <T extends IServerDocument>(id: string, tx?: TX) => Promise<T>;
     modelById: (id: string, tx?: TX) => Promise<IServerDocument>;
     formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
-    postById: (id: string, posted: boolean, tx?: TX) => Promise<Ref>;
+    postById: (id: string, posted: boolean, tx?: TX) => Promise<void>;
   },
   info: {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
@@ -40,7 +42,8 @@ export const lib: JTL = {
   },
   register: {
     balance: registerBalance,
-    avgCost: avgCost
+    inventoryBalance: inventoryBalance,
+    avgCost: avgCost,
   },
   doc: {
     byCode: byCode,
@@ -87,7 +90,7 @@ async function debit(account: Ref, date = new Date().toJSON(), company: Ref): Pr
   const result = await db.oneOrNone(`
     SELECT SUM(sum)::NUMERIC(15,2) result FROM "Register.Account"
     WHERE dt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);
-    return result ? result.result : null;
+  return result ? result.result : null;
 }
 
 async function kredit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
@@ -114,8 +117,8 @@ async function balance(account: Ref, date = new Date().toJSON(), company: Ref): 
   return result ? result.result : null;
 }
 
-async function registerBalance(type: string, date = new Date(), company: Ref,
-  resource: string[], analytics: { [key: string]: Ref }, tx = db) {
+async function registerBalance(type: RegisterAccumulationTypes, date = new Date(), company: Ref,
+  resource: string[], analytics: { [key: string]: Ref }, tx = db): Promise<{ [x: string]: number }> {
 
   const addQuery = (key) => `SUM((data->>'${key}')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) "${key}",\n`
   let query = ''; for (const el of resource) { query += addQuery(el) }; query = query.slice(0, -2);
@@ -127,7 +130,7 @@ async function registerBalance(type: string, date = new Date(), company: Ref,
       AND date <= $2
       AND company = $3
       AND data @> $4
-  `, ['Register.Accumulation.' + type, date, company, analytics]);
+  `, [type, date, company, analytics]);
   return (result ? result : {});
 }
 
@@ -145,8 +148,7 @@ async function avgCost(date = new Date(), company: Ref, analytics: { [key: strin
   return result ? result.result : null;
 }
 
-async function InventoryBalance(date = new Date().toJSON(), company: Ref,
-  analytics: { [key: string]: Ref }, tx = db): Promise<number> {
+async function inventoryBalance(date = new Date(), company: Ref, analytics: { [key: string]: Ref }, tx = db): Promise<number> {
   const queryText = `
     SELECT
       SUM((data ->> 'Qty')::NUMERIC(15, 2)  * CASE WHEN kind THEN 1 ELSE -1 END) result
@@ -175,16 +177,17 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
 }
 
 export async function postById(id: string, posted: boolean, tx: TX = db) {
-  const doc = await lib.doc.byId(id, tx);
-  let serverDoc = createDocumentServer(doc.type as DocTypes, doc);
-  if (serverDoc.isDoc) {
-    await tx.none(`
-        DELETE FROM "Register.Account" WHERE document = $1;
-        DELETE FROM "Register.Info" WHERE document = $1;
-        DELETE FROM "Register.Accumulation" WHERE document = $1;
-        UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [doc.id, posted]);
-  }
-  if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx) }
-  serverDoc = undefined;
-  return id;
+  return tx.task(async subtx => {
+    const doc = await lib.doc.byId(id, subtx);
+    let serverDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+    if (serverDoc.isDoc) {
+      await subtx.none(`
+          DELETE FROM "Register.Account" WHERE document = $1;
+          DELETE FROM "Register.Info" WHERE document = $1;
+          DELETE FROM "Register.Accumulation" WHERE document = $1;
+          UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [id, posted]);
+    }
+    if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx) }
+    serverDoc = undefined;
+  })
 }

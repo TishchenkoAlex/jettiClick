@@ -54,9 +54,8 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
           model.description = 'Copy: ' + model.description;
         } else {
           if (id.startsWith('base-')) {
-            model = await db.one(`${config_schema.queryNewObject}`);
-            const source = await lib.doc.modelById(id.slice(5));
-            model = { ...model, ...source };
+            const newDoc = createDocumentServer<DocumentBaseServer>(req.params.type);
+            model = await newDoc.baseOn(id.slice(5), db);
           } else {
             model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
           }
@@ -64,7 +63,7 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
         await docOperationResolver(model, db);
       }
     }
-    const result = { view: view, model: model, columnDef: columnDef, prop: config_schema.prop || [] };
+    const result = { view: view, model: model, columnDef: columnDef, prop: config_schema.prop || {} };
     res.json(result);
   } catch (err) { next(err.message); }
 })
@@ -75,7 +74,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
     await db.tx(async tx => {
       const id = req.params.id;
       let doc = await lib.doc.byId(id, tx)
-      const serverDoc = createDocumentServer(doc.type as DocTypes, doc);
+      const serverDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await doSubscriptions(doc, 'before detele', tx);
       if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx) }
       doc = await tx.one(`
@@ -129,7 +128,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await db.tx(async (tx: TX) => {
       const doc: IServerDocument = req.body;
-      const JDoc = createDocumentServer(doc.type as DocTypes, doc);
+      const JDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await post(doc, JDoc, tx);
       const docServer = await tx.one<DocumentBaseServer>(`${configSchema.get(doc.type as any).QueryObject} AND d.id = $1`, [doc.id]);
       await docOperationResolver(docServer, tx);
@@ -175,7 +174,7 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const value = req.body.value as RefValue;
     const property = req.params.property as string;
     const type = req.params.type as DocTypes;
-    const serverDoc = createDocumentServer(type, doc);
+    const serverDoc = createDocumentServer<DocumentBaseServer>(type, doc);
 
     let result: PatchValue = {};
     if (serverDoc && serverDoc.onValueChanged && typeof serverDoc.onValueChanged === 'function') {
@@ -188,7 +187,7 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
 router.post('/command/:type/:command', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result: any = {};
-    const doc = createDocumentServer(req.params.type, req.body.doc);
+    const doc = createDocumentServer<DocumentBaseServer>(req.params.type, req.body.doc);
     if (doc && doc.onCommand && typeof doc.onCommand === 'function') { result = await doc.onCommand(req.params.command, req.body.args, db) }
     res.json(result);
   } catch (err) { next(err.message); }

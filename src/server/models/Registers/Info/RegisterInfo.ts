@@ -15,7 +15,7 @@ export function JRegisterInfo(props: RegisterInfoOptions) {
     }
   }
 }
-export abstract class RegisterInfo {
+export class RegisterInfo {
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
   type: string = null;
@@ -23,11 +23,15 @@ export abstract class RegisterInfo {
   @Props({ type: 'datetime' })
   date: Date = new Date();
 
+  @Props({ type: 'Catalog.Company' })
+  company: Ref = null;
+
   @Props({ type: 'Types.Document', hiddenInList: true })
   document: Ref = null;
 
-  @Props({ type: 'Catalog.Company' })
-  company: Ref = null;
+  constructor(public data: { [x: string]: any }) {
+    Object.keys(data).forEach(k => this[k] = data[k]);
+  }
 
   private targetProp(target: Object, propertyKey: string): PropOptions {
     const result = Reflect.getMetadata(symbolProps, target, propertyKey);

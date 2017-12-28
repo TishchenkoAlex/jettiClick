@@ -45,11 +45,16 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
   async onPost(tx: TX): Promise<PostResult> {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
 
-    const acc90 = await lib.account.byCode('90.01', tx);
-    const acc41 = await lib.account.byCode('41.01', tx);
-    const acc62 = await lib.account.byCode('62.01', tx);
-    const ExpenseCOST = await lib.doc.byCode('Catalog.Expense', 'OUT.COST', tx);
-    const IncomeSALES = await lib.doc.byCode('Catalog.Income', 'SALES', tx);
+    const params = await Promise.all([
+      lib.account.byCode('90.01', tx), // 0
+      lib.account.byCode('41.01', tx), // 1
+      lib.account.byCode('62.01', tx), // 2
+      lib.doc.byCode('Catalog.Expense', 'OUT.COST', tx), // 3
+      lib.doc.byCode('Catalog.Income', 'SALES', tx), // 4
+      lib.doc.byCode('Catalog.Balance', 'AR', tx), // 5
+      lib.doc.byCode('Catalog.Balance', 'INVENTORY', tx), // 6
+      lib.doc.byCode('Catalog.Balance', 'PL', tx) // 7
+    ]);
 
     // AR
     Registers.Accumulation.push(new RegisterAccumulationAR(true, {
@@ -62,8 +67,8 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }));
 
     Registers.Account.push({
-      debit: { account: acc62, subcounts: [this.Customer] },
-      kredit: { account: acc90, subcounts: [] },
+      debit: { account: params[2], subcounts: [this.Customer] },
+      kredit: { account: params[0], subcounts: [] },
       sum: this.Amount,
     });
 
@@ -75,13 +80,13 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
 
       // Account
       Registers.Account.push({
-        debit: { account: acc90, subcounts: [] },
-        kredit: { account: acc41, subcounts: [this.Storehouse, row.SKU], qty: row.Qty },
+        debit: { account: params[0], subcounts: [] },
+        kredit: { account: params[1], subcounts: [this.Storehouse, row.SKU], qty: row.Qty },
         sum: avgSumma,
       });
 
       Registers.Accumulation.push(new RegisterAccumulationInventory(false, {
-        Expense: ExpenseCOST,
+        Expense: params[3],
         Storehouse: this.Storehouse,
         SKU: row.SKU,
         Cost: avgSumma,
@@ -106,29 +111,29 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
 
     Registers.Accumulation.push(new RegisterAccumulationBalance(true, {
       Department: this.Department,
-      Balance: await lib.doc.byCode('Catalog.Balance', 'AR', tx),
+      Balance: params[5],
       Analytics: this.Customer,
       Amount: this.Amount
     }));
 
     Registers.Accumulation.push(new RegisterAccumulationBalance(false, {
       Department: this.Department,
-      Balance: await lib.doc.byCode('Catalog.Balance', 'INVENTORY', tx),
+      Balance: params[6],
       Analytics: this.Storehouse,
       Amount: totalCost
     }));
 
     Registers.Accumulation.push(new RegisterAccumulationBalance(true, {
       Department: this.Department,
-      Balance: await lib.doc.byCode('Catalog.Balance', 'PL', tx),
-      Analytics: ExpenseCOST,
+      Balance: params[7],
+      Analytics: params[3],
       Amount: totalCost
     }));
 
     Registers.Accumulation.push(new RegisterAccumulationBalance(false, {
       Department: this.Department,
-      Balance: await lib.doc.byCode('Catalog.Balance', 'PL', tx),
-      Analytics: IncomeSALES,
+      Balance: params[7],
+      Analytics: params[4],
       Amount: this.Amount,
     }));
 

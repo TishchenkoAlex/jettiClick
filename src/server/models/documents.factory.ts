@@ -9,6 +9,7 @@ import { CatalogCompany } from './Catalogs/Catalog.Company';
 import { CatalogCounterpartie } from './Catalogs/Catalog.Counterpartie';
 import { CatalogCurrency } from './Catalogs/Catalog.Currency';
 import { CatalogDepartment } from './Catalogs/Catalog.Department';
+import { CatalogDocuments } from './Catalogs/Catalog.Documents';
 import { CatalogExpense } from './Catalogs/Catalog.Expense';
 import { CatalogExpenseAnalytics } from './Catalogs/Catalog.Expense.Analytics';
 import { CatalogIncome } from './Catalogs/Catalog.Income';
@@ -29,20 +30,19 @@ import { DocumentExchangeRates } from './Documents/Document.ExchangeRates';
 import { DocumentInvoice } from './Documents/Document.Invoice';
 import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentPriceList } from './Documents/Document.PriceList';
-import { CatalogDocuments } from './Catalogs/Catalog.Documents';
 
-export interface IRegisteredDocument { type: DocTypes, Class: typeof DocumentBase };
+export interface IRegisteredDocument<T extends DocumentBase> { type: DocTypes, Class: T };
 
-export function createDocument(type: DocTypes, document?: IServerDocument): DocumentBase {
+export function createDocument<T extends DocumentBase>(type: DocTypes, document?: IServerDocument): T {
   const doc = RegisteredDocument.find(el => el.type === type);
   if (doc) {
-    const result = <DocumentBase> new doc.Class;
+    const result = new doc.Class;
     result.map(document);
-    return result;
+    return result as T;
   }
 }
 
-export const RegisteredDocument: IRegisteredDocument[] = [
+export const RegisteredDocument: IRegisteredDocument<any>[] = [
   { type: 'Catalog.Account', Class: CatalogAccount },
   { type: 'Catalog.Balance', Class: CatalogBalance },
   { type: 'Catalog.Balance.Analytics', Class: CatalogBalanceAnalytics },

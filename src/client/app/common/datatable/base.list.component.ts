@@ -14,8 +14,9 @@ import { UserSettingsService } from './../../auth/settings/user.settings.service
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
-import { DocumentBase } from './../../../../server/models/document';
+import { DocumentBase, DocumentOptions } from './../../../../server/models/document';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
+import { createDocument } from './../../../../server/models/documents.factory';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +54,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit() {
     this.docType = this.route.params['value'].type;
     const view = this.route.data['value'].detail[0]['view'];
+    const copyTo = (createDocument(this.docType as any).Prop() as DocumentOptions).copyTo;
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
 
     this.columns = this.route.data['value'].detail[0]['columnDef'];
@@ -63,12 +65,22 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.columns = this.columns.filter(c => !!!c.hidden);
 
     this.ctxItems = [
-      {
-        label: 'Quick filter', icon: 'fa-search', command: (event) =>
-          this.update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
-      },
-      { label: 'unPost', icon: 'fa-reply', command: (event) => { this.post('unpost') } },
-      { label: 'Delete', icon: 'fa-minus', command: (event) => { this.delete() } }
+      ...[
+        {
+          label: 'Quick filter', icon: 'fa-search', command: (event) =>
+            this.update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
+        },
+        { label: 'unPost', icon: 'fa-reply', command: (event) => { this.post('unpost') } },
+        { label: 'Delete', icon: 'fa-minus', command: (event) => { this.delete() } }
+      ],
+      ...copyTo.map(el => {
+        const doc = createDocument(el).Prop() as DocumentOptions;
+        return <MenuItem>{
+          label: doc.description, icon: doc.icon, command: (event) => {
+            this.router.navigate([el, 'base-' + this.selectedRows[0].id])
+          }
+        }
+      })
     ];
 
     this._docSubscription$ = Observable.merge(...[this.ds.save$, this.ds.delete$, this.ds.saveCloseDoc$, this.ds.goto$]).pipe(
@@ -173,12 +185,13 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.ds.api.getViewModel(this.docType, event.data.id).pipe(
       take(1))
       .subscribe((data: any) => {
-      const model = data.model as DocumentBase;
-      let el = (event.originalEvent as MouseEvent).srcElement;
-      while (!el.id && el.lastElementChild) { el = el.lastElementChild }
-      this.ctxData.column = el.id;
-      this.ctxData.value = model[this.ctxData.column];
-    });
+        const model = data.model as DocumentBase;
+        let el = (event.originalEvent as MouseEvent).srcElement;
+        while (!el.id && el.lastElementChild) { el = el.lastElementChild }
+        this.ctxData.column = el.id;
+        this.ctxData.value = model[this.ctxData.column];
+      });
+
   }
 
   ngOnDestroy() {

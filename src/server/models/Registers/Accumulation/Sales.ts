@@ -1,17 +1,49 @@
-import { Ref } from '../../document';
-import { IServerRegisterAccumulation, RegisterAccumulationTypes } from './factory';
-import { JRegisterAccumulation } from './RegisterAccumulation';
+import { Ref, Props } from '../../document';
+import { JRegisterAccumulation, RegisterAccumulation } from './RegisterAccumulation';
+import { RegisterAccumulationTypes } from './factory';
 
 @JRegisterAccumulation({
   type: 'Register.Accumulation.Sales',
   description: 'Выручка и себестоимость продаж'
 })
-export class RegisterAccumulationSales implements IServerRegisterAccumulation {
-  type: RegisterAccumulationTypes = 'Register.Accumulation.Sales';
-  date = new Date();
-  company: Ref;
-  document: Ref;
-  constructor(public kind: boolean, public data: {
+export class RegisterAccumulationSales extends RegisterAccumulation {
+  @Props({ type: 'Catalog.Department' })
+  Department: Ref = null;
+
+  @Props({ type: 'Catalog.Counterpartie' })
+  Customer: Ref = null;
+
+  @Props({ type: 'Catalog.Product' })
+  Product: Ref = null;
+
+  @Props({ type: 'Catalog.Manager' })
+  Manager: Ref = null;
+
+  @Props({ type: 'Document.Invoice' })
+  AO: Ref = null;
+
+  @Props({ type: 'Catalog.Storehouse' })
+  Storehouse: Ref = null;
+
+  @Props({ type: 'Catalog.Currency' })
+  currency: Ref = null;
+
+  @Props({ type: 'number' })
+  Cost: number = null;
+
+  @Props({ type: 'number' })
+  Qty: number = null;
+
+  @Props({ type: 'number' })
+  Amount: number = null;
+
+  @Props({ type: 'number' })
+  Discount: number = null;
+
+  @Props({ type: 'number' })
+  Tax: number = null;
+
+  constructor(kind: boolean, public data: {
     AO: Ref,
     Department: Ref,
     Customer: Ref,
@@ -24,5 +56,7 @@ export class RegisterAccumulationSales implements IServerRegisterAccumulation {
     Discount: number,
     Tax: number,
     currency: Ref,
-  }) { };
+  }) {
+    super(kind, data);
+  }
 }

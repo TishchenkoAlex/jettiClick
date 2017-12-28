@@ -24,7 +24,7 @@ export class RegisterAccumulationAR extends RegisterAccumulation {
   @Props({ type: 'datetime' })
   PayDay: string = null;
 
-  constructor(public kind: boolean = null, public data: {
+  constructor(kind: boolean, public data: {
     AO: Ref,
     Department: Ref,
     Customer: Ref,
@@ -32,14 +32,6 @@ export class RegisterAccumulationAR extends RegisterAccumulation {
     PayDay: string,
     currency: Ref,
   }) {
-    super(kind);
-    if (data) {
-      this.Department = data.Department;
-      this.AO = data.AO;
-      this.Customer = data.Customer;
-      this.AR = data.AR;
-      this.PayDay = data.PayDay;
-      this.currency = data.currency;
-    }
+    super(kind, data);
   }
 }

@@ -58,6 +58,14 @@ export type ComplexTypes =
   'Types.Subcount' |
   'Types.Catalog';
 
+export type IncomeExpenseTypes =
+'Catalog.Expense' |
+'Catalog.Income';
+
+export type IncomeExpenseAnalyticTypes =
+'Catalog.Expense.Analytics' |
+'Catalog.Income.Analytics';
+
 export type AllTypes =
   PrimitiveTypes |
   ComplexTypes |
