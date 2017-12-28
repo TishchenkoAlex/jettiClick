@@ -20,4 +20,3 @@ export const JwtConfig = {
   algorithms: ['RS256']
 }
 
-

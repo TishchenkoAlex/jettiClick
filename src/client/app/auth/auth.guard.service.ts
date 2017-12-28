@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { map, take } from 'rxjs/operators';
-import { RoleObject, RoleType } from './../../../server/models/Roles/base';
 
+import { RoleObject, RoleType } from '../../../server/models/Roles/Base';
 import { HOME } from './../common/tabcontroller/tabcontroller.service';
 import { Auth0Service } from './auth0.service';
 

@@ -12,8 +12,8 @@ import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings }
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
-import { DocumentBase } from './../../../server/models/document';
-import { getRoleObjects, RoleType } from './../../../server/models/Roles/base';
+import { DocumentBase } from '../../../server/models/document';
+import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 
 @Injectable()
 export class ApiService {

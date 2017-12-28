@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { take } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { RoleObject, RoleType } from './../../../server/models/Roles/base';
+import { RoleObject, RoleType } from '../../../server/models/Roles/Base';
 import { ApiService } from './../services/api.service';
 
 @Injectable()

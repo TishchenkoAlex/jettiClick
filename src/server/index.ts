@@ -17,6 +17,7 @@ import { router as server } from './routes/server';
 import { router as suggests } from './routes/suggest';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
+import { router as auth } from './routes/auth';
 
 const root = './';
 const app = express();
