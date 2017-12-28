@@ -1,12 +1,10 @@
 export const connString = {
-  host: process.env.POSTGRES_DB_HOST || '35.198.118.153',
+  host: '127.0.0.1' || '35.198.118.153',
   database: 'jetti',
   user: process.env.POSTGRES_DB_USER || 'postgres',
   password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
   poolSize: 50,
 }
-// db.jetti-app.com
-// 35.198.118.153
 
 export const JwtConfig = {
   JwtSecret: {

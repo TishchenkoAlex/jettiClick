@@ -12,7 +12,7 @@ spec:
         tier: web
     spec:
       containers:
-        - name: jetti-fs-mat
+        - name: jetti
           image: eu.gcr.io/jetti-pg/jetti:latest
           ports:
             - containerPort: 8080
@@ -66,6 +66,7 @@ metadata:
   name: jetti
   annotations:
     kubernetes.io/ingress.global-static-ip-name: jetti-ip
+    kubernetes.io/ingress.allow-http: "false"
   labels:
     app: jetti
 spec:
@@ -97,3 +98,7 @@ spec:
 
 #docker tag jetti-fs-mat jetti.azurecr.io/jetti-fs-mat
 #docker push jetti.azurecr.io/jetti-fs-mat
+
+#gcloud sql users create proxyuser host --instance=jetti-pg --password=Pa5315word
+#kubectl create secret generic cloudsql-db-credentials --from-literal=username=proxyuser --from-literal=password=Pa5315word
+#kubectl create secret generic cloudsql-instance-credentials --from-file=credentials.json=Downloads/jetti-pg-fca1f23ebf41.json 
