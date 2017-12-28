@@ -1,8 +1,8 @@
 export const connString = {
-  host: '35.198.118.153',
+  host: process.env.POSTGRES_DB_HOST || '35.198.118.153',
   database: 'jetti',
-  user: 'postgres',
-  password: 'Pa$$word',
+  user: process.env.POSTGRES_DB_USER || 'postgres',
+  password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
   poolSize: 50,
 }
 // db.jetti-app.com
@@ -20,3 +20,4 @@ export const JwtConfig = {
   algorithms: ['RS256']
 }
 
+console.log(process.env);
