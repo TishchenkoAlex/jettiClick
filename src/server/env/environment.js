@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connString = {
-    host: process.env.POSTGRES_DB_HOST || '35.198.118.153',
+    host: process.env.POSTGRES_DB_HOST ? process.env.POSTGRES_DB_HOST.split(':')[0] : '35.198.118.153',
     database: 'jetti',
     user: process.env.POSTGRES_DB_USER || 'postgres',
     password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
