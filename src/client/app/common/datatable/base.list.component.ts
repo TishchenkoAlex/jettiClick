@@ -17,7 +17,7 @@ import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
-import { DocTypes } from 'server/models/documents.types';
+import { DocTypes } from '../../../../server/models/documents.types';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
