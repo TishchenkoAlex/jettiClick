@@ -4,8 +4,8 @@ import 'reflect-metadata';
 import * as bodyParser from 'body-parser';
 import * as compression from 'compression';
 import * as cors from 'cors';
-import { NextFunction, Request, Response } from 'express';
 import * as express from 'express';
+import { NextFunction, Request, Response } from 'express';
 import * as httpServer from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
@@ -17,7 +17,6 @@ import { router as server } from './routes/server';
 import { router as suggests } from './routes/suggest';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
-import { router as auth } from './routes/auth';
 
 const root = './';
 const app = express();

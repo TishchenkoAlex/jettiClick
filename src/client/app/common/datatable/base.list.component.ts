@@ -2,7 +2,7 @@ import { AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { DataTable, SortMeta, MenuItem } from 'primeng/primeng';
+import { DataTable, MenuItem, SortMeta } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
 import { filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
@@ -10,13 +10,14 @@ import { Subscription } from 'rxjs/Subscription';
 import { ColumnDef } from '../../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
 import { SideNavService } from '../../services/side-nav.service';
+import { DocumentBase, DocumentOptions } from './../../../../server/models/document';
+import { createDocument } from './../../../../server/models/documents.factory';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
-import { DocumentBase, DocumentOptions } from './../../../../server/models/document';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
-import { createDocument } from './../../../../server/models/documents.factory';
+import { DocTypes } from 'server/models/documents.types';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +40,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
   @ViewChild(DataTable) dataTable: DataTable = null;
 
-  docType = ''; AfterViewInit = false;
+  docType: DocTypes; AfterViewInit = false;
   isDoc: boolean;
   columns: ColumnDef[] = [];
   selectedRows: DocumentBase[] = [];
@@ -54,8 +55,9 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit() {
     this.docType = this.route.params['value'].type;
     const view = this.route.data['value'].detail[0]['view'];
-    const copyTo = (createDocument(this.docType as any).Prop() as DocumentOptions).copyTo;
-    this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
+    const docModel = createDocument(this.docType);
+    this.isDoc = docModel.isDoc;
+    const copyTo = (docModel.Prop() as DocumentOptions).copyTo || [];
 
     this.columns = this.route.data['value'].detail[0]['columnDef'];
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
@@ -74,9 +76,9 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
         { label: 'Delete', icon: 'fa-minus', command: (event) => { this.delete() } }
       ],
       ...copyTo.map(el => {
-        const doc = createDocument(el).Prop() as DocumentOptions;
+        const copyToDoc = createDocument(el).Prop() as DocumentOptions;
         return <MenuItem>{
-          label: doc.description, icon: doc.icon, command: (event) => {
+          label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => {
             this.router.navigate([el, 'base-' + this.selectedRows[0].id])
           }
         }
@@ -132,19 +134,15 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   update(col: ColumnDef, event, center) {
     if (this.AfterViewInit) {
       // if value is date interval, then set EndDate to end id day 23.59.59
-      if (event[1]) { event[1].setHours(23, 59, 59, 999) };
+      if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999) };
       this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
       this.Sort(event);
     }
   }
 
-  Sort(event) {
-    if (this.AfterViewInit) { this.dataSource.sort() }
-  }
+  Sort(event) { if (this.AfterViewInit) { this.dataSource.sort() } }
 
-  Close() {
-    this.ds.close(null);
-  }
+  Close() { this.ds.close(null) }
 
   private saveUserSettings() {
     const formListSettings: FormListSettings = {
@@ -182,8 +180,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onContextMenuSelect(event) {
-    this.ds.api.getViewModel(this.docType, event.data.id).pipe(
-      take(1))
+    this.ds.api.getViewModel(this.docType, event.data.id).pipe(take(1))
       .subscribe((data: any) => {
         const model = data.model as DocumentBase;
         let el = (event.originalEvent as MouseEvent).srcElement;
@@ -191,7 +188,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
         this.ctxData.column = el.id;
         this.ctxData.value = model[this.ctxData.column];
       });
-
   }
 
   ngOnDestroy() {
