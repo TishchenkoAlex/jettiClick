@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 # Install app dependencies
 COPY package.json /usr/src/app/package.json
-RUN yarn
+RUN npm install
 
 #build Angular app
 COPY .angular-cli.json /usr/src/app/.angular-cli.json
