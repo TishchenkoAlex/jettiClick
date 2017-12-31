@@ -1,9 +1,7 @@
 import { TX } from '../../db';
 import { lib } from '../../std.lib';
-import { RegisterInfoPriceList } from '../Registers/Info/PriceList';
-import { IServerDocument, ServerDocument } from '../ServerDocument';
+import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
-import { DocumentPriceList } from './Document.PriceList';
 import { DocumentOperation } from './Document.Operation';
 
 export class DocumentOperationServer extends DocumentOperation implements ServerDocument {
@@ -12,7 +10,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     switch (prop) {
       case 'company':
         if (!value) { return {} }
-        const company = await lib.doc.byId<IServerDocument>(value.id, tx);
+        const company = await lib.doc.byId(value.id, tx);
         if (!company) { return {} }
         const currency = await lib.doc.formControlRef(company.doc.currency, tx);
         return { currency: currency };

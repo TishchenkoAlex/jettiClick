@@ -6,9 +6,13 @@ import { FormListSettings, UserDefaultsSettings } from './../models/user.setting
 
 export const router = express.Router();
 
+export function User(req: Request): string {
+  return req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+}
+
 router.get('/user/roles', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const user = User(req);
     const query = `select roles result from users where email = '${user}'`;
     const result = await db.oneOrNone(query);
     res.json(result ? result.result : []);
@@ -17,7 +21,7 @@ router.get('/user/roles', async (req: Request, res: Response, next: NextFunction
 
 router.get('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const user = User(req);
     const query = `select settings->'defaults' result from users where email = '${user}'`;
     const result = await db.oneOrNone<{ result: UserDefaultsSettings }>(query);
     res.json(result ? result.result : new UserDefaultsSettings());
@@ -26,7 +30,7 @@ router.get('/user/settings/defaults', async (req: Request, res: Response, next: 
 
 router.post('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const user = User(req);
     const data = req.body || new UserDefaultsSettings();
     const query = `update users set settings = jsonb_set(settings, '{"defaults"}, $1) where email = '${user}'`;
     const result = await db.none(query, [data]);
@@ -37,7 +41,7 @@ router.post('/user/settings/defaults', async (req: Request, res: Response, next:
 
 router.get('/user/settings/:type', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const user = User(req);
     const query = `select settings->'${req.params.type}' result from users where email = '${user}'`;
     const result = (await db.oneOrNone<{ result: FormListSettings }>(query));
     res.json(result ? result.result : new FormListSettings());
@@ -46,7 +50,7 @@ router.get('/user/settings/:type', async (req: Request, res: Response, next: Nex
 
 router.post('/user/settings/:type', async (req, res, next) => {
   try {
-    const user = (req.user && req.user.sub && req.user.sub.split('|')[1]) || '';
+    const user = User(req);
     const data = req.body || {};
     const query = `update users set settings = jsonb_set(settings, '{"${req.params.type}"}', $1) where email = '${user}'`;
     const settings = await db.none(query, [data]);

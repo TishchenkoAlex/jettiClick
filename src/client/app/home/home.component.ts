@@ -1,13 +1,14 @@
-import { AppComponent } from '../app.component';
-import { TabControllerService } from '../common/tabcontroller/tabcontroller.service';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-interface PBData { accessToken: string, embedUrl: string, type: string, id: string }
+import { EventsService } from './../services/events.service';
 
 @Component({
   selector: 'app-home',
-  templateUrl: './home.component.html'
+  templateUrl: './home.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomeComponent {
-  @Input() show = true;
+export class HomeComponent  {
+
+  constructor(public ts: EventsService) {}
+
 }

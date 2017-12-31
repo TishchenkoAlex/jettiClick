@@ -76,3 +76,32 @@ j-control {
 .ui-datatable .ui-selection-column {
   padding: 0.286em 0.55em !important;
 }
+
+.ui-table table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.ui-table th,
+.ui-table td {
+  padding: .25em .5em;
+  border: 1px solid #d9d9d9;
+}
+
+@keyframes ui-progress-spinner-color {
+  100%,
+  0% {
+      stroke: #d62d20;
+  }
+  40% {
+      stroke: #d62d20;
+  }
+  66% {
+      stroke: #d62d20;
+  }
+  80%,
+  90% {
+      stroke: #d62d20;
+  }
+}

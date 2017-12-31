@@ -26,14 +26,16 @@ import { AppProfileComponent } from './auth/app.profile.component';
 import { AuthGuardService } from './auth/auth.guard.service';
 import { Auth0Service } from './auth/auth0.service';
 import { UserSettingsService } from './auth/settings/user.settings.service';
+import { CloseGuardService } from './common/close.guard.service';
 import { LoadingService } from './common/loading.service';
 import { MaterialModule } from './material.module';
 import { PrimeNGModule } from './primeNG.module';
 import { AppRouteReuseStrategy } from './route-reuse.strategy';
 import { ApiService } from './services/api.service';
+import { EventsService } from './services/events.service';
 import { SideNavService } from './services/side-nav.service';
-import { DynamicFormsModule } from './UI/dynamic.froms.module';
 import { SocketIOService } from './services/socket-io.sevice';
+import { DynamicFormsModule } from './UI/dynamic.froms.module';
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token');
@@ -73,9 +75,11 @@ export function getJwtToken(): string {
     TabResolver,
     SideNavService,
     AuthGuardService,
+    CloseGuardService,
     UserSettingsService,
     LoadingService,
     SocketIOService,
+    EventsService,
     { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true }
   ],
   entryComponents: [],

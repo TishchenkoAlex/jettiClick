@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import * as express from 'express';
 
-import { PatchValue } from '../models/api';
 import { DocTypes } from '../models/documents.types';
-import { FormBase } from '../models/Forms/form';
 import { FormTypes } from '../models/Forms/form.types';
+import { User } from '../routes/user.settings';
 import FormPostServer from './../models/Forms/Form.Post.server';
 import { ICallRequest } from './../routes/utils/interfaces';
 
@@ -17,7 +16,8 @@ export const server = new Map<FormTypes | DocTypes, any>([
 router.post('/call/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const CR: ICallRequest = req.body;
-    CR.user = req.user && req.user.sub;
+    CR.user = User(req);
+    CR.userID = req.user && req.user.sub;
     const ClassType = server.get(CR.type);
     if (!ClassType) { throw new Error(`Server module for '${CR.type}' is not registered.`) }
     const Class = new ClassType(CR);

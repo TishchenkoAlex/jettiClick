@@ -2,10 +2,10 @@ import { Props, Ref } from '../../document';
 import { JRegisterAccumulation, RegisterAccumulation } from './RegisterAccumulation';
 
 @JRegisterAccumulation({
-  type: 'Register.Accumulation.AR',
-  description: 'Расчеты с клиентами'
+  type: 'Register.Accumulation.AP',
+  description: 'Расчеты с поставщиками'
 })
-export class RegisterAccumulationAR extends RegisterAccumulation {
+export class RegisterAccumulationAP extends RegisterAccumulation {
 
   @Props({ type: 'Catalog.Currency' })
   currency: Ref = null;
@@ -17,13 +17,13 @@ export class RegisterAccumulationAR extends RegisterAccumulation {
   AO: Ref = null;
 
   @Props({ type: 'Catalog.Counterpartie' })
-  Customer: Ref = null;
+  Supplier: Ref = null;
 
   @Props({ type: 'datetime' })
-  PayDay: Date = null;
+  PayDay: string = null;
 
   @Props({ type: 'number' })
-  AR: number = null;
+  Amount: number = null;
 
   @Props({ type: 'number' })
   AmountInBalance: number = null;
@@ -31,10 +31,10 @@ export class RegisterAccumulationAR extends RegisterAccumulation {
   constructor(kind: boolean, public data: {
     currency: Ref,
     Department: Ref,
-    Customer: Ref,
+    Supplier: Ref,
     AO: Ref,
     PayDay: Date,
-    AR: number,
+    Amount: number,
     AmountInBalance: number,
   }) {
     super(kind, data);

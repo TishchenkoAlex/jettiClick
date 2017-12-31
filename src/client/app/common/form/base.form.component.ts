@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -16,8 +17,6 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { DocService } from '../../common/doc.service';
 import { patchOptionsNoEvents, ViewModel } from '../../common/dynamic-form/dynamic-form.service';
-import { SideNavService } from './../../services/side-nav.service';
-import { Location } from '@angular/common';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,19 +34,17 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;
   private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
-  protected _sideNavService$: Subscription = Subscription.EMPTY;
 
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
   get tables() { return this.viewModel.view.filter(t => t.type === 'table') }
   get posted() { return this.viewModel.formGroup.controls['posted'] }
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
-    public cd: ChangeDetectorRef, public ds: DocService, public sideNavService: SideNavService,
+    public cd: ChangeDetectorRef, public ds: DocService,
     private location: Location) {
   }
 
   ngOnInit() {
-    this.sideNavService.templateRef = this.sideNavTepmlate;
 
     this._subscription$ = Observable.merge(...[
       this.ds.save$,
@@ -69,10 +66,6 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
         this.Close();
       });
 
-    this._sideNavService$ = this.sideNavService.do$.pipe(
-      filter(data => data.type === this.viewModel.model.type && data.id === this.docId))
-      .subscribe(data => this.sideNavService.templateRef = this.sideNavTepmlate);
-
     this._closeSubscription$ = this.ds.close$.pipe(
       filter(data => data && data.type === this.viewModel.model.type && data.id === this.docId))
       .subscribe(data => this.Close())
@@ -80,7 +73,6 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._subscription$.unsubscribe();
-    this._sideNavService$.unsubscribe();
     this._saveCloseSubscription$.unsubscribe();
     this._closeSubscription$.unsubscribe();
   }

@@ -20,3 +20,25 @@ export interface RefValue {
 }
 
 export interface PatchValue { [x: string]: (boolean | number | string | RefValue | {}) }
+
+export interface IJettiTask {
+  id: number,
+  description: string,
+  user: string,
+  progress: number,
+  status: boolean,
+  error: string,
+  url: string,
+  name: string,
+}
+
+export interface IEvent {
+  id: string,
+  startedAt: Date,
+  endedAt: Date,
+  description: string,
+  user: string,
+  error: string,
+  progress: number,
+  url: string,
+}

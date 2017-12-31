@@ -7,11 +7,17 @@ import { RegisterAccumulationSales } from './Sales';
 import { RegisterAccumulationPL } from './PL';
 
 export type RegisterAccumulationTypes =
-  'Register.Accumulation.Balance' |
+  'Register.Accumulation.AccountablePersons' |
+  'Register.Accumulation.AP' |
   'Register.Accumulation.AR' |
+  'Register.Accumulation.Bank' |
+  'Register.Accumulation.Balance' |
+  'Register.Accumulation.Cash' |
+  'Register.Accumulation.Cash.Transit' |
   'Register.Accumulation.Inventory' |
-  'Register.Accumulation.Sales' |
-  'Register.Accumulation.PL';
+  'Register.Accumulation.Loan' |
+  'Register.Accumulation.PL' |
+  'Register.Accumulation.Sales';
 
 interface IRegisteredRegisterAccumulation { type: RegisterAccumulationTypes, Class: typeof RegisterAccumulation }
 export const RegisteredRegisterAccumulation: IRegisteredRegisterAccumulation[] = [

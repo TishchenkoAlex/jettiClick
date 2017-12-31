@@ -1,33 +1,26 @@
-<p-dataTable [value]="movements" [scrollable]="true">
+<!-- <div style="max-height: 500px; overflow: auto; "> -->
+<p-table [value]="movements">
+  <ng-template pTemplate="header">
+    <tr style="cursor: pointer">
+      <th *ngIf="!doc.type.includes('Info')" style="width: 22px; text-align: center"></th>
+      <th>date</th>
+      <th>company</th>
+      <th [pSortableColumn]="column" *ngFor="let column of additionalColumns">{{column}}</th>
+    </tr>
+  </ng-template>
 
-  <p-column *ngIf="!doc.type.includes('Info')" field="kind" [style]="{'width': '22px', 'text-align': 'center'}">
-    <ng-template let-row="rowData" pTemplate="body">
-      <i *ngIf="row['kind']" class="fa fa-plus" style="color: #5cb85c"></i>
-      <i *ngIf="!row['kind']" class="fa fa-minus" style="color: #d9534f"></i>
-    </ng-template>
-  </p-column>
+  <ng-template pTemplate="body" let-rowData>
+    <tr>
+      <td *ngIf="!doc.type.includes('Info')" style="width: 22px; text-align: center">
+        <i *ngIf="rowData['kind']" class="fa fa-plus" style="color: #5cb85c"></i>
+        <i *ngIf="!rowData['kind']" class="fa fa-minus" style="color: #d9534f"></i>
+      </td>
+      <td style="width: 150px; text-align: center">{{rowData.date | date: 'short'}}</td>
+      <td>{{rowData.company.value}}</td>
+      <td *ngFor="let column of additionalColumns">
+        {{ rowData[column]?.value === null ? 'EMPTY' : rowData[column]?.value || rowData[column] }}
+      </td>
+    </tr>
+  </ng-template>
 
-  <p-column field="date" header="date" [style]="{'width': '100px', 'text-align': 'center'}">
-    <ng-template let-row="rowData" pTemplate="body">
-      <div>
-        {{row.date | date: 'short'}}
-      </div>
-    </ng-template>
-  </p-column>
-
-  <p-column field="company" header="company" [style]="{'width': '110px', 'text-align': 'center'}">
-    <ng-template let-row="rowData" pTemplate="body">
-      <div>
-        {{row.company.value}}
-      </div>
-    </ng-template>
-  </p-column>
-
-  <p-column *ngFor="let column of additionalColumns" [field]="column" [header]="column" [style]="{'width': '150px', 'text-align': 'center'}">
-    <ng-template let-row="rowData" pTemplate="body">
-      <div>
-        {{ row[column]?.value === null ? 'EMPTY' : row[column]?.value || row[column]}}
-      </div>
-    </ng-template>
-  </p-column>
-</p-dataTable>
+</p-table>

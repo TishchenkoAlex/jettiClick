@@ -70,6 +70,8 @@ metadata:
   labels:
     app: jetti
 spec:
+  tls:
+  - secretName: jetti-ssl
   backend:
     serviceName: jetti
     servicePort: 8080
@@ -102,3 +104,16 @@ spec:
 #gcloud sql users create proxyuser host --instance=jetti-pg --password=Pa5315word
 #kubectl create secret generic cloudsql-db-credentials --from-literal=username=proxyuser --from-literal=password=Pa5315word
 #kubectl create secret generic cloudsql-instance-credentials --from-file=credentials.json=Downloads/jetti-pg-fca1f23ebf41.json 
+#kubectl create secret tls jetti-ssl --key Downloads/jetti.key --cert Downloads/jetti.pem
+
+
+#apiVersion: v1
+#kind: Secret
+#metadata:
+#  name: jetti-ssl
+#  namespace: default
+#type: Opaque
+#data:
+#  tls.crt: ""
+#  tls.key: ""
+#---

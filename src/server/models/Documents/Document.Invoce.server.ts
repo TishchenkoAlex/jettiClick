@@ -53,6 +53,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     const PL = await lib.doc.byCode('Catalog.Balance', 'PL', tx);
     const AR = await lib.doc.byCode('Catalog.Balance', 'AR', tx)
     const INVENTORY = await lib.doc.byCode('Catalog.Balance', 'INVENTORY', tx);
+    const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', {currency: this.currency}, tx) || 1;
 
     // AR
     Registers.Accumulation.push(new RegisterAccumulationAR(true, {
@@ -60,6 +61,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       Department: this.Department,
       Customer: this.Customer,
       AR: this.Amount,
+      AmountInBalance: this.Amount / exchangeRate,
       PayDay: this.PayDay,
       currency: this.currency
     }));
@@ -111,7 +113,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       Department: this.Department,
       Balance: AR,
       Analytics: this.Customer,
-      Amount: this.Amount
+      Amount: this.Amount / exchangeRate
     }));
 
     Registers.Accumulation.push(new RegisterAccumulationBalance(false, {
@@ -132,7 +134,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       Department: this.Department,
       Balance: PL,
       Analytics: IncomeSALES,
-      Amount: this.Amount,
+      Amount: this.Amount / exchangeRate,
     }));
 
     return Registers;

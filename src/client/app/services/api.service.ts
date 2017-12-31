@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, PatchValue } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, PatchValue, IJettiTask, IEvent } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
@@ -80,18 +80,6 @@ export class ApiService {
     return (this.http.get<AccountRegister[]>(query));
   }
 
-  valueChanges(doc: DocumentBase, property: string, value: string) {
-    const query = `${this.url}valueChanges/${doc.type}/${property}`;
-    const callConfig = { doc: doc, value: value }
-    return this.http.post<PatchValue>(query, callConfig).toPromise();
-  }
-
-  onCommand(doc: DocumentBase, command: string, args: { [x: string]: any }) {
-    const query = `${this.url}command/${doc.type}/${command}`;
-    const callConfig = { doc: doc, args: args }
-    return this.http.post(query, callConfig).toPromise()
-  }
-
   getDocRegisterAccumulationList(id: string) {
     const query = `${this.url}register/accumulation/list/${id}`;
     return (this.http.get(query) as Observable<any[]>);
@@ -137,16 +125,28 @@ export class ApiService {
     return (this.http.get<any[]>(query));
   }
 
-  server(doc: DocumentBase, func: string, params: any): Observable<{ doc: DocumentBase, result: any }> {
-    const query = `${this.url}/server/${doc.type}/${func}`;
-    return this.http.post<{ doc: DocumentBase, result: any }>(query, { doc: doc, params: params });
-  }
-
   getUserRoles() {
     const query = `${this.url}user/roles`;
     return this.http.get<RoleType[]>(query).pipe(
       map(data => ({ roles: data as RoleType[] || [], Objects: getRoleObjects(data) }))
     );
+  }
+
+  valueChanges(doc: DocumentBase, property: string, value: string) {
+    const query = `${this.url}valueChanges/${doc.type}/${property}`;
+    const callConfig = { doc: doc, value: value }
+    return this.http.post<PatchValue>(query, callConfig).toPromise();
+  }
+
+  onCommand(doc: DocumentBase, command: string, args: { [x: string]: any }) {
+    const query = `${this.url}command/${doc.type}/${command}`;
+    const callConfig = { doc: doc, args: args }
+    return this.http.post(query, callConfig).toPromise();
+  }
+
+  server(doc: DocumentBase, func: string, params: any): Observable<{ doc: DocumentBase, result: any }> {
+    const query = `${this.url}/server/${doc.type}/${func}`;
+    return this.http.post<{ doc: DocumentBase, result: any }>(query, { doc: doc, params: params });
   }
 
   call(type: string, formView: any, method: string, params: any[], async = false): Observable<any> {
@@ -157,6 +157,11 @@ export class ApiService {
       formView: formView,
       params: params
     });
+  }
+
+  latestEvents(): Observable<{ active: number, events: IEvent[]}> {
+    const query = `${this.url}event/latest`;
+    return this.http.get<{ active: number, events: IEvent[]}>(query);
   }
 
 }

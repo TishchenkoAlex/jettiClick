@@ -1,14 +1,13 @@
 import { TX } from '../../db';
 import { lib } from '../../std.lib';
+import { RefValue } from '../api';
+import { configSchema } from '../config';
+import { Ref } from '../document';
 import { RegisterInfoPriceList } from '../Registers/Info/PriceList';
 import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
-import { DocumentPriceList } from './Document.PriceList';
-import { Ref, DocumentBase } from '../document';
-import { createDocumentServer } from '../documents.factory.server';
-import { configSchema } from '../config';
-import { RefValue } from '../api';
 import { DocumentInvoice } from './Document.Invoice';
+import { DocumentPriceList } from './Document.PriceList';
 
 export class DocumentPriceListServer extends DocumentPriceList implements ServerDocument {
 

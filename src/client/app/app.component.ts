@@ -4,7 +4,6 @@ import { Auth0Service } from './auth/auth0.service';
 import { LoadingService } from './common/loading.service';
 import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
-import { SideNavService } from './services/side-nav.service';
 
 enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
 
@@ -53,7 +52,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ElementRef;
 
   constructor(public auth: Auth0Service,
-    public sideNavService: SideNavService, public apiService: ApiService, public lds: LoadingService,
+    public apiService: ApiService, public lds: LoadingService,
     public tsc: TabControllerService) {
 
     auth.handleAuthentication();

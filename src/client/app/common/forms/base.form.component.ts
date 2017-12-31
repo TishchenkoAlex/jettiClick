@@ -22,7 +22,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
 
-  socket;
+  socket: SocketIOClient.Socket;
   viewModel: ViewModel = this.route.data['value'].detail;
   docId = Math.random().toString();
 
@@ -41,11 +41,13 @@ export class BaseFormComponent implements OnInit, OnDestroy {
     this._authSubscription$ = this.auth.userProfile$.subscribe(u => {
       if (u && u.sub) {
         this.socket = socketIOClient(environment.socket, { query: 'user=' + u.sub });
-        this.socket
-          .on('Form.Post', data => console.log(data))
-          .on('sql', data => console.log(data));
+        this.socket.on('Form.Post', data => console.log(data))
       }
-    })
+    });
+
+    this._closeSubscription$ = this.ds.close$.pipe(
+      filter(data => data && data.type === this.viewModel.model.type && data.id === this.docId))
+      .subscribe(data => this.Close())
   }
 
   ngOnDestroy() {

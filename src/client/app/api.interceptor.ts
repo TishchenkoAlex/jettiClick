@@ -16,7 +16,7 @@ export class ApiInterceptor implements HttpInterceptor {
   constructor(private lds: LoadingService, private inj: Injector) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (req.url.includes('user/settings')) { // exclude setting requests
+    if (req.url.includes('user/settings') || req.url.includes('event/latest')) { // exclude setting requests
       return next.handle(req);
     }
     this.lds.color = 'accent';

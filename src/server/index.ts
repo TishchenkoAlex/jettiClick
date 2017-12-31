@@ -4,8 +4,8 @@ import 'reflect-metadata';
 import * as bodyParser from 'body-parser';
 import * as compression from 'compression';
 import * as cors from 'cors';
-import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
+import * as express from 'express';
 import * as httpServer from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
@@ -15,6 +15,7 @@ import { router as documents } from './routes/documents';
 import { router as registers } from './routes/registers';
 import { router as server } from './routes/server';
 import { router as suggests } from './routes/suggest';
+import { router as events } from './routes/events';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
 
@@ -35,6 +36,7 @@ app.use('/api', jwtCheck, userSettings);
 app.use('/api', jwtCheck, suggests);
 app.use('/api', jwtCheck, utils);
 app.use('/api', jwtCheck, registers);
+app.use('/api', jwtCheck, events);
 
 app.get('*', (req: Request, res: Response) => {
   res.sendFile('dist/index.html', { root: root });
@@ -51,3 +53,4 @@ export const IO = socketIO(HTTP);
 
 const port = process.env.PORT || '3000';
 HTTP.listen(port, () => console.log(`API running on port:${port}`));
+

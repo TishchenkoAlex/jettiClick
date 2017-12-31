@@ -81,11 +81,4 @@
     (click)="Delete()"></button>
 </ng-template>
 
-<ng-template #sideNavTepmlate let-sidenav="sidenav">
-  <div>
-    <button type="button" pButton (click)="this.Goto(); sidenav.close()">Find in list</button>
-    <button type="button" pButton (click)="sidenav.close()">Close</button>
-  </div>
-</ng-template>
-
 <p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>

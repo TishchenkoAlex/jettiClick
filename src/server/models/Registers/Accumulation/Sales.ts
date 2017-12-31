@@ -7,6 +7,10 @@ import { RegisterAccumulationTypes } from './factory';
   description: 'Выручка и себестоимость продаж'
 })
 export class RegisterAccumulationSales extends RegisterAccumulation {
+
+  @Props({ type: 'Catalog.Currency' })
+  currency: Ref = null;
+
   @Props({ type: 'Catalog.Department' })
   Department: Ref = null;
 
@@ -19,14 +23,11 @@ export class RegisterAccumulationSales extends RegisterAccumulation {
   @Props({ type: 'Catalog.Manager' })
   Manager: Ref = null;
 
-  @Props({ type: 'Document.Invoice' })
+  @Props({ type: 'Types.Document' })
   AO: Ref = null;
 
   @Props({ type: 'Catalog.Storehouse' })
   Storehouse: Ref = null;
-
-  @Props({ type: 'Catalog.Currency' })
-  currency: Ref = null;
 
   @Props({ type: 'number' })
   Cost: number = null;
@@ -44,6 +45,7 @@ export class RegisterAccumulationSales extends RegisterAccumulation {
   Tax: number = null;
 
   constructor(kind: boolean, public data: {
+    currency: Ref,
     AO: Ref,
     Department: Ref,
     Customer: Ref,
@@ -55,7 +57,6 @@ export class RegisterAccumulationSales extends RegisterAccumulation {
     Cost: number,
     Discount: number,
     Tax: number,
-    currency: Ref,
   }) {
     super(kind, data);
   }

@@ -118,35 +118,22 @@
           </li>
         </ul>
       </li>
-      <li #notifications [ngClass]="{'active-top-menu':app.activeTopbarItem === notifications}">
+      <li *ngIf ="(ts.latestEvents$ | async) as latestEvents" #notifications [ngClass]="{'active-top-menu':app.activeTopbarItem === notifications}">
         <a href="#" (click)="app.onTopbarItemClick($event,notifications)">
-          <i class="topbar-icon fa fa-fw fa-bell-o"></i>
-          <span class="topbar-badge animated rubberBand">4</span>
+          <i class="topbar-icon fa fa-fw fa-bell-o">
+            <p-progressSpinner *ngIf="latestEvents.active" styleClass="topbar-badge animated rubberBand" [strokeWidth]="8" [style]="{width: '17px', height: '18px'}"></p-progressSpinner>
+          </i>
+          <span *ngIf="latestEvents.active" class="topbar-badge animated rubberBand">{{ latestEvents.active }}</span>
           <span class="topbar-item-name">Notifications</span>
         </a>
         <ul class="layout-menu fadeInDown">
-          <li role="menuitem">
+          <li *ngFor="let event of latestEvents.events" role="menuitem">
             <a href="#">
-              <i class="fa fa-fw fa-tasks"></i>
-              <span>Pending tasks</span>
-            </a>
-          </li>
-          <li role="menuitem">
-            <a href="#">
-              <i class="fa fa-fw fa-calendar-check-o"></i>
-              <span>Meeting today at 3pm</span>
-            </a>
-          </li>
-          <li role="menuitem">
-            <a href="#">
-              <i class="fa fa-fw fa-download"></i>
-              <span>Download documents</span>
-            </a>
-          </li>
-          <li role="menuitem">
-            <a href="#">
-              <i class="fa fa-fw fa-plane"></i>
-              <span>Book flight</span>
+              <i *ngIf="event.endedAt" class="fa fa-fw fa-tasks"></i>
+              <span *ngIf="!event.endedAt">
+                <p-progressSpinner [strokeWidth]="6" [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
+              </span>
+              <span>{{event.description}}, {{ event.endedAt ? (event.endedAt | date:'short') : (event.progress / 100) | percent }}</span>
             </a>
           </li>
         </ul>

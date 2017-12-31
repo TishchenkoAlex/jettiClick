@@ -11,7 +11,7 @@ import { DocumentBase } from './document';
 export function createDocumentServer<T extends DocumentBaseServer | DocumentBase>(type: DocTypes, document?: IServerDocument): T {
   const doc = RegisteredServerDocument.find(el => el.type === type);
   if (doc) {
-    const serverResult = <T> new doc.Class;
+    const serverResult = <T>new doc.Class;
     serverResult.map(document);
     return serverResult;
   }
@@ -25,4 +25,4 @@ const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Operation', Class: DocumentOperationServer },
 ]
 
-const a = createDocumentServer<CatalogAccount>('Catalog.Account');
+// const catalogAccount = createDocumentServer<CatalogAccount>('Catalog.Account');

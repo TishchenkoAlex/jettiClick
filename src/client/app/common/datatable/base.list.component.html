@@ -17,10 +17,10 @@
   </div>
 </p-toolbar>
 
-<p-dataTable [value]="(dataSource.result$ | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id" 
-  [lazy]="true" (onSort)="Sort($event)" (onFilter)="Sort($event)" 
-  [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true" [scrollable]="true" scrollWidth="100%"
-  (onRowDblclick)="open()" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm">
+<p-dataTable [value]="(dataSource.result$ | async)" selectionMode="multiple" [(selection)]="selectedRows" dataKey="id" [lazy]="true"
+  (onSort)="Sort($event)" (onFilter)="Sort($event)" [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true"
+  [scrollable]="true" scrollWidth="100%" (onRowDblclick)="open()" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)"
+  [contextMenu]="cm">
   <div *ngIf="dataTable !== null">
     <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
       <ng-template let-row="rowData" pTemplate="body">

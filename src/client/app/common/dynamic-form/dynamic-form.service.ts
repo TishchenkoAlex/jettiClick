@@ -3,9 +3,12 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
+import { FormTypes } from '../../../../server/models/Forms/form.types';
 import { ApiService } from '../../services/api.service';
 import { cloneFormGroup } from '../utils';
 import { DocumentBase } from './../../../../server/models/document';
+import { createDocument } from './../../../../server/models/documents.factory';
+import { createForm } from './../../../../server/models/Forms/form.factory';
 import {
     AutocompleteJettiFormControl,
     BaseJettiFormControl,
@@ -19,8 +22,6 @@ import {
     TextareaJettiFormControl,
     TextboxJettiFormControl,
 } from './dynamic-form-base';
-import { createDocument } from './../../../../server/models/documents.factory';
-import { createForm } from './../../../../server/models/Forms/form.factory';
 
 export interface ViewModel {
   view: BaseJettiFormControl<any>[];
@@ -162,11 +163,10 @@ export class DynamicFormService {
     return this.apiService.getView(type);
   }
 
-  getFormView$(type: string) {
-    const form = createForm(type as any);
+  getFormView$(type: FormTypes) {
+    const form = createForm(type);
     const view = form.Props();
-    const viewModel = getViewModel(view, {}, false);
-    return viewModel;
+    return getViewModel(view, {}, false);
   }
 
 }

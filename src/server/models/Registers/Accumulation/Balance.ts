@@ -12,7 +12,7 @@ export class RegisterAccumulationBalance extends RegisterAccumulation {
   @Props({ type: 'Catalog.Balance' })
   Balance: Ref = null;
 
-  @Props({ type: 'Catalog.Balance.Analytics' })
+  @Props({ type: 'Types.Catalog' })
   Analytics: Ref = null;
 
   @Props({ type: 'number' })
@@ -27,3 +27,5 @@ export class RegisterAccumulationBalance extends RegisterAccumulation {
     super(kind, data);
   }
 }
+
+

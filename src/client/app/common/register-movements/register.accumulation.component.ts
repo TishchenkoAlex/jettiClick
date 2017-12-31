@@ -9,6 +9,7 @@ import { DocumentBase } from './../../../../server/models/document';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-register-accumulation',
   templateUrl: './register.accumulation.component.html',
+  styleUrls: ['./register.accumulation.component.scss']
 })
 export class RegisterAccumulationComponent implements OnInit {
 

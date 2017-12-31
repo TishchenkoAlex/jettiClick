@@ -5,17 +5,16 @@ import { Observable } from 'rxjs/Observable';
 import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
 import { HOME, TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
-import { SideNavService } from './services/side-nav.service';
 
 @Injectable()
 export class TabResolver implements Resolve<any> {
 
-  constructor(private dfs: DynamicFormService, public tcs: TabControllerService, private sns: SideNavService, private api: ApiService) { }
+  constructor(private dfs: DynamicFormService, public tcs: TabControllerService, private api: ApiService) { }
 
   public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     const type: string = route.params['type'];
     const id: string = route.params['id'] || '';
-    this.sns.do({id: id, type: type});
+    // this.sns.do({id: id, type: type});
     if (type === HOME) { return null }
     if (type.startsWith('Form.')) {
       return this.dfs.getFormView$(route.params['type']);

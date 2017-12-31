@@ -8,8 +8,8 @@ import { filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
+import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
-import { SideNavService } from '../../services/side-nav.service';
 import { DocumentBase, DocumentOptions } from './../../../../server/models/document';
 import { createDocument } from './../../../../server/models/documents.factory';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
@@ -17,7 +17,6 @@ import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
-import { DocTypes } from '../../../../server/models/documents.types';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,12 +24,10 @@ import { DocTypes } from '../../../../server/models/documents.types';
   templateUrl: 'base.list.component.html',
 })
 export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
-  locale = calendarLocale;
-  dateFormat = dateFormat;
+  locale = calendarLocale; dateFormat = dateFormat;
 
   private _docSubscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;
-  private _sideNavService$: Subscription = Subscription.EMPTY;
 
   dataSource: ApiDataSource | null = null;
 
@@ -48,7 +45,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   ctxData = { column: '', value: undefined };
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private messageService: MessageService,
-    private sns: SideNavService, public uss: UserSettingsService, private lds: LoadingService) {
+    public uss: UserSettingsService, private lds: LoadingService) {
     this.pageSize = Math.floor((window.innerHeight - 275) / 24);
   };
 
@@ -94,10 +91,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.dataSource.refresh();
         } else { this.dataSource.goto(doc.id) }
       });
-
-    this._sideNavService$ = this.sns.do$.pipe(
-      filter(data => data.type === this.docType && data.id === ''))
-      .subscribe(data => this.sns.templateRef = this.sideNavTepmlate);
 
     this._closeSubscription$ = this.ds.close$.pipe(
       filter(data => data && data.type === this.docType && data.id === ''))
@@ -193,7 +186,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
     this._closeSubscription$.unsubscribe();
-    this._sideNavService$.unsubscribe();
     if (!this.route.queryParams['value'].goto) { this.saveUserSettings() };
   }
 

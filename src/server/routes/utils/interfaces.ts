@@ -6,5 +6,6 @@ export interface ICallRequest {
     formView: { [x: string]: any },
     method: string,
     params: any[],
-    user: string
+    user: string,
+    userID: string
 }

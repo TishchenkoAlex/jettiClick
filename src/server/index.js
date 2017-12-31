@@ -14,6 +14,7 @@ const documents_1 = require("./routes/documents");
 const registers_1 = require("./routes/registers");
 const server_1 = require("./routes/server");
 const suggest_1 = require("./routes/suggest");
+const events_1 = require("./routes/events");
 const user_settings_1 = require("./routes/user.settings");
 const utils_1 = require("./routes/utils");
 const root = './';
@@ -30,6 +31,7 @@ app.use('/api', jwt_1.jwtCheck, user_settings_1.router);
 app.use('/api', jwt_1.jwtCheck, suggest_1.router);
 app.use('/api', jwt_1.jwtCheck, utils_1.router);
 app.use('/api', jwt_1.jwtCheck, registers_1.router);
+app.use('/api', jwt_1.jwtCheck, events_1.router);
 app.get('*', (req, res) => {
     res.sendFile('dist/index.html', { root: root });
 });

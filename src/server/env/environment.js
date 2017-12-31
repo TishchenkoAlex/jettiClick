@@ -20,5 +20,4 @@ exports.JwtConfig = {
     issuer: 'https://jetti-app.auth0.com/',
     algorithms: ['RS256']
 };
-console.log(process.env);
 //# sourceMappingURL=environment.js.map

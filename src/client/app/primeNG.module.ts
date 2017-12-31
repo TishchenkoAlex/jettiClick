@@ -51,6 +51,7 @@ import {
     BlockUIModule
 } from 'primeng/primeng';
 import { MessageService } from 'primeng/components/common/messageservice';
+import { TableModule } from './common/datatable/table';
 
 @NgModule({
   exports: [
@@ -101,7 +102,8 @@ import { MessageService } from 'primeng/components/common/messageservice';
     ProgressSpinnerModule,
     MultiSelectModule,
     InplaceModule,
-    BlockUIModule
+    BlockUIModule,
+    TableModule
   ],
   providers: [ConfirmationService, MessageService]
 })
