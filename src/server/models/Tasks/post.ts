@@ -1,4 +1,4 @@
-import * as Queue from 'Bull';
+import * as Queue from 'bull';
 
 import { db } from '../../db';
 import { Events } from '../../routes/events';
