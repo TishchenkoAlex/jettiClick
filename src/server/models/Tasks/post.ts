@@ -3,6 +3,7 @@ import * as Queue from 'bull';
 import { db } from '../../db';
 import { Events } from '../../routes/events';
 import { lib } from '../../std.lib';
+import { REDIS_DB_HOST } from '../../env/environment';
 
 export default async function post(job: Queue.Job) {
   job.progress(0);
@@ -30,7 +31,7 @@ export default async function post(job: Queue.Job) {
 }
 
 const QueueID = 'post';
-const JQueue = new Queue(QueueID);
+const JQueue = new Queue(QueueID, {redis: {host: REDIS_DB_HOST}});
 JQueue.clean(0);
 JQueue.process(100, post);
 

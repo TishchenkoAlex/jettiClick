@@ -7,6 +7,7 @@ exports.connString = {
     password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
     poolSize: 50,
 };
+exports.REDIS_DB_HOST = process.env.REDIS_DB_HOST || '127.0.0.1';
 // db.jetti-app.com
 // 35.198.118.153
 exports.JwtConfig = {
