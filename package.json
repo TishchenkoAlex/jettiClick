@@ -45,7 +45,13 @@
     "socket.io-client": "^2.0.4",
     "uuid": "^3.1.0",
     "web-animations-js": "^2.3.1",
-    "zone.js": "^0.8.19"
+    "zone.js": "^0.8.19",
+    "@types/bull": "^3.3.1",
+    "@types/node": "^8.5.2",
+    "@types/reflect-metadata": "^0.0.5",
+    "@types/socket.io": "^1.4.31",
+    "@types/socket.io-client": "^1.4.32",
+    "@types/uuid": "^3.4.3"
   },
   "engines": {
     "node": ">=9.3.0"
@@ -54,12 +60,6 @@
     "@angular/cli": "^1.6.3",
     "@angular/compiler-cli": "^5.1.2",
     "@angular/language-service": "^5.1.2",
-    "@types/bull": "^3.3.1",
-    "@types/node": "^8.5.2",
-    "@types/reflect-metadata": "^0.0.5",
-    "@types/socket.io": "^1.4.31",
-    "@types/socket.io-client": "^1.4.32",
-    "@types/uuid": "^3.4.3",
     "codelyzer": "~4.0.2",
     "ts-node": "~4.1.0",
     "tslint": "~5.8.0",
