@@ -17,6 +17,7 @@ const suggest_1 = require("./routes/suggest");
 const events_1 = require("./routes/events");
 const user_settings_1 = require("./routes/user.settings");
 const utils_1 = require("./routes/utils");
+const tasks = require("./models/Tasks/tasks");
 const root = './';
 const app = express();
 app.use(compression());
@@ -44,4 +45,5 @@ exports.HTTP = httpServer.createServer(app);
 exports.IO = socketIO(exports.HTTP);
 const port = process.env.PORT || '3000';
 exports.HTTP.listen(port, () => console.log(`API running on port:${port}`));
+console.log('Background tasks count: ', tasks.BackgroundTasks.length);
 //# sourceMappingURL=index.js.map

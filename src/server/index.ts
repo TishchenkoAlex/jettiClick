@@ -18,6 +18,7 @@ import { router as suggests } from './routes/suggest';
 import { router as events } from './routes/events';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
+import * as tasks from './models/Tasks/tasks';
 
 const root = './';
 const app = express();
@@ -53,4 +54,5 @@ export const IO = socketIO(HTTP);
 
 const port = process.env.PORT || '3000';
 HTTP.listen(port, () => console.log(`API running on port:${port}`));
+console.log('Background tasks count: ', tasks.BackgroundTasks.length);
 

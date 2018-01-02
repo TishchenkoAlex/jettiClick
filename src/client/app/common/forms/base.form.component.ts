@@ -41,7 +41,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
     this._authSubscription$ = this.auth.userProfile$.subscribe(u => {
       if (u && u.sub) {
         this.socket = socketIOClient(environment.socket, { query: 'user=' + u.sub });
-        this.socket.on('Form.Post', data => console.log(data))
+        this.socket.on('Form.Post', data => {})
       }
     });
 

@@ -5,6 +5,7 @@ import { lib } from '../../std.lib';
 import { PatchValue } from '../api';
 import { userSocketsEmit } from './../../sockets';
 import { FormPost } from './Form.Post';
+import { Add } from '../Tasks/post';
 
 export default class FormPostServer extends FormPost {
 
@@ -13,6 +14,19 @@ export default class FormPostServer extends FormPost {
   }
 
   async Execute(): Promise<PatchValue> {
+    const endDate = new Date(this.CallRequest.formView.EndDate);
+    endDate.setHours(23, 59, 59, 999);
+    Add({
+      user: this.CallRequest.user,
+      type: this.CallRequest.formView.type.id,
+      company: this.CallRequest.formView.company.id,
+      StartDate: this.CallRequest.formView.StartDate,
+      EndDate: endDate
+    })
+    return this.CallRequest.formView;
+  }
+
+  async Execute3(): Promise<PatchValue> {
     const event = await Events.create('post Invoices', this.CallRequest.user, '');
     try {
       const query = `
@@ -28,10 +42,12 @@ export default class FormPostServer extends FormPost {
         this.CallRequest.formView.StartDate,
         endDate,
       ]);
+      console.log('DOCS', list.length)
       const count = list.length; let offset = 0;
       while (offset < count) {
         let i = 0;
         for (i = 0; i < 25; i++) {
+          if (!list[i + offset]) { break }
           const q = lib.doc.postById(list[i + offset].id, true, db);
           TaskList.push(q);
         }
@@ -42,9 +58,11 @@ export default class FormPostServer extends FormPost {
         TaskList.length = 0;
       }
       await Events.updateProgress(event.id, 100, new Date());
+      console.log('COMPLETE DOCS', list.length);
       return this.CallRequest.formView;
     } catch (err) {
-      await Events.updateProgress(event.id, 100, new Date(), err);
+      console.log(err);
+      await Events.updateProgress(event.id, -1, new Date(), JSON.stringify(err));
     }
   }
 
@@ -75,7 +93,8 @@ export default class FormPostServer extends FormPost {
       }
       await Events.updateProgress(event.id, 100, new Date());
     } catch (err) {
-      await Events.updateProgress(event.id, 100, new Date(), err);
+      console.log(err);
+      await Events.updateProgress(event.id, -1, new Date(), err);
     }
   }
 }
