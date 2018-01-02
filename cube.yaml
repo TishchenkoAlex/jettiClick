@@ -33,7 +33,7 @@ spec:
                   name: cloudsql-db-credentials
                   key: password
             - name: REDIS_DB_HOST
-              value: 10.3.240.195
+              value: 10.3.242.250
             # [END cloudsql_secrets]
         # [START proxy_container]
         - name: cloudsql-proxy
