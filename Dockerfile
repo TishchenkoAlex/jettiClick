@@ -19,3 +19,4 @@ ENV PORT 8080
 EXPOSE 8080
 
 CMD [ "node", "./src/server/index.js" ]
+# "typescript": "^2.7.0-dev.20180103"

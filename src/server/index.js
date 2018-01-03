@@ -10,14 +10,15 @@ const httpServer = require("http");
 const path = require("path");
 const socketIO = require("socket.io");
 const jwt_1 = require("./jwt");
+const tasks_1 = require("./models/Tasks/tasks");
 const documents_1 = require("./routes/documents");
+const events_1 = require("./routes/events");
 const registers_1 = require("./routes/registers");
 const server_1 = require("./routes/server");
 const suggest_1 = require("./routes/suggest");
-const events_1 = require("./routes/events");
 const user_settings_1 = require("./routes/user.settings");
 const utils_1 = require("./routes/utils");
-const tasks = require("./models/Tasks/tasks");
+const tasks_2 = require("./routes/tasks");
 const root = './';
 const app = express();
 app.use(compression());
@@ -33,6 +34,7 @@ app.use('/api', jwt_1.jwtCheck, suggest_1.router);
 app.use('/api', jwt_1.jwtCheck, utils_1.router);
 app.use('/api', jwt_1.jwtCheck, registers_1.router);
 app.use('/api', jwt_1.jwtCheck, events_1.router);
+app.use('/api', jwt_1.jwtCheck, tasks_2.router);
 app.get('*', (req, res) => {
     res.sendFile('dist/index.html', { root: root });
 });
@@ -43,7 +45,7 @@ function errorHandler(err, req, res, next) {
 }
 exports.HTTP = httpServer.createServer(app);
 exports.IO = socketIO(exports.HTTP);
-const port = process.env.PORT || '3000';
+const port = (+process.env.PORT) || 3000;
 exports.HTTP.listen(port, () => console.log(`API running on port:${port}`));
-console.log('Background tasks count: ', tasks.BackgroundTasks.length);
+tasks_1.JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
 //# sourceMappingURL=index.js.map

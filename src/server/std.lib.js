@@ -4,6 +4,7 @@ const db_1 = require("./db");
 const documents_factory_server_1 = require("./models/documents.factory.server");
 const execute_script_1 = require("./routes/utils/execute-script");
 exports.lib = {
+    db: db_1.db,
     account: {
         balance: balance,
         debit: debit,

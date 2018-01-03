@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: jetti
-          image: eu.gcr.io/jetti-pg/jetti:latest
+          image: eu.gcr.io/jetti-pg/jetti
           ports:
             - containerPort: 8080
           # The following environment variables will contain the database host,

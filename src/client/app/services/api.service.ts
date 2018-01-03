@@ -1,19 +1,18 @@
-import 'rxjs/add/observable/of';
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { JobOptions } from 'bull';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, PatchValue, IJettiTask, IEvent } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, IEvent, IJob, PatchValue, IJobs } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
+import { DocumentBase } from '../../../server/models/document';
+import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
-import { DocumentBase } from '../../../server/models/document';
-import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 
 @Injectable()
 export class ApiService {
@@ -162,6 +161,21 @@ export class ApiService {
   latestEvents(): Observable<{ active: number, events: IEvent[]}> {
     const query = `${this.url}event/latest`;
     return this.http.get<{ active: number, events: IEvent[]}>(query);
+  }
+
+  jobAdd(data: any, opts?: JobOptions) {
+    const query = `${this.url}jobs/add`;
+    return this.http.post<IJob>(query, {data: data, opts: opts});
+  }
+
+  jobs() {
+    const query = `${this.url}jobs`;
+    return this.http.get<IJobs>(query);
+  }
+
+  jobById(id: string) {
+    const query = `${this.url}jobs/${id}`;
+    return this.http.get<IJob>(query);
   }
 
 }

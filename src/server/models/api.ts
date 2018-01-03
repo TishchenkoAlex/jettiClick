@@ -1,5 +1,6 @@
 import { FormListFilter, FormListOrder } from './user.settings';
 import { DocumentBase, Ref } from './../models/document';
+import * as Queue from 'bull';
 
 export interface DocListRequestBody {
   id: string, type: string, command: string, count: number, offset: number,
@@ -41,4 +42,26 @@ export interface IEvent {
   error: string,
   progress: number,
   url: string,
+}
+
+export interface IJob {
+  id: string,
+  progress: number,
+  opts: {[x: string]: any},
+  delay: number,
+  timestamp: number,
+  returnvalue: any,
+  attemptsMade: number,
+  failedReason: string,
+  finishedOn: number,
+  processedOn: number,
+  data: {[x: string]: any}
+}
+
+export interface IJobs  {
+  Active: IJob[],
+  Completed: IJob[],
+  Delayed: IJob[],
+  Failed: IJob[],
+  RepeatableJobs: Queue.JobInformation[],
 }

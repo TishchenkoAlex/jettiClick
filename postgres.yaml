@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-0001-pg
+  labels:
+    name: client-0001-pg
+spec:
+  containers:
+    - image: launcher.gcr.io/google/postgresql10
+      name: postgres
+      env:
+        - name: "POSTGRES_PASSWORD"
+          value: "Pa$$word"
+      volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+          subPath: data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: client-0001-pg
+---
+# Request a persistent volume from the cluster using a Persistent Volume Claim.
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: client-0001-pg
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 25Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-0001-web
+  labels:
+    name: client-0001-web
+  spec:
+    containers:
+      - name: jetti
+        image: eu.gcr.io/jetti-pg/jetti
+        ports:
+          - containerPort: 8080
+          env:
+            - name: POSTGRES_DB_HOST
+              value: "client-0001-pg"
+            - name: POSTGRES_DB_USER
+              value: "postgres"
+            - name: POSTGRES_DB_PASSWORD
+              value: "Pa$$word"
+            - name: REDIS_DB_HOST
+              value: "redis-master"
+            - name: REDIS_DB_PREFIX
+              value: "client-0001"

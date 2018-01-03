@@ -4,10 +4,11 @@ import { Ref } from './models/document';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
-import { IServerDocument, DocumentBaseServer } from './models/ServerDocument';
+import { DocumentBaseServer, IServerDocument } from './models/ServerDocument';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
 
 export interface JTL {
+  db: TX;
   account: {
     balance: (account: Ref, date: string, company: Ref) => Promise<number>,
     debit: (account: Ref, date: string, company: Ref) => Promise<number>,
@@ -34,6 +35,7 @@ export interface JTL {
 }
 
 export const lib: JTL = {
+  db: db,
   account: {
     balance: balance,
     debit: debit,

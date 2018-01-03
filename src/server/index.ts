@@ -11,14 +11,15 @@ import * as path from 'path';
 import * as socketIO from 'socket.io';
 
 import { jwtCheck } from './jwt';
+import { JQueue } from './models/Tasks/tasks';
 import { router as documents } from './routes/documents';
+import { router as events } from './routes/events';
 import { router as registers } from './routes/registers';
 import { router as server } from './routes/server';
 import { router as suggests } from './routes/suggest';
-import { router as events } from './routes/events';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
-import * as tasks from './models/Tasks/tasks';
+import { router as tasks } from './routes/tasks';
 
 const root = './';
 const app = express();
@@ -38,13 +39,14 @@ app.use('/api', jwtCheck, suggests);
 app.use('/api', jwtCheck, utils);
 app.use('/api', jwtCheck, registers);
 app.use('/api', jwtCheck, events);
+app.use('/api', jwtCheck, tasks);
 
 app.get('*', (req: Request, res: Response) => {
   res.sendFile('dist/index.html', { root: root });
 });
 app.use(errorHandler);
 
-function errorHandler (err: Error, req: Request, res: Response, next: NextFunction) {
+function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
   console.log(err.message);
   res.status(500).send(err.message);
 }
@@ -52,7 +54,6 @@ function errorHandler (err: Error, req: Request, res: Response, next: NextFuncti
 export const HTTP = httpServer.createServer(app);
 export const IO = socketIO(HTTP);
 
-const port = process.env.PORT || '3000';
+const port = (+process.env.PORT) || 3000;
 HTTP.listen(port, () => console.log(`API running on port:${port}`));
-console.log('Background tasks count: ', tasks.BackgroundTasks.length);
-
+JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));

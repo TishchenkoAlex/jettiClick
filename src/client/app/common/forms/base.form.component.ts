@@ -39,10 +39,11 @@ export class BaseFormComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._authSubscription$ = this.auth.userProfile$.subscribe(u => {
-      if (u && u.sub) {
-        this.socket = socketIOClient(environment.socket, { query: 'user=' + u.sub });
-        this.socket.on('Form.Post', data => {})
-      }
+      console.log(u);
+      /*       if (u && u.sub) {
+              this.socket = socketIOClient(environment.socket, { query: 'user=' + u.sub });
+              this.socket.on('Form.Post', data => {})
+            } */
     });
 
     this._closeSubscription$ = this.ds.close$.pipe(
@@ -96,8 +97,16 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   async Execute(mode = 'post') {
-    const result = await this.ds.api.call('Form.Post', this.viewModel.formGroup.getRawValue(), 'Execute', [], true).toPromise();
+    const data = this.viewModel.formGroup.value;
+    const result = await this.ds.api.jobAdd({
+      job: { id: 'post', description: '(job) post Invoives' },
+      userId: this.auth.userProfile$.value ? this.auth.userProfile$.value.sub : null,
+      type: data.type.id,
+      company: data.company.id,
+      StartDate: data.StartDate,
+      EndDate: data.EndDate.setHours(23, 59, 59, 999)
+    }/* , { jobId: 'FormPostServer', removeOnComplete: true, removeOnFail: true } */ ).toPromise();
+    console.log('JOB', result);
   }
-
 
 }

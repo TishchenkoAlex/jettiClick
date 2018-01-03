@@ -14,6 +14,7 @@ import { lib, postById } from './../std.lib';
 import { docOperationResolver, doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
 import { List } from './utils/list';
 import { configSchema } from './../models/config';
+import { User } from './user.settings';
 
 export const router = express.Router();
 
@@ -27,7 +28,7 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 router.get('/:type/view/*', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let config_schema; let view;
-    const user = req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+    const user = User(req);
     const serverDoc = configSchema.get(req.params.type);
     view = serverDoc.Props;
     config_schema = {

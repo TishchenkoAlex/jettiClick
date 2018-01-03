@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 
 import { db } from '../db';
 import { IJettiTask } from '../models/api';
+import { JQueue, mapJob } from '../models/Tasks/tasks';
 import { User } from '../routes/user.settings';
 
 export const router = express.Router();
@@ -44,15 +45,42 @@ router.post('/task/complete/:id', async (req: Request, res: Response, next: Next
   } catch (err) { next(err); }
 })
 
-/* setTimeout(() => {
-  const socket = socketIOClient('http://localhost:3000');
-  socket.on('task', data => console.log('client task', data))
-}, 1000);
- */
-/* setTimeout(() => {
-IO.on('connection', s => {
-  console.log('conncet');
-  s.on('task', data => console.log('task', data))
-})}, 1)
- */
+router.post('/jobs/add', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    req.body.data.userId = req.user.sub;
+    req.body.data.user = User(req);
+    const result = await JQueue.add(req.body.data, req.body.opts);
+    res.json(mapJob(result));
+  } catch (err) { next(err); }
+})
+
+router.get('/jobs', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const all = await Promise.all([
+      JQueue.getActive(),
+      JQueue.getCompleted(),
+      JQueue.getDelayed(),
+      JQueue.getFailed(),
+      JQueue.getRepeatableJobs()
+    ]);
+    const result = {
+      Active: all[0].map(el => mapJob(el)),
+      Completed: all[1].map(el => mapJob(el)),
+      Delayed: all[2].map(el => mapJob(el)),
+      Failed: all[3].map(el => mapJob(el)),
+      RepeatableJobs: all[4],
+    }
+    result.Completed.length = Math.min(5, result.Completed.length);
+    result.Delayed.length = Math.min(5, result.Delayed.length);
+    result.Failed.length = Math.min(5, result.Failed.length);
+    res.json(result);
+  } catch (err) { next(err); }
+})
+
+router.get('/jobs/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const job = await JQueue.getJob(req.params.id);
+    res.json(mapJob(job));
+  } catch (err) { next(err); }
+})
 

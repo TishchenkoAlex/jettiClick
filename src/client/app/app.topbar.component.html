@@ -89,7 +89,7 @@
           <li role="menuitem">
             <a href="#" class="topbar-message">
               <img src="assets/layout/images/avatar1.png" width="35" />
-              <span>Give me a call</span>
+              <span>Здесь будет live чат</span>
             </a>
           </li>
           <li role="menuitem">
@@ -118,22 +118,37 @@
           </li>
         </ul>
       </li>
-      <li *ngIf ="(ts.latestEvents$ | async) as latestEvents" #notifications [ngClass]="{'active-top-menu':app.activeTopbarItem === notifications}">
+      <li *ngIf="(ts.latestEvents$ | async) as latestEvents" #notifications [ngClass]="{'active-top-menu':app.activeTopbarItem === notifications}">
         <a href="#" (click)="app.onTopbarItemClick($event,notifications)">
           <i class="topbar-icon fa fa-fw fa-bell-o">
-            <p-progressSpinner *ngIf="latestEvents.active" styleClass="topbar-badge animated rubberBand" [strokeWidth]="8" [style]="{width: '17px', height: '18px'}"></p-progressSpinner>
+            <p-progressSpinner *ngIf="latestEvents.Active.length" styleClass="topbar-badge animated rubberBand" [strokeWidth]="8" [style]="{width: '17px', height: '18px'}"></p-progressSpinner>
           </i>
-          <span *ngIf="latestEvents.active" class="topbar-badge animated rubberBand">{{ latestEvents.active }}</span>
+          <span *ngIf="latestEvents.Active.length" class="topbar-badge animated rubberBand">{{ latestEvents.Active.length }}</span>
           <span class="topbar-item-name">Notifications</span>
         </a>
         <ul class="layout-menu fadeInDown">
-          <li *ngFor="let event of latestEvents.events" role="menuitem">
+          <li *ngFor="let event of latestEvents.Active" role="menuitem">
             <a href="#">
-              <i *ngIf="event.endedAt" class="fa fa-fw fa-tasks"></i>
-              <span *ngIf="!event.endedAt">
-                <p-progressSpinner [strokeWidth]="6" [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
-              </span>
-              <span>{{event.description}}, {{ event.endedAt ? (event.endedAt | date:'short') : (event.progress / 100) | percent }}</span>
+              <div style="display: flex; align-items: center; ">
+                <p-progressSpinner [strokeWidth]="6" [style]="{width: '20px', height: '20px', 'margin-right': '7px'}"></p-progressSpinner>
+                <span>{{event.data.job.description}}, {{(event.progress / 100) | percent }}</span>
+              </div>
+              </a>
+          </li>
+          <li *ngFor="let event of latestEvents.Completed" role="menuitem">
+            <a href="#">
+              <div style="display: flex; align-items: center; justify-content: space-between">
+                <i class="fa fa-fw fa-tasks"></i>
+                <span>{{event.data.job.description}}, {{ event.finishedOn | date:'short' }}</span>
+              </div>
+            </a>
+          </li>
+          <li *ngFor="let event of latestEvents.Failed" role="menuitem">
+            <a href="#">
+              <div style="display: flex; align-items: center; justify-content: space-between">
+                <i class="fa fa-fw fa-exclamation-circle"></i>
+                <span>{{event.data.job.description}}, {{ event.timestamp | date:'short' }}</span>
+              </div>
             </a>
           </li>
         </ul>
@@ -146,7 +161,7 @@
       </li>
     </ul>
   </div>
-  <p-progressBar [style]="(lds.color$ | async) === 'warn' ? {'background': 'red'} :  ''" *ngIf="(lds.loading$ | async) && !(lds.counter$ | async) " mode="indeterminate"></p-progressBar>
+  <p-progressBar [style]="(lds.color$ | async) === 'warn' ? {'background': 'red'} :  ''" *ngIf="(lds.loading$ | async) && !(lds.counter$ | async) "
+    mode="indeterminate"></p-progressBar>
   <p-progressBar *ngIf="lds.counter$ | async as counter" [value]="counter"></p-progressBar>
 </div>
-
