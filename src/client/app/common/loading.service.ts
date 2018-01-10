@@ -19,7 +19,7 @@ export class LoadingService {
       this._loading.next(value);
     }
   }
-  get loading() { return this._loading.value }
+  get loading() { return this._loading.value; }
 
   set color(value) {
     this._color.next(value);
@@ -27,7 +27,7 @@ export class LoadingService {
       this._color.next(value);
     }
   }
-  get color() { return this._color.value }
+  get color() { return this._color.value; }
 
   set counter(value) {
     this._counter.next(value);
@@ -35,6 +35,6 @@ export class LoadingService {
       this._counter.next(value);
     }
   }
-  get counter() { return this._counter.value }
+  get counter() { return this._counter.value; }
 
 }

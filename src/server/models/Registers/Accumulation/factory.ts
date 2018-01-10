@@ -19,17 +19,17 @@ export type RegisterAccumulationTypes =
   'Register.Accumulation.PL' |
   'Register.Accumulation.Sales';
 
-interface IRegisteredRegisterAccumulation { type: RegisterAccumulationTypes, Class: typeof RegisterAccumulation }
+interface IRegisteredRegisterAccumulation { type: RegisterAccumulationTypes; Class: typeof RegisterAccumulation; }
 export const RegisteredRegisterAccumulation: IRegisteredRegisterAccumulation[] = [
   { type: 'Register.Accumulation.Balance', Class: RegisterAccumulationBalance },
   { type: 'Register.Accumulation.AR', Class: RegisterAccumulationAR },
   { type: 'Register.Accumulation.Inventory', Class: RegisterAccumulationInventory },
   { type: 'Register.Accumulation.Sales', Class: RegisterAccumulationSales },
   { type: 'Register.Accumulation.PL', Class: RegisterAccumulationPL },
-]
+];
 
 export function createRegisterAccumulation(
   type: RegisterAccumulationTypes, kind: boolean, data: { [x: string]: any }): RegisterAccumulation {
   const doc = RegisteredRegisterAccumulation.find(el => el.type === type);
-  if (doc) { return new doc.Class(kind, data) }
+  if (doc) { return new doc.Class(kind, data); }
 }

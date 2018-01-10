@@ -11,18 +11,18 @@ export class DocumentExchangeRatesServer extends DocumentExchangeRates implement
       case 'company':
         return {};
       default:
-        return {}
+        return {};
     }
-  };
+  }
 
   async onCommand(command: string, args: any, tx: TX) {
     switch (command) {
       case 'company':
         return {};
       default:
-        return {}
+        return {};
     }
-  };
+  }
 
   async onPost(tx: TX) {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };

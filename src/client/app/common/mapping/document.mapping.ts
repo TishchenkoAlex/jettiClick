@@ -21,7 +21,7 @@ export function mapDocToApiFormat(model: DocumentBase): IServerDocument {
   const JETTI_DOC_PROP = Object.keys(newDoc);
 
   for (const property in model) {
-    if (!model.hasOwnProperty(property)) { continue };
+    if (!model.hasOwnProperty(property)) { continue; }
     if (JETTI_DOC_PROP.indexOf(property) > -1) { continue; }
     if ((model[property] instanceof Array)) {
       const copy = JSON.parse(JSON.stringify(model[property])) as any[];
@@ -33,7 +33,7 @@ export function mapDocToApiFormat(model: DocumentBase): IServerDocument {
               ['string', 'number', 'boolean', 'datetime'].includes(value['type'])) {
               value['id'] = null; element[p] = value; continue;
             }
-            if (value && value['type'] && !value['value'] && ((value['id'] === '') || (value['id'] === null))) { value = null }
+            if (value && value['type'] && !value['value'] && ((value['id'] === '') || (value['id'] === null))) { value = null; }
             element[p] = value ? value['id'] || value : value || null;
           }
         }
@@ -46,7 +46,7 @@ export function mapDocToApiFormat(model: DocumentBase): IServerDocument {
         ['string', 'number', 'boolean', 'datetime'].includes(value['type'])) {
         value['id'] = null; newDoc.doc[property] = value; continue;
       }
-      if (value && value['type'] && !value['value'] && ((value['id'] === '') || (value['id'] === null))) { value = null }
+      if (value && value['type'] && !value['value'] && ((value['id'] === '') || (value['id'] === null))) { value = null; }
       newDoc.doc[property] = value ? value['id'] || value : value || null;
     }
   }

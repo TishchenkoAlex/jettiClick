@@ -30,7 +30,7 @@ import { cloneFormGroup } from '../utils';
   selector: 'j-table-part-png',
   templateUrl: './table-parts.png.component.html',
 })
-export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy {
+export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
   private view: BaseJettiFormControl<any>[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
@@ -107,18 +107,18 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
       this.onChange.emit((this.formGroup.at(rowIndex) as FormGroup).getRawValue());
       this.formGroup.removeAt(rowIndex);
     }
-    for (let i = 0; i < this.formGroup.length; i++) { this.formGroup.get([i]).get('index').patchValue(i, { emitEvent: false })}
+    for (let i = 0; i < this.formGroup.length; i++) { this.formGroup.get([i]).get('index').patchValue(i, { emitEvent: false }); }
     this.dataSource = this.formGroup.getRawValue();
     const selectRow = this.dataSource[index] || this.dataSource[index - 1];
     this.selection = selectRow ? [selectRow] : [];
   }
 
   onEditComplete(event) {
-    console.log('onEditComplete', event)
+    console.log('onEditComplete', event);
   }
 
   onEdit(event) {
-    console.log('onEdit', event)
+    console.log('onEdit', event);
   }
 
   onEditCancel(event) {
@@ -127,7 +127,7 @@ export class TablePartsPNGComponent implements OnInit, AfterViewInit, OnDestroy 
 
   calcTotals(field: string): number {
     let result = 0;
-    for (const c of <FormGroup[]>this.formGroup.controls) { result += c.controls[field].value }
+    for (const c of <FormGroup[]>this.formGroup.controls) { result += c.controls[field].value; }
     return result;
   }
 

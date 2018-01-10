@@ -19,7 +19,7 @@ export class CatalogBalance extends DocumentBase {
   isPassive: boolean = null;
 
   @Props({ type: 'table'})
-  Subcounts: Subcounts[] = [new Subcounts()]
+  Subcounts: Subcounts[] = [new Subcounts()];
 }
 
 class Subcounts {

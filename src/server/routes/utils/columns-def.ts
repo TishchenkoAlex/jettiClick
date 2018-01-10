@@ -14,11 +14,11 @@ export function buildColumnDef(view, settings: FormListSettings): ColumnDef[] {
     const required = !!prop['required'];
     const owner = prop['owner'] || '';
     const totals = prop['totals'] * 1 || null;
-    let style = prop['style']
-    if (type === 'number' && !style) { style = { 'width': '90px', 'text-align': 'right' } }
-    if (type === 'boolean' && !style) { style = { 'width': '90px', 'text-align': 'center' } }
-    if (type === 'datetime' && !style) { style = { 'width': '130px', 'text-align': 'center' } }
-    if (type === 'date' && !style) { style = { 'width': '90px', 'text-align': 'center' } }
+    let style = prop['style'];
+    if (type === 'number' && !style) { style = { 'width': '90px', 'text-align': 'right' }; }
+    if (type === 'boolean' && !style) { style = { 'width': '90px', 'text-align': 'center' }; }
+    if (type === 'datetime' && !style) { style = { 'width': '130px', 'text-align': 'center' }; }
+    if (type === 'date' && !style) { style = { 'width': '90px', 'text-align': 'center' }; }
     columnDef.push({
       field: property, type: type, label: label, hidden: hidden, order: order, style: style || { 'width': '150px'},
       required: required, readOnly: readOnly, totals: totals, owner: owner,

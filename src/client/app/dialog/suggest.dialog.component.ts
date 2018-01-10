@@ -38,12 +38,12 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
     this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize);
-    const doc = createDocument(this.docType as any)
+    const doc = createDocument(this.docType as any);
     if (doc) {
       setTimeout(() => {
         const data = (doc.Prop() as DocumentOptions).dimensions || [];
-        if (data.length > 0) { this.additianalColumn1 = Object.keys(data[0])[0] }
-        if (data.length > 1) { this.additianalColumn2 = Object.keys(data[1])[0] }
+        if (data.length > 0) { this.additianalColumn1 = Object.keys(data[0])[0]; }
+        if (data.length > 1) { this.additianalColumn2 = Object.keys(data[1])[0]; }
       });
     }
   }
@@ -51,7 +51,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.dataTable = this.dataTable;
     setTimeout(() => {
-      this.dataTable.columns.forEach(c => this.dataTable.filters[c.field] = { matchMode: '=', value: null })
+      this.dataTable.columns.forEach(c => this.dataTable.filters[c.field] = { matchMode: '=', value: null });
       this.filters.filter(f => f.right).forEach(f => this.dataTable.filters[f.left] = { matchMode: f.center, value: f.right });
       this.dataSource.goto(this.docID);
       this._afterViewInit = true;
@@ -63,7 +63,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
     this.Sort(event);
   }
 
-  Sort = (event) => { if (this._afterViewInit) { this.dataSource.sort() } }
+  Sort = (event) => { if (this._afterViewInit) { this.dataSource.sort(); } };
   onSelectHandler = (row) => this.onSelect.emit(row);
 
 }

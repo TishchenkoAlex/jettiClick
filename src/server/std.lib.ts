@@ -14,24 +14,24 @@ export interface JTL {
     debit: (account: Ref, date: string, company: Ref) => Promise<number>,
     kredit: (account: Ref, date: string, company: Ref) => Promise<number>,
     byCode: (code: string, tx?: TX) => Promise<string>
-  },
+  };
   register: {
     balance: (type: RegisterAccumulationTypes, date: Date, company: Ref, resource: string[],
       analytics: { [key: string]: Ref }, tx?: TX) => Promise<{ [x: string]: number }>,
     avgCost: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
     inventoryBalance: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
-  },
+  };
   doc: {
     byCode: (type: DocTypes, code: string, tx?: TX) => Promise<Ref>;
     byId: <T extends IServerDocument>(id: string, tx?: TX) => Promise<T>;
     modelById: (id: string, tx?: TX) => Promise<IServerDocument>;
     formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
     postById: (id: string, posted: boolean, tx?: TX) => Promise<void>;
-  },
+  };
   info: {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
       analytics: { [key: string]: any }, tx?: TX) => Promise<any>
-  }
+  };
 }
 
 export const lib: JTL = {
@@ -57,7 +57,7 @@ export const lib: JTL = {
   info: {
     sliceLast: sliceLast
   }
-}
+};
 
 async function accountByCode(code: string, tx: TX = db): Promise<Ref> {
   const result = await tx.oneOrNone(`
@@ -122,8 +122,8 @@ async function balance(account: Ref, date = new Date().toJSON(), company: Ref): 
 async function registerBalance(type: RegisterAccumulationTypes, date = new Date(), company: Ref,
   resource: string[], analytics: { [key: string]: Ref }, tx = db): Promise<{ [x: string]: number }> {
 
-  const addQuery = (key) => `SUM((data->>'${key}')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) "${key}",\n`
-  let query = ''; for (const el of resource) { query += addQuery(el) }; query = query.slice(0, -2);
+  const addQuery = (key) => `SUM((data->>'${key}')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) "${key}",\n`;
+  let query = ''; for (const el of resource) { query += addQuery(el); } query = query.slice(0, -2);
 
   const result = await db.oneOrNone(`
     SELECT ${query}
@@ -189,7 +189,7 @@ export async function postById(id: string, posted: boolean, tx: TX = db) {
           DELETE FROM "Register.Accumulation" WHERE document = $1;
           UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [id, posted]);
     }
-    if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx) }
+    if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
     serverDoc = undefined;
-  })
+  });
 }

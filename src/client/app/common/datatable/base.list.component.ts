@@ -1,22 +1,22 @@
 import { AfterViewInit, OnDestroy, OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/components/common/messageservice';
 import { DataTable, MenuItem, SortMeta } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
-import { filter, take } from 'rxjs/operators';
+import { debounceTime, filter, take, share } from 'rxjs/operators';
+import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
+import { BaseDocListToolbarComponent } from '../../common/datatable/base.list.toolbar.component';
+import { calendarLocale, dateFormat } from '../../primeNG.module';
 import { DocumentBase, DocumentOptions } from './../../../../server/models/document';
 import { createDocument } from './../../../../server/models/documents.factory';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
-import { LoadingService } from './../../common/loading.service';
-import { calendarLocale, dateFormat } from './../../primeNG.module';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,58 +29,63 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   private _docSubscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;
 
+  private _debonce = new Subject<{ col: any, event: any, center: string }>();
+  private debonce$ = this._debonce.asObservable();
+
   dataSource: ApiDataSource | null = null;
+  data$: Observable<DocumentBase[]>;
 
-  @Input() actionTepmlate: TemplateRef<any>;
-  @Input() pageSize = 25;
-
-  @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
   @ViewChild(DataTable) dataTable: DataTable = null;
+  @ViewChild('toolbar') toolbar: BaseDocListToolbarComponent;
 
-  docType: DocTypes; AfterViewInit = false;
-  isDoc: boolean;
+  private AfterViewInit = false;
+  pageSize = 0;
+  docType: DocTypes;
   columns: ColumnDef[] = [];
-  selectedRows: DocumentBase[] = [];
   ctxItems: MenuItem[] = [];
+  userButtons: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
+  _showTree = false;
+  docModel: DocumentBase;
 
-  constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private messageService: MessageService,
-    public uss: UserSettingsService, private lds: LoadingService) {
+  private _i = 0;
+  get i() { return this._i++; }
+
+  constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, public uss: UserSettingsService) {
     this.pageSize = Math.floor((window.innerHeight - 275) / 24);
-  };
+    this.debonce$.pipe(debounceTime(500)).subscribe(event => this._update(event.col, event.event, event.center));
+  }
 
   ngOnInit() {
     this.docType = this.route.params['value'].type;
     const view = this.route.data['value'].detail[0]['view'];
-    const docModel = createDocument(this.docType);
-    this.isDoc = docModel.isDoc;
-    const copyTo = (docModel.Prop() as DocumentOptions).copyTo || [];
 
     this.columns = this.route.data['value'].detail[0]['columnDef'];
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
+    this.data$ = this.dataSource.result$.pipe(share());
 
-    const excludeColumns = this.isDoc ? ['description'] : ['date', 'company'];
-    this.columns.filter(c => excludeColumns.indexOf(c.field) > -1).forEach(c => c.hidden = true);
-    this.columns = this.columns.filter(c => !!!c.hidden);
+    this.docModel = createDocument(this.docType);
+    const exclCol = this.docModel.isDoc ? ['description'] : ['date', 'company'];
+    this.columns.forEach(c => { if (exclCol.indexOf(c.field) > -1 || c.hidden) { c.style['display'] = 'none'; } });
 
     this.ctxItems = [
-      ...[
-        {
-          label: 'Quick filter', icon: 'fa-search', command: (event) =>
-            this.update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
-        },
-        { label: 'unPost', icon: 'fa-reply', command: (event) => { this.post('unpost') } },
-        { label: 'Delete', icon: 'fa-minus', command: (event) => { this.delete() } }
-      ],
-      ...copyTo.map(el => {
+      {
+        label: 'Quick filter', icon: 'fa-search', command: (event) =>
+          this._update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
+      },
+      { label: 'unPost', icon: 'fa-reply', command: (event) => { this.toolbar.post('unpost'); } },
+      { label: 'Delete', icon: 'fa-minus', command: (event) => { this.toolbar.delete(); } },
+      ...((this.docModel.Prop() as DocumentOptions).copyTo || []).map(el => {
         const copyToDoc = createDocument(el).Prop() as DocumentOptions;
-        return <MenuItem>{
-          label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => {
-            this.router.navigate([el, 'base-' + this.selectedRows[0].id])
-          }
-        }
+        return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.toolbar.copyTo(el) };
       })
     ];
+
+    if (this.docModel.isCatalog) {
+      this.userButtons = [
+        { label: 'tree', icon: 'fa-sitemap', styleClass: 'ui-button-secondary', command: this.showTree.bind(this), visible: true },
+       ];
+    }
 
     this._docSubscription$ = Observable.merge(...[this.ds.save$, this.ds.delete$, this.ds.saveCloseDoc$, this.ds.goto$]).pipe(
       filter(doc => doc && doc.type === this.docType))
@@ -89,7 +94,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
         if (exist) {
           this.dataTable.selection = [exist];
           this.dataSource.refresh();
-        } else { this.dataSource.goto(doc.id) }
+        } else { this.dataSource.goto(doc.id); }
       });
 
     this._closeSubscription$ = this.ds.close$.pipe(
@@ -109,14 +114,13 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     const id = this.route.queryParams['value'].goto;
     if (id) {
       setTimeout(() => {
-        this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: null })
+        this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: null });
         this.dataSource.goto(id);
         this.router.navigate([this.docType], { replaceUrl: true });
         this.AfterViewInit = true;
       });
       return;
     }
-
     setTimeout(() => {
       this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
       this.dataSource.first();
@@ -124,52 +128,26 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  update(col: ColumnDef, event, center) {
-    if (this.AfterViewInit) {
-      // if value is date interval, then set EndDate to end id day 23.59.59
-      if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999) };
-      this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
-      this.Sort(event);
-    }
+  private _update(col: ColumnDef, event, center) {
+    if (!this.AfterViewInit) { return; }
+    if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
+    this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
+    this.Sort(event);
   }
+  update = (col: ColumnDef, event, center) => this._debonce.next({ col, event, center });
 
-  Sort(event) { if (this.AfterViewInit) { this.dataSource.sort() } }
+  Sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
 
-  Close() { this.ds.close(null) }
+  showTree() { this._showTree = !this._showTree; }
 
   private saveUserSettings() {
     const formListSettings: FormListSettings = {
       filter: (Object.keys(this.dataTable.filters) || [])
         .map(f => (<FormListFilter>{ left: f, center: this.dataTable.filters[f].matchMode, right: this.dataTable.filters[f].value })),
       order: ((<SortMeta[]>this.dataTable.multiSortMeta) || [])
-        .map(e => <FormListOrder>{ field: e.field, order: e.order === 1 ? 'asc' : 'desc' })
+        .map(o => <FormListOrder>{ field: o.field, order: o.order === 1 ? 'asc' : 'desc' })
     };
     this.uss.setFormListSettings(this.docType, formListSettings);
-  }
-
-  add() {
-    this.router.navigate([this.dataSource.dataTable.selection[0] ?
-      this.dataSource.dataTable.selection[0].type : this.docType, 'new']);
-  }
-
-  copy() { this.router.navigate([this.dataSource.dataTable.selection[0].type, 'copy-' + this.dataSource.dataTable.selection[0].id]) }
-
-  open() { this.router.navigate([this.dataSource.dataTable.selection[0].type, this.dataSource.dataTable.selection[0].id]) }
-
-  delete() { this.dataSource.dataTable.selection.forEach(el => this.ds.delete(el.id)) }
-
-  async post(mode = 'post') {
-    const tasksCount = this.dataSource.dataTable.selection.length; let i = tasksCount;
-    for (const s of this.dataSource.dataTable.selection) {
-      this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
-      try {
-        if (mode === 'post') { await this.ds.post(s.id) } else { await this.ds.unpost(s.id) }
-      } catch (err) {
-        this.messageService.add({ severity: 'error', summary: 'Error on post ' + s.description, detail: err.error })
-      }
-    }
-    this.lds.counter = 0;
-    this.dataSource.refresh();
   }
 
   onContextMenuSelect(event) {
@@ -177,16 +155,20 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe((data: any) => {
         const model = data.model as DocumentBase;
         let el = (event.originalEvent as MouseEvent).srcElement;
-        while (!el.id && el.lastElementChild) { el = el.lastElementChild }
-        this.ctxData.column = el.id;
-        this.ctxData.value = model[this.ctxData.column];
+        while (!el.id && el.lastElementChild) { el = el.lastElementChild; }
+        this.ctxData = { column: el.id, value: model[el.id] };
       });
+  }
+
+  dragStart(event) {
+    console.log('dragStart', event);
   }
 
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
     this._closeSubscription$.unsubscribe();
-    if (!this.route.queryParams['value'].goto) { this.saveUserSettings() };
+    this._debonce.unsubscribe();
+    if (!this.route.queryParams['value'].goto) { this.saveUserSettings(); }
   }
 
 }

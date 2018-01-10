@@ -12,7 +12,7 @@ export class SQLGenegator {
       if (type === 'boolean') { return `,  coalesce((d.doc ->> '${prop}')::BOOLEAN, false) "${prop}"\n`; }
       if (type === 'number') { return `,  (d.doc ->> '${prop}')::NUMERIC(15,2) "${prop}"\n`; }
       return `, d.doc ->> '${prop}' "${prop}"\n`;
-    }
+    };
 
     const complexProperty = (prop: string, type: string) =>
       type.startsWith('Types.') ?
@@ -33,7 +33,7 @@ export class SQLGenegator {
         if (type === 'boolean') { return `, '${prop}', coalesce(x."${prop}", false) \n`; }
         if (type === 'number') { return `, '${prop}', (x."${prop}")::NUMERIC(15,2) \n`; }
         return `, '${prop}', x."${prop}"\n`;
-      }
+      };
 
       const complexProperty = (prop: string, type: string) =>
         type.startsWith('Catalog.Subcount') ?
@@ -66,7 +66,7 @@ export class SQLGenegator {
         if (type.includes('.')) {
           query += complexProperty(prop, type);
           LeftJoin += addLeftJoin(prop, type);
-          xTable += `, "${prop}" VARCHAR(36)\n`
+          xTable += `, "${prop}" VARCHAR(36)\n`;
         } else {
           query += simleProperty(prop, type);
           xTable += xTableLine(prop, type);
@@ -82,7 +82,7 @@ export class SQLGenegator {
           ${LeftJoin}
           WHERE di.id = d.id) j),
         '[]') "${prop}"\n`;
-    }
+    };
 
     let query = `
       SELECT
@@ -99,7 +99,7 @@ export class SQLGenegator {
         query += complexProperty(prop, type);
         LeftJoin += addLeftJoin(prop, type);
       } else if (type === 'table') {
-        query += tableProperty(prop, (<any>doc[prop])[prop])
+        query += tableProperty(prop, (<any>doc[prop])[prop]);
       } else {
         query += simleProperty(prop, type);
       }
@@ -121,7 +121,7 @@ export class SQLGenegator {
       if (type === 'boolean') { return `,  coalesce((d.doc ->> '${prop}')::BOOLEAN, false) "${prop}"\n`; }
       if (type === 'number') { return `,  (d.doc ->> '${prop}')::NUMERIC(15,2) "${prop}"\n`; }
       return `, d.doc ->> '${prop}' "${prop}"\n`;
-    }
+    };
 
     const complexProperty = (prop: string, type: string) =>
       type.startsWith('Types.') ?
@@ -144,7 +144,7 @@ export class SQLGenegator {
       const type = doc[prop].type || 'string';
       if (type.includes('.')) {
         query += complexProperty(prop, type);
-        LeftJoin += addLeftJoin(prop, type)
+        LeftJoin += addLeftJoin(prop, type);
       } else if (type !== 'table') {
         query += simleProperty(prop, type);
       }
@@ -164,10 +164,10 @@ export class SQLGenegator {
   static QueryNew(doc: { [x: string]: any }, options: DocumentOptions) {
 
     const simleProperty = (prop: string, type: string) => {
-      if (type === 'boolean') { return `, false "${prop}"\n` }
-      if (type === 'number') { return `, 0 "${prop}"\n` }
+      if (type === 'boolean') { return `, false "${prop}"\n`; }
+      if (type === 'number') { return `, 0 "${prop}"\n`; }
       return `, '' "${prop}"\n`;
-    }
+    };
 
     const complexProperty = (prop: string, type: string) =>
       `, '{"id": "", "code": "", "type": "${type}", "value": ""}':: JSONB "${prop}"\n`;
@@ -212,7 +212,7 @@ export class SQLGenegator {
       if (type === 'boolean') { return `,  coalesce((r.data ->> '${prop}')::BOOLEAN, false) "${prop}"\n`; }
       if (type === 'number') { return `,  (r.data ->> '${prop}')::NUMERIC(15,2) "${prop}"\n`; }
       return `, r.data ->> '${prop}' "${prop}"\n`;
-    }
+    };
 
     const complexProperty = (prop: string, type: string) =>
         `, jsonb_build_object('id', "${prop}".id, 'value', "${prop}".description, 'type', '${type}', 'code', "${prop}".code) "${prop}"\n`;
@@ -220,14 +220,14 @@ export class SQLGenegator {
     const addLeftJoin = (prop: string, type: string) =>
       type.startsWith('Types.') ?
         ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = r.data ->> '${prop}'\n` :
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = r.data ->> '${prop}' AND "${prop}".type = '${type}'\n`
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = r.data ->> '${prop}' AND "${prop}".type = '${type}'\n`;
 
     let LeftJoin = ''; let select = '';
     for (const prop in excludeRegisterAccumulatioProps(doc)) {
       const type: string = doc[prop].type || 'string';
       if (type.includes('.')) {
         select += complexProperty(prop, type);
-        LeftJoin += addLeftJoin(prop, type)
+        LeftJoin += addLeftJoin(prop, type);
       } else {
         select += simleProperty(prop, type);
       }

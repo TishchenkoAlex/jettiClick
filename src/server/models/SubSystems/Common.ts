@@ -9,4 +9,4 @@ export const CommonSubSystem: ISubSystem = {
     'Catalog.Currency',
     'Document.ExchangeRates'
   ]
-}
+};

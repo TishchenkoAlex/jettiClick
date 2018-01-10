@@ -6,7 +6,7 @@ import { DocTypes } from './documents.types';
 
 export interface IServerDocument {
   id: Ref;
-  date: Date,
+  date: Date;
   type: DocTypes;
   code: string;
   description: string;
@@ -17,7 +17,7 @@ export interface IServerDocument {
   isfolder: boolean;
   parent: Ref;
   info: string;
-  doc: { [x: string]: any }
+  doc: { [x: string]: any };
 }
 
 export abstract class DocumentBaseServer extends DocumentBase implements ServerDocument {

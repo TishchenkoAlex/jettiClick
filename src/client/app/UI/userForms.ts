@@ -23,4 +23,4 @@ export function getDocObjectComponent(type: string) {
 const userForms = [
   { type: 'Document.Operation', docForm: OperationFormComponent, listForm: OperationListComponent },
   // add user's defined component for list- or doc-Form here
-]
+];

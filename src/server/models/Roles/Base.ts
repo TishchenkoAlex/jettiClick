@@ -4,14 +4,14 @@ import { FinanceRoleObject } from './Finance';
 import { SalesRoleObjects } from './Sales';
 import { FormTypes } from '../Forms/form.types';
 
-export interface RoleObject { type: DocTypes | FormTypes, read: boolean, write: boolean }
+export interface RoleObject { type: DocTypes | FormTypes; read: boolean; write: boolean; }
 
 export type RoleType =
   'Finance' |
   'Sales' |
-  'Admin'
+  'Admin';
 
-export interface Role { type: RoleType, Objects: RoleObject[] }
+export interface Role { type: RoleType; Objects: RoleObject[]; }
 
 export function getRoleObjects(roles: RoleType[]) {
   const result: RoleObject[] = [];
@@ -23,4 +23,4 @@ export const Roles: Role[] = [
   { type: 'Admin', Objects: AdminObjects },
   { type: 'Sales', Objects: SalesRoleObjects },
   { type: 'Finance', Objects: FinanceRoleObject },
-]
+];

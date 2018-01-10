@@ -7,8 +7,8 @@ import { MenuItem, SubSystemsMenu } from './../../../../server/models/SubSystems
 
 
 export interface TabDef {
-  header: string, icon: string, description: string, docType: string, docID: string,
-  params: { [key: string]: any }, component: BaseDynamicCompoment
+  header: string; icon: string; description: string; docType: string; docID: string;
+  params: { [key: string]: any }; component: BaseDynamicCompoment;
 }
 
 export const HOME = 'Home';

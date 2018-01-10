@@ -12,7 +12,7 @@ import { IServerDocument } from '../ServerDocument';
   menu: 'Operations',
   prefix: 'OPER-',
   commands: [
-    { label: 'refresh', icon: 'fa-refresh', command: () => { console.log(this) } },
+    { label: 'refresh', icon: 'fa-refresh', command: () => { console.log(this); } },
     { label: 'close', icon: 'fa-close', command: () => { } },
   ],
 })

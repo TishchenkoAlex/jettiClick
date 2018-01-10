@@ -32,11 +32,11 @@ import { calendarLocale, dateFormat } from './../../primeNG.module';
   selector: 'j-autocomplete-png',
   templateUrl: './autocomplete.png.component.html',
   providers: [
-    { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompletePNGComponent), multi: true },
-    { provide: NG_VALIDATORS, useExisting: forwardRef(() => AutocompletePNGComponent), multi: true, },
+    { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => AutocompleteComponent), multi: true },
+    { provide: NG_VALIDATORS, useExisting: forwardRef(() => AutocompleteComponent), multi: true, },
   ]
 })
-export class AutocompletePNGComponent implements ControlValueAccessor, Validator {
+export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   locale = calendarLocale;
   dateFormat = dateFormat;
@@ -70,17 +70,17 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   showDialog = false;
 
   get suggest() { return this.form.controls['suggest']; }
-  get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.') }
-  get isTypeControl() { return this.type && this.type.startsWith('Types.') }
-  get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.') }
-  get EMPTY() { return { id: '', code: '', type: this.type, value: null } }
+  get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.'); }
+  get isTypeControl() { return this.type && this.type.startsWith('Types.'); }
+  get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.'); }
+  get EMPTY() { return { id: '', code: '', type: this.type, value: null }; }
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
-    if (this.isTypeControl && this.placeholder) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']' }
+    if (this.isTypeControl && this.placeholder) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']'; }
     this._value = obj;
     this.suggest.patchValue(this._value);
-    if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value) }
+    if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value); }
     this.NO_EVENT = false;
   }
   get value() { return this._value; }
@@ -88,20 +88,20 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
   suggests$: any[];
 
   // implement ControlValueAccessor interface
-  private onChange = (value: any) => { }
+  private onChange = (value: any) => { };
   private onTouched = () => { };
 
   writeValue(obj: any): void {
     this.NO_EVENT = true;
-    if (!obj) { obj = this.EMPTY }
-    if (!this.type) { this.type = obj.type }
+    if (!obj) { obj = this.EMPTY; }
+    if (!this.type) { this.type = obj.type; }
     if ((this.type && this.type.includes('.')) && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
       (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) {
       this.value = this.EMPTY;
       return;
     }
     this.value = obj;
-    if (this.type && this.type.includes('.') && (this.value && !this.value.value)) { this.handleReset(null) }
+    if (this.type && this.type.includes('.') && (this.value && !this.value.value)) { this.handleReset(null); }
     setTimeout(() => this.cd.markForCheck());
   }
 
@@ -120,10 +120,10 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
 
   // implement Validator interface
   validate(c: AbstractControl): ValidationErrors | null {
-    if (!this.required) { return null }
-    if (c.value.value) { return null }
-    return { 'required': true }
-  };
+    if (!this.required) { return null; }
+    if (c.value.value) { return null; }
+    return { 'required': true };
+  }
   // end of implementation Validator interface
 
   constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
@@ -161,7 +161,7 @@ export class AutocompletePNGComponent implements ControlValueAccessor, Validator
 
   searchComplete(row) {
     this.showDialog = false;
-    if (!row) { return };
+    if (!row) { return; }
     this.value = {
       id: row.id, code: row.code, type: row.type,
       value: this.isTypeValue ? null : row.description

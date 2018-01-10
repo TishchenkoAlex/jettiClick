@@ -15,7 +15,7 @@ export class TabResolver implements Resolve<any> {
     const type: string = route.params['type'];
     const id: string = route.params['id'] || '';
     // this.sns.do({id: id, type: type});
-    if (type === HOME) { return null }
+    if (type === HOME) { return null; }
     if (type.startsWith('Form.')) {
       return this.dfs.getFormView$(route.params['type']);
     }

@@ -1,23 +1,23 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterContentInit,
-  AfterViewInit,
-  Component,
-  ContentChildren,
-  Directive,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  NgModule,
-  Output,
-  QueryList,
-  TemplateRef,
-  ViewChild,
+    AfterContentInit,
+    AfterViewInit,
+    Component,
+    ContentChildren,
+    Directive,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    Input,
+    NgModule,
+    Output,
+    QueryList,
+    TemplateRef,
+    ViewChild,
 } from '@angular/core';
+import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ObjectUtils } from 'primeng/components/utils/objectutils';
 import { Column, DomHandler, FilterMetadata, PaginatorModule, PrimeTemplate, SharedModule, SortMeta } from 'primeng/primeng';
-import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'p-table',
@@ -101,8 +101,8 @@ export class Table implements OnInit, AfterContentInit {
   selectionKeys: any;
 
   _value: any[] = [];
-  @Input() get value(): any[] { return this._value }
-  set value(val: any[]) { this._value = val; this.totalRecords = this.lazy ? this.totalRecords : (this._value ? this._value.length : 0) }
+  @Input() get value(): any[] { return this._value; }
+  set value(val: any[]) { this._value = val; this.totalRecords = this.lazy ? this.totalRecords : (this._value ? this._value.length : 0); }
 
   @Input() rowTrackBy: Function = (index: number, item: any) => item;
 
@@ -171,7 +171,7 @@ export class Table implements OnInit, AfterContentInit {
 
       if (sortMeta) {
         if (!metaKey) {
-          this.multiSortMeta = [{ field: event.field, order: sortMeta.order * -1 }]
+          this.multiSortMeta = [{ field: event.field, order: sortMeta.order * -1 }];
         } else {
           sortMeta.order = sortMeta.order * -1;
         }
@@ -200,7 +200,7 @@ export class Table implements OnInit, AfterContentInit {
   sortingDataAccessor: ((data: any, sortHeaderId: string) => string|number) =
     (data: any, sortHeaderId: string): string|number => {
     const value: any = data[sortHeaderId];
-    if (typeof value === 'string' && !value.trim()) { return value }
+    if (typeof value === 'string' && !value.trim()) { return value; }
     return isNaN(+value) ? value : +value;
   }
 
@@ -585,7 +585,7 @@ export class Table implements OnInit, AfterContentInit {
 
       return value > filter;
     }
-  }
+  };
 
   createLazyLoadMetadata(): any {
     return {

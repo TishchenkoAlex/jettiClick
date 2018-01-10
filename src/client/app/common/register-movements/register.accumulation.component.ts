@@ -18,6 +18,7 @@ export class RegisterAccumulationComponent implements OnInit {
   movements: DocumentBase[] = [];
   displayedColumns: any[] = [];
   additionalColumns: any[] = [];
+  selection: any;
 
   constructor(private apiService: ApiService, private docService: DocService, private cd: ChangeDetectorRef) { }
 
@@ -32,4 +33,5 @@ export class RegisterAccumulationComponent implements OnInit {
       }
     );
   }
+
 }

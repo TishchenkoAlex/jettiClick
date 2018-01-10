@@ -2,11 +2,11 @@ import { PropOptions, symbolProps } from '../document';
 import { FormTypes } from './form.types';
 
 export interface FormOptions {
-  type: FormTypes,
-  description: string,
-  icon: string,
-  menu: string,
-  commands?: { label: string, icon: string, command: () => any }[]
+  type: FormTypes;
+  description: string;
+  icon: string;
+  menu: string;
+  commands?: { label: string, icon: string, command: () => any }[];
 }
 
 export function JForm(props: FormOptions) {
@@ -14,8 +14,8 @@ export function JForm(props: FormOptions) {
     Reflect.defineMetadata(symbolProps, props, constructor);
     return class extends constructor {
       type = props.type;
-    }
-  }
+    };
+  };
 }
 
 export abstract class FormBase {
@@ -27,7 +27,7 @@ export abstract class FormBase {
 
   Prop(propertyKey: string = 'this'): PropOptions | FormOptions {
     if (propertyKey === 'this') {
-      return Reflect.getMetadata(symbolProps, this.constructor)
+      return Reflect.getMetadata(symbolProps, this.constructor);
     } else {
       return Reflect.getMetadata(symbolProps, this.constructor.prototype, propertyKey);
     }
@@ -37,14 +37,14 @@ export abstract class FormBase {
     const result: { [x: string]: any } = {};
     for (const prop of Object.keys(this)) {
       const Prop = this.targetProp(this, prop);
-      if (!Prop) { continue }
+      if (!Prop) { continue; }
       result[prop] = Prop;
       const value = (this as any)[prop];
       if (value instanceof Array && value.length) {
         const arrayProp: { [x: string]: any } = {};
         for (const arrProp of Object.keys(value[0])) {
           const PropArr = this.targetProp(value[0], arrProp);
-          if (!PropArr) { continue }
+          if (!PropArr) { continue; }
           arrayProp[arrProp] = PropArr;
         }
         result[prop][prop] = arrayProp;

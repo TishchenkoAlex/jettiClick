@@ -25,9 +25,9 @@ import {
 
 export interface ViewModel {
   view: BaseJettiFormControl<any>[];
-  model: DocumentBase,
-  formGroup: FormGroup,
-  controlsByKey: { [s: string]: BaseJettiFormControl<any> }
+  model: DocumentBase;
+  formGroup: FormGroup;
+  controlsByKey: { [s: string]: BaseJettiFormControl<any> };
 }
 
 function toFormGroup(controls: BaseJettiFormControl<any>[]) {
@@ -106,7 +106,7 @@ export function getViewModel(view, model, isExists: boolean) {
             controlOptions.type = controlType; // здесь нужен тип ссылки
             newControl = new AutocompleteJettiFormControl(controlOptions);
             break;
-          };
+          }
           newControl = new TextboxJettiFormControl(controlOptions);
           break;
       }
@@ -127,7 +127,7 @@ export function getViewModel(view, model, isExists: boolean) {
       sample.addControl('index', new FormControl(0));
       const formArray = formGroup.controls[property] as FormArray;
       if (isExists) {
-        if (!model[property]) { model[property] = [] }
+        if (!model[property]) { model[property] = []; }
         for (let i = 1; i <= model[property].length; i++) {
           const newFormGroup = cloneFormGroup(sample);
           newFormGroup.controls['index'].setValue(i, patchOptionsNoEvents);
@@ -136,21 +136,21 @@ export function getViewModel(view, model, isExists: boolean) {
       }
     });
   const controlsByKey: { [s: string]: BaseJettiFormControl<any> } = {};
-  fields.forEach(c => { controlsByKey[c.key] = c });
+  fields.forEach(c => { controlsByKey[c.key] = c; });
   fields = [
     ...fields.filter(el => el.order > 0 && el.type !== 'table'),
     ...fields.filter(el => el.order > 0 && el.type === 'table'),
     ...fields.filter(el => el.order <= 0)
   ];
   formGroup.patchValue(model, patchOptionsNoEvents);
-  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey}
+  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey};
 }
 
 
 @Injectable()
 export class DynamicFormService {
 
-  constructor(private apiService: ApiService) { };
+  constructor(private apiService: ApiService) { }
 
   getViewModel$(docType: string, docID = ''): Observable<ViewModel> {
     const doc = createDocument(docType as any);

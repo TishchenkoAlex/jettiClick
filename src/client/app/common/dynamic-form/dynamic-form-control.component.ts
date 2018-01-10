@@ -13,7 +13,7 @@ import { BaseJettiFormControl } from './dynamic-form-base';
 export class DynamicFormControlComponent {
   @Input() control: BaseJettiFormControl<any>;
   @Input() form: FormGroup;
-  get getControls(): FormArray { return this.form.get(this.control.key) as FormArray };
+  get getControls(): FormArray { return this.form.get(this.control.key) as FormArray; }
   locale = calendarLocale; dateFormat = dateFormat;
 
   constructor(public api: ApiService) { }
@@ -25,7 +25,7 @@ export class DynamicFormControlComponent {
         this.form.controls[this.control.key].value
       );
       console.log(this.control.key, patch);
-      if (patch) { this.form.patchValue(patch) }
+      if (patch) { this.form.patchValue(patch); }
     }
 
     if (this.control.onChangeServer) {
@@ -34,8 +34,8 @@ export class DynamicFormControlComponent {
         this.control.key,
         this.form.controls[this.control.key].value).then(patch => {
           console.log(this.control.key, patch);
-          if (patch) { this.form.patchValue(patch) }
-        })
+          if (patch) { this.form.patchValue(patch); }
+        });
     }
   }
 }

@@ -4,20 +4,20 @@ import { PatchValue } from './../../../../server/models/api';
 
 
 export interface ControlOptions<T> {
-  value?: T,
-  type?: string,
-  key?: string,
-  label?: string,
-  required?: boolean,
-  readOnly?: boolean,
-  hidden?: boolean,
-  order?: number,
-  controlType?: string,
-  style?: any,
-  owner?: string,
-  totals?: number,
-  onChange?: (doc, value) => Promise<PatchValue>,
-  onChangeServer?: boolean
+  value?: T;
+  type?: string;
+  key?: string;
+  label?: string;
+  required?: boolean;
+  readOnly?: boolean;
+  hidden?: boolean;
+  order?: number;
+  controlType?: string;
+  style?: any;
+  owner?: string;
+  totals?: number;
+  onChange?: (doc, value) => Promise<PatchValue>;
+  onChangeServer?: boolean;
 }
 
 export class BaseJettiFormControl<T> {
@@ -79,7 +79,7 @@ export class ScriptJettiFormControl extends BaseJettiFormControl<string> {
 
   constructor(options: ControlOptions<string> = {}) {
     super(options);
-    if (options.style) { this.style = options.style };
+    if (options.style) { this.style = options.style; }
   }
 }
 
@@ -91,7 +91,7 @@ export class BooleanJettiFormControl extends BaseJettiFormControl<boolean> {
   constructor(options: ControlOptions<boolean> = {}) {
     super(options);
     if (typeof this.value !== 'boolean') { this.value = false; }
-    if (options.style) { this.style = options.style };
+    if (options.style) { this.style = options.style; }
   }
 }
 
@@ -102,7 +102,7 @@ export class DateJettiFormControl extends BaseJettiFormControl<Date> {
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);
-    if (options.style) { this.style = options.style };
+    if (options.style) { this.style = options.style; }
   }
 }
 
@@ -113,12 +113,12 @@ export class DateTimeJettiFormControl extends BaseJettiFormControl<Date> {
 
   constructor(options: ControlOptions<Date> = {}) {
     super(options);
-    if (options.style) { this.style = options.style };
+    if (options.style) { this.style = options.style; }
   }
 }
 
 export interface JettiComplexObject {
-  id: string, value: string, code: string, type: string, data?: any
+  id: string; value: string; code: string; type: string; data?: any;
 }
 
 export class AutocompleteJettiFormControl extends BaseJettiFormControl<JettiComplexObject> {
@@ -128,9 +128,9 @@ export class AutocompleteJettiFormControl extends BaseJettiFormControl<JettiComp
   constructor(options: ControlOptions<JettiComplexObject> = {}) {
     super(options);
     if (!this.value) {
-      this.value = {id: '',  code: '', type: this.type, value: null}
+      this.value = {id: '',  code: '', type: this.type, value: null};
     }
-    if (options.style) { this.style = options.style }
+    if (options.style) { this.style = options.style; }
   }
 }
 
@@ -141,7 +141,7 @@ export class NumberJettiFormControl extends BaseJettiFormControl<number> {
 
   constructor(options: ControlOptions<number> = {}) {
     super(options);
-    if (options.style) { this.style = options.style }
+    if (options.style) { this.style = options.style; }
   }
 }
 

@@ -15,12 +15,12 @@ export default async function (job: Queue.Job) {
   while (offset < count) {
     let i = 0;
     for (i = 0; i < 25; i++) {
-      if (!list[i + offset]) { break }
+      if (!list[i + offset]) { break; }
       const q = lib.doc.postById(list[i + offset].id, true);
       TaskList.push(q);
     }
     offset = offset + i;
-    try { await Promise.all(TaskList) } catch (err) { console.log(err) }
+    try { await Promise.all(TaskList); } catch (err) { console.log(err); }
     TaskList.length = 0;
     job.progress(Math.round(offset / count * 100));
   }

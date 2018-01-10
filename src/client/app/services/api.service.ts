@@ -5,9 +5,10 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, IEvent, IJob, PatchValue, IJobs } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, IJob, IJobs, ITree, PatchValue } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { DocumentBase } from '../../../server/models/document';
+import { DocTypes } from '../../../server/models/documents.types';
 import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
@@ -28,7 +29,7 @@ export class ApiService {
       id: id, type: type, command: command, count: count, offset: offset,
       order: order,
       filter: filter
-    }
+    };
     return (this.http.post(query, body) as Observable<DocListResponse>);
   }
 
@@ -111,12 +112,12 @@ export class ApiService {
 
   getUserDefaultsSettings() {
     const query = `${this.url}user/settings/defaults`;
-    return (this.http.get(query) as Observable<UserDefaultsSettings>)
+    return (this.http.get(query) as Observable<UserDefaultsSettings>);
   }
 
   setUserDefaultsSettings(value: UserDefaultsSettings) {
     const query = `${this.url}user/settings/defaults`;
-    return (this.http.post(query, value) as Observable<boolean>)
+    return (this.http.post(query, value) as Observable<boolean>);
   }
 
   getDocDimensions(type: string) {
@@ -133,13 +134,13 @@ export class ApiService {
 
   valueChanges(doc: DocumentBase, property: string, value: string) {
     const query = `${this.url}valueChanges/${doc.type}/${property}`;
-    const callConfig = { doc: doc, value: value }
+    const callConfig = { doc: doc, value: value };
     return this.http.post<PatchValue>(query, callConfig).toPromise();
   }
 
   onCommand(doc: DocumentBase, command: string, args: { [x: string]: any }) {
     const query = `${this.url}command/${doc.type}/${command}`;
-    const callConfig = { doc: doc, args: args }
+    const callConfig = { doc: doc, args: args };
     return this.http.post(query, callConfig).toPromise();
   }
 
@@ -158,11 +159,6 @@ export class ApiService {
     });
   }
 
-  latestEvents(): Observable<{ active: number, events: IEvent[]}> {
-    const query = `${this.url}event/latest`;
-    return this.http.get<{ active: number, events: IEvent[]}>(query);
-  }
-
   jobAdd(data: any, opts?: JobOptions) {
     const query = `${this.url}jobs/add`;
     return this.http.post<IJob>(query, {data: data, opts: opts});
@@ -176,6 +172,11 @@ export class ApiService {
   jobById(id: string) {
     const query = `${this.url}jobs/${id}`;
     return this.http.get<IJob>(query);
+  }
+
+  tree(type: DocTypes) {
+    const query = `${this.url}tree/${type}`;
+    return this.http.get<ITree[]>(query);
   }
 
 }

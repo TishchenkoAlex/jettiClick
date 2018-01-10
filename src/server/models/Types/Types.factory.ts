@@ -5,8 +5,8 @@ import { TypesSubcount } from './Types.Subcount';
 import { TypesBase } from './TypesBase';
 
 export interface IRegisteredTypes {
-  type: ComplexTypes,
-  Class: typeof TypesBase
+  type: ComplexTypes;
+  Class: typeof TypesBase;
 }
 
 export function createTypes(type: ComplexTypes): TypesBase {
@@ -20,4 +20,4 @@ export const RegisteredTypes: IRegisteredTypes[] = [
   { type: 'Types.Document', Class: TypesDocument },
   { type: 'Types.Catalog', Class: TypesCatalog },
   { type: 'Types.Subcount', Class: TypesSubcount },
-]
+];

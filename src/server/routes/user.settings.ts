@@ -1,23 +1,24 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 
-import { db } from './../db';
+import { db, ADB } from './../db';
 import { FormListSettings, UserDefaultsSettings } from './../models/user.settings';
+import { IAccount } from '../models/api';
 
 export const router = express.Router();
 
 export function User(req: Request): string {
-  return req.user && req.user.sub && req.user.sub.split('|')[1] || '';
+  return (<any>req).user.email;
 }
 
 router.get('/user/roles', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = User(req);
-    const query = `select roles result from users where email = '${user}'`;
-    const result = await db.oneOrNone(query);
-    res.json(result ? result.result : []);
+    const email = User(req);
+    const query = `select data result from "accounts" where id = '${email}'`;
+    const result = await ADB.oneOrNone(query);
+    res.json(result ? (result.result as IAccount).roles : []);
   } catch (err) { next(err); }
-})
+});
 
 router.get('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -26,7 +27,7 @@ router.get('/user/settings/defaults', async (req: Request, res: Response, next: 
     const result = await db.oneOrNone<{ result: UserDefaultsSettings }>(query);
     res.json(result ? result.result : new UserDefaultsSettings());
   } catch (err) { next(err); }
-})
+});
 
 router.post('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {

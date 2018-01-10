@@ -85,7 +85,6 @@ async function registerBalance(type, date = new Date(), company, resource, analy
     for (const el of resource) {
         query += addQuery(el);
     }
-    ;
     query = query.slice(0, -2);
     const result = await db_1.db.oneOrNone(`
     SELECT ${query}

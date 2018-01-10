@@ -23,6 +23,6 @@ const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.ExchangeRates', Class: DocumentExchangeRatesServer },
   { type: 'Document.PriceList', Class: DocumentPriceListServer },
   { type: 'Document.Operation', Class: DocumentOperationServer },
-]
+];
 
 // const catalogAccount = createDocumentServer<CatalogAccount>('Catalog.Account');

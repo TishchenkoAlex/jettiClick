@@ -4,7 +4,7 @@ export class UserSettings {
 }
 
 export class UserDefaultsSettings {
-  company: string = null
+  company: string = null;
   department: string = null;
   rowsInList = 14;
 }
@@ -20,18 +20,18 @@ export type matchOperator = '=' | '>=' | '<=' | 'like' | 'in' | 'beetwen';
 
 export class FormListFilter {
   left: string;
-  center: matchOperator = '='
+  center: matchOperator = '=';
   right: any = null;
 
   constructor (field: string) {
     this.left = field;
-  };
+  }
 }
 
 export class FormListOrder {
   order: 'asc' | 'desc' | ''  = '';
 
-  constructor (public field: string) {};
+  constructor (public field: string) {}
 }
 
 export class FormListSettings {

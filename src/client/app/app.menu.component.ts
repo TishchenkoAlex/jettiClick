@@ -119,7 +119,7 @@ export class AppMenuComponent implements OnInit {
     ...SubSystemsMenu(),
     { label: 'Utils', icon: 'fa fa-fw fa-wrench', routerLink: ['/'] },
     { label: 'Documentation', icon: 'fa fa-fw fa-book', routerLink: ['/'] }
-    ]
+    ];
   }
 
   ngOnInit() {

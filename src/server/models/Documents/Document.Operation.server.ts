@@ -9,24 +9,24 @@ export class DocumentOperationServer extends DocumentOperation implements Server
   async onValueChanged(prop: string, value: any, tx: TX) {
     switch (prop) {
       case 'company':
-        if (!value) { return {} }
+        if (!value) { return {}; }
         const company = await lib.doc.byId(value.id, tx);
-        if (!company) { return {} }
+        if (!company) { return {}; }
         const currency = await lib.doc.formControlRef(company.doc.currency, tx);
         return { currency: currency };
       default:
-        return {}
+        return {};
     }
-  };
+  }
 
   async onCommand(command: string, args: any, tx: TX) {
     switch (command) {
       case 'company':
         return {};
       default:
-        return {}
+        return {};
     }
-  };
+  }
 
   async onPost(tx: TX) {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };

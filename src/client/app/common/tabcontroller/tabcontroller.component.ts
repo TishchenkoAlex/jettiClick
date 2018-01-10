@@ -24,7 +24,7 @@ export class TabControllerComponent implements OnInit {
       this.tcs.tabid = params[0].get('type') || HOME;
       this.tcs.docID = params[0].get('id') || '';
       this.tcs.params = params[1];
-      const index = this.tcs.tabs.findIndex(i => (i.docType === this.tcs.tabid) && (i.docID === this.tcs.docID))
+      const index = this.tcs.tabs.findIndex(i => (i.docType === this.tcs.tabid) && (i.docID === this.tcs.docID));
       if (index === -1) {
         const menuItem = this.tcs.menuItems.find(el => el.type === this.tcs.tabid) ||
           { icon: '', label: this.tcs.tabid.split('.')[1], type: this.tcs.tabid, routerLink: ['/' + this.tcs.tabid] };
@@ -34,15 +34,15 @@ export class TabControllerComponent implements OnInit {
           component: this.tcs.GetComponent(this.tcs.tabid, this.tcs.docID)
         };
         this.tcs.tabs.push(newTab);
-        setTimeout(() => { this.tcs.index = this.tcs.tabs.length - 1; this.cd.markForCheck() });
-      } else { this.tcs.index = index; setTimeout(() => this.cd.markForCheck()) };
+        setTimeout(() => { this.tcs.index = this.tcs.tabs.length - 1; this.cd.markForCheck(); });
+      } else { this.tcs.index = index; setTimeout(() => this.cd.markForCheck()); }
       this.cd.markForCheck();
     });
 
     this.ds.close$.pipe(filter(data => data === null))
       .subscribe(doc => {
         this.tcs.tabs.splice(this.tcs.index, 1);
-        if (this.tcs.index === this.tcs.tabs.length) { this.tcs.index-- };
+        if (this.tcs.index === this.tcs.tabs.length) { this.tcs.index--; }
         this.onChange(this.tcs.index);
         this.cd.markForCheck();
       });

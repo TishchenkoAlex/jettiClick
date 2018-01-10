@@ -1,5 +1,5 @@
 export interface ITypes {
-  QueryList(): string
+  QueryList(): string;
 }
 
 export class TypesBase implements ITypes {

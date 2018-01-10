@@ -5,7 +5,7 @@ import { Subject } from 'rxjs/Subject';
 import { FormListSettings, UserDefaultsSettings, UserSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
 
-export interface FormListSettingsAction { type: string, payload: FormListSettings };
+export interface FormListSettingsAction { type: string; payload: FormListSettings; }
 
 @Injectable()
 export class UserSettingsService {
@@ -27,7 +27,7 @@ export class UserSettingsService {
       .subscribe(data => {
         this.userSettings.defaults = data;
         this.userDefaultsSettings$.next(data);
-      })
+      });
   }
 
   setUserDefaultsSettings(value: UserDefaultsSettings) {
@@ -36,7 +36,7 @@ export class UserSettingsService {
       filter(s => s === true))
       .subscribe(s => {
         this.userSettings.defaults = value;
-        this.userDefaultsSettings$.next(value)
+        this.userDefaultsSettings$.next(value);
       });
   }
 
@@ -49,7 +49,7 @@ export class UserSettingsService {
         .subscribe(s => {
           this.userSettings.formListSettings[type] = s || new FormListSettings();
           this.formListSettings$.next({ type: type, payload: s });
-        })
+        });
     }
   }
 

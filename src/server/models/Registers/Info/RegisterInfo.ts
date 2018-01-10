@@ -3,8 +3,8 @@ import { PropOptions, Props, Ref, symbolProps } from './../../document';
 import { RegisterInfoTypes } from './factory';
 
 export interface RegisterInfoOptions {
-  type: RegisterInfoTypes,
-  description: string
+  type: RegisterInfoTypes;
+  description: string;
 }
 
 export function JRegisterInfo(props: RegisterInfoOptions) {
@@ -12,8 +12,8 @@ export function JRegisterInfo(props: RegisterInfoOptions) {
     Reflect.defineMetadata(symbolProps, props, constructor);
     return class extends constructor {
       type = props.type;
-    }
-  }
+    };
+  };
 }
 export class RegisterInfo {
 
@@ -40,7 +40,7 @@ export class RegisterInfo {
 
   public Prop(propertyKey: string = 'this'): PropOptions | RegisterInfoOptions {
     if (propertyKey === 'this') {
-      return Reflect.getMetadata(symbolProps, this.constructor)
+      return Reflect.getMetadata(symbolProps, this.constructor);
     } else {
       return Reflect.getMetadata(symbolProps, this.constructor.prototype, propertyKey);
     }
@@ -50,11 +50,11 @@ export class RegisterInfo {
     const result: { [x: string]: any } = {};
     for (const prop of Object.keys(this)) {
       const Prop = this.targetProp(this, prop);
-      if (!Prop) { continue }
+      if (!Prop) { continue; }
       result[prop] = Prop;
     }
     return result;
   }
 
-  get QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type) }
+  get QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type); }
 }

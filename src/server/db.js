@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const pgPromise = require("pg-promise");
-const index_1 = require("./index");
 const environment_1 = require("./env/environment");
+const index_1 = require("./index");
 const pgp = pgPromise({});
 pgp.pg.types.setTypeParser(1700, parseFloat);
 pgp.pg.types.setTypeParser(20, parseInt);
 exports.db = pgp(environment_1.connString);
+exports.ADB = pgp(environment_1.accountDB);
 const channel = 'event';
 exports.db.connect({ direct: true }).then(sco => {
     sco.client.on('notification', data => {

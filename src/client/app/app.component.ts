@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { take } from 'rxjs/operators';
 
-import { Auth0Service } from './auth/auth0.service';
+import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
 import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
@@ -16,46 +17,30 @@ enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
 export class AppComponent implements AfterViewInit {
 
   layoutCompact = true;
-
   layoutMode: MenuOrientation = MenuOrientation.STATIC;
-
   darkMenu = false;
-
   profileMode = 'inline';
-
   rotateMenuButton: boolean;
-
   topbarMenuActive: boolean;
-
   overlayMenuActive: boolean;
-
   staticMenuDesktopInactive: boolean;
-
   staticMenuMobileActive: boolean;
-
   rightPanelActive: boolean;
-
   rightPanelClick: boolean;
-
   layoutMenuScroller: HTMLDivElement;
-
   menuClick: boolean;
-
   topbarItemClick: boolean;
-
   activeTopbarItem: any;
-
   resetMenu: boolean;
-
   menuHoverActive: boolean;
 
   @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ElementRef;
 
-  constructor(public auth: Auth0Service,
+  constructor(public auth: AuthService,
     public apiService: ApiService, public lds: LoadingService,
     public tsc: TabControllerService) {
 
-    auth.handleAuthentication();
+    auth.getAccount().pipe(take(1)).subscribe();
 
     const lm = localStorage.getItem('layoutMode');
     const a = this.layoutMode.toString();

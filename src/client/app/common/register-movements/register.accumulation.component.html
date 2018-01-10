@@ -1,5 +1,5 @@
 <!-- <div style="max-height: 500px; overflow: auto; "> -->
-<p-table [value]="movements">
+<p-table [value]="movements" selectionMode="single" [(selection)]="selection">
   <ng-template pTemplate="header">
     <tr style="cursor: pointer">
       <th *ngIf="!doc.type.includes('Info')" style="width: 22px; text-align: center"></th>
@@ -10,7 +10,7 @@
   </ng-template>
 
   <ng-template pTemplate="body" let-rowData>
-    <tr>
+    <tr [pSelectableRow]="rowData" style="cursor: pointer">
       <td *ngIf="!doc.type.includes('Info')" style="width: 22px; text-align: center">
         <i *ngIf="rowData['kind']" class="fa fa-plus" style="color: #5cb85c"></i>
         <i *ngIf="!rowData['kind']" class="fa fa-minus" style="color: #d9534f"></i>

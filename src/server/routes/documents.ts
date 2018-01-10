@@ -1,20 +1,19 @@
-import { NextFunction, Request, Response } from 'express';
 import * as express from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import { PatchValue, RefValue } from '../models/api';
-import { DocumentOptions } from '../models/document';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
 import { db, TX } from './../db';
 import { ColumnDef } from './../models/column';
+import { configSchema } from './../models/config';
 import { DocumentBaseServer, IServerDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib, postById } from './../std.lib';
+import { User } from './user.settings';
 import { docOperationResolver, doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
 import { List } from './utils/list';
-import { configSchema } from './../models/config';
-import { User } from './user.settings';
 
 export const router = express.Router();
 
@@ -22,7 +21,7 @@ export const router = express.Router();
 router.post('/list', async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await List(req, res));
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 });
 
 router.get('/:type/view/*', async (req: Request, res: Response, next: NextFunction) => {
@@ -37,7 +36,7 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
       settings: ((await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)) || {}).settings,
       schemaFull: view,
       prop: serverDoc.Prop
-    }
+    };
 
     const columnDef: ColumnDef[] = buildColumnDef(view, config_schema.settings || new FormListSettings());
 
@@ -67,30 +66,30 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
     const result = { view: view, model: model, columnDef: columnDef, prop: config_schema.prop || {} };
     res.json(result);
   } catch (err) { next(err.message); }
-})
+});
 
 // Delete document
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await db.tx(async tx => {
       const id = req.params.id;
-      let doc = await lib.doc.byId(id, tx)
+      let doc = await lib.doc.byId(id, tx);
       const serverDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await doSubscriptions(doc, 'before detele', tx);
-      if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx) }
+      if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx); }
       doc = await tx.one(`
         DELETE FROM "Register.Account" WHERE document = $1;
         DELETE FROM "Register.Info" WHERE document = $1;
         DELETE FROM "Register.Accumulation" WHERE document = $1;
         UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;`, [id]);
-      if (serverDoc && serverDoc.afterDelete) { serverDoc.afterDelete(tx) }
+      if (serverDoc && serverDoc.afterDelete) { serverDoc.afterDelete(tx); }
       await doSubscriptions(doc, 'after detele', tx);
       const model = await tx.one(`${configSchema.get(serverDoc.type as any).QueryList} AND d.id = $1`, [id]);
       await docOperationResolver(model, tx);
       res.json(model);
     });
   } catch (err) { next(err.message); }
-})
+});
 
 // Upsert document
 async function post(doc: IServerDocument, serverDoc: DocumentBaseServer, tx: TX) {
@@ -103,7 +102,7 @@ async function post(doc: IServerDocument, serverDoc: DocumentBaseServer, tx: TX)
     DELETE FROM "Register.Info" WHERE document = $1;
     DELETE FROM "Register.Accumulation" WHERE document = $1;`, id);
   }
-  if (!!doc.posted && serverDoc.beforePost) { await serverDoc.beforePost(tx) }
+  if (!!doc.posted && serverDoc.beforePost) { await serverDoc.beforePost(tx); }
   if (isNew) {
     doc = await tx.one(`
       INSERT INTO "Documents" SELECT * FROM json_populate_record(null::"Documents", $1) RETURNING *;`, [doc]);
@@ -119,7 +118,7 @@ async function post(doc: IServerDocument, serverDoc: DocumentBaseServer, tx: TX)
         FROM (SELECT * FROM json_populate_record(null::"Documents", $1)) i
         WHERE d.id = i.id RETURNING *;`, [doc]);
   }
-  if (!!doc.posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx) }
+  if (!!doc.posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx); }
   await doSubscriptions(doc, isNew ? 'after insert' : 'after update', tx);
   return doc;
 }
@@ -136,38 +135,38 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       res.json(docServer);
     });
   } catch (err) { next(err.message); }
-})
+});
 
 // unPost by id (without returns posted object to client, for post in cicle many docs)
 router.get('/unpost/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await db.tx(async (tx: TX) => await postById(req.params.id, false, tx));
     res.json(true);
-  } catch (err) { next(err.message); }
-})
+  } catch (err) { next(err); }
+});
 
 // Post by id (without returns posted object to client, for post in cicle many docs)
 router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await db.tx(async (tx: TX) => await postById(req.params.id, true, tx));
     res.json(true);
-  } catch (err) { next(err.message); }
-})
+  } catch (err) { next(err); }
+});
 
 // Get raw document by id
 router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await lib.doc.byId(req.params.id, db));
-  } catch (err) { next(err.message); }
-})
+  } catch (err) { next(err); }
+});
 
 // Get document viewModel by id
 router.get(':type/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const serverDoc = configSchema.get(req.params.type);
     res.json(await db.one(`${serverDoc.QueryObject} AND d.id = $1`, [req.params.id]));
-  } catch (err) { next(err.message); }
-})
+  } catch (err) { next(err); }
+});
 
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -182,28 +181,36 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
       result = await serverDoc.onValueChanged(property, value, db);
     }
     res.json(result);
-  } catch (err) { next(err.message); }
-})
+  } catch (err) { next(err); }
+});
 
 router.post('/command/:type/:command', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result: any = {};
     const doc = createDocumentServer<DocumentBaseServer>(req.params.type, req.body.doc);
-    if (doc && doc.onCommand && typeof doc.onCommand === 'function') { result = await doc.onCommand(req.params.command, req.body.args, db) }
+    if (doc && doc.onCommand && typeof doc.onCommand === 'function') {
+      result = await doc.onCommand(req.params.command, req.body.args, db); }
     res.json(result);
-  } catch (err) { next(err.message); }
-})
+  } catch (err) { next(err); }
+});
 
 
 router.post('/server/:type/:func', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let result: any = {}
+    let result: any = {};
     await db.tx(async (tx: TX) => {
       const doc = createDocumentServer(req.params.type, req.body.doc);
       const func = doc[req.params.func];
-      if (func && typeof func === 'function') { result = await func(tx, req.body.params, tx) }
+      if (func && typeof func === 'function') { result = await func(tx, req.body.params, tx); }
       res.json(result);
-    })
-  } catch (err) { next(err.message); }
-})
+    });
+  } catch (err) { next(err); }
+});
 
+// Get tree for document list
+router.get('/tree/:type', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const query = `select id, description, parent from "Documents" where isfolder and type = $1`;
+    res.json(await db.manyOrNone(query, [req.params.type]));
+  } catch (err) { next(err); }
+});

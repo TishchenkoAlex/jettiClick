@@ -1,5 +1,4 @@
 import { db } from '../../db';
-import { Events } from '../../routes/events';
 import { ICallRequest } from '../../routes/utils/interfaces';
 import { lib } from '../../std.lib';
 import { PatchValue } from '../api';
@@ -24,11 +23,11 @@ export default class FormPostServer extends FormPost {
       company: this.CallRequest.formView.company.id,
       StartDate: this.CallRequest.formView.StartDate,
       EndDate: endDate
-    }, { jobId: 'FormPostServer' }))
+    }, { jobId: 'FormPostServer' }));
   }
 
   async Execute2() {
-    const event = await Events.create('post Invoices', this.CallRequest.user);
+    userSocketsEmit(this.CallRequest.user, 'Form.Post', 0);
     try {
       const query = `
       SELECT id, date, code FROM "Documents"
@@ -52,10 +51,10 @@ export default class FormPostServer extends FormPost {
           console.log(err);
         }
       }
-      await Events.updateProgress(event.id, 100, new Date());
+      userSocketsEmit(this.CallRequest.user, 'Form.Post', 100);
     } catch (err) {
       console.log(err);
-      await Events.updateProgress(event.id, -1, new Date(), err);
+      userSocketsEmit(this.CallRequest.user, 'Form.Post', -1);
     }
   }
 }

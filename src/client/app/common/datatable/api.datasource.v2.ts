@@ -8,7 +8,7 @@ import { FormListFilter, FormListOrder } from '../../../../server/models/user.se
 import { ApiService } from '../../services/api.service';
 import { DocumentBase } from './../../../../server/models/document';
 
-interface DatasourceCommand { source: any, command: string, data?: any }
+interface DatasourceCommand { source: any; command: string; data?: any; }
 
 export class ApiDataSource {
   private paginator = new Subject<DatasourceCommand>();
@@ -19,7 +19,7 @@ export class ApiDataSource {
   continuation: Continuation = { first: {id: 'first', type: this.docType}, last: {id: 'last', type: this.docType} };
   private EMPTY: DocListResponse = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first } };
 
-  constructor(private apiService: ApiService, private docType: string, private pageSize: number,
+  constructor(public apiService: ApiService, public docType: string, public pageSize: number,
     public dataTable: DataTable = null) {
 
     this.result$ = this.paginator.pipe(
@@ -35,7 +35,7 @@ export class ApiDataSource {
           case 'next': id = this.continuation.last.id; break;
           case 'refresh': case 'sort': case undefined:
             offset = this.renderedData.findIndex(r => r.id === id);
-            if (offset === -1) { offset = 0;  } else { id = this.renderedData[offset].id}
+            if (offset === -1) { offset = 0;  } else { id = this.renderedData[offset].id; }
             stream.command = 'sort';
             break;
           case 'goto': id = stream.data; break;
@@ -55,25 +55,25 @@ export class ApiDataSource {
               const gotoRow = this.renderedData.find(el => el.id === id);
               this.dataTable.selection = [gotoRow] || [];
             }
-            if (['first', 'last', 'next', 'prev'].indexOf(stream.command) > -1) { this.dataTable.selection = [] }
+            if (['first', 'last', 'next', 'prev'].indexOf(stream.command) > -1) { this.dataTable.selection = []; }
           }),
-          catchError(err => { this.renderedData = []; return Observable.of(this.EMPTY) }));
+          catchError(err => { this.renderedData = []; return Observable.of(this.EMPTY); }));
       }),
       map(data => data['data']));
   }
 
-  refresh() { this.paginator.next({ source: this.paginator, command: 'refresh' }) }
+  refresh() { this.paginator.next({ source: this.paginator, command: 'refresh' }); }
 
-  goto(id: string) { this.paginator.next({ source: this.paginator, command: 'goto', data: id }) }
+  goto(id: string) { this.paginator.next({ source: this.paginator, command: 'goto', data: id }); }
 
-  sort() { this.paginator.next({ source: this.paginator, command: 'sort' }) }
+  sort() { this.paginator.next({ source: this.paginator, command: 'sort' }); }
 
-  first() { this.paginator.next({ source: this.paginator, command: 'first' }) }
+  first() { this.paginator.next({ source: this.paginator, command: 'first' }); }
 
-  last() { this.paginator.next({ source: this.paginator, command: 'last' }) }
+  last() { this.paginator.next({ source: this.paginator, command: 'last' }); }
 
-  next() { this.paginator.next({ source: this.paginator, command: 'next' }) }
+  next() { this.paginator.next({ source: this.paginator, command: 'next' }); }
 
-  prev() { this.paginator.next({ source: this.paginator, command: 'prev' }) }
+  prev() { this.paginator.next({ source: this.paginator, command: 'prev' }); }
 
 }

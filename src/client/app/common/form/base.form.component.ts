@@ -35,9 +35,9 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   private _closeSubscription$: Subscription = Subscription.EMPTY;
   private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
 
-  get hasTables() { return this.viewModel.view.find(t => t.type === 'table') }
-  get tables() { return this.viewModel.view.filter(t => t.type === 'table') }
-  get posted() { return this.viewModel.formGroup.controls['posted'] }
+  get hasTables() { return this.viewModel.view.find(t => t.type === 'table'); }
+  get tables() { return this.viewModel.view.filter(t => t.type === 'table'); }
+  get posted() { return this.viewModel.formGroup.controls['posted']; }
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService,
@@ -68,7 +68,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
     this._closeSubscription$ = this.ds.close$.pipe(
       filter(data => data && data.type === this.viewModel.model.type && data.id === this.docId))
-      .subscribe(data => this.Close())
+      .subscribe(data => this.Close());
   }
 
   ngOnDestroy() {
@@ -109,16 +109,16 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     this.ds.close(null);
     this.cd.markForCheck();
     this.location.back();
-  };
+  }
 
   Close() {
-    if (this.viewModel.formGroup.pristine) { this._close(); return }
+    if (this.viewModel.formGroup.pristine) { this._close(); return; }
     this.ds.confirmationService.confirm({
       message: 'Discard changes and close?',
       header: 'Confirmation',
       icon: 'fa fa-question-circle',
       accept: this._close.bind(this),
-      reject: () => { this.cd.markForCheck() },
+      reject: () => { this.cd.markForCheck(); },
       key: this.docId
     });
     setTimeout(() => this.cd.markForCheck());
@@ -130,7 +130,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   Goto() {
     this.router.navigate([this.viewModel.model.type], { queryParams: { goto: this.docId }, replaceUrl: true })
-      .then(() => { this.ds.goto(this.viewModel.model) });
+      .then(() => { this.ds.goto(this.viewModel.model); });
   }
 
   Print() {

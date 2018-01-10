@@ -1,5 +1,6 @@
-import { animate, Component, state, style, transition, trigger, Input } from '@angular/core';
-import { Auth0Service } from './../auth/auth0.service';
+import { animate, Component, Input, state, style, transition, trigger } from '@angular/core';
+import { AuthService } from '../auth/auth.service';
+import { take } from 'rxjs/operators/take';
 
 @Component({
   selector: 'app-inline-profile',
@@ -22,10 +23,17 @@ export class AppProfileComponent {
   active: boolean;
   @Input() inline = true;
 
-  constructor(public appAuth: Auth0Service) { }
+  constructor(public appAuth: AuthService) { }
 
   onClick(event) {
     this.active = !this.active;
     event.preventDefault();
+  }
+
+  login() {
+    this.appAuth.login('tischenko.a@gmail.com', 'Pa$$word').pipe(take(1)).subscribe(
+      () => { },
+      console.error
+    );
   }
 }

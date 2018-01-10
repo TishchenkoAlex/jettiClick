@@ -12,7 +12,7 @@ router.get('/register/account/movements/view/:id', async (req, res, next) => {
     const data = await db.manyOrNone(query, [req.params.id]);
     res.json(data);
   } catch (err) { next(err); }
-})
+});
 
 router.get('/register/accumulation/list/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -22,7 +22,7 @@ router.get('/register/accumulation/list/:id', async (req: Request, res: Response
         WHERE document = $1`, [req.params.id]);
     res.json(result);
   } catch (err) { next(err); }
-})
+});
 
 router.get('/register/info/list/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -32,19 +32,19 @@ router.get('/register/info/list/:id', async (req: Request, res: Response, next: 
         WHERE document = $1`, [req.params.id]);
     res.json(result);
   } catch (err) { next(err); }
-})
+});
 
 router.get('/register/accumulation/:type/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result; let config_schema;
     const JRegister = createRegisterAccumulation(req.params.type, true, {});
     if (JRegister) {
-      config_schema = { queryObject: JRegister.QueryList() }
+      config_schema = { queryObject: JRegister.QueryList() };
     } else {
       config_schema = await db.one(`SELECT "queryObject" "queryObject" FROM config_schema WHERE type = $1`, [req.params.type]);
     }
     result = await db.manyOrNone(`${config_schema.queryObject} AND r.document = $1`, [req.params.id]);
     res.json(result);
   } catch (err) { next(err); }
-})
+});
 

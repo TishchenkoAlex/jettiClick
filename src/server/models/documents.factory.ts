@@ -31,7 +31,7 @@ import { DocumentInvoice } from './Documents/Document.Invoice';
 import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentPriceList } from './Documents/Document.PriceList';
 
-export interface IRegisteredDocument<T extends DocumentBase> { type: DocTypes, Class: T };
+export interface IRegisteredDocument<T extends DocumentBase> { type: DocTypes; Class: T; }
 
 export function createDocument<T extends DocumentBase>(type: DocTypes, document?: IServerDocument): T {
   const doc = RegisteredDocument.find(el => el.type === type);
@@ -73,4 +73,4 @@ export const RegisteredDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Invoice', Class: DocumentInvoice },
   { type: 'Document.Operation', Class: DocumentOperation },
   { type: 'Document.PriceList', Class: DocumentPriceList },
-]
+];

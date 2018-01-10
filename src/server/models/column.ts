@@ -16,4 +16,4 @@ export interface ColumnDef {
     sort?: FormListOrder;
     filter?: FormListFilter;
     data?: any;
-};
+}

@@ -18,10 +18,10 @@ export type SubSystem =
   'Operations';
 
 export interface ISubSystem {
-  type: SubSystem,
+  type: SubSystem;
   icon: string;
   description: string;
-  Objects: (DocTypes | FormTypes)[]
+  Objects: (DocTypes | FormTypes)[];
 }
 
 export const SubSystems: ISubSystem[] = [
@@ -30,9 +30,9 @@ export const SubSystems: ISubSystem[] = [
   SalesSubSystem,
   FinanceSubSystem,
   OperationsSubSystem,
-]
+];
 
-export interface MenuItem { type: string, icon: string, label: string, items?: MenuItem[], routerLink?: string[] };
+export interface MenuItem { type: string; icon: string; label: string; items?: MenuItem[]; routerLink?: string[]; }
 
 export function SubSystemsMenu() {
   const menu: MenuItem[] = [];

@@ -8,17 +8,17 @@ import { AllDocTypes, AllTypes, ComplexTypes, DocumentTypes } from './documents.
 import { createTypes, RegisteredTypes } from './Types/Types.factory';
 
 export interface IConfigSchema {
-  type: AllDocTypes,
-  description?: string,
-  icon?: string,
-  menu?: string,
-  prefix?: string,
-  QueryObject?: string,
-  QueryList: string,
-  QueryNew?: string,
-  dimensions?: { [x: string]: AllTypes }[],
-  Props?: { [x: string]: any },
-  Prop?: DocumentOptions
+  type: AllDocTypes;
+  description?: string;
+  icon?: string;
+  menu?: string;
+  prefix?: string;
+  QueryObject?: string;
+  QueryList: string;
+  QueryNew?: string;
+  dimensions?: { [x: string]: AllTypes }[];
+  Props?: { [x: string]: any };
+  Prop?: DocumentOptions;
 }
 
 export const configSchema = new Map([
@@ -39,8 +39,8 @@ export const configSchema = new Map([
       Props: Props,
       Prop: Prop
     });
-    if (el.type === 'Catalog.Subcount') { result.QueryList = (doc as CatalogSubcount).QueryList() }
-    if (el.type === 'Catalog.Documents') { result.QueryList = (doc as CatalogDocuments).QueryList() }
+    if (el.type === 'Catalog.Subcount') { result.QueryList = (doc as CatalogSubcount).QueryList(); }
+    if (el.type === 'Catalog.Documents') { result.QueryList = (doc as CatalogDocuments).QueryList(); }
     if (el.type === 'Document.Operation') { // Opeations specific implementation
       result.QueryList = (doc as DocumentOperation).QueryList();
       result.QueryObject = (doc as DocumentOperation).QueryObject();
@@ -53,10 +53,10 @@ export const configSchema = new Map([
     const result: IConfigSchema = {
       type: el.type as DocumentTypes,
       QueryList: doc.QueryList()
-    }
+    };
     return ({
       type: el.type as ComplexTypes,
       QueryList: doc.QueryList()
-    })
+    });
   })]
   .map((i): [AllDocTypes, IConfigSchema] => [i.type, i]));

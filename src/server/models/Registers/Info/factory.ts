@@ -12,16 +12,16 @@ export type RegistersInfo =
     RegisterInfoExchangeRates;
 
 interface IRegisteredRegisterInfo {
-    type: RegisterInfoTypes,
-    Class: typeof RegisterInfo
+    type: RegisterInfoTypes;
+    Class: typeof RegisterInfo;
 }
 
 const RegisteredRegisterInfo: IRegisteredRegisterInfo[] = [
     { type: 'Register.Info.PriceList', Class: RegisterInfoPriceList },
     { type: 'Register.Info.ExchangeRates', Class: RegisterInfoExchangeRates },
-]
+];
 
 export function createRegisterInfo(type: RegisterInfoTypes, data: { [x: string]: any }): RegisterInfo {
     const doc = RegisteredRegisterInfo.find(el => el.type === type);
-    if (doc) { return new doc.Class(data) }
+    if (doc) { return new doc.Class(data); }
 }

@@ -25,7 +25,7 @@ export class CatalogOperation extends DocumentBase {
   script: string = null;
 
   @Props({ type: 'table' })
-  Parameters: Parameter[] = [new Parameter()]
+  Parameters: Parameter[] = [new Parameter()];
 
 }
 

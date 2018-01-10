@@ -5,5 +5,5 @@ import { RegisterInfo } from './Registers/Info/RegisterInfo';
 export interface PostResult {
   Account: RegisterAccount[];
   Accumulation: RegisterAccumulation[];
-  Info: RegisterInfo[]
+  Info: RegisterInfo[];
 }

@@ -25,27 +25,27 @@ export async function InsertRegisterstoDB(doc: IServerDocument, Registers: PostR
         '${rec.kredit.subcounts[2]}', '${rec.kredit.subcounts[3]}',
         ${rec.kredit.qty || 0}, '${rec.kredit.currency || doc.doc['currency']}'
       );`;
-  };
+  }
 
   for (const rec of Registers.Accumulation) {
     const data = JSON.stringify(rec.data);
     query += `
     INSERT INTO "Register.Accumulation" (kind, type, date, document, company, data)
     VALUES (${rec.kind}, '${rec.type}', '${new Date(doc.date).toJSON()}', '${doc.id}', '${rec.company || doc.company}', '${data}');`;
-  };
+  }
 
   for (const rec of Registers.Info) {
     const data = JSON.stringify(rec.data);
     query += `
     INSERT INTO "Register.Info" (type, date, document, company, data)
     VALUES ('${rec.type}', '${new Date(doc.date).toJSON()}', '${doc.id}', '${rec.company || doc.company}', '${data}');`;
-  };
+  }
 
-  if (query) { await tx.none(query) };
+  if (query) { await tx.none(query); }
 }
 
 export async function docOperationResolver(doc: DocumentBaseServer, tx: TX) {
-  if (doc.type !== 'Document.Operation') { return }; // only for Operations docs
+  if (doc.type !== 'Document.Operation') { return; } // only for Operations docs
   for (let i = 1; i <= 10; i++) {
     const p = doc['p' + i.toString()];
     if (p instanceof Array) {
@@ -71,6 +71,6 @@ export async function doSubscriptions(doc: IServerDocument, script: string, tx: 
         const func = new AsyncFunction('doc, db', scr.then);
         await func(JSON.parse(JSON.stringify(doc)), tx);
       }
-    };
+    }
   }
 }

@@ -4,8 +4,8 @@ import { FormPost } from './Form.Post';
 
 
 export interface IRegisteredForm<T extends FormBase> {
-  type: FormTypes,
-  class: T
+  type: FormTypes;
+  class: T;
 }
 
 export function createForm(type: FormTypes) {
@@ -20,6 +20,6 @@ export function createForm(type: FormTypes) {
 export const RegisteredForms: IRegisteredForm<any>[] = [
   { type: 'Form.Form1', class: FormPost },
   { type: 'Form.Post', class: FormPost },
-]
+];
 
 

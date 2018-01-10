@@ -3,17 +3,17 @@
     <div *ngIf="appAuth.isAuthenticated()">
       <div class="profile" [ngClass]="{'profile-expanded':active}">
         <a href="" (click)="onClick($event)">
-          <img class="profile-image" src={{userProfile?.picture}} />
-          <span class="profile-name">{{ userProfile?.nickname }}</span>
+<!--           <img class="profile-image" src={{userProfile?.picture}} />
+ -->          <span class="profile-name">{{ userProfile?.account?.email }}</span>
           <i class="fa fa-fw fa-caret-down"></i>
-          <span class="profile-role">{{ userProfile?.name }}</span>
+          <span class="profile-role">{{ userProfile?.account?.email }}</span>
         </a>
       </div>
     </div>
   </div>
   <ul id="profile-menu" class="layout-menu" [@menu]="appAuth.isAuthenticated() ? 'hidden' : 'visible'">
     <li role="menuitem">
-      <a style="cursor: pointer" (click)="appAuth.login()" [attr.tabindex]="!active ? '-1' : null">
+      <a style="cursor: pointer" (click)="login()" [attr.tabindex]="!active ? '-1' : null">
         <i class="fa fa-fw fa-sign-out"></i>
         <span>Login</span>
       </a>
@@ -70,7 +70,7 @@
   <div *ngIf="(appAuth.userProfile$.value) as userProfile">
     <div *ngIf="appAuth.isAuthenticated()">
       <div class="profile">
-        <img class="profile-image" src={{userProfile?.picture}} />
+<!--         <img class="profile-image" src={{userProfile?.picture}} /> -->
       </div>
     </div>
   </div>

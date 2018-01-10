@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 
 import { TabResolver } from '../app/tab.resolver';
 import { AuthGuardService } from './auth/auth.guard.service';
-import { CloseGuardService } from './common/close.guard.service';
 import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
 import { HOME } from './common/tabcontroller/tabcontroller.service';
 

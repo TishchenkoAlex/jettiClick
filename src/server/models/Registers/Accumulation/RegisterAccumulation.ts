@@ -3,8 +3,8 @@ import { PropOptions, Props, Ref, symbolProps } from './../../document';
 import { RegisterAccumulationTypes } from './factory';
 
 export interface RegisterAccumulationOptions {
-  type: RegisterAccumulationTypes,
-  description: string
+  type: RegisterAccumulationTypes;
+  description: string;
 }
 
 export function JRegisterAccumulation(props: RegisterAccumulationOptions) {
@@ -12,8 +12,8 @@ export function JRegisterAccumulation(props: RegisterAccumulationOptions) {
     Reflect.defineMetadata(symbolProps, props, constructor);
     return class extends constructor {
       type = props.type;
-    }
-  }
+    };
+  };
 }
 export class RegisterAccumulation {
   @Props({ type: 'boolean' })
@@ -43,7 +43,7 @@ export class RegisterAccumulation {
 
   public Prop(propertyKey: string = 'this'): PropOptions | RegisterAccumulationOptions {
     if (propertyKey === 'this') {
-      return Reflect.getMetadata(symbolProps, this.constructor)
+      return Reflect.getMetadata(symbolProps, this.constructor);
     } else {
       return Reflect.getMetadata(symbolProps, this.constructor.prototype, propertyKey);
     }
@@ -53,12 +53,12 @@ export class RegisterAccumulation {
     const result: { [x: string]: any } = {};
     for (const prop of Object.keys(this)) {
       const Prop = this.targetProp(this, prop);
-      if (!Prop) { continue }
+      if (!Prop) { continue; }
       result[prop] = Prop;
     }
     return result;
   }
 
-  QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type) }
+  QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type); }
 }
 

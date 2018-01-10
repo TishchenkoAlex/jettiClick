@@ -16,18 +16,18 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
       case 'company':
         return {};
       default:
-        return {}
+        return {};
     }
-  };
+  }
 
   async onCommand(command: string, args: any, tx: TX) {
     switch (command) {
       case 'company':
         return {};
       default:
-        return {}
+        return {};
     }
-  };
+  }
 
   async baseOn(docId: Ref, tx: TX): Promise<DocumentPriceList> {
     const ISource = await lib.doc.byId(docId, tx);

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { ConfirmationService } from 'primeng/primeng';
-import { take } from 'rxjs/operators';
+import { shareReplay, take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { ApiService } from '../services/api.service';
@@ -28,7 +28,7 @@ export class DocService {
   protected _goto = new Subject<any>();
   goto$ = this._goto.asObservable();
 
-  constructor(public api: ApiService, private messageService: MessageService, public confirmationService: ConfirmationService) { };
+  constructor(public api: ApiService, private messageService: MessageService, public confirmationService: ConfirmationService) { }
 
   do(doc: DocumentBase) {
     this._do.next(doc);
@@ -46,11 +46,11 @@ export class DocService {
     this.api.postDoc(doc).pipe(
       take(1))
       .subscribe((savedDoc: DocumentBase) => {
-        if (close) { this._saveCloseDoc.next(savedDoc) } else { this._saveDoc.next(savedDoc) }
+        if (close) { this._saveCloseDoc.next(savedDoc); } else { this._saveDoc.next(savedDoc); }
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
       },
       (err) => {
-        this.openSnackBar('error', doc.description, err.error)
+        this.openSnackBar('error', doc.description, err.error);
       });
   }
 
@@ -62,21 +62,20 @@ export class DocService {
         this.openSnackBar('succes', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       },
       (err) => {
-        this.openSnackBar('error', id, err.error)
+        this.openSnackBar('error', id, err.error);
       });
   }
 
   post(id: string) {
-    return this.api.postDocById(id).toPromise()
+    return this.api.postDocById(id).pipe(shareReplay()).toPromise();
   }
 
   unpost(id: string) {
-    return this.api.unpostDocById(id).toPromise()
+    return this.api.unpostDocById(id).toPromise();
   }
 
-
-  openSnackBar(severity: string, message: string, action: string) {
-    this.messageService.add({severity: severity, summary: message, detail: action, id: Math.random()})
+  openSnackBar(severity: string, message: string, detail: string) {
+    this.messageService.add({severity: severity, summary: message, detail: detail, id: Math.random()});
   }
 
 }

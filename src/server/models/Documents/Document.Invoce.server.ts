@@ -17,30 +17,30 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       row.Amount = row.Qty * row.Price;
       this.Amount += row.Amount;
     }
-    return { doc: this, result: {} }
+    return { doc: this, result: {} };
   }
 
   async onValueChanged(prop: string, value: any, tx: TX) {
     switch (prop) {
       case 'company':
-        if (!value) { return {} }
+        if (!value) { return {}; }
         const company = await lib.doc.byId<IServerDocument>(value.id, tx);
-        if (!company) { return {} }
+        if (!company) { return {}; }
         const currency = await lib.doc.formControlRef(company.doc.currency, tx);
         return { currency: currency };
       default:
-        return {}
+        return {};
     }
-  };
+  }
 
   async onCommand(command: string, args: any, tx: TX) {
     switch (command) {
       case 'company':
         return args;
       default:
-        return {}
+        return {};
     }
-  };
+  }
 
   async onPost(tx: TX): Promise<PostResult> {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
@@ -51,9 +51,9 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     const ExpenseCOST = await lib.doc.byCode('Catalog.Expense', 'OUT.COST', tx);
     const IncomeSALES = await lib.doc.byCode('Catalog.Income', 'SALES', tx);
     const PL = await lib.doc.byCode('Catalog.Balance', 'PL', tx);
-    const AR = await lib.doc.byCode('Catalog.Balance', 'AR', tx)
+    const AR = await lib.doc.byCode('Catalog.Balance', 'AR', tx);
     const INVENTORY = await lib.doc.byCode('Catalog.Balance', 'INVENTORY', tx);
-    const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', {currency: this.currency}, tx) || 1;
+    const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
 
     // AR
     Registers.Accumulation.push(new RegisterAccumulationAR(true, {
@@ -139,4 +139,109 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
 
     return Registers;
   }
+
+}
+
+async function onPostJS(document: IServerDocument, Registers = { Account: [], Accumulation: [], Info: [] }, tx: TX) {
+  const {doc, ...header} = document;
+
+  const acc90 = await lib.account.byCode('90.01', tx);
+  const acc41 = await lib.account.byCode('41.01', tx);
+  const acc62 = await lib.account.byCode('62.01', tx);
+  const ExpenseCOST = await lib.doc.byCode('Catalog.Expense', 'OUT.COST', tx);
+  const IncomeSALES = await lib.doc.byCode('Catalog.Income', 'SALES', tx);
+  const PL = await lib.doc.byCode('Catalog.Balance', 'PL', tx);
+  const AR = await lib.doc.byCode('Catalog.Balance', 'AR', tx);
+  const INVENTORY = await lib.doc.byCode('Catalog.Balance', 'INVENTORY', tx);
+  const exchangeRate = await lib.info.sliceLast('ExchangeRates', header.date, header.company, 'Rate', { currency: doc.currency }, tx) || 1;
+
+  // AR
+  Registers.Accumulation.push({
+    kind: true,
+    AO: header.id,
+    Department: doc.Department,
+    Customer: doc.Customer,
+    AR: doc.Amount,
+    AmountInBalance: doc.Amount / exchangeRate,
+    PayDay: doc.PayDay,
+    currency: doc.currency
+  });
+
+  Registers.Account.push({
+    debit: { account: acc62, subcounts: [doc.Customer] },
+    kredit: { account: acc90, subcounts: [] },
+    sum: doc.Amount,
+  });
+
+  let totalCost = 0;
+  for (const row of doc.Items) {
+    const avgSumma = await lib.register.avgCost(
+      doc.date, doc.company, { SKU: row.SKU, Storehouse: doc.Storehouse }, tx) * row.Qty;
+    totalCost += avgSumma;
+
+    // Account
+    Registers.Account.push({
+      debit: { account: acc90, subcounts: [] },
+      kredit: { account: acc41, subcounts: [doc.Storehouse, row.SKU], qty: row.Qty },
+      sum: avgSumma,
+    });
+
+    Registers.Accumulation.push({
+      kind: false,
+      Expense: ExpenseCOST,
+      Storehouse: doc.Storehouse,
+      SKU: row.SKU,
+      Cost: avgSumma,
+      Qty: row.Qty
+    });
+
+    Registers.Accumulation.push({
+      kind: true,
+      AO: header.id,
+      Department: doc.Department,
+      Customer: doc.Customer,
+      Product: row.SKU,
+      Manager: doc.Manager,
+      Storehouse: doc.Storehouse,
+      Qty: row.Qty,
+      Amount: row.Amount,
+      Cost: avgSumma,
+      Discount: 0,
+      Tax: row.Tax,
+      currency: doc.currency
+    });
+  }
+
+  Registers.Accumulation.push({
+    kind: true,
+    Department: doc.Department,
+    Balance: AR,
+    Analytics: doc.Customer,
+    Amount: doc.Amount / exchangeRate
+  });
+
+  Registers.Accumulation.push({
+    kind: false,
+    Department: doc.Department,
+    Balance: INVENTORY,
+    Analytics: doc.Storehouse,
+    Amount: totalCost
+  });
+
+  Registers.Accumulation.push({
+    kind: true,
+    Department: doc.Department,
+    Balance: PL,
+    Analytics: ExpenseCOST,
+    Amount: totalCost
+  });
+
+  Registers.Accumulation.push({
+    kind: false,
+    Department: doc.Department,
+    Balance: PL,
+    Analytics: IncomeSALES,
+    Amount: doc.Amount / exchangeRate,
+  });
+
 }
