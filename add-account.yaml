@@ -1,14 +1,14 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: client-0001-app
+  name: jetti
   labels:
-    app: client-0001-app
+    app: jetti
 spec:
   template:
     metadata:
       labels:
-        app: client-0001-app
+        app: jetti
         tier: web
     spec:
       containers:
@@ -67,13 +67,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: client-0001-app
+  name: jetti
   labels:
-    app: client-0001-app
+    app: jetti
 spec:
   type: NodePort
   selector:
-    app: client-0001-app
+    app: jetti
   ports:
   - port: 8080
     targetPort: 8080

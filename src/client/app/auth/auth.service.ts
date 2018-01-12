@@ -30,9 +30,9 @@ export class AuthService {
         this.userRoleObjects = getRoleObjects(this.userRoles);
         this.token = loginResponse.token;
         if (!isDevMode()) {
-          environment.api = this.tokenPayload['env'].url + '/api';
-          environment.socket = this.tokenPayload['env'].url;
-          environment.auth = this.tokenPayload['env'].url + '/auth';
+          environment.api = this.tokenPayload['env'].url + '/api/';
+          environment.socket = this.tokenPayload['env'].url + '/';
+          environment.auth = this.tokenPayload['env'].url + '/auth/';
         }
         console.log('tokenDecode', this.tokenPayload, environment.api);
       }
