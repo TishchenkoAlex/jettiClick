@@ -1,10 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { tap } from 'rxjs/operators';
 import { shareReplay } from 'rxjs/operators/shareReplay';
-
+import * as jwtdecode from 'jwt-decode';
 import { IAccount, ILoginResponse } from '../../../server/models/api';
 import { getRoleObjects, RoleObject, RoleType } from '../../../server/models/Roles/Base';
 import { environment } from '../../environments/environment';
@@ -21,6 +21,7 @@ export class AuthService {
   set token(value) { localStorage.setItem('jetti_token', value); }
   get isAdmin() { return this.userRoles.findIndex(r => r === 'Admin') >= 0; }
   isAuthenticated = () => this.userProfile$.value ? true : false;
+  get tokenPayload() { return jwtdecode(this.token); }
 
   constructor(private router: Router, private http: HttpClient) {
     this.userProfile$.subscribe(loginResponse => {
@@ -28,6 +29,12 @@ export class AuthService {
         this.userRoles = loginResponse.account.roles as RoleType[];
         this.userRoleObjects = getRoleObjects(this.userRoles);
         this.token = loginResponse.token;
+        if (!isDevMode()) {
+          environment.api = this.tokenPayload['env'].url + '/api';
+          environment.socket = this.tokenPayload['env'].url;
+          environment.auth = this.tokenPayload['env'].url + '/auth';
+        }
+        console.log('tokenDecode', this.tokenPayload, environment.api);
       }
     });
   }

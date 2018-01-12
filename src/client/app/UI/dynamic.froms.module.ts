@@ -12,7 +12,6 @@ import { RegisterInfoComponent } from '../common/register-movements/register.inf
 import { PrimeNGModule } from '../primeNG.module';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.png.component';
 import { BaseDocListComponent } from './../common/datatable/base.list.component';
-import { BaseDocListToolbarComponent } from './../common/datatable/base.list.toolbar.component';
 import { TablePartsComponent } from './../common/datatable/table-parts.png.component';
 import { DocService } from './../common/doc.service';
 import { DynamicComponent, DynamicComponentDirective } from './../common/dynamic-component/dynamic-component';
@@ -41,7 +40,6 @@ import { OperationListComponent } from './Operation/operation.list.component';
     AutocompleteComponent,
 
     BaseDocListComponent,
-    BaseDocListToolbarComponent,
     BaseDocFormComponent,
     BaseFormComponent,
     BaseTreeListComponent,
@@ -79,7 +77,6 @@ import { OperationListComponent } from './Operation/operation.list.component';
     SuggestDialogComponent,
     HomeComponent,
     BaseDocListComponent,
-    BaseDocListToolbarComponent,
     BaseDocFormComponent,
     BaseFormComponent,
     BaseTreeListComponent,

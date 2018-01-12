@@ -2,12 +2,13 @@ import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest
 import { Injectable, Injector, isDevMode } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
+import { of as observableOf } from 'rxjs/observable/of';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { dateReviver } from './../../server/fuctions/dateReviver';
 import { environment } from './../environments/environment';
-import { LoadingService } from './common/loading.service';
 import { AuthService } from './auth/auth.service';
+import { LoadingService } from './common/loading.service';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
@@ -19,7 +20,7 @@ export class ApiInterceptor implements HttpInterceptor {
     this.auth = this.inj.get(AuthService);
     req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}`}});
 
-    if (req.url.includes('user/settings') || req.url.includes('api/jobs')) { // exclude setting requests
+    if (req.url.includes('user/settings') || req.url.includes('/jobs')) { // exclude setting requests
       return next.handle(req);
     }
     this.lds.color = 'accent';
@@ -29,14 +30,14 @@ export class ApiInterceptor implements HttpInterceptor {
       tap(data => {
         if (data instanceof HttpResponse) {
           this.lds.loading = false;
-          if (isDevMode) { console.log('API', req.url.replace(environment.api, '')); }
+          if (isDevMode()) { console.log('API', req.url.replace(environment.api, '')); }
         }
       }),
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
           this.auth.logout();
           this.lds.loading = false;
-          return Observable.of();
+          return observableOf();
         }
         this.lds.loading = true;
         this.lds.color = 'warn';

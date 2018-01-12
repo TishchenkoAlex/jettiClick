@@ -18,13 +18,11 @@ import { mapDocToApiFormat } from '../common/mapping/document.mapping';
 @Injectable()
 export class ApiService {
 
-  private url = environment.api;
-
   constructor(private http: HttpClient) { }
 
   getDocList(type: string, id: string, command: string, count = 10, offset = 0,
     order: FormListOrder[] = [], filter: FormListFilter[] = []): Observable<DocListResponse> {
-    const query = `${this.url}list`;
+    const query = `${environment.api}list`;
     const body: DocListRequestBody = {
       id: id, type: type, command: command, count: count, offset: offset,
       order: order,
@@ -34,123 +32,123 @@ export class ApiService {
   }
 
   getView(type: string): Observable<{ view: any[], columnDef: ColumnDef[] }> {
-    const query = `${this.url}${type}/view/`;
+    const query = `${environment.api}${type}/view/`;
     return (this.http.get(query)).pipe(
       map(data => ({ view: data['view'], columnDef: data['columnDef'] })));
   }
 
   getViewModel(type: string, id = ''): Observable<any> {
-    const query = `${this.url}${type}/view/${id}`;
+    const query = `${environment.api}${type}/view/${id}`;
     return (this.http.get(query));
   }
 
-  getSuggests(docType: string, filter = ''): Observable<any[]> {
-    const query = `${this.url}suggest/${docType}/${filter}`;
+  getSuggests(docType: string, filter = '', isfolder = false): Observable<any[]> {
+    const query = `${environment.api}suggest/${docType}/${isfolder ? 'isfolder/' : ''}${filter}`;
     return (this.http.get(query) as Observable<any[]>);
   }
 
   getSuggestsById(id: string): Observable<any> {
-    const query = `${this.url}suggest/${id}`;
+    const query = `${environment.api}suggest/${id}`;
     return (this.http.get(query));
   }
 
   postDoc(doc: DocumentBase) {
     const apiDoc = mapDocToApiFormat(doc);
-    const query = `${this.url}`;
+    const query = `${environment.api}`;
     return (this.http.post(query, apiDoc) as Observable<DocumentBase>);
   }
 
   postDocById(id: string): Observable<boolean> {
-    const query = `${this.url}post/${id}`;
+    const query = `${environment.api}post/${id}`;
     return (this.http.get(query) as Observable<boolean>);
   }
 
   unpostDocById(id: string): Observable<boolean> {
-    const query = `${this.url}unpost/${id}`;
+    const query = `${environment.api}unpost/${id}`;
     return (this.http.get(query) as Observable<boolean>);
   }
 
   deleteDoc(id: string): Observable<Object> {
-    const query = `${this.url}${id}`;
+    const query = `${environment.api}${id}`;
     return (this.http.delete(query));
   }
 
   getDocAccountMovementsView(id: string): Observable<AccountRegister[]> {
-    const query = `${this.url}register/account/movements/view/${id}`;
+    const query = `${environment.api}register/account/movements/view/${id}`;
     return (this.http.get<AccountRegister[]>(query));
   }
 
   getDocRegisterAccumulationList(id: string) {
-    const query = `${this.url}register/accumulation/list/${id}`;
+    const query = `${environment.api}register/accumulation/list/${id}`;
     return (this.http.get(query) as Observable<any[]>);
   }
 
   getDocRegisterInfoList(id: string) {
-    const query = `${this.url}register/info/list/${id}`;
+    const query = `${environment.api}register/info/list/${id}`;
     return (this.http.get(query) as Observable<any[]>);
   }
 
   getDocAccumulationMovements(type: string, id: string) {
-    const query = `${this.url}register/accumulation/${type}/${id}`;
+    const query = `${environment.api}register/accumulation/${type}/${id}`;
     return (this.http.get(query) as Observable<any[]>);
   }
 
   getOperationsGroups(): Observable<JettiComplexObject[]> {
-    const query = `${this.url}operations/groups`;
+    const query = `${environment.api}operations/groups`;
     return (this.http.get<JettiComplexObject[]>(query));
   }
 
   getUserFormListSettings(type: string): Observable<FormListSettings> {
-    const query = `${this.url}user/settings/${type}`;
+    const query = `${environment.api}user/settings/${type}`;
     return (this.http.get(query) as Observable<FormListSettings>);
   }
 
   setUserFormListSettings(type: string, formListSettings: FormListSettings) {
-    const query = `${this.url}user/settings/${type}`;
+    const query = `${environment.api}user/settings/${type}`;
     return (this.http.post(query, formListSettings) as Observable<boolean>);
   }
 
   getUserDefaultsSettings() {
-    const query = `${this.url}user/settings/defaults`;
+    const query = `${environment.api}user/settings/defaults`;
     return (this.http.get(query) as Observable<UserDefaultsSettings>);
   }
 
   setUserDefaultsSettings(value: UserDefaultsSettings) {
-    const query = `${this.url}user/settings/defaults`;
+    const query = `${environment.api}user/settings/defaults`;
     return (this.http.post(query, value) as Observable<boolean>);
   }
 
   getDocDimensions(type: string) {
-    const query = `${this.url}${type}/dimensions`;
+    const query = `${environment.api}${type}/dimensions`;
     return (this.http.get<any[]>(query));
   }
 
   getUserRoles() {
-    const query = `${this.url}user/roles`;
+    const query = `${environment.api}user/roles`;
     return this.http.get<RoleType[]>(query).pipe(
       map(data => ({ roles: data as RoleType[] || [], Objects: getRoleObjects(data) }))
     );
   }
 
   valueChanges(doc: DocumentBase, property: string, value: string) {
-    const query = `${this.url}valueChanges/${doc.type}/${property}`;
+    const query = `${environment.api}valueChanges/${doc.type}/${property}`;
     const callConfig = { doc: doc, value: value };
     return this.http.post<PatchValue>(query, callConfig).toPromise();
   }
 
   onCommand(doc: DocumentBase, command: string, args: { [x: string]: any }) {
-    const query = `${this.url}command/${doc.type}/${command}`;
+    const query = `${environment.api}command/${doc.type}/${command}`;
     const callConfig = { doc: doc, args: args };
     return this.http.post(query, callConfig).toPromise();
   }
 
   server(doc: DocumentBase, func: string, params: any): Observable<{ doc: DocumentBase, result: any }> {
-    const query = `${this.url}/server/${doc.type}/${func}`;
+    const query = `${environment.api}/server/${doc.type}/${func}`;
     return this.http.post<{ doc: DocumentBase, result: any }>(query, { doc: doc, params: params });
   }
 
   call(type: string, formView: any, method: string, params: any[], async = false): Observable<any> {
-    const query = `${this.url}call/${async ? 'async' : ''}`;
+    const query = `${environment.api}call/${async ? 'async' : ''}`;
     return this.http.post(query, {
       type: type,
       method: method,
@@ -160,22 +158,22 @@ export class ApiService {
   }
 
   jobAdd(data: any, opts?: JobOptions) {
-    const query = `${this.url}jobs/add`;
+    const query = `${environment.api}jobs/add`;
     return this.http.post<IJob>(query, {data: data, opts: opts});
   }
 
   jobs() {
-    const query = `${this.url}jobs`;
+    const query = `${environment.api}jobs`;
     return this.http.get<IJobs>(query);
   }
 
   jobById(id: string) {
-    const query = `${this.url}jobs/${id}`;
+    const query = `${environment.api}jobs/${id}`;
     return this.http.get<IJob>(query);
   }
 
   tree(type: DocTypes) {
-    const query = `${this.url}tree/${type}`;
+    const query = `${environment.api}tree/${type}`;
     return this.http.get<ITree[]>(query);
   }
 

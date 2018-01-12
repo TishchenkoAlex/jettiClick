@@ -11,6 +11,6 @@ export default async function (req: Request, res: Response, next: NextFunction) 
     (<any>req).user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Auth failed' });
+    return res.status(401).json({ message: 'Auth failed:' + error });
   }
 }

@@ -74,6 +74,7 @@ export interface IAccount {
   status: string;
   isAdmin: boolean;
   roles: string[];
+  env: {[x: string]: string };
 }
 
 export interface ILoginResponse {

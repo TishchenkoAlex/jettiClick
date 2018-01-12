@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
+import { forkJoin } from 'rxjs/observable/forkJoin';
 
 import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
 import { HOME, TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
+
 
 @Injectable()
 export class TabResolver implements Resolve<any> {
@@ -23,7 +24,7 @@ export class TabResolver implements Resolve<any> {
       if (route.params['id']) {
         return this.dfs.getViewModel$(route.params['type'], route.params['id']);
       }
-      return Observable.forkJoin(
+      return forkJoin(
         this.api.getView(route.params['type']),
         this.api.getUserFormListSettings(route.params['type'])
       );

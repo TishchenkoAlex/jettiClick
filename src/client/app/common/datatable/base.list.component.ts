@@ -3,20 +3,21 @@ import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataTable, MenuItem, SortMeta } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
-import { debounceTime, filter, take, share } from 'rxjs/operators';
+import { debounceTime, filter, share, take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
-import { BaseDocListToolbarComponent } from '../../common/datatable/base.list.toolbar.component';
 import { calendarLocale, dateFormat } from '../../primeNG.module';
 import { DocumentBase, DocumentOptions } from './../../../../server/models/document';
 import { createDocument } from './../../../../server/models/documents.factory';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
+import { LoadingService } from './../../common/loading.service';
+import { merge } from 'rxjs/observable/merge';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,24 +37,22 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   data$: Observable<DocumentBase[]>;
 
   @ViewChild(DataTable) dataTable: DataTable = null;
-  @ViewChild('toolbar') toolbar: BaseDocListToolbarComponent;
 
   private AfterViewInit = false;
   pageSize = 0;
   docType: DocTypes;
   columns: ColumnDef[] = [];
-  ctxItems: MenuItem[] = [];
-  userButtons: MenuItem[] = [];
+  contexCommands: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
-  _showTree = false;
+  showTree = false;
   docModel: DocumentBase;
+  selection: DocumentBase[] = [];
 
-  private _i = 0;
-  get i() { return this._i++; }
-
-  constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, public uss: UserSettingsService) {
+  constructor(public route: ActivatedRoute, public router: Router, public ds: DocService,
+    public uss: UserSettingsService, public lds: LoadingService) {
     this.pageSize = Math.floor((window.innerHeight - 275) / 24);
-    this.debonce$.pipe(debounceTime(500)).subscribe(event => this._update(event.col, event.event, event.center));
+    this.debonce$.pipe(filter(event => this.AfterViewInit), debounceTime(500))
+      .subscribe(event => this._update(event.col, event.event, event.center));
   }
 
   ngOnInit() {
@@ -65,29 +64,22 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.data$ = this.dataSource.result$.pipe(share());
 
     this.docModel = createDocument(this.docType);
+
     const exclCol = this.docModel.isDoc ? ['description'] : ['date', 'company'];
     this.columns.forEach(c => { if (exclCol.indexOf(c.field) > -1 || c.hidden) { c.style['display'] = 'none'; } });
+    this.columns = this.columns.filter(c => c.style['display'] !== 'none');
 
-    this.ctxItems = [
-      {
-        label: 'Quick filter', icon: 'fa-search', command: (event) =>
-          this._update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
-      },
-      { label: 'unPost', icon: 'fa-reply', command: (event) => { this.toolbar.post('unpost'); } },
-      { label: 'Delete', icon: 'fa-minus', command: (event) => { this.toolbar.delete(); } },
-      ...((this.docModel.Prop() as DocumentOptions).copyTo || []).map(el => {
-        const copyToDoc = createDocument(el).Prop() as DocumentOptions;
-        return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.toolbar.copyTo(el) };
-      })
+    this.contexCommands = [{
+      label: 'Quick filter', icon: 'fa-search', command: (event) =>
+        this._update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
+    },
+    ...((this.docModel.Prop() as DocumentOptions).copyTo || []).map(el => {
+      const copyToDoc = createDocument(el).Prop() as DocumentOptions;
+      return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.copyTo(el) };
+    })
     ];
 
-    if (this.docModel.isCatalog) {
-      this.userButtons = [
-        { label: 'tree', icon: 'fa-sitemap', styleClass: 'ui-button-secondary', command: this.showTree.bind(this), visible: true },
-       ];
-    }
-
-    this._docSubscription$ = Observable.merge(...[this.ds.save$, this.ds.delete$, this.ds.saveCloseDoc$, this.ds.goto$]).pipe(
+    this._docSubscription$ = merge(...[this.ds.save$, this.ds.delete$, this.ds.saveCloseDoc$, this.ds.goto$]).pipe(
       filter(doc => doc && doc.type === this.docType))
       .subscribe((doc: DocumentBase) => {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
@@ -129,16 +121,39 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private _update(col: ColumnDef, event, center) {
-    if (!this.AfterViewInit) { return; }
     if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
     this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
-    this.Sort(event);
+    this.sort(event);
   }
   update = (col: ColumnDef, event, center) => this._debonce.next({ col, event, center });
 
-  Sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
+  sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
 
-  showTree() { this._showTree = !this._showTree; }
+  close = () => this.ds.close(null);
+
+  add = () => this.router.navigate([this.selection[0] ? this.selection[0].type : this.dataSource.docType, 'new']);
+
+  copy() { this.router.navigate([this.selection[0].type, 'copy-' + this.selection[0].id]); }
+
+  copyTo(type: DocTypes) { this.router.navigate([type, 'base-' + this.selection[0].id]); }
+
+  open() { this.router.navigate([this.selection[0].type, this.selection[0].id]); }
+
+  delete() { this.selection.forEach(el => this.ds.delete(el.id)); }
+
+  async post(mode = 'post') {
+    const tasksCount = this.selection.length; let i = tasksCount;
+    for (const s of this.selection) {
+      this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
+      try {
+        if (mode === 'post') { await this.ds.post(s.id); } else { await this.ds.unpost(s.id); }
+      } catch (err) {
+        this.ds.openSnackBar('error', 'Error on post ' + s.description, err.message);
+      }
+    }
+    this.lds.counter = 0;
+    this.dataSource.refresh();
+  }
 
   private saveUserSettings() {
     const formListSettings: FormListSettings = {
@@ -160,8 +175,10 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  dragStart(event) {
-    console.log('dragStart', event);
+  parentChange(event) {
+    console.log('parentChange', event.data.id);
+    this.dataTable.filters['parent'] = { matchMode: '=', value: event.data.id };
+    this.dataSource.sort();
   }
 
   ngOnDestroy() {

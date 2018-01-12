@@ -17,6 +17,7 @@ export interface IJWTPayload {
   description: string;
   isAdmin: boolean;
   roles: string[];
+  env: { [x: string]: string };
 }
 
 router.get('/account', checkAuth, async (req, res, next) => {
@@ -74,7 +75,8 @@ async function post(source: IAccount) {
     description: source.description || '',
     status: source.status,
     isAdmin: source.isAdmin || false,
-    roles: source.roles || []
+    roles: source.roles || [],
+    env: source.env || {}
   };
   await Accounts.set(account);
   return account;
@@ -112,7 +114,8 @@ router.post('/login', async (req, res, next) => {
       email: existing.email,
       description: existing.description,
       isAdmin: existing.isAdmin === true ? true : false,
-      roles: existing.roles
+      roles: existing.roles,
+      env: existing.env,
     };
     const token = jwt.sign(payload, JTW_KEY, { expiresIn: 10000 });
     return res.json({ account: existing, token });

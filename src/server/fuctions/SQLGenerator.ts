@@ -156,7 +156,7 @@ export class SQLGenegator {
       LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
       LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
       ${LeftJoin}
-      WHERE d.type = '${options.type}'`;
+      WHERE d.type = '${options.type}'  `;
 
     return query;
   }

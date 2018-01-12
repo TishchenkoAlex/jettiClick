@@ -1,5 +1,6 @@
 import { DataTable } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
+import { of as observableOf } from 'rxjs/observable/of';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
@@ -57,7 +58,7 @@ export class ApiDataSource {
             }
             if (['first', 'last', 'next', 'prev'].indexOf(stream.command) > -1) { this.dataTable.selection = []; }
           }),
-          catchError(err => { this.renderedData = []; return Observable.of(this.EMPTY); }));
+          catchError(err => { this.renderedData = []; return observableOf(this.EMPTY); }));
       }),
       map(data => data['data']));
   }

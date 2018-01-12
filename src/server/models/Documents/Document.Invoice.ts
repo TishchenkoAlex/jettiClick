@@ -1,5 +1,6 @@
 import { JDocument, DocumentBase, Props, Ref } from './../document';
 import { IServerDocument } from '../ServerDocument';
+import { stdDocumentListCommands } from '../commands';
 
 @JDocument({
   type: 'Document.Invoice',
@@ -12,8 +13,7 @@ import { IServerDocument } from '../ServerDocument';
   menu: 'Invoices',
   prefix: 'INV-',
   commands: [
-    { label: 'refresh', icon: 'fa-refresh', command: () => { } },
-    { label: 'close', icon: 'fa-close', command: () => { } },
+    {command: 'test', icon: 'fa-plus', label: 'test'}
   ],
   copyTo: [
     'Document.PriceList'
@@ -35,7 +35,7 @@ export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'Catalog.Manager', order: 13 })
   Manager: Ref = null;
 
-  @Props({ type: 'string', required: true, order: 14 })
+  @Props({ type: 'string', required: true, order: 14, style: { width: '80px' } })
   Status = 'PREPARED';
 
   @Props({ type: 'date', hiddenInList: true, order: 15 })

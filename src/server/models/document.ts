@@ -2,6 +2,7 @@ import { v1 } from 'uuid';
 
 import { IServerDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
+import { ICommand } from './commands';
 
 export interface PropOptions {
   type: AllTypes;
@@ -26,7 +27,7 @@ export interface DocumentOptions {
   menu: string;
   dimensions?: { [x: string]: AllTypes }[];
   prefix: string;
-  commands?: { label: string, icon: string, command: () => any }[];
+  commands?: ICommand[];
   presentation?: 'code' | 'description';
   copyTo?: DocTypes[];
 }
@@ -46,6 +47,7 @@ export function JDocument(props: DocumentOptions) {
     };
   };
 }
+
 
 export class DocumentBase {
 

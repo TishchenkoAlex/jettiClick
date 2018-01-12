@@ -167,6 +167,7 @@ spec:
 #kubectl create secret generic cloudsql-db-credentials --from-literal=username=proxyuser --from-literal=password=Pa5315word
 #kubectl create secret generic cloudsql-instance-credentials --from-file=credentials.json=Downloads/jetti-pg-fca1f23ebf41.json 
 #kubectl create secret tls jetti-ssl --key Downloads/jetti.key --cert Downloads/jetti.pem
+#kubectl create secret generic jwt-key --from-literal=JTW_KEY=Pa5315word
 
 
 #apiVersion: v1

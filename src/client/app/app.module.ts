@@ -1,9 +1,4 @@
 import 'reflect-metadata';
-import 'rxjs/add/observable/combineLatest';
-import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/observable/merge';
-import 'rxjs/add/observable/of';
 
 import { registerLocaleData } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -33,6 +28,7 @@ import { ApiService } from './services/api.service';
 import { EventsService } from './services/events.service';
 import { SideNavService } from './services/side-nav.service';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
+import { NgDragDropModule } from 'ng-drag-drop';
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token');
@@ -55,6 +51,7 @@ export function getJwtToken(): string {
     MaterialModule,
     PrimeNGModule,
     DynamicFormsModule,
+    NgDragDropModule.forRoot(),
 
     RouterModule.forRoot(appRoutes)
   ],

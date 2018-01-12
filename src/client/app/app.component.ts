@@ -36,9 +36,7 @@ export class AppComponent implements AfterViewInit {
 
   @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ElementRef;
 
-  constructor(public auth: AuthService,
-    public apiService: ApiService, public lds: LoadingService,
-    public tsc: TabControllerService) {
+  constructor(public auth: AuthService, public apiService: ApiService, public lds: LoadingService, public tsc: TabControllerService) {
 
     auth.getAccount().pipe(take(1)).subscribe();
 

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { merge } from 'rxjs/observable/merge';
 import { filter, startWith, switchMap } from 'rxjs/operators';
 
 import { ApiService } from '../../services/api.service';
@@ -21,7 +22,7 @@ export class RegisterAccumulationListComponent implements OnInit {
 
   ngOnInit() {
 
-    this.accumulationList$ = Observable.merge(...[
+    this.accumulationList$ = merge(...[
       this.docService.save$,
       this.docService.delete$,
       this.docService.do$]
@@ -30,7 +31,7 @@ export class RegisterAccumulationListComponent implements OnInit {
       filter(doc => doc.id === this.doc.id),
       switchMap(doc => this.apiService.getDocRegisterAccumulationList(this.doc.id)));
 
-    this.infoList$ = Observable.merge(...[
+    this.infoList$ = merge(...[
       this.docService.save$,
       this.docService.delete$,
       this.docService.do$]

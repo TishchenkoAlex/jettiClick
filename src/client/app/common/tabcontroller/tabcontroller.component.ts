@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
+import { combineLatest } from 'rxjs/observable/combineLatest';
 import { filter } from 'rxjs/operators';
 
 import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';
@@ -18,7 +18,7 @@ export class TabControllerComponent implements OnInit {
   }
 
   ngOnInit() {
-    Observable.combineLatest(this.route.paramMap, this.route.queryParams).pipe(
+    combineLatest(this.route.paramMap, this.route.queryParams).pipe(
       filter(() => this.tcs.menuItems.length > 0),
     ).subscribe((params) => {
       this.tcs.tabid = params[0].get('type') || HOME;

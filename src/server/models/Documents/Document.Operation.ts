@@ -11,10 +11,7 @@ import { IServerDocument } from '../ServerDocument';
   icon: 'fa fa-file-text-o',
   menu: 'Operations',
   prefix: 'OPER-',
-  commands: [
-    { label: 'refresh', icon: 'fa-refresh', command: () => { console.log(this); } },
-    { label: 'close', icon: 'fa-close', command: () => { } },
-  ],
+  commands: [],
 })
 export class DocumentOperation extends DocumentBase {
   @Props({ type: 'Document.Operation', hiddenInList: true, order: -1 })

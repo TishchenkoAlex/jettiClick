@@ -73,7 +73,7 @@
 <div *ngIf="showDialog">
   <p-dialog #dialog [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true"
     [closeOnEscape]="true" [width]="400" [height]="555" appendTo="body">
-    <j-suggest-list #sl [docType]="this.value.type || this.type" [docID]="this.value.id" [filters]="[{left: owner?.owner, center: '=', right: owner?.value}]"
+    <j-suggest-list #sl [docType]="this.value.type || this.type" [docID]="this.value.id" [filters]="calcFilters()"
       (onSelect)="searchComplete($event)"></j-suggest-list>
   </p-dialog>
 </div>

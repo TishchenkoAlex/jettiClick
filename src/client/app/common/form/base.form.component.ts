@@ -14,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
-
+import {merge} from 'rxjs/observable/merge';
 import { DocService } from '../../common/doc.service';
 import { patchOptionsNoEvents, ViewModel } from '../../common/dynamic-form/dynamic-form.service';
 
@@ -46,7 +46,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    this._subscription$ = Observable.merge(...[
+    this._subscription$ = merge(...[
       this.ds.save$,
       this.ds.delete$]).pipe(
       filter(doc => doc.id === this.docId))

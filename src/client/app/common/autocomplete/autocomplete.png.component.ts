@@ -59,6 +59,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   @Output() change = new EventEmitter();
   @Output() focus = new EventEmitter();
   @ViewChild('ac') input: AutoComplete;
+  @Input() formControlName: string;
 
   form: FormGroup = new FormGroup({
     suggest: this.required ? new FormControl({ value: this.value, disabled: this.disabled }, Validators.required) :
@@ -74,6 +75,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   get isTypeControl() { return this.type && this.type.startsWith('Types.'); }
   get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.'); }
   get EMPTY() { return { id: '', code: '', type: this.type, value: null }; }
+  get isCatalogParent() { return this.type.startsWith('Catalog.') && this.formControlName === 'parent'; }
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
@@ -129,7 +131,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
 
   getSuggests(text) {
-    this.api.getSuggests(this.value.type || this.type, text || '').pipe(take(1)).subscribe(data => {
+    this.api.getSuggests(this.value.type || this.type, text || '', this.isCatalogParent).pipe(take(1)).subscribe(data => {
       this.suggests$ = data;
       this.cd.markForCheck();
     });
@@ -170,6 +172,13 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   select() {
     this.input.inputEL.nativeElement.select();
+  }
+
+  calcFilters() {
+    const result = [];
+    if (this.owner) { result.push({ left: this.owner.owner, center: '=', right: this.owner.value }); }
+    if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
+    return result;
   }
 
 }

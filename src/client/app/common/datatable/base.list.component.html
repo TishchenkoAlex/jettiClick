@@ -1,13 +1,33 @@
-<div [ngStyle]="{'display': _showTree ? 'flex': 'block'}">
+<div [ngStyle]="{'display': showTree ? 'flex': 'block'}">
 
-  <div *ngIf="_showTree">
-    <j-tree-list #tl [docType]="docType"></j-tree-list>
+  <div *ngIf="showTree" style="margin-right: 4px">
+    <j-tree-list #tl [docType]="docType" (selectionChange)="parentChange($event)"></j-tree-list>
   </div>
   <div>
-    <j-list-toolbar #toolbar [owner]="this" [selection]="dataTable.selection" [userButtons]="userButtons"></j-list-toolbar>
-    <p-dataTable [value]="(data$ | async)" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="Sort($event)"
-      (onFilter)="Sort($event)" [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true" [scrollable]="!_showTree"
-      (onRowDblclick)="toolbar.open()" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm">
+    <p-toolbar>
+      <div class="ui-toolbar-group-left">
+        <button pButton type="button" icon="fa-plus" class="ui-button-success" (click)="add()" [disabled]="lds.loading"></button>
+        <button pButton type="button" icon="fa-pencil-square-o" *ngIf="selection?.length == 1" (click)="open()" [disabled]="lds.loading"></button>
+        <button pButton type="button" icon="fa-copy" *ngIf="selection?.length == 1" (click)="copy()" [disabled]="lds.loading"></button>
+        <span *ngIf="docModel.isDoc">
+          <button pButton type="button" icon="fa-check" class="ui-button-warning" *ngIf="selection?.length >=1 && !selection[0].posted" (click)="post()" [disabled]="lds.loading"></button>
+          <button pButton type="button" icon="fa-square-o" class="ui-button-warning" *ngIf="selection?.length >=1 && selection[0].posted" (click)="post('unpost')" [disabled]="lds.loading"></button>
+        </span>
+        <button pButton type="button" icon="fa-minus" class="ui-button-danger" *ngIf="selection?.length" (click)="delete()" [disabled]="lds.loading"></button>
+        <button pButton type="button" icon="fa-refresh" (click)="dataSource.refresh()" [disabled]="lds.loading"></button>
+        <button *ngIf="docModel.isCatalog" pButton type="button" icon="fa-sitemap" class="ui-button-secondary" (click)="showTree = !showTree" [disabled]="lds.loading"></button>
+      </div>
+      <div class="ui-toolbar-group-right">
+        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last"></button>
+        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last"></button>
+        <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="close()" [disabled]="lds.loading"></button>
+      </div>
+    </p-toolbar>
+    <p-dataTable [value]="(data$ | async)" selectionMode="multiple" [(selection)]="selection" dataKey="id" [lazy]="true" (onSort)="sort($event)"
+      (onFilter)="sort($event)" [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true" [scrollable]="!showTree"
+      (onRowDblclick)="open()" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm">
 
       <div *ngIf="dataTable !== null">
         <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
@@ -66,4 +86,4 @@
   </div>
 </div>
 
-<p-contextMenu #cm [model]="ctxItems"></p-contextMenu>
+<p-contextMenu #cm [model]="contexCommands"></p-contextMenu>

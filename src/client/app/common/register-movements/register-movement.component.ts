@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { merge } from 'rxjs/observable/merge';
 import { filter, startWith, switchMap } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../../server/models/account.register';
@@ -21,7 +22,7 @@ export class RegisterMovementComponent implements OnInit {
   constructor(private apiService: ApiService, private docService: DocService) { }
 
   ngOnInit() {
-    this.movements$ = Observable.merge(...[
+    this.movements$ = merge(...[
       this.docService.save$,
       this.docService.delete$,
       this.docService.do$]

@@ -1,6 +1,7 @@
 import locale from '@angular/common/locales/ru';
 import { NgModule } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
+import { NgDragDropModule } from 'ng-drag-drop';
 import {
     AccordionModule,
     AutoCompleteModule,
@@ -9,13 +10,11 @@ import {
     ButtonModule,
     CalendarModule,
     CheckboxModule,
-    // ChipsModule,
     ConfirmationService,
     ConfirmDialogModule,
     ContextMenuModule,
     DataTableModule,
     DialogModule,
-    DragDropModule,
     DropdownModule,
     FieldsetModule,
     GrowlModule,
@@ -23,7 +22,6 @@ import {
     InputMaskModule,
     InputTextareaModule,
     InputTextModule,
-    // MegaMenuModule,
     MenuModule,
     MessageModule,
     MessagesModule,
@@ -34,14 +32,10 @@ import {
     PasswordModule,
     ProgressBarModule,
     ProgressSpinnerModule,
-    // RadioButtonModule,
     SelectButtonModule,
     SharedModule,
-    // SidebarModule,
-    // SlideMenuModule,
     SpinnerModule,
     SplitButtonModule,
-    // StepsModule,
     TabMenuModule,
     TabViewModule,
     TieredMenuModule,
@@ -97,13 +91,14 @@ import { TableModule } from './common/datatable/table';
     BreadcrumbModule,
     TieredMenuModule,
     // StepsModule,
-    DragDropModule,
+    // DragDropModule,
     ProgressBarModule,
     ProgressSpinnerModule,
     MultiSelectModule,
     InplaceModule,
     BlockUIModule,
-    TableModule
+    TableModule,
+    NgDragDropModule
   ],
     providers: [ConfirmationService, MessageService]
 })

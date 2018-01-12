@@ -2,23 +2,26 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { OnInit } from '@angular/core';
 import { TreeNode } from 'primeng/primeng';
 import { Observable } from 'rxjs/Observable';
-import { map, share } from 'rxjs/operators';
+import { map, share, take, tap } from 'rxjs/operators';
 
 import { ITree } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { ApiService } from '../../services/api.service';
+import { Router } from '@angular/router';
+import { DocService } from '../../common/doc.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-tree-list',
   template: `
-    <div style="width: 300px" pDroppable="docs" (onDrop)="nodeDrop($event)">
+    <div style="width: 250px" >
       <j-tree-list-toolbar [owner]="this" [selection]="selection"></j-tree-list-toolbar>
       <p-treeTable [value]="treeNodes$ | async"
         selectionMode="single" [(selection)]="selection" (selectionChange)="onSelectionChange($event)">
           <p-column field="description" header="hierarchy" [filter]="true" filterPlaceholder="Search">
           <ng-template let-row="rowData" pTemplate="body">
-          <span pDraggable="docs">
+          <span draggable [dragScope]="'docs'" [dragData]="row"
+            (onDrop)="onDragEnd($event)" droppable [dropScope]="'docs'" [dragOverClass]="'drag-target-border'">
             {{ row.data.description }}
           </span>
           </ng-template>
@@ -32,10 +35,10 @@ export class BaseTreeListComponent implements OnInit {
   treeNodes$: Observable<TreeNode[]>;
   selection: TreeNode = null;
 
-  constructor(private api: ApiService) { }
+  constructor(private api: ApiService, public router: Router,  public ds: DocService) { }
 
   ngOnInit() {
-    this.treeNodes$ = this.load$();
+    this.treeNodes$ = this.load$().pipe(tap(data => this.selection = data[0]), share());
   }
 
   private load$() {
@@ -62,9 +65,14 @@ export class BaseTreeListComponent implements OnInit {
     });
   }
 
+  add = () => this.router.navigate([this.docType, 'new']);
+  copy = () => this.router.navigate([this.docType, 'copy-' + this.selection.data.id]);
+  open = () => this.router.navigate([this.docType, this.selection.data.id]);
+  delete = () => this.ds.delete(this.selection.data.id);
   onSelectionChange = (event) => this.selectionChange.emit(event);
 
-  nodeDrop(event) {
-
+  onDragEnd(event) {
+    console.log('drop', event);
   }
+
 }
