@@ -1,5 +1,5 @@
 const PG_DEV_SERVER = '35.198.118.153';
-export const SUBSCRIPTION_ID = process.env.SUBSCRIPTION_ID ? '\\' + process.env.SUBSCRIPTION_ID : '';
+export const SUBSCRIPTION_ID = process.env.SUBSCRIPTION_ID ? '/' + process.env.SUBSCRIPTION_ID : '';
 export const REDIS_DB_HOST = process.env.REDIS_DB_HOST || '127.0.0.1';
 export const REDIS_DB_PREFIX = process.env.REDIS_DB_PREFIX || 'bull';
 export const JTW_KEY =  process.env.JTW_KEY || 'Pa$$word';

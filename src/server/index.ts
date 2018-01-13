@@ -45,7 +45,6 @@ app.use(`${SUBSCRIPTION_ID}/auth`, auth);
 app.use('/auth', auth);
 
 app.get('*', (req: Request, res: Response) => {
-  console.log(req);
   res.sendFile('dist/index.html', { root: root });
 });
 app.use(errorHandler);
