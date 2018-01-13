@@ -67,7 +67,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const exclCol = this.docModel.isDoc ? ['description'] : ['date', 'company'];
     this.columns.forEach(c => { if (exclCol.indexOf(c.field) > -1 || c.hidden) { c.style['display'] = 'none'; } });
-    this.columns = this.columns.filter(c => c.style['display'] !== 'none');
+    this.columns = this.columns.filter(c => c.style['display'] !== 'none' || c.field === 'Group');
 
     this.contexCommands = [{
       label: 'Quick filter', icon: 'fa-search', command: (event) =>
