@@ -27,10 +27,10 @@ export class EventsService implements OnDestroy {
 
     this._authSubscription$ = this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
-        this.socket = socketIOClient('https://cl.jetti-app.com', { query: 'user=' + u.account.email, path: '/client-0001-app/socket.io' });
+        this.socket = socketIOClient(u.account.env.host, { query: 'user=' + u.account.email, path: u.account.env.path + '/socket.io' });
         const e = this.socket.on('job', (job: IJob) => this._debonce.next(job));
         this.update();
-        console.log('socket.connect', environment.socket);
+        console.log('socket.connect', u.account.env.host + u.account.env.path + '/socket.io');
       } else {
         console.log('socket.disconnect');
         if (this.socket) { this.socket.disconnect(); }
