@@ -63,7 +63,7 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
 }
 
 export const HTTP = httpServer.createServer(app);
-export const IO = socketIO(HTTP);
+export const IO = socketIO(HTTP, {path: SUBSCRIPTION_ID + '/socket.io'});
 
 const port = (+process.env.PORT) || 3000;
 HTTP.listen(port, () => console.log(`API running on port:${port}`));

@@ -41,9 +41,7 @@ router.post('/singup', checkAuth, async (req, res, next) => {
     if (!payload.isAdmin) { return res.status(401).json({ message: 'only Admin action' }); }
     const source = req.body as IAccount;
     const existing = await Accounts.get(source.email);
-    if (existing) {
-      return res.status(309).json({ message: 'email exists' });
-    }
+    if (existing) { return res.status(309).json({ message: 'email exists' }); }
     const account: IAccount = await post(source);
     res.status(201).send(account);
   } catch (err) { next(err); }
@@ -55,9 +53,7 @@ router.post('/', checkAuth, async (req, res, next) => {
     if (!payload.isAdmin) { return res.status(401).json({ message: 'only Admin action' }); }
     const source = req.body as IAccount;
     const existing = await Accounts.get(source.email);
-    if (!existing) {
-      return res.status(404).json({ message: 'email not exists' });
-    }
+    if (!existing) { return res.status(404).json({ message: 'email not exists' }); }
     const combined = { ...existing, ...source };
     const account: IAccount = await post(combined);
     res.status(201).send(account);
@@ -87,9 +83,7 @@ router.delete('/:key', checkAuth, async (req, res, next) => {
     const payload: IJWTPayload = (<any>req).user;
     if (!payload.isAdmin) { return res.status(401).json({ message: 'only Admin action' }); }
     const existing = await Accounts.get(req.params.key);
-    if (!existing) {
-      return res.status(404).json({ message: 'email not exists' });
-    }
+    if (!existing) { return res.status(404).json({ message: 'email not exists' }); }
     Accounts.del(req.params.key);
     res.send(true);
   } catch (err) { next(err); }
@@ -99,17 +93,11 @@ router.post('/login', async (req, res, next) => {
   try {
     // tslint:disable-next-line:no-shadowed-variable
     const { email, password } = req.body;
-    if (!email) {
-      return res.status(401).json({ message: 'Auth failed' });
-    }
+    if (!email) { return res.status(401).json({ message: 'Auth failed' }); }
     const existing = await Accounts.get(email);
-    if (!existing) {
-      return res.status(401).json({ message: 'Auth failed' });
-    }
+    if (!existing) { return res.status(401).json({ message: 'Auth failed' }); }
     const equal = await bcrypt.compare(password, existing.password);
-    if (!equal) {
-      return res.status(401).json({ message: 'Auth failed' });
-    }
+    if (!equal) { return res.status(401).json({ message: 'Auth failed' }); }
     const payload: IJWTPayload = {
       email: existing.email,
       description: existing.description,
@@ -117,7 +105,24 @@ router.post('/login', async (req, res, next) => {
       roles: existing.roles,
       env: existing.env,
     };
-    const token = jwt.sign(payload, JTW_KEY, { expiresIn: 10000 });
+    const token = jwt.sign(payload, JTW_KEY, { expiresIn: '2h' });
+    return res.json({ account: existing, token });
+  } catch (err) { next(err); }
+});
+
+router.post('/refresh', checkAuth, async (req, res, next) => {
+  try {
+    const payload: IJWTPayload = (<any>req).user;
+    const existing = await Accounts.get(payload.email);
+    if (!existing) { return res.status(401).json({ message: 'Auth failed' }); }
+    const new_payload: IJWTPayload = {
+      email: existing.email,
+      description: existing.description,
+      isAdmin: existing.isAdmin === true ? true : false,
+      roles: existing.roles,
+      env: existing.env,
+    };
+    const token = jwt.sign(new_payload, JTW_KEY, { expiresIn: '2h' });
     return res.json({ account: existing, token });
   } catch (err) { next(err); }
 });
