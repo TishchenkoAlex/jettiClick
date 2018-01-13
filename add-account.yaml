@@ -78,6 +78,86 @@ spec:
   - port: 8080
     targetPort: 8080
 ---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: client-0001-app
+  labels:
+    app: client-0001-app
+spec:
+  template:
+    metadata:
+      labels:
+        app: client-0001-app
+        tier: web
+    spec:
+      containers:
+        - name: jetti
+          image: eu.gcr.io/jetti-pg/jetti
+          ports:
+            - containerPort: 8080
+          # The following environment variables will contain the database host,
+          # user and password to connect to the PostgreSQL instance.
+          env:
+            - name: POSTGRES_DB_HOST
+              value: 127.0.0.1:5432
+            # [START cloudsql_secrets]
+            - name: POSTGRES_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-db-credentials
+                  key: username
+            - name: POSTGRES_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-db-credentials
+                  key: password
+            - name: REDIS_DB_HOST
+              value: redis-master
+            - name: JTW_KEY
+              value: redis-master
+            # [END cloudsql_secrets]
+        # [START proxy_container]
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          command: ["/cloud_sql_proxy", "--dir=/cloudsql",
+                    "-instances=jetti-pg:europe-west3:jetti-pg=tcp:5432",
+                    "-credential_file=/secrets/cloudsql/credentials.json"]
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: ssl-certs
+              mountPath: /etc/ssl/certs
+            - name: cloudsql
+              mountPath: /cloudsql
+         # [START proxy_container]
+      # [START volumes]
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+        - name: cloudsql
+          emptyDir:
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs
+      # [END volumes]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-0001-app
+  labels:
+    app: client-0001-app
+spec:
+  type: NodePort
+  selector:
+    app: client-0001-app
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:

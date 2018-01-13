@@ -31,6 +31,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(root, 'dist')));
 app.use('/liveness_check', (req: Request, res: Response, next: NextFunction) => res.json('OK'));
+app.use('/client-0001-app/liveness_check', (req: Request, res: Response, next: NextFunction) => res.json('OK'));
 
 app.use('/api', checkAuth, server);
 app.use('/api', checkAuth, documents);
@@ -40,6 +41,15 @@ app.use('/api', checkAuth, utils);
 app.use('/api', checkAuth, registers);
 app.use('/api', checkAuth, tasks);
 app.use('/auth', auth);
+
+app.use('/client-0001-app/api', checkAuth, server);
+app.use('/client-0001-app/api', checkAuth, documents);
+app.use('/client-0001-app/api', checkAuth, userSettings);
+app.use('/client-0001-app/api', checkAuth, suggests);
+app.use('/client-0001-app/api', checkAuth, utils);
+app.use('/client-0001-app/api', checkAuth, registers);
+app.use('/client-0001-app/api', checkAuth, tasks);
+app.use('/client-0001-app/auth', auth);
 
 app.get('*', (req: Request, res: Response) => {
   res.sendFile('dist/index.html', { root: root });
