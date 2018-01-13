@@ -24,26 +24,13 @@ export class AuthService {
   isAuthenticated = () => this.userProfile$.value ? true : false;
   get tokenPayload() { return jwt_decode(this.token); }
 
-  constructor(private router: Router, private http: HttpClient) { }
-
+  constructor(private router: Router, private http: HttpClient) {
+    if (this.token) { this.setEnv(); }
+  }
   public login(email: string, password: string) {
     return this.http.post<ILoginResponse>(`${this.url}login`, { email, password }).pipe(
       tap(loginResponse => { if (loginResponse.account) { this.init(loginResponse); } }),
       shareReplay());
-  }
-
-  private init(loginResponse: ILoginResponse) {
-    this.userRoles = loginResponse.account.roles as RoleType[];
-    this.userRoleObjects = getRoleObjects(this.userRoles);
-    this.token = loginResponse.token;
-    const tokenPayload = this.tokenPayload;
-    const env = tokenPayload ? tokenPayload['env'] : null;
-    if (!isDevMode() && env) {
-      environment.api = env.url + '/api/';
-      environment.socket = env.url + '/';
-      environment.auth = env.url + '/auth/';
-    }
-    this.userProfile$.next(loginResponse);
   }
 
   public logout() {
@@ -58,6 +45,24 @@ export class AuthService {
         const LoginResponse: ILoginResponse = { account, token: this.token };
         this.init(LoginResponse);
       }));
+  }
+
+  private setEnv() {
+    const tokenPayload = this.tokenPayload;
+    const env = tokenPayload ? tokenPayload['env'] : null;
+    if (!isDevMode() && env) {
+      environment.api = env.url + '/api/';
+      environment.socket = env.url + '/';
+      environment.auth = env.url + '/auth/';
+    }
+  }
+
+  private init(loginResponse: ILoginResponse) {
+    this.userRoles = loginResponse.account.roles as RoleType[];
+    this.userRoleObjects = getRoleObjects(this.userRoles);
+    this.token = loginResponse.token;
+    this.setEnv();
+    this.userProfile$.next(loginResponse);
   }
 
 }

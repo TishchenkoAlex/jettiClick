@@ -34,7 +34,7 @@ app.use(express.static(path.join(root, 'dist')));
 
 app.use('/liveness_check', (req: Request, res: Response, next: NextFunction) => res.json('liveness_check'));
 console.log('SUBSCRIPTION_ID', SUBSCRIPTION_ID, `${SUBSCRIPTION_ID}/api`);
-let api = `${SUBSCRIPTION_ID}/api`;
+const api = `${SUBSCRIPTION_ID}/api`;
 app.use(api, checkAuth, server);
 app.use(api, checkAuth, documents);
 app.use(api, checkAuth, userSettings);
@@ -44,14 +44,6 @@ app.use(api, checkAuth, registers);
 app.use(api, checkAuth, tasks);
 app.use(`${SUBSCRIPTION_ID}/auth`, auth);
 app.use('/auth', auth);
-api = `/api`;
-app.use(api, checkAuth, server);
-app.use(api, checkAuth, documents);
-app.use(api, checkAuth, userSettings);
-app.use(api, checkAuth, suggests);
-app.use(api, checkAuth, utils);
-app.use(api, checkAuth, registers);
-app.use(api, checkAuth, tasks);
 
 app.get('*', (req: Request, res: Response) => {
   console.log('req*', req.url, req.baseUrl, req.originalUrl, req.path);

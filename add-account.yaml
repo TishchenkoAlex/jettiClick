@@ -165,7 +165,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: jetti
+  name: jetti-ingress
   annotations:
     kubernetes.io/ingress.global-static-ip-name: jetti-ip
     kubernetes.io/ingress.allow-http: "false"
@@ -178,13 +178,14 @@ spec:
     serviceName: jetti
     servicePort: 8080
   rules:
-  - http:
+  - host: cl.jetti-app.com
+    http:
       paths:
-      - path: /
-        backend:
-          serviceName: jetti
-          servicePort: 8080
-      - path: /client-0001-app
+      - path: /client-0001-app/*
         backend:
           serviceName: client-0001-app
+          servicePort: 8080
+      - path: /*
+        backend:
+          serviceName: jetti
           servicePort: 8080

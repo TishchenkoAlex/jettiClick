@@ -21,6 +21,7 @@ export class ApiInterceptor implements HttpInterceptor {
     req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}`}});
 
     if (req.url.includes('user/settings') || req.url.includes('/jobs')) { // exclude setting requests
+      console.log('API', req.url);
       return next.handle(req);
     }
     this.lds.color = 'accent';
