@@ -41,7 +41,7 @@ spec:
             # [END cloudsql_secrets]
         # [START proxy_container]
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.11
           command: ["/cloud_sql_proxy", "--dir=/cloudsql",
                     "-instances=jetti-pg:europe-west3:jetti-pg=tcp:5432",
                     "-credential_file=/secrets/cloudsql/credentials.json"]

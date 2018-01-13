@@ -31,8 +31,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(root, 'dist')));
-app.use('/liveness_check', (req: Request, res: Response, next: NextFunction) => res.json('OK'));
-
+app.use('/liveness_check', (req: Request, res: Response, next: NextFunction) => res.json('liveness_check'));
+console.log('SUBSCRIPTION_ID', SUBSCRIPTION_ID);
 app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, server);
 app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, documents);
 app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, userSettings);
@@ -41,6 +41,14 @@ app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, utils);
 app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, registers);
 app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, tasks);
 app.use(`${SUBSCRIPTION_ID}/auth`, auth);
+
+app.use(`/api`, checkAuth, server);
+app.use(`/api`, checkAuth, documents);
+app.use(`/api`, checkAuth, userSettings);
+app.use(`/api`, checkAuth, suggests);
+app.use(`/api`, checkAuth, utils);
+app.use(`/api`, checkAuth, registers);
+app.use(`/api`, checkAuth, tasks);
 app.use('/auth', auth);
 
 app.get('*', (req: Request, res: Response) => {
