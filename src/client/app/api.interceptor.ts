@@ -30,7 +30,7 @@ export class ApiInterceptor implements HttpInterceptor {
       tap(data => {
         if (data instanceof HttpResponse) {
           this.lds.loading = false;
-         console.log('API', req.url);
+          console.log('API', req.url);
         }
       }),
       catchError((err: HttpErrorResponse) => {
