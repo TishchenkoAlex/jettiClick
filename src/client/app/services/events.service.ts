@@ -1,14 +1,13 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { debounceTime, take, delay, distinctUntilChanged, throttleTime } from 'rxjs/operators';
-import { publishLast } from 'rxjs/operators/publishLast';
+import { take, throttleTime } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import * as socketIOClient from 'socket.io-client';
 
 import { IJob, IJobs } from '../../../server/models/api';
+import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
 import { environment } from './../../environments/environment';
-import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class EventsService implements OnDestroy {
@@ -30,9 +29,13 @@ export class EventsService implements OnDestroy {
       if (u && u.account) {
         this.socket = socketIOClient(environment.socket, { query: 'user=' + u.account.email });
         const e = this.socket.on('job', (job: IJob) => this._debonce.next(job));
+        this.update();
+        console.log('socket.connect', environment.socket);
+      } else {
+        console.log('socket.disconnect');
+        if (this.socket) { this.socket.disconnect(); }
       }
     });
-    this.update();
   }
 
   private update(task?: IJob) {

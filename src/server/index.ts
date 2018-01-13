@@ -20,6 +20,7 @@ import { router as suggests } from './routes/suggest';
 import { router as tasks } from './routes/tasks';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
+import { SUBSCRIPTION_ID } from './env/environment';
 
 const root = './';
 const app = express();
@@ -31,25 +32,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(root, 'dist')));
 app.use('/liveness_check', (req: Request, res: Response, next: NextFunction) => res.json('OK'));
-app.use('/client-0001-app/liveness_check', (req: Request, res: Response, next: NextFunction) => res.json('OK'));
 
-app.use('/api', checkAuth, server);
-app.use('/api', checkAuth, documents);
-app.use('/api', checkAuth, userSettings);
-app.use('/api', checkAuth, suggests);
-app.use('/api', checkAuth, utils);
-app.use('/api', checkAuth, registers);
-app.use('/api', checkAuth, tasks);
+app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, server);
+app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, documents);
+app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, userSettings);
+app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, suggests);
+app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, utils);
+app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, registers);
+app.use(`${SUBSCRIPTION_ID}/api`, checkAuth, tasks);
+app.use(`${SUBSCRIPTION_ID}/auth`, auth);
 app.use('/auth', auth);
-
-app.use('/client-0001-app/api', checkAuth, server);
-app.use('/client-0001-app/api', checkAuth, documents);
-app.use('/client-0001-app/api', checkAuth, userSettings);
-app.use('/client-0001-app/api', checkAuth, suggests);
-app.use('/client-0001-app/api', checkAuth, utils);
-app.use('/client-0001-app/api', checkAuth, registers);
-app.use('/client-0001-app/api', checkAuth, tasks);
-app.use('/client-0001-app/auth', auth);
 
 app.get('*', (req: Request, res: Response) => {
   res.sendFile('dist/index.html', { root: root });

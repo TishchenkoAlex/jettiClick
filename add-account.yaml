@@ -36,10 +36,12 @@ spec:
               value: redis-master
             - name: JTW_KEY
               value: redis-master
+            - name: SUBSCRIPTION_ID
+              value: ''
             # [END cloudsql_secrets]
         # [START proxy_container]
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: gcr.io/cloudsql-docker/gce-proxy
           command: ["/cloud_sql_proxy", "--dir=/cloudsql",
                     "-instances=jetti-pg:europe-west3:jetti-pg=tcp:5432",
                     "-credential_file=/secrets/cloudsql/credentials.json"]
@@ -116,6 +118,8 @@ spec:
               value: redis-master
             - name: JTW_KEY
               value: redis-master
+            - name: SUBSCRIPTION_ID
+              value: client-0001-app
             # [END cloudsql_secrets]
         # [START proxy_container]
         - name: cloudsql-proxy
