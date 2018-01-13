@@ -6,4 +6,6 @@ export const environment = {
   api: '/api/',
   auth: '/auth/',
   socket: '',
+  host: '',
+  path: ''
 };

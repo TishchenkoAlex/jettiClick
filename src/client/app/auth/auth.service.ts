@@ -51,7 +51,8 @@ export class AuthService {
     const env = tokenPayload ? tokenPayload['env'] : null;
     if (!isDevMode() && env) {
       environment.api = env.host + env.path + '/api/';
-      environment.socket = env.host;
+      environment.host = env.host;
+      environment.path = env.path;
       environment.auth = env.host + env.path + '/auth/';
     }
   }
