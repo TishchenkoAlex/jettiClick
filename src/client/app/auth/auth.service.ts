@@ -12,7 +12,6 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class AuthService {
-  private url = environment.auth;
 
   userProfile$ = new BehaviorSubject<ILoginResponse>(null);
   userRoles: RoleType[] = [];
@@ -28,7 +27,7 @@ export class AuthService {
     if (this.token) { this.setEnv(); }
   }
   public login(email: string, password: string) {
-    return this.http.post<ILoginResponse>(`${this.url}login`, { email, password }).pipe(
+    return this.http.post<ILoginResponse>(`${environment.auth}login`, { email, password }).pipe(
       tap(loginResponse => { if (loginResponse.account) { this.init(loginResponse); } }),
       shareReplay());
   }
@@ -40,7 +39,7 @@ export class AuthService {
   }
 
   public getAccount() {
-    return this.http.get<IAccount>(`${this.url}account`).pipe(
+    return this.http.get<IAccount>(`${environment.auth}account`).pipe(
       tap(account => {
         const LoginResponse: ILoginResponse = { account, token: this.token };
         this.init(LoginResponse);
