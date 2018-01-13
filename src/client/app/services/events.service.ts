@@ -27,7 +27,7 @@ export class EventsService implements OnDestroy {
 
     this._authSubscription$ = this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
-        this.socket = socketIOClient(environment.socket, { query: 'user=' + u.account.email });
+        this.socket = socketIOClient(environment.socket, { query: 'user=' + u.account.email, path: '/client-0001-app/socket.io' });
         const e = this.socket.on('job', (job: IJob) => this._debonce.next(job));
         this.update();
         console.log('socket.connect', environment.socket);
