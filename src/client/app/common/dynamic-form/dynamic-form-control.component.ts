@@ -32,7 +32,8 @@ export class DynamicFormControlComponent {
       this.api.valueChanges(
         this.form.getRawValue(),
         this.control.key,
-        this.form.controls[this.control.key].value).then(patch => {
+        this.form.controls[this.control.key].value)
+        .then(patch => {
           console.log(this.control.key, patch);
           if (patch) { this.form.patchValue(patch); }
         });

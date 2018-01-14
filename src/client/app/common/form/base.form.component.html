@@ -1,13 +1,13 @@
 <form novalidate [formGroup]="viewModel.formGroup" cdkTrapFocus>
-  <p-panel [header]="viewModel.formGroup.controls['description']?.value?.concat(viewModel.model.posted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
+  <p-panel [header]="viewModel.formGroup.controls['description']?.value?.concat(isPosted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
         <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
       </div>
       <div class="ui-toolbar-group-right">
         <!--  <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
-        <button pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()"></button>
-        <button pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="Print()"></button>
+        <button *ngIf="isPosted" pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()"></button>
+        <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="Print()"></button>
         <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>
       </div>
     </p-toolbar>
@@ -27,32 +27,20 @@
     </div>
   </p-panel>
 
-  <p-panel [toggleable]="true" [collapsed]="true" header="Register movements" #accumulation *ngIf="this.viewModel.model.type.startsWith('Document.') && viewModel.model.posted">
-    <j-register-movement *ngIf="!accumulation.collapsed" [doc]="viewModel.model"></j-register-movement>
-    <j-register-accumulation-list *ngIf="!accumulation.collapsed" [doc]="viewModel.model"></j-register-accumulation-list>
+  <p-panel [toggleable]="true" [collapsed]="true" header="Register movements" #accumulation *ngIf="isDoc && isPosted">
+    <j-register-movement *ngIf="!accumulation.collapsed" [doc]="model"></j-register-movement>
+    <j-register-accumulation-list *ngIf="!accumulation.collapsed" [doc]="model"></j-register-accumulation-list>
   </p-panel>
 
 </form>
 
 <ng-template #formTepmlateDefault let-v="viewModel">
-
   <div fxLayout="column" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" cdkFocusInitial>
-
     <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px" fxLayoutGap.xs="0px" *ngFor="let i of [0,3,6,9,12,15]">
-      <div fxFlex>
-        <j-control *ngIf="v.view[i+0] && v.view[i+0].order > 0 && v.view[i+0].type !== 'table' && v.view[i+0].controlType !== 'script'"
-          [control]="v.view[i+0]" [form]="v.formGroup"></j-control>
-      </div>
-      <div fxFlex>
-        <j-control *ngIf="v.view[i+1] && v.view[i+1].order > 0 && v.view[i+1].type !== 'table' && v.view[i+1].controlType !== 'script'"
-          [control]="v.view[i+1]" [form]="v.formGroup"></j-control>
-      </div>
-      <div fxFlex>
-        <j-control *ngIf="v.view[i+2] && v.view[i+2].order > 0 && v.view[i+2].type !== 'table' && v.view[i+2].controlType !== 'script'"
-          [control]="v.view[i+2]" [form]="v.formGroup"></j-control>
-      </div>
+        <j-control fxFlex *ngIf="v.view[i+0] && v.view[i+0].order > 0 && v.view[i+0].type !== 'table' && v.view[i+0].controlType !== 'script'" [control]="v.view[i+0]" [form]="v.formGroup"></j-control>
+        <j-control fxFlex *ngIf="v.view[i+1] && v.view[i+1].order > 0 && v.view[i+1].type !== 'table' && v.view[i+1].controlType !== 'script'" [control]="v.view[i+1]" [form]="v.formGroup"></j-control>
+        <j-control fxFlex *ngIf="v.view[i+2] && v.view[i+2].order > 0 && v.view[i+2].type !== 'table' && v.view[i+2].controlType !== 'script'" [control]="v.view[i+2]" [form]="v.formGroup"></j-control>
     </div>
-
     <br *ngIf="tables.length">
     <p-tabView *ngIf="tables.length" class="tabViewClassInForm">
       <div *ngFor="let control of tables; let i = index">
@@ -61,24 +49,16 @@
         </p-tabPanel>
       </div>
     </p-tabView>
-
   </div>
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
-  <button pButton type="button" icon="fa-check-square-o" [label]="(media | async)?.mqAlias === 'xs' ? '.' : 'Post&Close'" class="ui-button-warning"
-    [disabled]="!v.formGroup.valid" (click)="PostClose()" *ngIf="!v.model.deleted"></button>
-
-  <button pButton type="button" icon="fa-check" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Post()"
-    *ngIf="!v.model.deleted"></button>
-  <button pButton type="button" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Save()"
-    *ngIf="!v.model.deleted && !v.model.posted"></button>
-  <button pButton type="button" icon="fa-clone" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Copy()"
-    *ngIf="!v.model.deleted && !v.model.description.toLowerCase().startsWith('copy')"></button>
-  <button pButton type="button" icon="fa-undo" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="unPost()"
-    *ngIf="!v.model.deleted && v.model.posted"></button>
-  <button pButton type="button" icon="fa-minus" class="ui-button-{{v.model.deleted ? 'warning' : 'danger'}}" [disabled]="(!v.formGroup.valid ) || (v.model.description.toLowerCase().startsWith('copy')) || (v.model.description.toLowerCase().startsWith('new'))"
-    (click)="Delete()"></button>
+  <button pButton type="button" icon="fa-check-square-o" [label]="(media | async)?.mqAlias === 'xs' ? '.' : 'Post&Close'" class="ui-button-warning" [disabled]="!v.formGroup.valid" (click)="PostClose()" *ngIf="!isDeleted"></button>
+  <button pButton type="button" icon="fa-check" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Post()" *ngIf="!isDeleted"></button>
+  <button pButton type="button" icon="fa-square-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="unPost()" *ngIf="!isDeleted && isPosted"></button>
+  <button pButton type="button" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Save()" *ngIf="!isDeleted && !isPosted"></button>
+  <button pButton type="button" icon="fa-clone" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Copy()" *ngIf="!isDeleted && !isCopy"></button>
+  <button pButton type="button" icon="fa-minus" class="ui-button-{{isDeleted ? 'warning' : 'danger'}}"  [disabled]="!v.formGroup.valid || isCopy || isNew" (click)="Delete()"></button>
 </ng-template>
 
 <p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>

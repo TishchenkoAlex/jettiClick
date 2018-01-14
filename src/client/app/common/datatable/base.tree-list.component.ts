@@ -65,8 +65,8 @@ export class BaseTreeListComponent implements OnInit {
     });
   }
 
-  add = () => this.router.navigate([this.docType, 'new']);
-  copy = () => this.router.navigate([this.docType, 'copy-' + this.selection.data.id]);
+  add = () =>  this.router.navigate([this.docType, 'folder-'  + this.selection.data.id]);
+  copy = () => this.router.navigate([this.docType, 'copy-'    + this.selection.data.id]);
   open = () => this.router.navigate([this.docType, this.selection.data.id]);
   delete = () => this.ds.delete(this.selection.data.id);
   onSelectionChange = (event) => this.selectionChange.emit(event);

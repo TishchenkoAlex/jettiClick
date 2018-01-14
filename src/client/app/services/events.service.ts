@@ -23,22 +23,20 @@ export class EventsService implements OnDestroy {
 
   constructor(private auth: AuthService, private api: ApiService) {
 
-    this.debonce$.pipe(throttleTime(1000)).subscribe(job => this.update(job));
+    this.debonce$.pipe(throttleTime(5000)).subscribe(job => this.update(job));
 
     this._authSubscription$ = this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
         this.socket = socketIOClient(environment.host, { query: 'user=' + u.account.email, path: environment.path + '/socket.io'});
-        const e = this.socket.on('job', (job: IJob) => this._debonce.next(job));
+        this.socket.on('job', (job: IJob) =>  job.finishedOn ? this.update(job) : this._debonce.next(job));
         this.update();
-        console.log('socket.connect', environment.host + environment.path + '/socket.io');
       } else {
-        console.log('socket.disconnect');
         if (this.socket) { this.socket.disconnect(); }
       }
     });
   }
 
-  private update(task?: IJob) {
+  private update(job?: IJob) {
     this.api.jobs().pipe(take(1)).subscribe(jobs => this._latestJobs.next(jobs));
   }
 

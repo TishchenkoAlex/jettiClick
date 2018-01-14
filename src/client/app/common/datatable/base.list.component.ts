@@ -76,8 +76,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     ...((this.docModel.Prop() as DocumentOptions).copyTo || []).map(el => {
       const copyToDoc = createDocument(el).Prop() as DocumentOptions;
       return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.copyTo(el) };
-    })
-    ];
+    })];
 
     this._docSubscription$ = merge(...[this.ds.save$, this.ds.delete$, this.ds.saveCloseDoc$, this.ds.goto$]).pipe(
       filter(doc => doc && doc.type === this.docType))
@@ -176,7 +175,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   parentChange(event) {
-    console.log('parentChange', event.data.id);
     this.dataTable.filters['parent'] = { matchMode: '=', value: event.data.id };
     this.dataSource.sort();
   }

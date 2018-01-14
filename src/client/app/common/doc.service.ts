@@ -22,10 +22,10 @@ export class DocService {
   protected _deleteDoc = new Subject<DocumentBase>();
   delete$ = this._deleteDoc.asObservable();
 
-  protected _do = new Subject<any>();
+  protected _do = new Subject<DocumentBase>();
   do$ = this._do.asObservable();
 
-  protected _goto = new Subject<any>();
+  protected _goto = new Subject<DocumentBase>();
   goto$ = this._goto.asObservable();
 
   constructor(public api: ApiService, private messageService: MessageService, public confirmationService: ConfirmationService) { }
@@ -43,31 +43,25 @@ export class DocService {
   }
 
   save(doc: DocumentBase, close: boolean = false) {
-    this.api.postDoc(doc).pipe(
-      take(1))
-      .subscribe((savedDoc: DocumentBase) => {
+    this.api.postDoc(doc).pipe(take(1))
+      .subscribe(savedDoc => {
         if (close) { this._saveCloseDoc.next(savedDoc); } else { this._saveDoc.next(savedDoc); }
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
       },
-      (err) => {
-        this.openSnackBar('error', doc.description, err.error);
-      });
+      (err) => this.openSnackBar('error', doc.description, err.error));
   }
 
   delete(id: string) {
-    this.api.deleteDoc(id).pipe(
-      take(1))
-      .subscribe((deletedDoc: DocumentBase) => {
+    this.api.deleteDoc(id).pipe(take(1))
+      .subscribe(deletedDoc => {
         this._deleteDoc.next(deletedDoc);
         this.openSnackBar('succes', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       },
-      (err) => {
-        this.openSnackBar('error', id, err.error);
-      });
+      (err) => this.openSnackBar('error', id, err.error));
   }
 
   post(id: string) {
-    return this.api.postDocById(id).pipe(shareReplay()).toPromise();
+    return this.api.postDocById(id).toPromise();
   }
 
   unpost(id: string) {
@@ -75,7 +69,7 @@ export class DocService {
   }
 
   openSnackBar(severity: string, message: string, detail: string) {
-    this.messageService.add({severity: severity, summary: message, detail: detail, id: Math.random()});
+    this.messageService.add({ severity: severity, summary: message, detail: detail, id: Math.random() });
   }
 
 }

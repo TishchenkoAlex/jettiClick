@@ -68,9 +68,9 @@ export class ApiService {
     return (this.http.get(query) as Observable<boolean>);
   }
 
-  deleteDoc(id: string): Observable<Object> {
+  deleteDoc(id: string): Observable<DocumentBase> {
     const query = `${environment.api}${id}`;
-    return (this.http.delete(query));
+    return (this.http.delete<DocumentBase>(query));
   }
 
   getDocAccountMovementsView(id: string): Observable<AccountRegister[]> {

@@ -30,19 +30,21 @@ JQueue.on('active', (job, jobPromise) => {
 });
 
 JQueue.on('failed', (job, err) => {
-  console.log('failed', job.id, err);
-  userSocketsEmit(job.data.userId, 'job', mapJob(job));
+  const MapJob =  mapJob(job);
+  MapJob.failedReason = err.message;
+  MapJob.finishedOn = new Date().getTime();
+  userSocketsEmit(job.data.userId, 'job', MapJob);
 });
 
 JQueue.on('progress', (job, progress: number) => {
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 
-JQueue.on('completed', async job => {
-  await job.progress(100);
-  userSocketsEmit(job.data.userId, 'job', mapJob(job));
+JQueue.on('completed', job => {
+  const MapJob =  mapJob(job);
+  MapJob.finishedOn = new Date().getTime();
+  userSocketsEmit(job.data.userId, 'job', MapJob);
 });
-
 
 export function mapJob(j: Queue.Job) {
   const result: IJob = {

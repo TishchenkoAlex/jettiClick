@@ -47,8 +47,8 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
       } else {
         if (id.startsWith('copy-')) {
           model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id.slice(5)]);
-          const newDoc = await db.one('SELECT uuid_generate_v1mc() id, now() date');
-          model.id = newDoc.id; model.date = newDoc.date; model.code = '';
+          const newDoc = await db.one(`${config_schema.queryNewObject}`);
+          model.id = newDoc.id; model.date = newDoc.date; model.code = newDoc.code;
           model.posted = false; model.deleted = false;
           model.parent = { ...model.parent, id: null, code: null, value: null };
           model.description = 'Copy: ' + model.description;
@@ -57,7 +57,16 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
             const newDoc = createDocumentServer<DocumentBaseServer>(req.params.type);
             model = await newDoc.baseOn(id.slice(5), db);
           } else {
-            model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+            if (id.startsWith('folder-')) {
+              model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
+              const parentDoc = await db.oneOrNone(`${config_schema.queryObject} AND d.id = $1`, [id.slice(7)]) || {};
+              // tslint:disable-next-line:max-line-length
+              const parent = { ...model.parent, id: parentDoc.id || null, code: parentDoc.code || null, value: parentDoc.description || null };
+              model.parent = parent;
+              model.isfolder = true;
+            } else {
+              model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+            }
           }
         }
         await docOperationResolver(model, db);
