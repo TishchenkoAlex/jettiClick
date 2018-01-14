@@ -38,7 +38,8 @@ JQueue.on('progress', (job, progress: number) => {
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 
-JQueue.on('completed', job => {
+JQueue.on('completed', async job => {
+  await job.progress(100);
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 
