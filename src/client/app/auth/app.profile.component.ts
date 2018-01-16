@@ -30,10 +30,4 @@ export class AppProfileComponent {
     event.preventDefault();
   }
 
-  login() {
-    this.appAuth.login('tischenko.a@gmail.com', 'Pa$$word').pipe(take(1)).subscribe(
-      () => { },
-      console.error
-    );
-  }
 }

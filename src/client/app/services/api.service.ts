@@ -55,7 +55,7 @@ export class ApiService {
   postDoc(doc: DocumentBase) {
     const apiDoc = mapDocToApiFormat(doc);
     const query = `${environment.api}`;
-    return (this.http.post(query, apiDoc) as Observable<DocumentBase>);
+    return (this.http.post<DocumentBase>(query, apiDoc));
   }
 
   postDocById(id: string): Observable<boolean> {
@@ -144,7 +144,7 @@ export class ApiService {
 
   server(doc: DocumentBase, func: string, params: any): Observable<{ doc: DocumentBase, result: any }> {
     const query = `${environment.api}/server/${doc.type}/${func}`;
-    return this.http.post<{ doc: DocumentBase, result: any }>(query, { doc: doc, params: params });
+    return this.http.post<{ doc: DocumentBase, result: any }>(query, { doc, params });
   }
 
   call(type: string, formView: any, method: string, params: any[], async = false): Observable<any> {

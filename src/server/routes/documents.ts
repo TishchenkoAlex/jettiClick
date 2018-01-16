@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 
+import { DocumentBase } from '../../server/models/document';
 import { PatchValue, RefValue } from '../models/api';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
@@ -74,7 +75,7 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
     }
     const result = { view: view, model: model, columnDef: columnDef, prop: config_schema.prop || {} };
     res.json(result);
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 });
 
 // Delete document
@@ -97,7 +98,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       await docOperationResolver(model, tx);
       res.json(model);
     });
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 });
 
 // Upsert document
@@ -143,7 +144,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       await docOperationResolver(docServer, tx);
       res.json(docServer);
     });
-  } catch (err) { next(err.message); }
+  } catch (err) { next(err); }
 });
 
 // unPost by id (without returns posted object to client, for post in cicle many docs)
@@ -196,21 +197,23 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
 router.post('/command/:type/:command', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result: any = {};
-    const doc = createDocumentServer<DocumentBaseServer>(req.params.type, req.body.doc);
-    if (doc && doc.onCommand && typeof doc.onCommand === 'function') {
-      result = await doc.onCommand(req.params.command, req.body.args, db); }
-    res.json(result);
+    await db.tx(async (tx: TX) => {
+      const doc = createDocumentServer<DocumentBaseServer>(req.params.type, req.body.doc);
+      if (doc && doc.onCommand && typeof doc.onCommand === 'function') {
+        result = await doc.onCommand(req.params.command, req.body.args, tx);
+      }
+      res.json(result);
+    });
   } catch (err) { next(err); }
 });
-
 
 router.post('/server/:type/:func', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result: any = {};
     await db.tx(async (tx: TX) => {
       const doc = createDocumentServer(req.params.type, req.body.doc);
-      const func = doc[req.params.func];
-      if (func && typeof func === 'function') { result = await func(tx, req.body.params, tx); }
+      const func: (args: any, tx: TX) => Promise<{doc: DocumentBase, result: any}> = doc[req.params.func];
+      if (func && typeof func === 'function') { result = await func(req.body.args, tx); }
       res.json(result);
     });
   } catch (err) { next(err); }

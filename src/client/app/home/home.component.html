@@ -1,2 +1,39 @@
 <!-- <j-tree-list #tl docType="Catalog.Product"></j-tree-list> -->
-<iframe width="100%" height="700px" src="https://pharm.yuralex.com/Reports/powerbi/PGJettiClick?rs:embed=true" frameborder="0" allowFullScreen="true"></iframe>
+<div *ngIf="(this.auth.userProfile$ | async)" style="height: calc(100vh - 180px)">
+<iframe width="100%" height="100%" src="https://pharm.yuralex.com/Reports/powerbi/PGJettiClick?rs:embed=true" frameborder="0" allowFullScreen="true"></iframe>
+</div>
+<div *ngIf="!(this.auth.userProfile$ | async)">
+  <div class="card login-panel ui-fluid">
+    <div class="login-panel-content">
+      <div class="ui-g">
+        <div class="ui-g-3" style="text-align:left;">
+          <img src="/assets/layout/images/login/icon-login.svg" />
+        </div>
+        <div class="ui-g-9" style="text-align:right;">
+          <h2 class="welcome-text">Welcome Guest</h2>
+          <span class="guest-sign-in">Sign in to Jetti apps</span>
+        </div>
+        <div class="ui-g-12" style="text-align:left;">
+          <label class="login-label">Username</label>
+          <div class="login-input">
+            <input #email type="text" class="ui-inputtext ui-widget ui-state-default ui-corner-all" />
+          </div>
+        </div>
+        <div class="ui-g-12" style="text-align:left;">
+          <label class="login-label">Password</label>
+          <div class="login-input">
+            <input #password type="password" class="ui-inputtext ui-widget ui-state-default ui-corner-all" />
+          </div>
+        </div>
+        <div class="ui-g-12 ui-md-6 button-pane">
+          <button type="button" pButton label="Sign In"
+            (click)="login(email.value, password.value)">
+          </button>
+        </div>
+        <div class="ui-g-12 ui-md-6 link-pane">
+          <a href="#" routerLink="/Home">Forget Password?</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

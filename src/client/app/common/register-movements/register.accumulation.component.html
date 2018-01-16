@@ -16,8 +16,8 @@
         <i *ngIf="!rowData['kind']" class="fa fa-minus" style="color: #d9534f"></i>
       </td>
       <td style="width: 150px; text-align: center">{{rowData.date | date: 'short'}}</td>
-      <td>{{rowData.company.value}}</td>
-      <td *ngFor="let column of additionalColumns">
+      <td style="text-align: center">{{rowData.company.value}}</td>
+      <td *ngFor="let column of additionalColumns" style="text-align: center">
         {{ rowData[column]?.value === null ? 'EMPTY' : rowData[column]?.value || rowData[column] }}
       </td>
     </tr>

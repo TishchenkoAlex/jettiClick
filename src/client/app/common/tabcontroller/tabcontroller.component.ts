@@ -57,7 +57,7 @@ export class TabControllerComponent implements OnInit {
 
   handleClose(event) {
     this.tcs.index = event;
-    this.ds.close(<any>{ id: this.tcs.tabs[event].docID, type: this.tcs.tabs[event].docType });
+    this.ds.close$.next(<any>{ id: this.tcs.tabs[event].docID, type: this.tcs.tabs[event].docType });
     setTimeout(() => this.cd.markForCheck());
   }
 

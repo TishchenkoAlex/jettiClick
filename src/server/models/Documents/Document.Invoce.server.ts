@@ -1,4 +1,4 @@
-import { TX } from '../../db';
+import { TX, db } from '../../db';
 import { lib } from '../../std.lib';
 import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
 import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
@@ -7,10 +7,11 @@ import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
 import { IServerDocument, ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
+import { DocumentBase } from '../../models/document';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
-  async GetPrice(args, tx: TX) {
+  async GetPrice(args: any, tx: TX): Promise<{doc: DocumentBase, result: any}> {
     this.Amount = 0;
     for (const row of this.Items) {
       row.Price = 100;
@@ -143,7 +144,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
 }
 
 async function onPostJS(document: IServerDocument, Registers = { Account: [], Accumulation: [], Info: [] }, tx: TX) {
-  const {doc, ...header} = document;
+  const { doc, ...header } = document;
 
   const acc90 = await lib.account.byCode('90.01', tx);
   const acc41 = await lib.account.byCode('41.01', tx);

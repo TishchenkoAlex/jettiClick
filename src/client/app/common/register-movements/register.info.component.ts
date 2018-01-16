@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } 
 import { take } from 'rxjs/operators';
 
 import { ApiService } from '../../services/api.service';
-import { DocService } from '../doc.service';
 import { DocumentBase } from './../../../../server/models/document';
 
 @Component({
@@ -18,7 +17,7 @@ export class RegisterInfoComponent implements OnInit {
   displayedColumns: any[] = ['kind', 'date', 'company'];
   additionalColumns: any[] = [];
 
-  constructor(private apiService: ApiService, private docService: DocService, private cd: ChangeDetectorRef) { }
+  constructor(private apiService: ApiService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.apiService.getDocAccumulationMovements(this.register, this.doc.id).pipe(take(1))

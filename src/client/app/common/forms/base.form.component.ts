@@ -19,6 +19,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
 
   viewModel: ViewModel = this.route.data['value'].detail;
   docId = Math.random().toString();
+  docType = this.route.snapshot.params.type;
 
   private _closeSubscription$: Subscription = Subscription.EMPTY;
 
@@ -33,7 +34,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
     this.auth.userProfile$.pipe(take(1)).subscribe();
 
     this._closeSubscription$ = this.ds.close$.pipe(
-      filter(data => data && data.type === this.viewModel.model.type && data.id === this.docId))
+      filter(data => data && data.type === this.docType))
       .subscribe(data => this.Close());
   }
 
@@ -42,7 +43,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   private _close() {
-    this.ds.close(null);
+    this.ds.close$.next(null);
     this.cd.markForCheck();
   }
 

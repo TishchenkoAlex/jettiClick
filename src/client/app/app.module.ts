@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-
 import { registerLocaleData } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import localeRUExtra from '@angular/common/locales/extra/ru';
@@ -9,6 +8,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy, RouterModule } from '@angular/router';
+import { NgDragDropModule } from 'ng-drag-drop';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 import { TabResolver } from '../app/tab.resolver';
 import { ApiInterceptor } from './api.interceptor';
@@ -28,7 +29,6 @@ import { ApiService } from './services/api.service';
 import { EventsService } from './services/events.service';
 import { SideNavService } from './services/side-nav.service';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
-import { NgDragDropModule } from 'ng-drag-drop';
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token');
@@ -52,6 +52,7 @@ export function getJwtToken(): string {
     PrimeNGModule,
     DynamicFormsModule,
     NgDragDropModule.forRoot(),
+    MonacoEditorModule.forRoot(),
 
     RouterModule.forRoot(appRoutes)
   ],

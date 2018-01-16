@@ -1,8 +1,8 @@
 <p-toolbar>
   <div class="ui-toolbar-group-left">
     <button pButton type="button" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
-    <button pButton type="button" icon="fa-clone" class="ui-button-secondary" (click)="copy()" *ngIf="selection.length === 1"></button>
-    <button pButton type="button" icon="fa-minus" class="ui-button-danger" (click)="delete()" *ngIf="selection.length > 0"></button>
+    <button pButton type="button" icon="fa-copy" class="ui-button-secondary" (click)="copy()" *ngIf="selection.length === 1"></button>
+    <button pButton type="button" icon="fa-trash" class="ui-button-danger" (click)="delete()" *ngIf="selection.length > 0"></button>
   </div>
 </p-toolbar>
 
@@ -14,28 +14,28 @@
   <p-column [style]="{'width':'34px'}" selectionMode="multiple"></p-column>
   <p-column [style]="{'width':'50px', 'text-align': 'right'}" field="index" header="#" sortable="true">
     <ng-template let-row="rowData" pTemplate="body">
-      {{formGroup.controls[row.index].controls['index']?.value+1 | number}}
+      {{ getControl(row.index).controls['index']?.value+1 | number }}
     </ng-template>
   </p-column>
 
   <p-column *ngFor="let col of columns" [editable]="true" [field]="col.field" [header]="col.label" sortable="true" [style]="col.style">
     <ng-template let-row="rowData" pTemplate="body">
       <span [ngSwitch]="col.type">
-        <span *ngSwitchCase="'date'">{{formGroup.controls[row.index].controls[col.field]?.value | date:'dd.MM.yyyy'}}</span>
-        <span *ngSwitchCase="'datetime'">{{formGroup.controls[row.index].controls[col.field]?.value | date:'dd.MM.yyyy hh:mm:ss'}}</span>
-        <span *ngSwitchCase="'number'">{{formGroup.controls[row.index].controls[col.field]?.value | number:'1.2-2'}}</span>
-        <span *ngSwitchCase="'script'">{{formGroup.controls[row.index].controls[col.field]?.value}}</span>
+        <span *ngSwitchCase="'date'">{{getControl(row.index).controls[col.field]?.value | date:'dd.MM.yyyy'}}</span>
+        <span *ngSwitchCase="'datetime'">{{getControl(row.index).controls[col.field]?.value | date:'dd.MM.yyyy hh:mm:ss'}}</span>
+        <span *ngSwitchCase="'number'">{{getControl(row.index).controls[col.field]?.value | number:'1.2-2'}}</span>
+        <span *ngSwitchCase="'script'">{{getControl(row.index).controls[col.field]?.value}}</span>
         <span *ngSwitchCase="'boolean'">
-          <i [class]="formGroup.controls[row.index].controls[col.field]?.value ? 'fa fa-check-square' : 'fa fa-square-o'"></i>
+          <i [class]="getControl(row.index).controls[col.field]?.value ? 'fa fa-check-square' : 'fa fa-square-o'"></i>
         </span>
-        <span *ngSwitchDefault>{{ formGroup.controls[row.index].controls[col.field]?.value?.value || formGroup.controls[row.index].controls[col.field]?.value?.toString()
-          === '[object Object]' ? formGroup.controls[row.index].controls[col.field]?.value?.value || formGroup.controls[row.index].controls[col.field]?.value?.type
-          : formGroup.controls[row.index].controls[col.field]?.value || '' }}
+        <span *ngSwitchDefault>{{ getControl(row.index).controls[col.field]?.value?.value || getControl(row.index).controls[col.field]?.value?.toString()
+          === '[object Object]' ? getControl(row.index).controls[col.field]?.value?.value || getControl(row.index).controls[col.field]?.value?.type
+          : getControl(row.index).controls[col.field]?.value || '' }}
         </span>
       </span>
     </ng-template>
     <ng-template let-row="rowData" pTemplate="editor">
-      <j-control [control]="col.data" [form]="formGroup.controls[row.index]"></j-control>
+      <j-control [control]="col.data" [form]="getControl(row.index)"></j-control>
     </ng-template>
   </p-column>
   <p-column></p-column>

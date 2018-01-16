@@ -25,6 +25,8 @@ export class OperationListComponent implements OnInit {
       this.operationsGroups = data.map(el => <SelectItem>({label: el.value, value: el}));
       this.operationsGroups.unshift({label: '(All)', value: null});
     });
+
+
   }
 
 }

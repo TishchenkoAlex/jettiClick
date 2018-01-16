@@ -10,7 +10,7 @@ import {
     Output,
     ViewChild,
 } from '@angular/core';
-import { FormArray, FormGroup } from '@angular/forms';
+import { FormArray, FormGroup, FormControl } from '@angular/forms';
 import { DataTable } from 'primeng/primeng';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -70,6 +70,10 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     setTimeout(() => this.cd.markForCheck());
+  }
+
+  getControl(i: number) {
+    return this.formGroup.controls[i] as FormGroup;
   }
 
   ngOnDestroy() {

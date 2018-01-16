@@ -46,7 +46,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   ctxData = { column: '', value: undefined };
   showTree = false;
   docModel: DocumentBase;
-  selection: DocumentBase[] = [];
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService,
     public uss: UserSettingsService, public lds: LoadingService) {
@@ -78,9 +77,9 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.copyTo(el) };
     })];
 
-    this._docSubscription$ = merge(...[this.ds.save$, this.ds.delete$, this.ds.saveCloseDoc$, this.ds.goto$]).pipe(
+    this._docSubscription$ = merge(...[this.ds.save$, this.ds.delete$, this.ds.saveClose$, this.ds.goto$]).pipe(
       filter(doc => doc && doc.type === this.docType))
-      .subscribe((doc: DocumentBase) => {
+      .subscribe(doc => {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
         if (exist) {
           this.dataTable.selection = [exist];
@@ -90,7 +89,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this._closeSubscription$ = this.ds.close$.pipe(
       filter(data => data && data.type === this.docType && data.id === ''))
-      .subscribe(data => this.ds.close(null));
+      .subscribe(data => this.ds.close$.next(null));
   }
 
   ngAfterViewInit() {
@@ -124,25 +123,25 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
     this.sort(event);
   }
-  update = (col: ColumnDef, event, center) => this._debonce.next({ col, event, center });
+  update = (col: ColumnDef, event, center = '=') => this._debonce.next({ col, event, center });
 
   sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
 
-  close = () => this.ds.close(null);
+  close = () => this.ds.close$.next(null);
 
-  add = () => this.router.navigate([this.selection[0] ? this.selection[0].type : this.dataSource.docType, 'new']);
+  add = () => this.router.navigate([this.dataTable.selection[0] ? this.dataTable.selection[0].type : this.dataSource.docType, 'new']);
 
-  copy() { this.router.navigate([this.selection[0].type, 'copy-' + this.selection[0].id]); }
+  copy() { this.router.navigate([this.dataTable.selection[0].type, 'copy-' + this.dataTable.selection[0].id]); }
 
-  copyTo(type: DocTypes) { this.router.navigate([type, 'base-' + this.selection[0].id]); }
+  copyTo(type: DocTypes) { this.router.navigate([type, 'base-' + this.dataTable.selection[0].id]); }
 
-  open() { this.router.navigate([this.selection[0].type, this.selection[0].id]); }
+  open() { this.router.navigate([this.dataTable.selection[0].type, this.dataTable.selection[0].id]); }
 
-  delete() { this.selection.forEach(el => this.ds.delete(el.id)); }
+  delete() { this.dataTable.selection.forEach(el => this.ds.delete(el.id)); }
 
   async post(mode = 'post') {
-    const tasksCount = this.selection.length; let i = tasksCount;
-    for (const s of this.selection) {
+    const tasksCount = this.dataTable.selection.length; let i = tasksCount;
+    for (const s of this.dataTable.selection) {
       this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
       try {
         if (mode === 'post') { await this.ds.post(s.id); } else { await this.ds.unpost(s.id); }

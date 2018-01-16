@@ -18,23 +18,23 @@ export class RegisterAccumulationListComponent implements OnInit {
   infoList$: Observable<any[]>;
   @Input() doc: DocumentBase;
 
-  constructor(private apiService: ApiService, private docService: DocService) { }
+  constructor(private apiService: ApiService, private ds: DocService) { }
 
   ngOnInit() {
 
     this.accumulationList$ = merge(...[
-      this.docService.save$,
-      this.docService.delete$,
-      this.docService.do$]
+      this.ds.save$,
+      this.ds.delete$,
+      this.ds.do$]
     ).pipe(
       startWith(this.doc),
       filter(doc => doc.id === this.doc.id),
       switchMap(doc => this.apiService.getDocRegisterAccumulationList(this.doc.id)));
 
     this.infoList$ = merge(...[
-      this.docService.save$,
-      this.docService.delete$,
-      this.docService.do$]
+      this.ds.save$,
+      this.ds.delete$,
+      this.ds.do$]
     ).pipe(
       startWith(this.doc),
       filter(doc => doc.id === this.doc.id),

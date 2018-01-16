@@ -1,23 +1,14 @@
 import { Location } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
 import { ObservableMedia } from '@angular/flex-layout';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge } from 'rxjs/observable/merge';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
-import { DocService } from '../../common/doc.service';
-import { patchOptionsNoEvents, ViewModel } from '../../common/dynamic-form/dynamic-form.service';
 import { DocumentBase } from '../../../../server/models/document';
+import { DocService } from '../../common/doc.service';
+import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,7 +18,6 @@ import { DocumentBase } from '../../../../server/models/document';
 export class BaseDocFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
-  @ViewChild('sideNavTepmlate') sideNavTepmlate: TemplateRef<any>;
 
   viewModel: ViewModel = this.route.data['value'].detail;
   docId = this.route.params['value'].id;
@@ -59,13 +49,12 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
         this.viewModel.formGroup.markAsPristine();
       });
 
-    this._saveCloseSubscription$ = this.ds.saveCloseDoc$.pipe(
+    this._saveCloseSubscription$ = this.ds.saveClose$.pipe(
       filter(doc => doc.id === this.model.id))
       .subscribe(savedDoc => {
         this.viewModel.formGroup.patchValue(savedDoc, { emitEvent: false });
         this.viewModel.formGroup.markAsPristine();
         this.Close();
-        this.Goto();
       });
 
     this._closeSubscription$ = this.ds.close$.pipe(
@@ -73,17 +62,19 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       .subscribe(data => this.Close());
   }
 
-  // tslint:disable:max-line-length
-  Save = (close = false) => this.ds.save(this.model, close);
-  Delete = () => this.ds.delete(this.model.id);
-  Copy = () => this.router.navigate([this.model.type, 'copy-' + this.model.id]);
-  Goto = () => this.router.navigate([this.model.type], { queryParams: { goto: this.docId }, replaceUrl: true }).then(() => this.ds.goto(this.model));
-  Post() { this.posted.setValue(true, patchOptionsNoEvents); this.Save(); }
-  PostClose() { this.posted.setValue(true, patchOptionsNoEvents); this.Save(true); }
-  unPost() { this.posted.setValue(false, patchOptionsNoEvents); this.Save(); }
+  Save() { this.ds.save(this.model); }
+  Delete() { this.ds.delete(this.model.id); }
+  Copy() { return this.router.navigate([this.model.type, 'copy-' + this.model.id]); }
+  Post() { const doc = this.model; doc.posted = true; this.ds.save(doc); }
+  unPost() { const doc = this.model; doc.posted = false; this.ds.save(doc); }
+  PostClose() { const doc = this.model; doc.posted = true; this.ds.save(doc, true); }
+  Goto() {
+    return this.router.navigate([this.model.type], { queryParams: { goto: this.docId }, replaceUrl: true })
+      .then(() => this.ds.goto$.next(this.model));
+  }
 
   private _close() {
-    this.ds.close(null);
+    this.ds.close$.next(null);
     this.cd.markForCheck();
     this.location.back();
   }
@@ -98,12 +89,12 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       reject: () => { this.cd.markForCheck(); },
       key: this.docId
     });
-    setTimeout(() => this.cd.markForCheck());
+    this.cd.markForCheck();
   }
 
   Print() {
-    const url = 'https://pharm.yuralex.com/ReportServer/Pages/ReportViewer.aspx';
-    window.open(`${url}?%2fReport+Project1%2fReport1&rs:Command=Render&invoiceID=${this.docId}`, 'Print');
+    // const url = 'https://pharm.yuralex.com/ReportServer/Pages/ReportViewer.aspx';
+    // window.open(`${url}?%2fReport+Project1%2fReport1&rs:Command=Render&invoiceID=${this.docId}`, 'Print');
   }
 
   async onCommand(event) {

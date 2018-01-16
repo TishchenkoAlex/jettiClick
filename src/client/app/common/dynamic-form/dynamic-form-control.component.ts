@@ -8,7 +8,7 @@ import { BaseJettiFormControl } from './dynamic-form-base';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-control',
-  templateUrl: './dynamic-form-control.component.png.html'
+  templateUrl: './dynamic-form-control.component.html'
 })
 export class DynamicFormControlComponent {
   @Input() control: BaseJettiFormControl<any>;

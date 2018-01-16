@@ -9,12 +9,13 @@ import { dateReviver } from './../../server/fuctions/dateReviver';
 import { environment } from './../environments/environment';
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
+import { MessageService } from 'primeng/components/common/messageservice';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
   private auth: AuthService;
 
-  constructor(private lds: LoadingService, private inj: Injector) {}
+  constructor(private lds: LoadingService, private inj: Injector, private messageService: MessageService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     this.auth = this.inj.get(AuthService);
@@ -42,6 +43,7 @@ export class ApiInterceptor implements HttpInterceptor {
         }
         this.lds.loading = true;
         this.lds.color = 'warn';
+        this.messageService.add({ severity: 'error', summary: err.statusText, detail: err.error, id: Math.random() });
         return ErrorObservable.create(err);
       }));
   }

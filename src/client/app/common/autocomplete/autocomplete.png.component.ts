@@ -90,7 +90,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   suggests$: any[];
 
   // implement ControlValueAccessor interface
-  private onChange = (value: any) => { };
+  onChange = (value: any) => { };
   private onTouched = () => { };
 
   writeValue(obj: any): void {

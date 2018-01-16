@@ -25,6 +25,7 @@
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "bull": "^3.3.8",
+    "classlist.js": "^1.1.20150312",
     "compression": "^1.7.1",
     "core-js": "^2.5.3",
     "cors": "^2.8.4",
@@ -49,7 +50,7 @@
     "zone.js": "^0.8.20"
   },
   "engines": {
-    "node": ">=9.3.0"
+    "node": ">=9.4.0"
   },
   "devDependencies": {
     "@angular/cli": "^1.6.4",
@@ -70,6 +71,6 @@
     "codelyzer": "~4.0.2",
     "ts-node": "~4.1.0",
     "tslint": "~5.9.1",
-    "typescript": "^2.5.3"
+    "typescript": "2.5.3"
   }
 }

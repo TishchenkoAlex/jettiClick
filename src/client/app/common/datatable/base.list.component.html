@@ -6,26 +6,26 @@
   <div>
     <p-toolbar>
       <div class="ui-toolbar-group-left">
-        <button pButton type="button" icon="fa-plus" class="ui-button-success" (click)="add()" [disabled]="lds.loading"></button>
-        <button pButton type="button" icon="fa-pencil-square-o" *ngIf="selection?.length == 1" (click)="open()" [disabled]="lds.loading"></button>
-        <button pButton type="button" icon="fa-copy" *ngIf="selection?.length == 1" (click)="copy()" [disabled]="lds.loading"></button>
+        <button pButton type="button" id="add" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
+        <button pButton type="button" id="open" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="dataTable?.selection?.length == 1" (click)="open()"></button>
+        <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="dataTable?.selection?.length == 1" (click)="copy()"></button>
         <span *ngIf="docModel.isDoc">
-          <button pButton type="button" icon="fa-check" class="ui-button-warning" *ngIf="selection?.length >=1 && !selection[0].posted" (click)="post()" [disabled]="lds.loading"></button>
-          <button pButton type="button" icon="fa-square-o" class="ui-button-warning" *ngIf="selection?.length >=1 && selection[0].posted" (click)="post('unpost')" [disabled]="lds.loading"></button>
+          <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="dataTable?.selection?.length >=1 && !dataTable?.selection[0].posted" (click)="post()"></button>
+          <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="dataTable?.selection?.length >=1 && dataTable?.selection[0].posted" (click)="post('unpost')"></button>
         </span>
-        <button pButton type="button" icon="fa-minus" class="ui-button-danger" *ngIf="selection?.length" (click)="delete()" [disabled]="lds.loading"></button>
-        <button pButton type="button" icon="fa-refresh" (click)="dataSource.refresh()" [disabled]="lds.loading"></button>
-        <button *ngIf="docModel.isCatalog" pButton type="button" icon="fa-sitemap" class="ui-button-secondary" (click)="showTree = !showTree" [disabled]="lds.loading"></button>
+        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="dataTable?.selection?.length" (click)="delete()"></button>
+        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="docModel.isCatalog" (click)="showTree = !showTree"></button>
       </div>
       <div class="ui-toolbar-group-right">
         <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first"></button>
         <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first"></button>
         <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last"></button>
         <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last"></button>
+        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh()"></button>
         <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="close()" [disabled]="lds.loading"></button>
       </div>
     </p-toolbar>
-    <p-dataTable [value]="(data$ | async)" selectionMode="multiple" [(selection)]="selection" dataKey="id" [lazy]="true" (onSort)="sort($event)"
+    <p-dataTable [value]="(data$ | async)" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort($event)"
       (onFilter)="sort($event)" [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true" [scrollable]="!showTree"
       (onRowDblclick)="open()" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm">
 
@@ -39,7 +39,7 @@
         </p-column>
 
         <p-column *ngFor="let column of columns" [field]="column.field" [header]="column.label" sortable="custom" [filter]="true"
-          filterPlaceholder="Search" [style]="column.style || {}" [id]="column.field" [id]="column.field" [colId]="column.field">
+          filterPlaceholder="Search" [style]="column.style || {}" [colId]="column.field">
           <ng-template let-row="rowData" pTemplate="body">
             <span [ngSwitch]="column.type" [id]="column.field">
               <span *ngSwitchCase="'date'" [id]="column.field">{{row[column.field] | date:'dd.MM.yyyy'}}</span>

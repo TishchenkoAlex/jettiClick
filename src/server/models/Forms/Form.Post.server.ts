@@ -1,4 +1,4 @@
-import { db } from '../../db';
+import { db, TX } from '../../db';
 import { ICallRequest } from '../../routes/utils/interfaces';
 import { lib } from '../../std.lib';
 import { PatchValue } from '../api';
@@ -12,7 +12,7 @@ export default class FormPostServer extends FormPost {
     super(CallRequest.formView as FormPost);
   }
 
-  async Execute() {
+  async Execute(tx: TX = db, CR: ICallRequest) {
     const endDate = new Date(this.CallRequest.formView.EndDate);
     endDate.setHours(23, 59, 59, 999);
 

@@ -11,7 +11,7 @@ export function cloneFormGroup(formGroup: FormGroup): FormGroup {
     const newFormControl = sourceFormControl.validator ?
       new FormControl(newValue, Validators.required) :
       new FormControl(newValue);
-    newFormGroup.addControl(key, newFormControl);
+    newFormGroup.registerControl(key, newFormControl);
   });
   return newFormGroup;
 }
