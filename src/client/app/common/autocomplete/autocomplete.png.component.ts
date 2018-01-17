@@ -123,7 +123,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   // implement Validator interface
   validate(c: AbstractControl): ValidationErrors | null {
     if (!this.required) { return null; }
-    if (c.value.value) { return null; }
+    if (c.value && c.value.value) { return null; }
     return { 'required': true };
   }
   // end of implementation Validator interface
