@@ -9,7 +9,7 @@ import { DocService } from './../../common/doc.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-tabcontroller',
-  templateUrl: './tabcontroller.png.component.html',
+  templateUrl: './tabcontroller.component.html',
 })
 export class TabControllerComponent implements OnInit {
 
