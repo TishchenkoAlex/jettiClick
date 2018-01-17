@@ -4,7 +4,7 @@ import { DocumentBase, Ref } from './document';
 import { PostResult } from './post.interfaces';
 import { DocTypes } from './documents.types';
 
-export interface IServerDocument {
+export interface INoSqlDocument {
   id: Ref;
   date: Date;
   type: DocTypes;

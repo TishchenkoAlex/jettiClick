@@ -1,5 +1,5 @@
 import { JDocument, DocumentBase, Props, Ref } from './../document';
-import { IServerDocument } from '../ServerDocument';
+import { INoSqlDocument } from '../ServerDocument';
 import { stdDocumentListCommands } from '../commands';
 
 @JDocument({

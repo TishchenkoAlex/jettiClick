@@ -11,7 +11,6 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormArray, FormGroup, FormControl } from '@angular/forms';
-import { DataTable } from 'primeng/primeng';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -24,6 +23,7 @@ import { patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.ser
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
 import { cloneFormGroup } from '../utils';
+import { DataTable } from 'primeng/components/datatable/datatable';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,7 +31,7 @@ import { cloneFormGroup } from '../utils';
   templateUrl: './table-parts.png.component.html',
 })
 export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
-  private view: BaseJettiFormControl<any>[];
+  private view: BaseJettiFormControl[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
 
@@ -51,7 +51,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private api: ApiService, private ds: DocService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.view = this.control.value as BaseJettiFormControl<any>[];
+    this.view = this.control.controls;
     this.columns = this.view.map((el) => {
       const result: ColumnDef = {
         field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, onChange: el.onChange, onChangeServer: el.onChangeServer,

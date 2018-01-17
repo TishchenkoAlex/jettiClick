@@ -1,8 +1,9 @@
 import { v1 } from 'uuid';
 
-import { IServerDocument } from './../models/ServerDocument';
+import { INoSqlDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
 import { ICommand } from './commands';
+import { RefValue } from '../models/api';
 
 export interface PropOptions {
   type: AllTypes;
@@ -32,7 +33,7 @@ export interface DocumentOptions {
   copyTo?: DocTypes[];
 }
 
-export type Ref = string | null;
+export type Ref = string | null | RefValue;
 export const symbolProps = Symbol('Props');
 
 export function Props(props: PropOptions) {
@@ -47,7 +48,6 @@ export function JDocument(props: DocumentOptions) {
     };
   };
 }
-
 
 export class DocumentBase {
 
@@ -129,7 +129,7 @@ export class DocumentBase {
   get isType() { return this.type.startsWith('Types.'); }
   get isJornal() { return this.type.startsWith('Journal.'); }
 
-  map(document: IServerDocument) {
+  map(document: INoSqlDocument) {
     if (document) {
        const {doc, ...header} = document;
        Object.assign(this, header, doc);

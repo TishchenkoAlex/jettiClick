@@ -24,26 +24,26 @@ import {
 } from './dynamic-form-base';
 
 export interface ViewModel {
-  view: BaseJettiFormControl<any>[];
+  view: BaseJettiFormControl[];
   model: DocumentBase;
   formGroup: FormGroup;
-  controlsByKey: { [s: string]: BaseJettiFormControl<any> };
+  controlsByKey: { [s: string]: BaseJettiFormControl };
 }
 
-function toFormGroup(controls: BaseJettiFormControl<any>[]) {
+function toFormGroup(controls: BaseJettiFormControl[]) {
   const group: any = {};
 
   controls.forEach(control => {
     if (control instanceof TableDynamicControl) {
       const Row = {};
       const arr: FormGroup[] = [];
-      (control.value as BaseJettiFormControl<any>[]).forEach(item => {
-        Row[item.key] = item.required ? new FormControl(item.value, Validators.required) : new FormControl(item.value);
-      });
+      for (const item of control.controls) {
+        Row[item.key] = item.required ? new FormControl(null, Validators.required) : new FormControl();
+      }
       arr.push(new FormGroup(Row));
       group[control.key] = control.required ? new FormArray(arr, Validators.required) : new FormArray(arr);
     } else {
-      group[control.key] = control.required ? new FormControl(control.value, Validators.required) : new FormControl(control.value);
+      group[control.key] = control.required ? new FormControl(null, Validators.required) : new FormControl();
     }
   });
   const result = new FormGroup(group);
@@ -53,35 +53,35 @@ function toFormGroup(controls: BaseJettiFormControl<any>[]) {
 export const patchOptionsNoEvents = { onlySelf: false, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
 export function getViewModel(view, model, isExists: boolean) {
-  let fields: BaseJettiFormControl<any>[] = [];
+  let fields: BaseJettiFormControl[] = [];
 
-  const processRecursive = (v, f: BaseJettiFormControl<any>[]) => {
+  const processRecursive = (v, f: BaseJettiFormControl[]) => {
     Object.keys(v).map(key => {
       const prop = v[key];
       const hidden = !!prop['hidden'];
       const order = hidden ? -1 : prop['order'] * 1 || 999;
-      const label = prop['label'] || key.toString();
-      const type = prop['type'] || 'string';
-      const controlType = prop['controlType'] || prop['type'] || 'string';
+      const label: string = prop['label'] || key.toString();
+      const type: string = prop['type'] || 'string';
+      const controlType: string = prop['controlType'] || prop['type'] || 'string';
       const required = !!prop['required'];
       const readOnly = !!prop['readOnly'];
       const style = prop['style'];
       const totals = prop['totals'] * 1 || null;
       const change = prop['change'];
-      const owner = prop['owner'] || '';
+      const owner: string = prop['owner'] || '';
       const onChange = prop['onChange'];
       const onChangeServer = !!prop['onChangeServer'];
-      let newControl: BaseJettiFormControl<any>;
-      const controlOptions: ControlOptions<any> = {
+      let newControl: BaseJettiFormControl;
+      const controlOptions: ControlOptions = {
         key: key, label: label, type: controlType, required: required, readOnly: readOnly, hidden: hidden,
         order: order, style: style, onChange: onChange, owner: owner, totals: totals, onChangeServer: onChangeServer
       };
       switch (controlType) {
         case 'table':
-          const value = [];
+          const value: BaseJettiFormControl[] = [];
           processRecursive(v[key][key] || {}, value);
-          controlOptions.value = value;
           newControl = new TableDynamicControl(controlOptions);
+          (newControl as TableDynamicControl).controls = value;
           break;
         case 'boolean':
           newControl = new BooleanJettiFormControl(controlOptions);
@@ -135,7 +135,7 @@ export function getViewModel(view, model, isExists: boolean) {
         }
       }
     });
-  const controlsByKey: { [s: string]: BaseJettiFormControl<any> } = {};
+  const controlsByKey: { [s: string]: BaseJettiFormControl } = {};
   fields.forEach(c => { controlsByKey[c.key] = c; });
   fields = [
     ...fields.filter(el => el.order > 0 && el.type !== 'table'),

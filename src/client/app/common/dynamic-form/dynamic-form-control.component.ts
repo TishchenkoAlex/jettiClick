@@ -11,7 +11,7 @@ import { BaseJettiFormControl } from './dynamic-form-base';
   templateUrl: './dynamic-form-control.component.html'
 })
 export class DynamicFormControlComponent {
-  @Input() control: BaseJettiFormControl<any>;
+  @Input() control: BaseJettiFormControl;
   @Input() form: FormGroup;
   get getControls(): FormArray { return this.form.get(this.control.key) as FormArray; }
   locale = calendarLocale; dateFormat = dateFormat;

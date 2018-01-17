@@ -1,8 +1,11 @@
-import { AfterViewInit, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Input, OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DataTable, MenuItem, SortMeta } from 'primeng/primeng';
+import { MenuItem } from 'primeng/components/common/menuitem';
+import { SortMeta } from 'primeng/components/common/sortmeta';
+import { DataTable } from 'primeng/components/datatable/datatable';
 import { Observable } from 'rxjs/Observable';
+import { merge } from 'rxjs/observable/merge';
 import { debounceTime, filter, share, take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
@@ -17,7 +20,6 @@ import { UserSettingsService } from './../../auth/settings/user.settings.service
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
-import { merge } from 'rxjs/observable/merge';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,37 +35,27 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   private _debonce = new Subject<{ col: any, event: any, center: string }>();
   private debonce$ = this._debonce.asObservable();
 
-  dataSource: ApiDataSource | null = null;
-  data$: Observable<DocumentBase[]>;
-
   @ViewChild(DataTable) dataTable: DataTable = null;
 
   private AfterViewInit = false;
-  pageSize = 0;
-  docType: DocTypes;
-  columns: ColumnDef[] = [];
+  @Input() pageSize = Math.floor((window.innerHeight - 275) / 24);
+  @Input() docType: DocTypes = this.route.params['value'].type;
+  @Input() columns: ColumnDef[] = [];
   contexCommands: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
   showTree = false;
-  docModel: DocumentBase;
+  docModel: DocumentBase = createDocument(this.docType);
+  dataSource: ApiDataSource | null = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
+  data$: Observable<DocumentBase[]> = this.dataSource.result$.pipe(share());
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService,
     public uss: UserSettingsService, public lds: LoadingService) {
-    this.pageSize = Math.floor((window.innerHeight - 275) / 24);
     this.debonce$.pipe(filter(event => this.AfterViewInit), debounceTime(500))
       .subscribe(event => this._update(event.col, event.event, event.center));
   }
 
   ngOnInit() {
-    this.docType = this.route.params['value'].type;
-    const view = this.route.data['value'].detail[0]['view'];
-
-    this.columns = this.route.data['value'].detail[0]['columnDef'];
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
-    this.data$ = this.dataSource.result$.pipe(share());
-
-    this.docModel = createDocument(this.docType);
-
+    if (!this.columns.length) { this.columns = this.route.data['value'].detail[0]['columnDef']; }
     const exclCol = this.docModel.isDoc ? ['description'] : ['date', 'company'];
     this.columns.forEach(c => { if (exclCol.indexOf(c.field) > -1 || c.hidden) { c.style['display'] = 'none'; } });
     this.columns = this.columns.filter(c => c.style['display'] !== 'none' || c.field === 'Group');
@@ -123,7 +115,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
     this.sort(event);
   }
-  update = (col: ColumnDef, event, center = '=') => this._debonce.next({ col, event, center });
+  update = (col: ColumnDef, event, center = 'like') => this._debonce.next({ col, event, center });
 
   sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
 

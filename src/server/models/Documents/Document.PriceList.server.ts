@@ -29,17 +29,17 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
     }
   }
 
-  async baseOn(docId: Ref, tx: TX): Promise<DocumentPriceList> {
+  async baseOn(docId: string, tx: TX): Promise<DocumentPriceList> {
     const ISource = await lib.doc.byId(docId, tx);
     let documentPriceList = await tx.one<DocumentPriceList>(`${configSchema.get(this.type).QueryNew}`);
     Object.keys(documentPriceList).forEach(k => this[k] = documentPriceList[k]);
     switch (ISource.type) {
       case 'Document.Invoice':
-        const documentInvoice = await tx.one<DocumentInvoice>(`${configSchema.get(ISource.type).QueryObject} AND d.id = $1`, [docId]);
+        const documentInvoice = await lib.doc.viewModelById<DocumentInvoice>(docId);
         const { id, code, date, type, description, user } = documentPriceList;
         documentPriceList = Object.assign(documentPriceList, documentInvoice, { id, code, date, type, description, user } );
         const unitID = await lib.doc.byCode('Catalog.Unit', 'bottle', tx);
-        const unitFC = await lib.doc.formControlRef(unitID, tx);
+        const unitFC = await lib.doc.formControlRef(unitID as string, tx);
         documentPriceList.parent = <RefValue>{id: docId, code: ISource.code, type: ISource.type, value: ISource.description};
         documentPriceList.Items.forEach(el => el.Unit = unitFC as any);
         documentPriceList.TaxInclude = true;

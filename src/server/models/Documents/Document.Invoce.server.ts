@@ -4,10 +4,13 @@ import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
 import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
 import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
-import { IServerDocument, ServerDocument } from '../ServerDocument';
+import { INoSqlDocument, ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
-import { DocumentBase } from '../../models/document';
+import { DocumentBase, Ref } from '../../models/document';
+import { configSchema } from '../../models/config';
+import { CatalogCounterpartie } from '../../models/Catalogs/Catalog.Counterpartie';
+import { RefValue } from '../../models/api';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
@@ -21,13 +24,14 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     return { doc: this, result: {} };
   }
 
-  async onValueChanged(prop: string, value: any, tx: TX) {
+  async onValueChanged(prop: string, value: any, tx: TX): Promise<{[x: string]: any}> {
     switch (prop) {
       case 'company':
         if (!value) { return {}; }
-        const company = await lib.doc.byId<IServerDocument>(value.id, tx);
+        const company = await lib.doc.byId(value.id, tx);
         if (!company) { return {}; }
         const currency = await lib.doc.formControlRef(company.doc.currency, tx);
+        this.currency = currency;
         return { currency: currency };
       default:
         return {};
@@ -42,6 +46,24 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
         return {};
     }
   }
+
+  async baseOn(docID: string, tx: TX): Promise<DocumentBase> {
+    const ISource = await lib.doc.byId(docID, tx);
+    let documentInvoice = await tx.one<DocumentInvoice>(`${configSchema.get(this.type).QueryNew}`);
+    switch (ISource.type) {
+      case 'Catalog.Counterpartie':
+        const Counterpartie = await lib.doc.viewModelById<CatalogCounterpartie>(docID);
+        const { id, code, date, type, description, user } = documentInvoice;
+        documentInvoice = Object.assign(documentInvoice, Counterpartie, { id, code, date, type, description, user } );
+        documentInvoice.Customer = <RefValue>{id: docID, code: ISource.code, type: ISource.type, value: ISource.description};
+        const company = await lib.doc.byId(documentInvoice.company.id, tx);
+        documentInvoice.currency = await lib.doc.formControlRef(company.doc.currency, tx);
+        return documentInvoice;
+      default:
+        return documentInvoice;
+    }
+  }
+
 
   async onPost(tx: TX): Promise<PostResult> {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
@@ -143,7 +165,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
 
 }
 
-async function onPostJS(document: IServerDocument, Registers = { Account: [], Accumulation: [], Info: [] }, tx: TX) {
+async function onPostJS(document: INoSqlDocument, Registers = { Account: [], Accumulation: [], Info: [] }, tx: TX) {
   const { doc, ...header } = document;
 
   const acc90 = await lib.account.byCode('90.01', tx);

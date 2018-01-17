@@ -1,11 +1,12 @@
 import { db, TX } from './db';
 import { RefValue } from './models/api';
-import { Ref } from './models/document';
+import { Ref, DocumentBase } from './models/document';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
-import { DocumentBaseServer, IServerDocument } from './models/ServerDocument';
+import { DocumentBaseServer, INoSqlDocument } from './models/ServerDocument';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
+import { configSchema } from './models/config';
 
 export interface JTL {
   db: TX;
@@ -22,9 +23,9 @@ export interface JTL {
     inventoryBalance: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
   };
   doc: {
-    byCode: (type: DocTypes, code: string, tx?: TX) => Promise<Ref>;
-    byId: <T extends IServerDocument>(id: string, tx?: TX) => Promise<T>;
-    modelById: (id: string, tx?: TX) => Promise<IServerDocument>;
+    byCode: (type: DocTypes, code: string, tx?: TX) => Promise<string>;
+    byId: (id: string, tx?: TX) => Promise<INoSqlDocument>;
+    viewModelById: <T extends DocumentBase>(id: string, tx?: TX) => Promise<T>;
     formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
     postById: (id: string, posted: boolean, tx?: TX) => Promise<void>;
   };
@@ -50,7 +51,7 @@ export const lib: JTL = {
   doc: {
     byCode: byCode,
     byId: byId,
-    modelById: modelById,
+    viewModelById: viewModelById,
     formControlRef: formControlRef,
     postById: postById
   },
@@ -59,27 +60,25 @@ export const lib: JTL = {
   }
 };
 
-async function accountByCode(code: string, tx: TX = db): Promise<Ref> {
+async function accountByCode(code: string, tx: TX = db) {
   const result = await tx.oneOrNone(`
     SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = $1`, [code]);
-  return result ? result.result : null;
+  return result ? result.result as string : null;
 }
 
-async function byCode(type: string, code: string, tx: TX = db): Promise<Ref> {
+async function byCode(type: string, code: string, tx: TX = db) {
   const result = await tx.oneOrNone(`SELECT id result FROM "Documents" WHERE type = $1 AND code = $2`, [type, code]);
-  return result ? result.result : null;
+  return result ? result.result as string : null;
 }
 
-async function byId<T>(id: string, tx: TX = db): Promise<T> {
-  const result = await tx.oneOrNone<T>(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
+async function byId(id: string, tx: TX = db): Promise<INoSqlDocument> {
+  const result = await tx.oneOrNone<INoSqlDocument>(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
   return result;
 }
 
-async function modelById(id: string, tx: TX = db): Promise<IServerDocument> {
-  const doc = await byId<IServerDocument>(id, tx);
-  const config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
-  const model = await tx.one<IServerDocument>(`${config_schema.queryObject} AND d.id = $1`, id);
-  return model;
+async function viewModelById<T extends DocumentBase>(id: string, tx: TX = db): Promise<T> {
+  const doc = await byId(id, tx);
+  return await tx.one<T>(`${configSchema.get(doc.type).QueryObject} AND d.id = $1`, id);
 }
 
 async function formControlRef(id: string, tx: TX = db): Promise<RefValue> {

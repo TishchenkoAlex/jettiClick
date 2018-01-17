@@ -2,10 +2,10 @@ import { ITask } from 'pg-promise';
 
 import { TX, db } from '../../db';
 import { PostResult } from '../../models/post.interfaces';
-import { DocumentBaseServer, IServerDocument } from './../../models/ServerDocument';
+import { DocumentBaseServer, INoSqlDocument } from './../../models/ServerDocument';
 import { lib } from './../../std.lib';
 
-export async function InsertRegisterstoDB(doc: IServerDocument, Registers: PostResult, tx: TX = db) {
+export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostResult, tx: TX = db) {
   let query = '';
   for (const rec of Registers.Account) {
     query += `
@@ -61,7 +61,7 @@ export async function docOperationResolver(doc: DocumentBaseServer, tx: TX) {
   }
 }
 
-export async function doSubscriptions(doc: IServerDocument, script: string, tx: TX) {
+export async function doSubscriptions(doc: INoSqlDocument, script: string, tx: TX) {
   const scripts = await tx.manyOrNone(`
     SELECT "then" FROM "Subscriptions" WHERE "what" ? $1 AND "when" = $2 ORDER BY "order"`, [doc.type, script]);
   if (scripts.length) {

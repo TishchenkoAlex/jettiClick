@@ -1,8 +1,8 @@
 import { DocumentBase } from './../../../../server/models/document';
-import { IServerDocument } from './../../../../server/models/ServerDocument';
+import { INoSqlDocument } from './../../../../server/models/ServerDocument';
 
-export function mapDocToApiFormat(model: DocumentBase): IServerDocument {
-  const newDoc: IServerDocument = {
+export function mapDocToApiFormat(model: DocumentBase): INoSqlDocument {
+  const newDoc: INoSqlDocument = {
     id: model.id,
     type: model.type,
     date: model.date,

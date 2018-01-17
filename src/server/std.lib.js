@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("./db");
 const documents_factory_server_1 = require("./models/documents.factory.server");
 const execute_script_1 = require("./routes/utils/execute-script");
+const config_1 = require("./models/config");
 exports.lib = {
     db: db_1.db,
     account: {
@@ -19,7 +20,7 @@ exports.lib = {
     doc: {
         byCode: byCode,
         byId: byId,
-        modelById: modelById,
+        viewModelById: viewModelById,
         formControlRef: formControlRef,
         postById: postById
     },
@@ -40,11 +41,9 @@ async function byId(id, tx = db_1.db) {
     const result = await tx.oneOrNone(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
     return result;
 }
-async function modelById(id, tx = db_1.db) {
+async function viewModelById(id, tx = db_1.db) {
     const doc = await byId(id, tx);
-    const config_schema = await tx.one(`SELECT "queryObject" FROM config_schema WHERE type = $1`, [doc.type]);
-    const model = await tx.one(`${config_schema.queryObject} AND d.id = $1`, id);
-    return model;
+    return await tx.one(`${config_1.configSchema.get(doc.type).QueryObject} AND d.id = $1`, id);
 }
 async function formControlRef(id, tx = db_1.db) {
     const result = await tx.oneOrNone(`

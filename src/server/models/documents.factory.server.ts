@@ -4,11 +4,11 @@ import { DocumentExchangeRatesServer } from './Documents/Document.ExchangeRates.
 import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
 import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
-import { DocumentBaseServer, IServerDocument } from './ServerDocument';
+import { DocumentBaseServer, INoSqlDocument } from './ServerDocument';
 import { CatalogAccount } from './Catalogs/Catalog.Account';
 import { DocumentBase } from './document';
 
-export function createDocumentServer<T extends DocumentBaseServer | DocumentBase>(type: DocTypes, document?: IServerDocument): T {
+export function createDocumentServer<T extends DocumentBaseServer | DocumentBase>(type: DocTypes, document?: INoSqlDocument): T {
   const doc = RegisteredServerDocument.find(el => el.type === type);
   if (doc) {
     const serverResult = <T>new doc.Class;

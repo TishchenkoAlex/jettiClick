@@ -13,7 +13,7 @@ import { BaseDocFormComponent } from './../../common/form/base.form.component';
 })
 export class OperationFormComponent implements AfterViewInit {
 
-  private _originalView: BaseJettiFormControl<any>[] = [];
+  private _originalView: BaseJettiFormControl[] = [];
 
   @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
   get viewModel() { return this.super.viewModel; }

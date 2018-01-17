@@ -1,5 +1,5 @@
 import { JDocument, DocumentBase, Props, Ref, DocumentOptions } from './../document';
-import { IServerDocument } from '../ServerDocument';
+import { INoSqlDocument } from '../ServerDocument';
 
 @JDocument({
   type: 'Document.Operation',

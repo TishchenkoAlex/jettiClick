@@ -8,7 +8,7 @@ import { DocTypes } from '../models/documents.types';
 import { db, TX } from './../db';
 import { ColumnDef } from './../models/column';
 import { configSchema } from './../models/config';
-import { DocumentBaseServer, IServerDocument } from './../models/ServerDocument';
+import { DocumentBaseServer, INoSqlDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib, postById } from './../std.lib';
@@ -39,7 +39,7 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
       prop: serverDoc.Prop
     };
 
-    const columnDef: ColumnDef[] = buildColumnDef(view, config_schema.settings || new FormListSettings());
+    const columnDef = buildColumnDef(view, config_schema.settings || new FormListSettings());
 
     let model; const id = req.params['0'];
     if (id) {
@@ -73,7 +73,7 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
         await docOperationResolver(model, db);
       }
     }
-    const result = { view: view, model: model, columnDef: columnDef, prop: config_schema.prop || {} };
+    const result = { view, model, columnDef, prop: config_schema.prop || {} };
     res.json(result);
   } catch (err) { next(err); }
 });
@@ -102,7 +102,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 // Upsert document
-async function post(doc: IServerDocument, serverDoc: DocumentBaseServer, tx: TX) {
+async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: TX) {
   const id = doc.id;
   const isNew = (await tx.oneOrNone('SELECT id FROM "Documents" WHERE id = $1 AND type = $2', [id, doc.type]) === null);
   await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
@@ -137,7 +137,7 @@ async function post(doc: IServerDocument, serverDoc: DocumentBaseServer, tx: TX)
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await db.tx(async (tx: TX) => {
-      const doc: IServerDocument = req.body;
+      const doc: INoSqlDocument = req.body;
       const JDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await post(doc, JDoc, tx);
       const docServer = await tx.one<DocumentBaseServer>(`${configSchema.get(doc.type as any).QueryObject} AND d.id = $1`, [doc.id]);
@@ -180,7 +180,7 @@ router.get(':type/:id', async (req: Request, res: Response, next: NextFunction) 
 
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const doc = req.body.doc as IServerDocument;
+    const doc = req.body.doc as INoSqlDocument;
     const value = req.body.value as RefValue;
     const property = req.params.property as string;
     const type = req.params.type as DocTypes;
