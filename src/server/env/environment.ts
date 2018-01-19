@@ -13,7 +13,7 @@ export const connString = {
 };
 
 export const accountDB = {
-  host: process.env.POSTGRES_DB_ACCOUNTS_HOST ? process.env.POSTGRES_ACCOUNTS_HOST.split(':')[0] : PG_DEV_SERVER,
+  host: process.env.POSTGRES_DB_ACCOUNTS_HOST ? process.env.POSTGRES_DB_ACCOUNTS_HOST.split(':')[0] : PG_DEV_SERVER,
   database: 'accounts',
   user: process.env.POSTGRES_DB_USER || 'postgres',
   password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
