@@ -4,9 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
+import { AuthService } from '../../auth/auth.service';
 import { DocService } from '../../common/doc.service';
 import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
-import { AuthService } from '../../auth/auth.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,10 +66,11 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   async Execute(mode = 'post') {
+    const user = await this.auth.userProfile$.toPromise();
     const data = this.viewModel.formGroup.value;
     const result = await this.ds.api.jobAdd({
       job: { id: 'post', description: '(job) post Invoives' },
-      userId: this.auth.userProfile$.value ? this.auth.userProfile$.value.account.email : null,
+      userId: user ? user.account.email : null,
       type: data.type.id,
       company: data.company.id,
       StartDate: data.StartDate,

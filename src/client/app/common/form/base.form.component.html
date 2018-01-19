@@ -32,6 +32,13 @@
     <j-register-accumulation-list *ngIf="!accumulation.collapsed" [doc]="model"></j-register-accumulation-list>
   </p-panel>
 
+  <div *ngFor="let r of relations">
+    <p-panel [toggleable]="true" [collapsed]="true" #relation [header]="r.name">
+      <j-list *ngIf="!relation.collapsed" [docType]="r.type" [pageSize]=10
+        [filters]="[{left: r.field, center: '=', right: {id: this.docId, type: this.model.type, value: this.model.description}}]"></j-list>
+    </p-panel>
+  </div>
+
 </form>
 
 <ng-template #formTepmlateDefault let-v="viewModel">

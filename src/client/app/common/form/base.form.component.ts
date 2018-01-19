@@ -3,10 +3,11 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy
 import { ObservableMedia } from '@angular/flex-layout';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge } from 'rxjs/observable/merge';
-import { filter, map } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
-import { DocumentBase } from '../../../../server/models/document';
+import { DocumentBase, DocumentOptions } from '../../../../server/models/document';
+import { createDocument } from '../../../../server/models/documents.factory';
 import { DocService } from '../../common/doc.service';
 import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
 
@@ -35,7 +36,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   get isDoc() { return (this.viewModel.formGroup.controls['type'].value as string).startsWith('Document.'); }
   get isNew() { return (this.viewModel.formGroup.controls['description'].value as string).startsWith('new'); }
   get isCopy() { return (this.viewModel.formGroup.controls['description'].value as string).startsWith('copy'); }
-  // columnDef$ = this.ds.api.getView(this.model.type).pipe(map(r => r.columnDef));
+  docModel: DocumentBase = createDocument(this.model.type);
+  relations = (this.docModel.Prop() as DocumentOptions).relations || [];
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService, private location: Location) { }

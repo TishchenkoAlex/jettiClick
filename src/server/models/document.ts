@@ -31,6 +31,7 @@ export interface DocumentOptions {
   commands?: ICommand[];
   presentation?: 'code' | 'description';
   copyTo?: DocTypes[];
+  relations?: [{name: string, type: DocTypes, field: string}];
 }
 
 export type Ref = string | null | RefValue;

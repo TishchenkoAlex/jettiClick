@@ -8,6 +8,9 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   prefix: 'CPE-',
   copyTo: [
     'Document.Invoice'
+  ],
+  relations: [
+    {name: 'Client orders relation', type: 'Document.Invoice', field: 'Customer'}
   ]
 })
 export class CatalogCounterpartie extends DocumentBase {
@@ -15,13 +18,13 @@ export class CatalogCounterpartie extends DocumentBase {
   @Props({ type: 'Catalog.Counterpartie', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
+  @Props({ type: 'string', required: true, style: {width: '50%'} })
+  FillName: string = null;
+
   @Props({ type: 'boolean', required: true })
   Client: boolean = null;
 
   @Props({ type: 'boolean', required: true })
   Supplier: boolean = null;
-
-  @Props({ type: 'string', required: true, style: {width: '50%'} })
-  FillName: string = null;
 
 }

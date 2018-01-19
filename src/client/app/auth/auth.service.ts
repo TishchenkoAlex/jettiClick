@@ -3,24 +3,29 @@ import { Injectable, isDevMode } from '@angular/core';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { tap } from 'rxjs/operators';
+import { tap, map, filter } from 'rxjs/operators';
 import { shareReplay } from 'rxjs/operators/shareReplay';
 
 import { IAccount, ILoginResponse } from '../../../server/models/api';
 import { getRoleObjects, RoleObject, RoleType } from '../../../server/models/Roles/Base';
 import { environment } from '../../environments/environment';
 
+export const ANONYMOUS_USER: ILoginResponse = { account: undefined, token: undefined };
+
 @Injectable()
 export class AuthService {
 
-  userProfile$ = new BehaviorSubject<ILoginResponse>(null);
+  private _userProfile$ = new BehaviorSubject<ILoginResponse>(undefined);
+  userProfile$ = this._userProfile$.asObservable().pipe(filter(u => !!u));
+  isLoggedIn$ = this.userProfile$.pipe(map(p => p.account !== undefined));
+  isLoggedOut$ = this.isLoggedIn$.pipe(map(isLoggedIn => !isLoggedIn));
+
   userRoles: RoleType[] = [];
   userRoleObjects: RoleObject[] = [];
 
   get token() { return localStorage.getItem('jetti_token'); }
   set token(value) { localStorage.setItem('jetti_token', value); }
   get isAdmin() { return this.userRoles.findIndex(r => r === 'Admin') >= 0; }
-  isAuthenticated = () => this.userProfile$.value ? true : false;
   get tokenPayload() { return jwt_decode(this.token); }
 
   constructor(private router: Router, private http: HttpClient) {
@@ -34,7 +39,7 @@ export class AuthService {
 
   public logout() {
     localStorage.removeItem('jetti_token');
-    this.userProfile$.next(null);
+    this._userProfile$.next(ANONYMOUS_USER);
     return this.router.navigate(['Home']);
   }
 
@@ -62,7 +67,7 @@ export class AuthService {
     this.userRoleObjects = getRoleObjects(this.userRoles);
     this.token = loginResponse.token;
     this.setEnv();
-    this.userProfile$.next(loginResponse);
+    this._userProfile$.next(loginResponse);
   }
 
 }
