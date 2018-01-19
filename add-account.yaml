@@ -21,7 +21,7 @@ spec:
           # user and password to connect to the PostgreSQL instance.
           env:
             - name: POSTGRES_DB_JETTI_HOST
-              value: 35.198.118.153:5432
+              value: db.jetti-app.com:5432
             - name: POSTGRES_DB_ACCOUNTS_HOST
               value: 127.0.0.1:5432
           # [START cloudsql_secrets]
@@ -40,9 +40,9 @@ spec:
             - name: JTW_KEY
               value: redis-master
             - name: SUBSCRIPTION_ID
-              value: 'jetti'
+              value: 
             - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
-              value: 'воскресенье, 17 января 2018 г. 01:17:58 (EET)'
+              value: 'воскресенье, 19 января 2018 г. 02:18:58 (EET)'
             # [END cloudsql_secrets]
         # [START proxy_container]
         - name: cloudsql-proxy
@@ -129,7 +129,7 @@ spec:
             - name: SUBSCRIPTION_ID
               value: client-0001-app
             - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
-              value: 'воскресенье, 14 января 2018 г. 01:17:59 (EET)'
+              value: 'воскресенье, 14 января 2018 г. 01:18:59 (EET)'
             # [END cloudsql_secrets]
         # [START proxy_container]
         - name: cloudsql-proxy

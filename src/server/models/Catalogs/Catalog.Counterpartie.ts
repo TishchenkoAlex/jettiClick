@@ -19,7 +19,7 @@ export class CatalogCounterpartie extends DocumentBase {
   parent: Ref = null;
 
   @Props({ type: 'string', required: true, style: {width: '50%'} })
-  FillName: string = null;
+  FullName: string = null;
 
   @Props({ type: 'boolean', required: true })
   Client: boolean = null;
