@@ -43,10 +43,6 @@ app.get('*', (req, res) => {
     console.log('req*', req.url, req.baseUrl, req.originalUrl, req.path);
     res.sendFile('dist/index.html', { root: root });
 });
-app.get('**', (req, res) => {
-    console.log('req**', req.url, req.baseUrl, req.originalUrl, req.path);
-    res.sendFile('dist/index.html', { root: root });
-});
 app.use(errorHandler);
 function errorHandler(err, req, res, next) {
     console.log(err.message);
