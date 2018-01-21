@@ -5,7 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import { JTW_KEY } from '../env/environment';
 import { IAccount } from '../models/api';
 import { Accounts } from './middleware/accounts.db';
-import checkAuth from './middleware/check-auth';
+import {  authHTTP, authIO } from './middleware/check-auth';
 
 // tslint:disable-next-line:max-line-length
 const email: RegExp = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
@@ -20,13 +20,13 @@ export interface IJWTPayload {
   env: { [x: string]: string };
 }
 
-router.get('/account', checkAuth, async (req, res, next) => {
+router.get('/account', authHTTP, async (req, res, next) => {
   try {
     res.json(await Accounts.get((<any>req).user.email));
   } catch (err) { next(err); }
 });
 
-router.get('/:key', checkAuth, async (req, res, next) => {
+router.get('/:key', authHTTP, async (req, res, next) => {
   try {
     const payload: IJWTPayload = (<any>req).user;
     if (!payload.isAdmin) { return res.status(401).json({ message: 'only Admin action' }); }
@@ -35,7 +35,7 @@ router.get('/:key', checkAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.post('/singup', checkAuth, async (req, res, next) => {
+router.post('/singup', authHTTP, async (req, res, next) => {
   try {
     const payload: IJWTPayload = (<any>req).user;
     if (!payload.isAdmin) { return res.status(401).json({ message: 'only Admin action' }); }
@@ -47,7 +47,7 @@ router.post('/singup', checkAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.post('/', checkAuth, async (req, res, next) => {
+router.post('/', authHTTP, async (req, res, next) => {
   try {
     const payload: IJWTPayload = (<any>req).user;
     if (!payload.isAdmin) { return res.status(401).json({ message: 'only Admin action' }); }
@@ -78,7 +78,7 @@ async function post(source: IAccount) {
   return account;
 }
 
-router.delete('/:key', checkAuth, async (req, res, next) => {
+router.delete('/:key', authHTTP, async (req, res, next) => {
   try {
     const payload: IJWTPayload = (<any>req).user;
     if (!payload.isAdmin) { return res.status(401).json({ message: 'only Admin action' }); }
@@ -110,7 +110,7 @@ router.post('/login', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.post('/refresh', checkAuth, async (req, res, next) => {
+router.post('/refresh', authHTTP, async (req, res, next) => {
   try {
     const payload: IJWTPayload = (<any>req).user;
     const existing = await Accounts.get(payload.email);

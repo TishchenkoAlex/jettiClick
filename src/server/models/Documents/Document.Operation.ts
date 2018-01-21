@@ -115,7 +115,6 @@ export class DocumentOperation extends DocumentBase {
     LEFT JOIN "Documents" "p1" ON "p1".id = d.doc ->> 'p1'
     LEFT JOIN "Documents" "p2" ON "p2".id = d.doc ->> 'p2'
     LEFT JOIN "Documents" "p3" ON "p3".id = d.doc ->> 'p3'
-    LEFT JOIN "Documents" "p4" ON "p4".id = d.doc ->> 'p4'
     WHERE d.type = 'Document.Operation'  `;
   }
 

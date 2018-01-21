@@ -16,10 +16,11 @@ export const ANONYMOUS_USER: ILoginResponse = { account: undefined, token: undef
 export class AuthService {
 
   private _userProfile$ = new BehaviorSubject<ILoginResponse>(undefined);
-  userProfile$ = this._userProfile$.asObservable().pipe(filter(u => !!u));
+  userProfile$ = this._userProfile$.asObservable().pipe(filter(u => !!u), tap(u => this.userProfile = u));
   isLoggedIn$ = this.userProfile$.pipe(map(p => p.account !== undefined));
   isLoggedOut$ = this.isLoggedIn$.pipe(map(isLoggedIn => !isLoggedIn));
 
+  userProfile: ILoginResponse;
   userRoles: RoleType[] = [];
   userRoleObjects: RoleObject[] = [];
 

@@ -66,7 +66,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
   }
 
   async Execute(mode = 'post') {
-    const user = await this.auth.userProfile$.toPromise();
+    const user = this.auth.userProfile;
     const data = this.viewModel.formGroup.value;
     const result = await this.ds.api.jobAdd({
       job: { id: 'post', description: '(job) post Invoives' },

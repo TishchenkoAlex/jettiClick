@@ -9,18 +9,19 @@ import * as express from 'express';
 import * as httpServer from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
+import * as socketioJwt from 'socketio-jwt';
 
 import { JQueue } from './models/Tasks/tasks';
 import { router as auth } from './routes/auth';
 import { router as documents } from './routes/documents';
-import checkAuth from './routes/middleware/check-auth';
+import { authHTTP, authIO } from './routes/middleware/check-auth';
 import { router as registers } from './routes/registers';
 import { router as server } from './routes/server';
 import { router as suggests } from './routes/suggest';
 import { router as tasks } from './routes/tasks';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
-import { SUBSCRIPTION_ID } from './env/environment';
+import { SUBSCRIPTION_ID, JTW_KEY } from './env/environment';
 
 const root = './';
 const app = express();
@@ -35,18 +36,17 @@ app.use(express.static(path.join(root, 'dist')));
 app.use('/liveness_check', (req: Request, res: Response, next: NextFunction) => res.json('liveness_check'));
 console.log('SUBSCRIPTION_ID', SUBSCRIPTION_ID, `${SUBSCRIPTION_ID}/api`);
 const api = `${SUBSCRIPTION_ID}/api`;
-app.use(api, checkAuth, server);
-app.use(api, checkAuth, documents);
-app.use(api, checkAuth, userSettings);
-app.use(api, checkAuth, suggests);
-app.use(api, checkAuth, utils);
-app.use(api, checkAuth, registers);
-app.use(api, checkAuth, tasks);
+app.use(api, authHTTP, server);
+app.use(api, authHTTP, documents);
+app.use(api, authHTTP, userSettings);
+app.use(api, authHTTP, suggests);
+app.use(api, authHTTP, utils);
+app.use(api, authHTTP, registers);
+app.use(api, authHTTP, tasks);
 app.use(`${SUBSCRIPTION_ID}/auth`, auth);
 app.use('/auth', auth);
 
 app.get('*', (req: Request, res: Response) => {
-  console.log('req*', req.url, req.baseUrl, req.originalUrl, req.path);
   res.sendFile('dist/index.html', { root: root });
 });
 
@@ -58,7 +58,8 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
 }
 
 export const HTTP = httpServer.createServer(app);
-export const IO = socketIO(HTTP, {path: SUBSCRIPTION_ID + '/socket.io'});
+export const IO = socketIO(HTTP, { path: SUBSCRIPTION_ID + '/socket.io' });
+IO.use(authIO);
 
 const port = (+process.env.PORT) || 3000;
 HTTP.listen(port, () => console.log(`API running on port:${port}`));

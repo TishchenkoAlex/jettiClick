@@ -1,15 +1,13 @@
 import { Request, Response } from 'express';
 
-import { createDocumentServer } from '../../models/documents.factory.server';
-import { DocTypes, ComplexTypes } from '../../models/documents.types';
 import { db } from './../../db';
 import { DocListRequestBody } from './../../models/api';
-import { FilterInterval, FormListFilter } from './../../models/user.settings';
-import { createTypes } from '../../models/Types/Types.factory';
 import { configSchema } from './../../models/config';
+import { FilterInterval, FormListFilter } from './../../models/user.settings';
 
 export async function List(req: Request, res: Response) {
   const params = req.body as DocListRequestBody;
+  params.filter = params.filter || [];
   params.command = params.command || 'first';
   const direction = params.command !== 'prev';
   const queryList = configSchema.get(params.type as any).QueryList;
@@ -31,27 +29,42 @@ export async function List(req: Request, res: Response) {
   const filterBuilder = (filter: FormListFilter[]) => {
     let where = ' TRUE ';
     filter.filter(f => f.right).forEach(f => {
-      let operator = f.center.toString();
-      if (f.center === 'like') { operator = 'ILIKE'; }
-      const value = f.right['value'] || f.right;
-      switch (operator) {
+      if (typeof f.right === 'object' && f.right.id && f.left !== 'company' && f.left !== 'user') {
+        return;
+      }
+      switch (f.center) {
         case '=': case '>=': case '<=': case '>': case '<':
-          if (value instanceof Array) { // time interval
-            if (value[0]) { where += ` AND d."${f.left}" >= '${value[0]}'`; }
-            if (value[1]) { where += ` AND d."${f.left}" <= '${value[1]}'`; }
+          if (f.right instanceof Array) { // time interval
+            if (f.right[0]) { where += ` AND d."${f.left}" >= '${f.right[0]}'`; }
+            if (f.right[1]) { where += ` AND d."${f.left}" <= '${f.right[1]}'`; }
             break;
           }
-          if (typeof value === 'object') { return; }
-          where += ` AND d."${f.left}" ${operator} '${value.toString().replace('\'', '\'\'')}'`;
+          if (typeof f.right === 'object') { f.right = f.right.value; }
+          if (typeof f.right === 'string') { f.right = f.right.toString().replace('\'', '\'\''); }
+          if (f.right === null ) {
+            where += ` AND d."${f.left}" IS NULL `;
+          } else {
+            where += ` AND d."${f.left}" ${f.center} '${f.right}'`;
+          }
           break;
-        case 'ILIKE':
-          where += ` AND d."${f.left}" ${operator} '%${(value['value'] || value).toString().replace('\'', '\'\'')}%'`;
+        case 'like':
+          where += ` AND d."${f.left}" ILIKE '%${(f.right['value'] || f.right).toString().replace('\'', '\'\'')}%' `;
           break;
         case 'beetwen':
           const interval = f.right as FilterInterval;
-          if (interval.start) { where += ` AND d."${f.left}" >= '${interval.start}'`; }
-          if (interval.end) { where += ` AND d."${f.left}" <= '${interval.end}'`; }
+          if (interval.start) { where += ` AND d."${f.left}" BEETWEN '${interval.start}' AND '${interval.end}' `; }
           break;
+      }
+    });
+    return where;
+  };
+
+  const filterBuilderForDoc = (filter: FormListFilter[]) => {
+    let where = ' ';
+    filter.filter(f => f.right).forEach(f => {
+      if (typeof f.right === 'object' && f.right.id && f.left !== 'company' && f.left !== 'user') {
+        where += ` AND d.doc @> jsonb_build_object('${f.left}', '${f.right.id}') `;
+        return;
       }
     });
     return where;
@@ -63,11 +76,12 @@ export async function List(req: Request, res: Response) {
     const order = valueOrder.slice();
     const char1 = lastORDER ? isAfter ? '>' : '<' : isAfter ? '<' : '>';
     valueOrder.filter(o => o.value !== null).forEach(o => {
-      let where = filterBuilder(params.filter || []);
+      let where = filterBuilder(params.filter);
       order.filter(_o => _o.value !== null).forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
         char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
       order.length--;
-      let addQuery = `\nSELECT * FROM(SELECT * FROM(${queryList}) d WHERE ${where}\n${lastORDER ?
+      let addQuery = `\nSELECT * FROM(SELECT * FROM(${queryList} ${filterBuilderForDoc(params.filter)}) d
+        WHERE ${where}\n${lastORDER ?
         (char1 === '>') ? orderbyAfter : orderbyBefore :
         (char1 === '<') ? orderbyAfter : orderbyBefore} LIMIT ${params.count + 1})`;
       const idQuery = `SELECT d.id FROM (${addQuery} d) d`;
@@ -82,13 +96,15 @@ export async function List(req: Request, res: Response) {
   let query = '';
   if (params.command === 'first') {
     const where = filterBuilder(params.filter || []);
-    query = `SELECT * FROM (SELECT * FROM(${queryList}) d WHERE ${where}\n${orderbyAfter} LIMIT ${params.count + 1}) d`;
+    query = `SELECT * FROM (SELECT * FROM(${queryList} ${filterBuilderForDoc(params.filter)}) d
+      WHERE ${where}\n${orderbyAfter} LIMIT ${params.count + 1}) d`;
     const idQuery = `SELECT d.id FROM (${query}) d`;
     query = query.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
   } else {
     if (params.command === 'last') {
       const where = filterBuilder(params.filter || []);
-      query = `SELECT * FROM (SELECT * FROM(${queryList}) d WHERE ${where}\n${orderbyBefore} LIMIT ${params.count + 1}) d`;
+      query = `SELECT * FROM (SELECT * FROM(${queryList} ${filterBuilderForDoc(params.filter)}) d
+        WHERE ${where}\n${orderbyBefore} LIMIT ${params.count + 1}) d`;
       const idQuery = `SELECT d.id FROM (${query}) d`;
       query = query.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
     } else {
@@ -101,7 +117,7 @@ export async function List(req: Request, res: Response) {
   query = `SELECT d.*,
     (select count(*) FROM "Documents" where parent = d.id) "childs",
     (select count(*) FROM "Documents" where id = d.parent) "parents" FROM (${query}) d`;
-  // console.log(query);
+  console.log(query);
   const data = await db.manyOrNone(query);
   let result = [];
 

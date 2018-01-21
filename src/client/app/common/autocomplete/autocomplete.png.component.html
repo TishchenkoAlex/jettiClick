@@ -48,7 +48,6 @@
     <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)"></button>
   </div>
 
-
   <div *ngIf="value?.type?.includes('.') ">
     <div [class]="showLabel ? 'ui-float-label' : ''">
       <div class="ui-inputgroup">
@@ -68,7 +67,6 @@
     </div>
   </div>
 </form>
-
 
 <div *ngIf="showDialog">
   <p-dialog #dialog [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true"
