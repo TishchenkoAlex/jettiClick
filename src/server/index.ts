@@ -9,8 +9,8 @@ import * as express from 'express';
 import * as httpServer from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
-import * as socketioJwt from 'socketio-jwt';
 
+import { SUBSCRIPTION_ID } from './env/environment';
 import { JQueue } from './models/Tasks/tasks';
 import { router as auth } from './routes/auth';
 import { router as documents } from './routes/documents';
@@ -21,7 +21,6 @@ import { router as suggests } from './routes/suggest';
 import { router as tasks } from './routes/tasks';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
-import { SUBSCRIPTION_ID, JTW_KEY } from './env/environment';
 
 const root = './';
 const app = express();

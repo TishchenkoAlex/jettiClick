@@ -27,9 +27,6 @@ export class DocService {
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
         const subject$ = close ?  this.saveClose$ : this.save$;
         subject$.next(savedDoc);
-      })
-      .catch(err => {
-        this.openSnackBar('error', doc.description, err.message);
       });
   }
 
@@ -38,9 +35,6 @@ export class DocService {
       .then(deletedDoc => {
         this.delete$.next(deletedDoc);
         this.openSnackBar('succes', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
-      })
-      .catch(err => {
-        this.openSnackBar('error', id, err.message);
       });
   }
 

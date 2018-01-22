@@ -59,7 +59,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   @Output() change = new EventEmitter();
   @Output() focus = new EventEmitter();
   @ViewChild('ac') input: AutoComplete;
-  @Input() formControlName: string;
+  @Input() id: string;
 
   form: FormGroup = new FormGroup({
     suggest: this.required ? new FormControl({ value: this.value, disabled: this.disabled }, Validators.required) :
@@ -73,9 +73,10 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   get suggest() { return this.form.controls['suggest']; }
   get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.'); }
   get isTypeControl() { return this.type && this.type.startsWith('Types.'); }
+  get isComplexControl() { return this.type && this.type.includes('.'); }
   get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.'); }
-  get EMPTY() { return { id: '', code: '', type: this.type, value: null }; }
-  get isCatalogParent() { return this.type.startsWith('Catalog.') && this.formControlName === 'parent'; }
+  get EMPTY() { return { id: null, code: null, type: this.type, value: null }; }
+  get isCatalogParent() { return this.type.startsWith('Catalog.') && this.id === 'parent'; }
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
@@ -148,9 +149,8 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   }
 
   handleReset(event: Event) {
-    this.value = '' as any;
+    if (this.isComplexControl) { this.value = this.EMPTY; } else { this.value = '' as any; }
     this.suggest.markAsDirty();
-    this._value = this.EMPTY;
   }
 
   handleOpen(event: Event) {

@@ -1,61 +1,38 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { take } from 'rxjs/operators';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
-import { BaseJettiFormControl } from '../../common/dynamic-form/dynamic-form-base';
 import { getViewModel } from '../../common/dynamic-form/dynamic-form.service';
-import { BaseDocFormComponent } from './../../common/form/base.form.component';
+import { BaseDocFormComponent } from '../../common/form/base.form.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<j-form [formTepmlate]="" [actionTepmlate]="">
-  </j-form>`
+  template: `<j-form></j-form>{{ viewModel.formGroup.value | json}}`
 })
-export class OperationFormComponent implements AfterViewInit {
+export class OperationFormComponent implements AfterViewInit, OnDestroy {
+  private _subscription$: Subscription = Subscription.EMPTY;
 
-  private _originalView: BaseJettiFormControl[] = [];
-
-  @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
   get viewModel() { return this.super.viewModel; }
+  set viewModel(value) { this.super.viewModel = value; }
+  @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
 
   ngAfterViewInit() {
-    this._originalView = [...this.viewModel.view];
-    this.addParametersToForm();
-    this.viewModel.formGroup.controls['Operation'].valueChanges.subscribe(() => this.addParametersToForm());
+    this._subscription$.unsubscribe();
+    this._subscription$ = this.viewModel.formGroup.controls['Operation'].valueChanges.subscribe(v => this.update(v));
   }
 
-  addParametersToForm() {
-    this.viewModel.view = [...this._originalView];
-    const OperationId = this.viewModel.formGroup.controls['Operation'].value.id;
-    if (!OperationId) { return; }
-    this.super.ds.api.getViewModel('Catalog.Operation', OperationId).pipe(
-      take(1))
-      .subscribe(data => {
-        const Parameters = data['model']['Parameters'] || [] as any[];
-        const ParametersObject: { [s: string]: any } = {};
-        Parameters.forEach(c =>
-          ParametersObject['p' + c.order] = {
-            label: c.label, type: c.type.id, required: !!c.required, change: c.change, order: c.order,
-            ['p' + c.order]: c.tableDef ? JSON.parse(c.tableDef) : null
-          });
-        for (let fc = 1; fc <= 10; fc++) { this.viewModel.formGroup.removeControl('p' + fc); }
-        const additionalVM = getViewModel(ParametersObject, this.viewModel.model, true);
-        additionalVM.view.filter(el => el.order > 0).forEach(el => el.order = el.order + 103);
-        Object.keys(additionalVM.formGroup.controls).forEach(c => {
-          const additionalControl = additionalVM.formGroup.get(c) as FormControl;
-          if ((additionalControl.value && additionalControl.value.type === null) || !additionalControl.value) {
-            const type: string = ParametersObject[c].type;
-            if (type.includes('.')) {
-              additionalControl.patchValue(
-                { id: '', value: null, type: type, code: '' }, { onlySelf: true, emitEvent: false });
-            }
-          }
-          this.viewModel.formGroup.addControl(c, additionalControl);
-        });
-        this.viewModel.view.push.apply(this.viewModel.view, additionalVM.view);
-        this.viewModel.view = [...this.viewModel.view.filter(el => el.order > 0), ...this.viewModel.view.filter(el => el.order <= 0)];
-        this.super.cd.markForCheck();
-      });
+  update = async (value) => {
+    const operation = await this.super.ds.api.getRawDoc(value.id).toPromise() || { doc: { Parameters: [] } };
+    const view = this.super.docModel.Props();
+    const Parameters = operation.doc['Parameters'];
+    Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
+      label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
+      [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
+    });
+    this.viewModel = getViewModel(view, this.super.model, true);
+    console.log(this.viewModel);
+    this.ngAfterViewInit();
+    this.super.cd.markForCheck();
   }
 
+  ngOnDestroy = () => this._subscription$.unsubscribe();
 }

@@ -43,7 +43,7 @@ export class ApiInterceptor implements HttpInterceptor {
         }
         this.lds.loading = true;
         this.lds.color = 'warn';
-        this.messageService.add({ severity: 'error', summary: err.statusText, detail: err.message, id: Math.random() });
+        this.messageService.add({ severity: 'error', summary: err.statusText, detail: err.error, id: Math.random() });
         return ErrorObservable.create(err);
       }));
   }

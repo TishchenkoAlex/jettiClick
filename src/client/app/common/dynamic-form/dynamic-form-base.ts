@@ -1,4 +1,5 @@
 export interface ControlOptions {
+  value?: any;
   type?: string;
   key?: string;
   label?: string;
@@ -15,6 +16,7 @@ export interface ControlOptions {
 }
 
 export class BaseJettiFormControl {
+  value: any;
   type: string;
   key: string;
   label: string;
@@ -31,6 +33,7 @@ export class BaseJettiFormControl {
   onChangeServer?: boolean;
 
   constructor(options: ControlOptions = {}) {
+    this.value = options.value || null;
     this.type = options.type;
     this.key = options.key || '';
     this.label = options.label || '';
@@ -115,6 +118,7 @@ export interface JettiComplexObject {
 export class AutocompleteJettiFormControl extends BaseJettiFormControl {
   controlType = 'autocomplete';
   style = { 'width' : '250px' };
+  value: JettiComplexObject = { id: null, code: null, type: this.type, value: null };
 
   constructor(options: ControlOptions = {}) {
     super(options);

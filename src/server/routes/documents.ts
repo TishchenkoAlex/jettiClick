@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 
-import { DocumentBase } from '../../server/models/document';
+import { DocumentBase, DocumentOptions } from '../../server/models/document';
 import { PatchValue, RefValue } from '../models/api';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
@@ -13,8 +13,12 @@ import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib, postById } from './../std.lib';
 import { User } from './user.settings';
-import { docOperationResolver, doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
+import { doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
 import { List } from './utils/list';
+import { DocumentOperation } from '../models/Documents/Document.Operation';
+import { createDocument } from '../models/documents.factory';
+import { CatalogOperation } from '../models/Catalogs/Catalog.Operation';
+import { SQLGenegator } from '../fuctions/SQLGenerator';
 
 export const router = express.Router();
 
@@ -25,12 +29,14 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
   } catch (err) { next(err); }
 });
 
-router.get('/:type/view/*', async (req: Request, res: Response, next: NextFunction) => {
+
+const viewAction = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let config_schema; let view;
     const user = User(req);
     const serverDoc = configSchema.get(req.params.type);
-    view = serverDoc.Props;
+
+    view = Object.assign({}, serverDoc.Props);
     config_schema = {
       queryObject: serverDoc.QueryObject,
       queryNewObject: serverDoc.QueryNew,
@@ -41,7 +47,7 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
 
     const columnDef = buildColumnDef(view, config_schema.settings || new FormListSettings());
 
-    let model; const id = req.params['0'];
+    let model; const id = req.params['0']; const OperationID = req.params['1'];
     if (id) {
       if (id === 'new') {
         model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
@@ -66,17 +72,29 @@ router.get('/:type/view/*', async (req: Request, res: Response, next: NextFuncti
               model.parent = parent;
               model.isfolder = true;
             } else {
+              if (serverDoc.type === 'Document.Operation') {
+                const Parameters = await db.one(`
+                  select doc -> 'Parameters' "Parameters" from "Documents"
+                  where id = (select doc ->> 'Operation' from "Documents" where id = $1)`, [id]);
+                Parameters.Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
+                  label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
+                  [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
+                });
+                config_schema.queryObject = SQLGenegator.QueryObject(view, config_schema.prop);
+              }
               model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
             }
           }
         }
-        await docOperationResolver(model, db);
       }
     }
     const result = { view, model, columnDef, prop: config_schema.prop || {} };
     res.json(result);
   } catch (err) { next(err); }
-});
+};
+router.get('/:type/view', viewAction);
+router.get('/:type/view/*/*', viewAction);
+
 
 // Delete document
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -95,7 +113,6 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       if (serverDoc && serverDoc.afterDelete) { serverDoc.afterDelete(tx); }
       await doSubscriptions(doc, 'after detele', tx);
       const model = await tx.one(`${configSchema.get(serverDoc.type as any).QueryList} AND d.id = $1`, [id]);
-      await docOperationResolver(model, tx);
       res.json(model);
     });
   } catch (err) { next(err); }
@@ -141,7 +158,6 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const JDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await post(doc, JDoc, tx);
       const docServer = await tx.one<DocumentBaseServer>(`${configSchema.get(doc.type as any).QueryObject} AND d.id = $1`, [doc.id]);
-      await docOperationResolver(docServer, tx);
       res.json(docServer);
     });
   } catch (err) { next(err); }

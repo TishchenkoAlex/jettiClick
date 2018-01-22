@@ -44,23 +44,6 @@ export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostRe
   if (query) { await tx.none(query); }
 }
 
-export async function docOperationResolver(doc: DocumentBaseServer, tx: TX) {
-  if (doc.type !== 'Document.Operation') { return; } // only for Operations docs
-  for (let i = 1; i <= 10; i++) {
-    const p = doc['p' + i.toString()];
-    if (p instanceof Array) {
-      for (const el of p) {
-        for (const key in el) {
-          if (typeof el[key] === 'string') {
-            const data = await lib.doc.formControlRef(el[key], tx); // todo check types in model
-            if (data) { el[key] = data; }
-          }
-        }
-      }
-    }
-  }
-}
-
 export async function doSubscriptions(doc: INoSqlDocument, script: string, tx: TX) {
   const scripts = await tx.manyOrNone(`
     SELECT "then" FROM "Subscriptions" WHERE "what" ? $1 AND "when" = $2 ORDER BY "order"`, [doc.type, script]);

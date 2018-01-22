@@ -1,5 +1,5 @@
-import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
@@ -126,7 +126,10 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
     this.sort(event);
   }
-  update(col: ColumnDef, event, center = 'like') { this._debonce.next({ col, event, center }); }
+  update(col: ColumnDef, event, center = 'like') {
+    if (!event || (event && !event.value)) { event = null; }
+    this._debonce.next({ col, event, center });
+  }
 
   sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
 

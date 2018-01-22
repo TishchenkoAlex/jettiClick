@@ -41,11 +41,6 @@ export const configSchema = new Map([
     });
     if (el.type === 'Catalog.Subcount') { result.QueryList = (doc as CatalogSubcount).QueryList(); }
     if (el.type === 'Catalog.Documents') { result.QueryList = (doc as CatalogDocuments).QueryList(); }
-    if (el.type === 'Document.Operation') { // Opeations specific implementation
-      result.QueryList = (doc as DocumentOperation).QueryList();
-      result.QueryObject = (doc as DocumentOperation).QueryObject();
-      result.QueryNew = (doc as DocumentOperation).QueryNew();
-    }
     return result;
   }),
   ...RegisteredTypes.map(el => {

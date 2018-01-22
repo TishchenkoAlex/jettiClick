@@ -1,18 +1,18 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    ViewChild,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core';
 import { Column, DataTable } from 'primeng/primeng';
+
 import { DocumentOptions } from '../../../server/models/document';
 import { createDocument } from '../../../server/models/documents.factory';
-
 import { FormListFilter } from '../../../server/models/user.settings';
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { ApiService } from '../services/api.service';
@@ -59,6 +59,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
   }
 
   update(col: Column, event) {
+    if (!event || (event && !event.value)) { event = null; }
     this.dataTable.filters[col.field] = { matchMode: col.filterMatchMode, value: event };
     this.Sort(event);
   }

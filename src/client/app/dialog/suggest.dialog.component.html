@@ -32,7 +32,7 @@
       <ng-template pTemplate="filter" let-col>
         <div class="ui-column-filter ui-fluid">
           <j-autocomplete-png [checkValue]="false" [type]="dataTable.filters[col.field]?.value?.type || 'string'" [ngModel]="dataTable.filters[col.field]?.value"
-            [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(col, $event)">
+            [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(col, $event)" [id]="col.field">
           </j-autocomplete-png>
         </div>
       </ng-template>
@@ -43,7 +43,7 @@
       <ng-template pTemplate="filter" let-col>
         <div class="ui-column-filter">
           <j-autocomplete-png [checkValue]="false" [type]="dataTable.filters[col.field]?.value?.type || col.type || 'string'" [ngModel]="dataTable.filters[col.field]?.value"
-            [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(col, $event)">
+            [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(col, $event)" [id]="col.field">
           </j-autocomplete-png>
         </div>
       </ng-template>

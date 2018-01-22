@@ -170,7 +170,7 @@ export class SQLGenegator {
     };
 
     const complexProperty = (prop: string, type: string) =>
-      `, '{"id": "", "code": "", "type": "${type}", "value": ""}':: JSONB "${prop}"\n`;
+      `, '{"id": null, "code": null, "type": "${type}", "value": null}':: JSONB "${prop}"\n`;
 
     let query = '';
 
@@ -199,9 +199,9 @@ export class SQLGenegator {
       false deleted,
       false isfolder,
       '' info,
-      '{"id": "", "code": "", "type": "${options.type}", "value": ""}':: JSONB "parent",
-      '{"id": "", "code": "", "type": "Catalog.User", "value": ""}':: JSONB "user",
-      '{"id": "", "code": "", "type": "Catalog.Company", "value": ""}':: JSONB "company"
+      '{"id": null, "code": null, "type": "${options.type}", "value": null}':: JSONB "parent",
+      '{"id": null, "code": null, "type": "Catalog.User", "value": null}':: JSONB "user",
+      '{"id": null, "code": null, "type": "Catalog.Company", "value": null}':: JSONB "company"
       ${query}`;
     return query;
   }

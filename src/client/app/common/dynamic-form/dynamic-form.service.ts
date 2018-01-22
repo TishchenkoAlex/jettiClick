@@ -3,24 +3,24 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
+import { DocumentBase } from '../../../../server/models/document';
+import { DocTypes } from '../../../../server/models/documents.types';
+import { createForm } from '../../../../server/models/Forms/form.factory';
 import { FormTypes } from '../../../../server/models/Forms/form.types';
 import { ApiService } from '../../services/api.service';
 import { cloneFormGroup } from '../utils';
-import { DocumentBase } from './../../../../server/models/document';
-import { createDocument } from './../../../../server/models/documents.factory';
-import { createForm } from './../../../../server/models/Forms/form.factory';
 import {
-    AutocompleteJettiFormControl,
-    BaseJettiFormControl,
-    BooleanJettiFormControl,
-    ControlOptions,
-    DateJettiFormControl,
-    DateTimeJettiFormControl,
-    NumberJettiFormControl,
-    ScriptJettiFormControl,
-    TableDynamicControl,
-    TextareaJettiFormControl,
-    TextboxJettiFormControl,
+  AutocompleteJettiFormControl,
+  BaseJettiFormControl,
+  BooleanJettiFormControl,
+  ControlOptions,
+  DateJettiFormControl,
+  DateTimeJettiFormControl,
+  NumberJettiFormControl,
+  ScriptJettiFormControl,
+  TableDynamicControl,
+  TextareaJettiFormControl,
+  TextboxJettiFormControl,
 } from './dynamic-form-base';
 
 export interface ViewModel {
@@ -38,12 +38,12 @@ function toFormGroup(controls: BaseJettiFormControl[]) {
       const Row = {};
       const arr: FormGroup[] = [];
       for (const item of control.controls) {
-        Row[item.key] = item.required ? new FormControl(null, Validators.required) : new FormControl();
+        Row[item.key] = item.required ? new FormControl(item.value, Validators.required) : new FormControl(item.value);
       }
       arr.push(new FormGroup(Row));
       group[control.key] = control.required ? new FormArray(arr, Validators.required) : new FormArray(arr);
     } else {
-      group[control.key] = control.required ? new FormControl(null, Validators.required) : new FormControl();
+      group[control.key] = control.required ? new FormControl(control.value, Validators.required) : new FormControl(control.value);
     }
   });
   const result = new FormGroup(group);
@@ -143,6 +143,7 @@ export function getViewModel(view, model, isExists: boolean) {
     ...fields.filter(el => el.order <= 0)
   ];
   formGroup.patchValue(model, patchOptionsNoEvents);
+  console.log(model);
   return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey};
 }
 
@@ -152,11 +153,9 @@ export class DynamicFormService {
 
   constructor(private apiService: ApiService) { }
 
-  getViewModel$(docType: string, docID = ''): Observable<ViewModel> {
-    const doc = createDocument(docType as any);
-    const view = doc.Props();
-    return this.apiService.getViewModel(docType, docID).pipe(
-      map(viewModel => getViewModel(view, viewModel['model'], docID !== 'new')));
+  getViewModel$(docType: DocTypes, docID = '', operationID = ''): Observable<ViewModel> {
+    return this.apiService.getViewModel(docType, docID, operationID).pipe(
+      map(viewModel => getViewModel(viewModel.view, viewModel.model, docID !== 'new')));
   }
 
   getView$(type: string) {

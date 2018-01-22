@@ -20,7 +20,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
 
-  viewModel: ViewModel = this.route.data['value'].detail;
+  @Input() viewModel: ViewModel = this.route.data['value'].detail;
   docId = this.route.params['value'].id;
 
   private _subscription$: Subscription = Subscription.EMPTY;

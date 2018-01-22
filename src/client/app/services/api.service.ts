@@ -14,11 +14,17 @@ import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings }
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
+import { INoSqlDocument } from '../../../server/models/ServerDocument';
 
 @Injectable()
 export class ApiService {
 
   constructor(private http: HttpClient) { }
+
+  getRawDoc(id: string) {
+    const query = `${environment.api}raw/${id}`;
+    return (this.http.get<INoSqlDocument>(query));
+  }
 
   getDocList(type: string, id: string, command: string, count = 10, offset = 0,
     order: FormListOrder[] = [], filter: FormListFilter[] = []): Observable<DocListResponse> {
@@ -37,8 +43,8 @@ export class ApiService {
       map(data => ({ view: data['view'], columnDef: data['columnDef'] })));
   }
 
-  getViewModel(type: string, id = ''): Observable<any> {
-    const query = `${environment.api}${type}/view/${id}`;
+  getViewModel(type: string, id = '', operationID = ''): Observable<any> {
+    const query = `${environment.api}${type}/view/${id}/${operationID}`;
     return (this.http.get(query));
   }
 
