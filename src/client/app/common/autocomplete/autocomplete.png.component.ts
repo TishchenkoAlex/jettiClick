@@ -29,7 +29,7 @@ import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
 
 // tslint:disable:no-non-null-assertion
-export function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
+function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
   return (c: AbstractControl): { [key: string]: any } => {
     if (!component.required || c.value!.value) { return null; }
     return { 'required': true };
@@ -75,7 +75,6 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   suggest = this.form.controls['suggest'] as FormControl;
 
   private NO_EVENT = false;
-
   showDialog = false;
 
   get isComplexValue() { return this.value!.type!.includes('.'); }
@@ -95,15 +94,16 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     this.suggest.patchValue(this._value);
     if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value); }
     this.NO_EVENT = false;
-    this.cd.detectChanges();
+    setTimeout(() => this.cd.detectChanges());
   }
   get value() { return this._value; }
 
-  suggests$: ISuggest[] = [];
-
   // implement ControlValueAccessor interface
   onChange = (value: any) => { };
-  private onTouched = () => { };
+  registerOnChange(fn: any): void { this.onChange = fn; }
+  onTouched = () => { };
+  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  setDisabledState?(isDisabled: boolean): void { this.disabled = isDisabled; }
 
   writeValue(obj: any): void {
     this.NO_EVENT = true;
@@ -117,18 +117,6 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     this.value = obj;
     this.suggest.markAsDirty();
   }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState?(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
   // end of implementation ControlValueAccessor interface
 
   // implement Validator interface
@@ -140,6 +128,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) {}
 
+  suggests$: ISuggest[] = [];
   getSuggests(text) {
     this.api.getSuggests(this.value.type || this.type, text || '', this.isCatalogParent).pipe(take(1)).subscribe(data => {
       this.suggests$ = data;
@@ -147,7 +136,6 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     });
   }
 
-  onSelect = (event) => this.value = this.suggest.value;
   handleReset = (event: Event) => this.value = this.EMPTY;
   handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id]);
   handleSearch = (event: Event) => this.showDialog = true;

@@ -63,7 +63,7 @@
     <br *ngIf="tables.length">
     <p-tabView *ngIf="tables.length" class="tabViewClassInForm">
       <div *ngFor="let control of tables; let i = index">
-        <p-tabPanel [style]="{'padding':'0'}" [header]="control.label">
+        <p-tabPanel [header]="control.label">
           <j-control [control]="control" [form]="v.formGroup"></j-control>
         </p-tabPanel>
       </div>
