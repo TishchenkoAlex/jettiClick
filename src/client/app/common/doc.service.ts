@@ -22,7 +22,7 @@ export class DocService {
   constructor(public api: ApiService, private messageService: MessageService, public confirmationService: ConfirmationService) { }
 
   save(doc: DocumentBase, close: boolean = false) {
-    this.api.postDoc(doc).toPromise()
+    return this.api.postDoc(doc).toPromise()
       .then(savedDoc => {
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
         const subject$ = close ?  this.saveClose$ : this.save$;
@@ -31,10 +31,10 @@ export class DocService {
   }
 
   delete(id: string) {
-    this.api.deleteDoc(id).toPromise()
+    return this.api.deleteDoc(id).toPromise()
       .then(deletedDoc => {
         this.delete$.next(deletedDoc);
-        this.openSnackBar('succes', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
+        this.openSnackBar('success', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       });
   }
 

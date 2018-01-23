@@ -24,6 +24,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   @Input() viewModel: ViewModel = this.route.data['value'].detail;
   paramID = this.route.params['value'].id as string;
+  paramTYPE = this.route.params['value'].type as string;
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;
@@ -61,7 +62,6 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     this._saveCloseSubscription$ = this.ds.saveClose$.pipe(
       filter(doc => doc.id === this.model.id))
       .subscribe(doc => {
-        this.viewModel.formGroup.patchValue(doc, { emitEvent: false });
         this.viewModel.formGroup.markAsPristine();
         this.Close();
       });
@@ -96,8 +96,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   }
 
   private _close() {
-    this.ds.close$.next(null);
-    this.location.back();
+    this.ds.close$.next(<any>{id: this.paramID, type: this.paramTYPE, close: true});
   }
 
   Close() {

@@ -78,7 +78,7 @@
   <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="unPost()" *ngIf="!isDeleted && isPosted && isDoc"></button>
   <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Save()" *ngIf="!isDeleted && !isPosted || !isDoc"></button>
   <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Copy()" *ngIf="!isDeleted && !isCopy"></button>
-  <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger"  [disabled]="!v.formGroup.valid || isCopy || isNew" (click)="Delete()"></button>
+  <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!(isCopy || isNew)" (click)="Delete()"></button>
 </ng-template>
 
 <p-confirmDialog [key]="this.paramID" appendTo="body"></p-confirmDialog>

@@ -39,10 +39,11 @@ export class TabControllerComponent implements OnInit {
       this.cd.detectChanges();
     });
 
-    this.ds.close$.pipe(filter(data => data === null))
+    this.ds.close$.pipe(filter(doc => doc && !!doc['close']))
       .subscribe(doc => {
-        this.tcs.tabs.splice(this.tcs.index, 1);
-        if (this.tcs.index === this.tcs.tabs.length) { this.tcs.index--; }
+        const index = this.tcs.tabs.findIndex(i => (i.docType === doc.type) && (i.docID === doc.id));
+        this.tcs.tabs.splice(index, 1);
+        if (this.tcs.index >= this.tcs.tabs.length) { this.tcs.index = this.tcs.tabs.length - 1; }
         this.onChange(this.tcs.index);
         this.cd.detectChanges();
       });
@@ -53,18 +54,18 @@ export class TabControllerComponent implements OnInit {
         t.description = data.detail.model.description;
       }
     });
+    this.cd.detectChanges();
   }
 
   handleClose(event) {
     this.tcs.index = event;
     this.ds.close$.next(<any>{ id: this.tcs.tabs[event].docID, type: this.tcs.tabs[event].docType });
-    this.cd.detectChanges();
-  }
+    }
 
   onChange(event) {
-    this.tcs.index = event;
     const docType = this.tcs.tabs[event].docType;
     const docID = this.tcs.tabs[event].docID;
-    this.router.navigate([docType, docID]);;
+    this.router.navigate([docType, docID]);
+    this.cd.detectChanges();
   }
 }

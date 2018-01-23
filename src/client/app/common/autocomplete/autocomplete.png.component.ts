@@ -94,7 +94,6 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     this.suggest.patchValue(this._value);
     if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value); }
     this.NO_EVENT = false;
-    setTimeout(() => this.cd.detectChanges());
   }
   get value() { return this._value; }
 
@@ -111,11 +110,11 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     if (!this.type) { this.type = obj.type; }
     if (this.isComplexControl && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
       (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) {
-      this.value = this.EMPTY;
-      return;
+      obj = this.EMPTY;
     }
     this.value = obj;
     this.suggest.markAsDirty();
+    this.cd.detectChanges();
   }
   // end of implementation ControlValueAccessor interface
 

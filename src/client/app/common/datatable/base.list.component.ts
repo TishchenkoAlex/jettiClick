@@ -67,7 +67,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this._closeSubscription$ = this.ds.close$.pipe(
       filter(data => data && data.type === this.docType && data.id === ''))
-      .subscribe(data => this.ds.close$.next(null));
+      .subscribe(data => this.close());
 
     this.docModel = createDocument(this.docType);
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
@@ -133,7 +133,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
 
-  close() { this.ds.close$.next(null); }
+  close() { this.ds.close$.next(<any>{id: '', type: this.docType, close: true}); }
 
   add() { this.router.navigate([this.dataTable.selection[0] ? this.dataTable.selection[0].type : this.dataSource.docType, 'new']); }
 
