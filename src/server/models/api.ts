@@ -1,6 +1,7 @@
 import { FormListFilter, FormListOrder } from './user.settings';
 import { DocumentBase, Ref } from './../models/document';
 import * as Queue from 'bull';
+import { AllTypes } from '../models/documents.types';
 
 export interface DocListRequestBody {
   id: string; type: string; command: string; count: number; offset: number;
@@ -8,7 +9,7 @@ export interface DocListRequestBody {
   order: FormListOrder[];
 }
 
-export interface Continuation { first: {id: Ref, type: string}; last: {id: Ref, type: string}; }
+export interface Continuation { first: { id: Ref, type: string }; last: { id: Ref, type: string }; }
 export interface DocListResponse { data: any[]; continuation: Continuation; }
 
 export interface MenuItem { type: string; description: string; icon: string; menu: string; }
@@ -47,7 +48,7 @@ export interface IEvent {
 export interface IJob {
   id: string;
   progress: number;
-  opts: {[x: string]: any};
+  opts: { [x: string]: any };
   delay: number;
   timestamp: number;
   returnvalue: any;
@@ -55,10 +56,10 @@ export interface IJob {
   failedReason: string;
   finishedOn: number;
   processedOn: number;
-  data: {[x: string]: any};
+  data: { [x: string]: any };
 }
 
-export interface IJobs  {
+export interface IJobs {
   Active: IJob[];
   Completed: IJob[];
   Delayed: IJob[];
@@ -74,7 +75,7 @@ export interface IAccount {
   status: string;
   isAdmin: boolean;
   roles: string[];
-  env: {[x: string]: string };
+  env: { [x: string]: string };
 }
 
 export interface ILoginResponse {
@@ -86,4 +87,11 @@ export interface ITree {
   id: string;
   description: string;
   parent: string;
+}
+
+export interface ISuggest {
+  id: string;
+  type: AllTypes;
+  code: string;
+  description: string;
 }

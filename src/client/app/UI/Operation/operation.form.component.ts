@@ -6,7 +6,7 @@ import { BaseDocFormComponent } from '../../common/form/base.form.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<j-form></j-form>{{ viewModel.formGroup.value | json}}`
+  template: `<j-form></j-form>`
 })
 export class OperationFormComponent implements AfterViewInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
@@ -29,7 +29,6 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
       [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
     });
     this.viewModel = getViewModel(view, this.super.model, true);
-    console.log(this.viewModel);
     this.ngAfterViewInit();
     this.super.cd.markForCheck();
   }

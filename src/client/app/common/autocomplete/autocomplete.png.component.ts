@@ -1,31 +1,40 @@
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    EventEmitter,
-    forwardRef,
-    Input,
-    Output,
-    ViewChild,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  forwardRef,
+  Input,
+  Output,
+  ViewChild,
 } from '@angular/core';
 import {
-    AbstractControl,
-    ControlValueAccessor,
-    FormControl,
-    FormGroup,
-    NG_VALIDATORS,
-    NG_VALUE_ACCESSOR,
-    ValidationErrors,
-    Validator,
-    Validators,
+  AbstractControl,
+  ControlValueAccessor,
+  FormControl,
+  FormGroup,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ValidationErrors,
+  Validator,
+  ValidatorFn,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AutoComplete } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 
+import { ISuggest } from '../../../../server/models/api';
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
+
+export function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
+  return (c: AbstractControl): { [key: string]: any } => {
+    if (!component.required) { return null; }
+    if (c.value && c.value.value) { return null; }
+    return { 'required': true };
+  };
+}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,33 +71,38 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   @Input() id: string;
 
   form: FormGroup = new FormGroup({
-    suggest: this.required ? new FormControl({ value: this.value, disabled: this.disabled }, Validators.required) :
-      new FormControl({ value: this.value, disabled: this.disabled })
+    suggest: new FormControl({ value: this.value, disabled: this.disabled }, AutocompleteValidator(this))
   });
+  suggest = this.form.controls['suggest'] as FormControl;
 
   private NO_EVENT = false;
 
   showDialog = false;
 
-  get suggest() { return this.form.controls['suggest']; }
-  get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.'); }
-  get isTypeControl() { return this.type && this.type.startsWith('Types.'); }
-  get isComplexControl() { return this.type && this.type.includes('.'); }
-  get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.'); }
+  // tslint:disable:no-non-null-assertion
+  get isComplexValue() { return this.value!.type!.includes('.'); }
+  get isTypeControl() { return this.type!.startsWith('Types.'); }
+  get isComplexControl() { return this.type!.includes('.'); }
+  get isTypeValue() { return this.value!.type!.startsWith('Types.'); }
   get EMPTY() { return { id: null, code: null, type: this.type, value: null }; }
+  get isEMPTY() { return this.isComplexControl && !this.value!.value; }
   get isCatalogParent() { return this.type.startsWith('Catalog.') && this.id === 'parent'; }
 
   private _value: JettiComplexObject;
   @Input() set value(obj) {
-    if (this.isTypeControl && this.placeholder) { this.placeholder = this.placeholder.split('[')[0] + '[' + (obj.type || '') + ']'; }
+    if (this.isTypeControl && this.placeholder) {
+      this.placeholder = this.placeholder.split('[')[0] + '[' + (obj && obj.type ? obj.type : '') + ']';
+    }
     this._value = obj;
     this.suggest.patchValue(this._value);
+    this.suggest.markAsDirty();
     if (!this.NO_EVENT) { this.onChange(this._value); this.change.emit(this._value); }
     this.NO_EVENT = false;
+    setTimeout(() => this.cd.markForCheck());
   }
   get value() { return this._value; }
 
-  suggests$: any[];
+  suggests$: ISuggest[] = [];
 
   // implement ControlValueAccessor interface
   onChange = (value: any) => { };
@@ -98,14 +112,12 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     this.NO_EVENT = true;
     if (!obj) { obj = this.EMPTY; }
     if (!this.type) { this.type = obj.type; }
-    if ((this.type && this.type.includes('.')) && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
+    if (this.isComplexControl && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
       (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) {
       this.value = this.EMPTY;
       return;
     }
     this.value = obj;
-    if (this.type && this.type.includes('.') && (this.value && !this.value.value)) { this.handleReset(null); }
-    setTimeout(() => this.cd.markForCheck());
   }
 
   registerOnChange(fn: any): void {
@@ -124,12 +136,12 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   // implement Validator interface
   validate(c: AbstractControl): ValidationErrors | null {
     if (!this.required) { return null; }
-    if (c.value && c.value.value) { return null; }
+    if (c.value!.value) { return null; }
     return { 'required': true };
   }
   // end of implementation Validator interface
 
-  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
+  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) {}
 
   getSuggests(text) {
     this.api.getSuggests(this.value.type || this.type, text || '', this.isCatalogParent).pipe(take(1)).subscribe(data => {
@@ -138,19 +150,12 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     });
   }
 
-  onBlur() {
-    if (this.value && this.suggest.value && (this.value.id !== this.suggest.value.id)) {
-      this.value = this.value;
-    }
-  }
-
   onSelect(event) {
     this.value = this.suggest.value;
   }
 
   handleReset(event: Event) {
-    if (this.isComplexControl) { this.value = this.EMPTY; } else { this.value = '' as any; }
-    this.suggest.markAsDirty();
+    this.value = this.EMPTY;
   }
 
   handleOpen(event: Event) {
@@ -161,7 +166,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     this.showDialog = true;
   }
 
-  searchComplete(row) {
+  searchComplete(row: ISuggest) {
     this.showDialog = false;
     if (!row) { return; }
     this.value = {
@@ -170,6 +175,11 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     };
   }
 
+  onBlur() {
+    if (this.value && this.suggest.value && (this.value.id !== this.suggest.value.id)) {
+      this.value = this.value;
+    }
+  }
   select() {
     this.input.inputEL.nativeElement.select();
   }
@@ -180,5 +190,6 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
     return result;
   }
+
 
 }

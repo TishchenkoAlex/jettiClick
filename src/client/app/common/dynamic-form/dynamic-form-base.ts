@@ -11,6 +11,7 @@ export interface ControlOptions {
   style?: any;
   owner?: string;
   totals?: number;
+  change?: string;
   onChange?: (doc, value) => Promise<any>;
   onChangeServer?: boolean;
 }
@@ -29,6 +30,7 @@ export class BaseJettiFormControl {
   owner?: string;
   totals: number;
   showLabel = true;
+  change?: string;
   onChange?: (doc, value) => Promise<any>;
   onChangeServer?: boolean;
 
@@ -47,6 +49,10 @@ export class BaseJettiFormControl {
     this.owner = options.owner;
     this.onChange = options.onChange;
     this.onChangeServer = options.onChangeServer;
+    this.change = options.change;
+    if (this.change && !this.onChange) {
+      this.onChange = new Function('doc', 'value', options.change) as any;
+    }
   }
 }
 

@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
@@ -156,7 +156,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   parentChange(event) {
-    this.dataTable.filters['parent'] = { matchMode: '=', value: event.data.id };
+    this.dataTable.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null};
     this.dataSource.sort();
   }
 

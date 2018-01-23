@@ -7,13 +7,18 @@ import { DocumentOperation } from './Document.Operation';
 export class DocumentOperationServer extends DocumentOperation implements ServerDocument {
 
   async onValueChanged(prop: string, value: any, tx: TX) {
+    if (!value) { return {}; }
     switch (prop) {
       case 'company':
-        if (!value) { return {}; }
         const company = await lib.doc.byId(value.id, tx);
         if (!company) { return {}; }
         const currency = await lib.doc.formControlRef(company.doc.currency, tx);
-        return { currency: currency };
+        return { currency };
+      case 'Operation':
+        const Operation = await lib.doc.byId(value.id, tx);
+        if (!Operation) { return {}; }
+        const Group = await lib.doc.formControlRef(Operation.doc.Group, tx);
+        return { Group };
       default:
         return {};
     }

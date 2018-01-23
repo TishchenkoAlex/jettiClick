@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { DocumentBase } from '../../../../server/models/document';
+import { createDocument } from '../../../../server/models/documents.factory';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { createForm } from '../../../../server/models/Forms/form.factory';
 import { FormTypes } from '../../../../server/models/Forms/form.types';
@@ -73,8 +74,7 @@ export function getViewModel(view, model, isExists: boolean) {
       const onChangeServer = !!prop['onChangeServer'];
       let newControl: BaseJettiFormControl;
       const controlOptions: ControlOptions = {
-        key: key, label: label, type: controlType, required: required, readOnly: readOnly, hidden: hidden,
-        order: order, style: style, onChange: onChange, owner: owner, totals: totals, onChangeServer: onChangeServer
+        key, label, type: controlType, required, readOnly, hidden, change, order, style, onChange, owner, totals, onChangeServer
       };
       switch (controlType) {
         case 'table':
@@ -143,8 +143,7 @@ export function getViewModel(view, model, isExists: boolean) {
     ...fields.filter(el => el.order <= 0)
   ];
   formGroup.patchValue(model, patchOptionsNoEvents);
-  console.log(model);
-  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey};
+  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey };
 }
 
 
@@ -155,7 +154,8 @@ export class DynamicFormService {
 
   getViewModel$(docType: DocTypes, docID = '', operationID = ''): Observable<ViewModel> {
     return this.apiService.getViewModel(docType, docID, operationID).pipe(
-      map(viewModel => getViewModel(viewModel.view, viewModel.model, docID !== 'new')));
+      map(viewModel =>
+        getViewModel({ ...viewModel.view, ...createDocument(docType).Props() }, viewModel.model, docID !== 'new')));
   }
 
   getView$(type: string) {

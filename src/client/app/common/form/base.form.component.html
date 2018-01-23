@@ -1,5 +1,5 @@
 <form novalidate [formGroup]="viewModel.formGroup" cdkTrapFocus>
-  <p-panel [header]="viewModel.formGroup.controls['description']?.value?.concat(isPosted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
+  <p-panel [header]="description?.value?.concat(isPosted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
         <ng-container *ngTemplateOutlet="actionTepmlate ? actionTepmlate : actionTepmlateDefault; context: {viewModel: viewModel}"></ng-container>
@@ -35,7 +35,7 @@
   <div *ngFor="let r of relations">
     <p-panel [toggleable]="true" [collapsed]="true" #relation [header]="r.name">
       <j-list *ngIf="!relation.collapsed" [docType]="r.type" [pageSize]=10
-        [filters]="[{left: r.field, center: '=', right: {id: this.docId, type: this.model.type, value: this.model.description}}]"></j-list>
+        [filters]="[{left: r.field, center: '=', right: {id: model.id, type: model.type, value: model.description}}]"></j-list>
     </p-panel>
   </div>
 
@@ -78,7 +78,7 @@
   <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="unPost()" *ngIf="!isDeleted && isPosted && isDoc"></button>
   <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Save()" *ngIf="!isDeleted && !isPosted || !isDoc"></button>
   <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Copy()" *ngIf="!isDeleted && !isCopy"></button>
-  <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-{{isDeleted ? 'warning' : 'danger'}}"  [disabled]="!v.formGroup.valid || isCopy || isNew" (click)="Delete()"></button>
+  <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger"  [disabled]="!v.formGroup.valid || isCopy || isNew" (click)="Delete()"></button>
 </ng-template>
 
-<p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>
+<p-confirmDialog [key]="this.paramID" appendTo="body"></p-confirmDialog>

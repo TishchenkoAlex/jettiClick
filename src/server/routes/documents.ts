@@ -29,6 +29,16 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
   } catch (err) { next(err); }
 });
 
+async function buildOperationViewAndSQL(id: string, view: any, config_schema: any) {
+  const Parameters = await db.one(`
+    select doc -> 'Parameters' "Parameters" from "Documents"
+    where id = (select doc ->> 'Operation' from "Documents" where id = $1)`, id);
+  Parameters.Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
+    label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
+    [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
+  });
+  config_schema.queryObject = SQLGenegator.QueryObject(view, config_schema.prop);
+}
 
 const viewAction = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -53,6 +63,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
         model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
       } else {
         if (id.startsWith('copy-')) {
+          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id.slice(5), view, config_schema); }
           model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id.slice(5)]);
           const newDoc = await db.one(`${config_schema.queryNewObject}`);
           model.id = newDoc.id; model.date = newDoc.date; model.code = newDoc.code;
@@ -72,16 +83,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
               model.parent = parent;
               model.isfolder = true;
             } else {
-              if (serverDoc.type === 'Document.Operation') {
-                const Parameters = await db.one(`
-                  select doc -> 'Parameters' "Parameters" from "Documents"
-                  where id = (select doc ->> 'Operation' from "Documents" where id = $1)`, [id]);
-                Parameters.Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
-                  label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-                  [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
-                });
-                config_schema.queryObject = SQLGenegator.QueryObject(view, config_schema.prop);
-              }
+              if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
               model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
             }
           }
@@ -94,7 +96,6 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
 };
 router.get('/:type/view', viewAction);
 router.get('/:type/view/*/*', viewAction);
-
 
 // Delete document
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -110,9 +111,9 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
         DELETE FROM "Register.Info" WHERE document = $1;
         DELETE FROM "Register.Accumulation" WHERE document = $1;
         UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;`, [id]);
-      if (serverDoc && serverDoc.afterDelete) { serverDoc.afterDelete(tx); }
+      if (serverDoc && serverDoc.afterDelete) { await serverDoc.afterDelete(tx); }
       await doSubscriptions(doc, 'after detele', tx);
-      const model = await tx.one(`${configSchema.get(serverDoc.type as any).QueryList} AND d.id = $1`, [id]);
+      const model = await tx.one(`${configSchema.get(serverDoc.type as any).QueryObject} AND d.id = $1`, [id]);
       res.json(model);
     });
   } catch (err) { next(err); }
@@ -228,7 +229,7 @@ router.post('/server/:type/:func', async (req: Request, res: Response, next: Nex
     let result: any = {};
     await db.tx(async (tx: TX) => {
       const doc = createDocumentServer(req.params.type, req.body.doc);
-      const func: (args: any, tx: TX) => Promise<{doc: DocumentBase, result: any}> = doc[req.params.func];
+      const func: (args: any, tx: TX) => Promise<{ doc: DocumentBase, result: any }> = doc[req.params.func];
       if (func && typeof func === 'function') { result = await func(req.body.args, tx); }
       res.json(result);
     });

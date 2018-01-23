@@ -5,16 +5,16 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, IJob, IJobs, ITree, PatchValue } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, IJob, IJobs, ITree, PatchValue, ISuggest } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { DocumentBase } from '../../../server/models/document';
-import { DocTypes } from '../../../server/models/documents.types';
+import { AllTypes, DocTypes } from '../../../server/models/documents.types';
 import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
+import { INoSqlDocument } from '../../../server/models/ServerDocument';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToApiFormat } from '../common/mapping/document.mapping';
-import { INoSqlDocument } from '../../../server/models/ServerDocument';
 
 @Injectable()
 export class ApiService {
@@ -48,9 +48,9 @@ export class ApiService {
     return (this.http.get(query));
   }
 
-  getSuggests(docType: string, filter = '', isfolder = false): Observable<any[]> {
+  getSuggests(docType: string, filter = '', isfolder = false) {
     const query = `${environment.api}suggest/${docType}/${isfolder ? 'isfolder/' : ''}${filter}`;
-    return (this.http.get(query) as Observable<any[]>);
+    return (this.http.get<ISuggest[]>(query));
   }
 
   getSuggestsById(id: string): Observable<any> {
