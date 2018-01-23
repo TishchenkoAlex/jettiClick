@@ -69,7 +69,7 @@ export function getViewModel(view, model, isExists: boolean) {
       const style = prop['style'];
       const totals = prop['totals'] * 1 || null;
       const change = prop['change'];
-      const owner: string = prop['owner'] || '';
+      const owner: string = prop['owner'] || null;
       const onChange = prop['onChange'];
       const onChangeServer = !!prop['onChangeServer'];
       let newControl: BaseJettiFormControl;

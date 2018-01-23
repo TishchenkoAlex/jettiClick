@@ -117,7 +117,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         this.dataSource.first();
       }
-      this.AfterViewInit = true; this.cd.markForCheck();
+      this.AfterViewInit = true; this.cd.detectChanges();
     });
   }
 

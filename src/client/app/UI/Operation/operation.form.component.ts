@@ -30,7 +30,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
     });
     this.viewModel = getViewModel(view, this.super.model, true);
     this.ngAfterViewInit();
-    this.super.cd.markForCheck();
+    this.super.cd.detectChanges();
   }
 
   ngOnDestroy = () => this._subscription$.unsubscribe();

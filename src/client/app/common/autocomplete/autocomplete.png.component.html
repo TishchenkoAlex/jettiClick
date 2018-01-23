@@ -3,8 +3,7 @@
   <div class="ui-float-label" *ngIf="value?.type === 'string'">
     <div class="ui-inputgroup">
       <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" [readOnly]="readOnly"
-        autocomplete="off" (focus)="$event.target.select()" 
-        (ngModelChange)="value={id: 'string', code: '', type: 'string', value: $event}; suggest.markAsDirty();">
+        autocomplete="off" (focus)="$event.target.select()" (ngModelChange)="value={id: 'string', code: '', type: 'string', value: $event}">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
@@ -13,8 +12,7 @@
   <div class="ui-float-label" *ngIf="value?.type === 'number'">
     <div class="ui-inputgroup">
       <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" type="number"
-        [readOnly]="readOnly" autocomplete="off" (focus)="$event.target.select()"
-        (ngModelChange)="value={id: 'number', code: '', type: 'number', value: $event}">
+        [readOnly]="readOnly" autocomplete="off" (focus)="$event.target.select()" (ngModelChange)="value={id: 'number', code: '', type: 'number', value: $event}">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
@@ -22,8 +20,8 @@
 
   <div class="ui-float-label" *ngIf="value?.type === 'datetime'">
     <div class="ui-inputgroup">
-      <p-calendar [required]="required" [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" showTime="true"
-        [locale]="locale" showButtonBar="true" [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body"
+      <p-calendar [required]="required" [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" showTime="true" [locale]="locale"
+        showButtonBar="true" [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body"
         (ngModelChange)="value={id: 'datetime', code: '', type: 'datetime', value: $event}" [dateFormat]="dateFormat">
       </p-calendar>
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
@@ -34,8 +32,8 @@
   <div class="ui-float-label" *ngIf="value?.type === 'date'">
     <div class="ui-inputgroup">
       <p-calendar [required]="required" [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" showButtonBar="true"
-        [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body"
-        (ngModelChange)="value={id: 'date', code: '', type: 'date', value: $event}" [locale]="locale" [dateFormat]="dateFormat">
+        [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body" (ngModelChange)="value={id: 'date', code: '', type: 'date', value: $event}"
+        [locale]="locale" [dateFormat]="dateFormat">
       </p-calendar>
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
@@ -44,17 +42,16 @@
 
   <div *ngIf="value?.type === 'boolean'">
     <p-triStateCheckbox [label]="showLabel ? placeholder : ''" [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}"
-    (ngModelChange)="value={id: 'boolean', code: '', type: 'boolean', value: $event}"></p-triStateCheckbox>
+      (ngModelChange)="value={id: 'boolean', code: '', type: 'boolean', value: $event}"></p-triStateCheckbox>
     <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)"></button>
   </div>
 
   <div *ngIf="isComplexValue">
     <div [ngClass]="{'ui-float-label' : showLabel}">
       <div class="ui-inputgroup">
-        <p-autoComplete #ac [formControl]="suggest" [suggestions]="suggests$" [required]="required"
-          [readonly]="readOnly" autocomplete="off" appendTo="body" (completeMethod)="getSuggests($event.query)" field="value"
-          (onSelect)="onSelect($event)" [inputStyle]="inputStyle" (onClear)="handleReset($event)" dataKey="id" 
-          (onFocus)="this.focus.emit($event)" (onBlur)="onBlur()">
+        <p-autoComplete #ac [formControl]="suggest" [suggestions]="suggests$" [required]="required" [readonly]="readOnly" autocomplete="off"
+          appendTo="body" (completeMethod)="getSuggests($event.query)" field="value" (onSelect)="onSelect($event)" [inputStyle]="inputStyle"
+          (onClear)="handleReset($event)" dataKey="id" (onFocus)="this.focus.emit($event)" (onBlur)="onBlur()">
         </p-autoComplete>
         <button pButton type="button" icon="fa-search" class="ui-button-secondary" *ngIf="showFind" (click)="handleSearch($event)"
           [tabIndex]=-1></button>
@@ -69,9 +66,8 @@
 </form>
 
 <div *ngIf="showDialog">
-  <p-dialog #dialog [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true"
-    [closeOnEscape]="true" [width]="400" [height]="555" appendTo="body">
-    <j-suggest-list #sl [docType]="this.value.type || this.type" [docID]="this.value.id" [filters]="calcFilters()"
-      (onSelect)="searchComplete($event)"></j-suggest-list>
+  <p-dialog [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true" [closeOnEscape]="true"
+    [width]="400" [height]="555" appendTo="body">
+    <j-suggest-list [docType]="this.value.type || this.type" [docID]="this.value.id" [filters]="calcFilters()" (onSelect)="searchComplete($event)"></j-suggest-list>
   </p-dialog>
 </div>

@@ -44,7 +44,6 @@ export class BaseFormComponent implements OnInit, OnDestroy {
 
   private _close() {
     this.ds.close$.next(null);
-    this.cd.markForCheck();
   }
 
   Close() {
@@ -54,10 +53,9 @@ export class BaseFormComponent implements OnInit, OnDestroy {
       header: 'Confirmation',
       icon: 'fa fa-question-circle',
       accept: this._close.bind(this),
-      reject: () => { this.cd.markForCheck(); },
       key: this.docId
     });
-    setTimeout(() => this.cd.markForCheck());
+    this.cd.detectChanges();
   }
 
   async onCommand(event) {

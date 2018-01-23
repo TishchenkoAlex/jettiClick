@@ -69,7 +69,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.cd.markForCheck());
+    this.cd.detectChanges();
   }
 
   getControl(i: number) {

@@ -26,7 +26,7 @@ export class RegisterInfoComponent implements OnInit {
         this.additionalColumns =
           Object.keys(data[0]).filter(el => ['date', 'kind', 'company', 'document'].findIndex(e => e === el) === -1);
         this.displayedColumns = [...this.displayedColumns, ...this.additionalColumns];
-        this.cd.markForCheck();
+        this.cd.detectChanges();
       }
     );
   }

@@ -34,9 +34,9 @@ export class TabControllerComponent implements OnInit {
           component: this.tcs.GetComponent(this.tcs.tabid, this.tcs.docID)
         };
         this.tcs.tabs.push(newTab);
-        setTimeout(() => { this.tcs.index = this.tcs.tabs.length - 1; this.cd.markForCheck(); });
-      } else { this.tcs.index = index; setTimeout(() => this.cd.markForCheck()); }
-      this.cd.markForCheck();
+        setTimeout(() => { this.tcs.index = this.tcs.tabs.length - 1; this.cd.detectChanges(); });
+      } else { this.tcs.index = index; }
+      this.cd.detectChanges();
     });
 
     this.ds.close$.pipe(filter(data => data === null))
@@ -44,7 +44,7 @@ export class TabControllerComponent implements OnInit {
         this.tcs.tabs.splice(this.tcs.index, 1);
         if (this.tcs.index === this.tcs.tabs.length) { this.tcs.index--; }
         this.onChange(this.tcs.index);
-        this.cd.markForCheck();
+        this.cd.detectChanges();
       });
 
     this.route.data.pipe(filter(r => r.detail)).subscribe(data => {
@@ -58,13 +58,13 @@ export class TabControllerComponent implements OnInit {
   handleClose(event) {
     this.tcs.index = event;
     this.ds.close$.next(<any>{ id: this.tcs.tabs[event].docID, type: this.tcs.tabs[event].docType });
-    setTimeout(() => this.cd.markForCheck());
+    this.cd.detectChanges();
   }
 
   onChange(event) {
     this.tcs.index = event;
     const docType = this.tcs.tabs[event].docType;
     const docID = this.tcs.tabs[event].docID;
-    this.router.navigate([docType, docID]).then(() => this.cd.markForCheck());
+    this.router.navigate([docType, docID]);;
   }
 }
