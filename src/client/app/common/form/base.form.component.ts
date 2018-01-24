@@ -8,6 +8,7 @@ import { of as observableOf } from 'rxjs/observable/of';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
+import { calculateDescription } from '../../../../server/models/api';
 import { DocumentBase, DocumentOptions } from '../../../../server/models/document';
 import { createDocument } from '../../../../server/models/documents.factory';
 import { DocService } from '../../common/doc.service';
@@ -25,24 +26,24 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   @Input() viewModel: ViewModel = this.route.data['value'].detail;
   paramID = this.route.params['value'].id as string;
   paramTYPE = this.route.params['value'].type as string;
+  form = this.viewModel.formGroup;
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;
   private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
 
-  get model() { return this.viewModel.formGroup.getRawValue() as DocumentBase; }
+  get model() { return this.form.getRawValue() as DocumentBase; }
   docModel: DocumentBase = createDocument(this.model.type);
-  get controls() { return this.viewModel.formGroup.controls; }
   get hasTables() { return this.viewModel.view.find(t => t.type === 'table'); }
   get tables() { return this.viewModel.view.filter(t => t.type === 'table'); }
-  get description() { return this.controls.description as FormControl; }
-  get isPosted() { return this.controls.posted.value as boolean; }
-  get isDeleted() { return this.controls.deleted.value as boolean; }
-  get isDoc() { return this.docModel.isDoc; }
-  get isNew() { return this.paramID.startsWith('new'); }
-  get isCopy() { return this.paramID.startsWith('copy'); }
-  get isFolder() { return (!!this.controls['isfolder'].value); }
+  get description() { return <FormControl>this.form.get('description'); }
+  get isPosted() { return <boolean>this.form.get('posted').value; }
+  get isDeleted() { return <boolean>this.form.get('deleted').value; }
+  isDoc = this.docModel.isDoc;
+  get isNew() { return !this.form.get('timestamp').value; }
+  isCopy = this.paramID.startsWith('copy');
+  get isFolder() { return (!!this.form.get('isfolder').value); }
   docDescription = (this.docModel.Prop() as DocumentOptions).description;
   relations = (this.docModel.Prop() as DocumentOptions).relations || [];
 
@@ -56,7 +57,9 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       filter(doc => (doc.id === this.model.id) && (doc.isfolder !== true)))
       .subscribe(doc => {
         this.viewModel.formGroup.patchValue(doc, { emitEvent: false });
+        if (this.docModel.isDoc) { this.showDescription(); }
         this.viewModel.formGroup.markAsPristine();
+        this.cd.detectChanges();
       });
 
     this._saveCloseSubscription$ = this.ds.saveClose$.pipe(
@@ -71,20 +74,23 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       .subscribe(data => this.Close());
 
     this._descriptionSubscription$ = merge(...[
-      this.controls.date.valueChanges,
-      this.controls.code.valueChanges,
-      this.controls.Group ?
-        this.controls.Group.valueChanges : observableOf('')]).pipe(
+      this.form.get('date').valueChanges,
+      this.form.get('code').valueChanges,
+      this.form.get('Group') ?
+        this.form.get('Group').valueChanges : observableOf('')]).pipe(
       filter(() => this.docModel.isDoc))
-      .subscribe(data => {
-        const doc = this.model;
-        const Group = doc['Group'] ? '(' + doc['Group'].value + ')' : '';
-        const value = `${this.docDescription} ${Group} #${doc.code}, ${doc.date.toISOString()}`;
-        this.description.patchValue(value, { emitEvent: false, onlySelf: true });
-      });
+      .subscribe(data => this.showDescription());
   }
 
-  Save() { this.ds.save(this.model); }
+  private showDescription() {
+    const date = this.form.get('date').value;
+    const code = this.form.get('code').value;
+    const group = this.form.get('Group') && this.form.get('Group').value ? this.form.get('Group').value.value : '';
+    const value = calculateDescription(this.docDescription, date, code, group);
+    this.description.patchValue(value, { emitEvent: false, onlySelf: true });
+  }
+
+  Save() { this.showDescription(); this.ds.save(this.model); }
   Delete() { this.ds.delete(this.model.id); }
   Copy() { return this.router.navigate([this.model.type, 'copy-' + this.model.id]); }
   Post() { const doc = this.model; doc.posted = true; this.ds.save(doc); }
@@ -96,7 +102,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   }
 
   private _close() {
-    this.ds.close$.next(<any>{id: this.paramID, type: this.paramTYPE, close: true});
+    this.ds.close$.next(<any>{ id: this.paramID, type: this.paramTYPE, close: true });
   }
 
   Close() {
@@ -111,10 +117,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     this.cd.detectChanges();
   }
 
-  Print() {
-    // const url = 'https://pharm.yuralex.com/ReportServer/Pages/ReportViewer.aspx';
-    // window.open(`${url}?%2fReport+Project1%2fReport1&rs:Command=Render&invoiceID=${this.docId}`, 'Print');
-  }
+  Print = () => { };
 
   async onCommand(event) {
     const result = await this.ds.api.onCommand(this.model, 'company', { Tax: -11 });
@@ -122,7 +125,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   }
 
   async getPrice() {
-    const result = await this.ds.api.server(this.model, 'GetPrice', {}).toPromise();
+    const result = await this.ds.api.docMethodOnServer(this.model, 'GetPrice', {}).toPromise();
     this.viewModel.formGroup.patchValue(result.doc);
   }
 

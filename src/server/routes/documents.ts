@@ -2,7 +2,7 @@ import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 
 import { DocumentBase, DocumentOptions } from '../../server/models/document';
-import { PatchValue, RefValue } from '../models/api';
+import { PatchValue, RefValue, calculateDescription } from '../models/api';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
 import { db, TX } from './../db';
@@ -67,7 +67,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id.slice(5)]);
           const newDoc = await db.one(`${config_schema.queryNewObject}`);
           model.id = newDoc.id; model.date = newDoc.date; model.code = newDoc.code;
-          model.posted = false; model.deleted = false;
+          model.posted = false; model.deleted = false; model.timestamp = null;
           model.parent = { ...model.parent, id: null, code: null, value: null };
           model.description = 'Copy: ' + model.description;
         } else {
@@ -158,7 +158,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const doc: INoSqlDocument = req.body;
       const JDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await post(doc, JDoc, tx);
-      const docServer = await tx.one<DocumentBaseServer>(`${configSchema.get(doc.type as any).QueryObject} AND d.id = $1`, [doc.id]);
+      const query = `${configSchema.get(doc.type as any).QueryObject} AND d.id = $1`;
+      const docServer = await tx.one<DocumentBaseServer>(query, [doc.id]);
       res.json(docServer);
     });
   } catch (err) { next(err); }
@@ -226,11 +227,11 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
 
 router.post('/server/:type/:func', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let result: any = {};
+    const doc = createDocumentServer(req.params.type, req.body.doc);
+    let result = {doc, result: {}};
     await db.tx(async (tx: TX) => {
-      const doc = createDocumentServer(req.params.type, req.body.doc);
-      const func: (args: any, tx: TX) => Promise<{ doc: DocumentBase, result: any }> = doc[req.params.func];
-      if (func && typeof func === 'function') { result = await func(req.body.args, tx); }
+      const func = (doc[req.params.func] as Function).bind(doc, req.body.params, tx);
+      if (func && typeof func === 'function') { result = await func(); }
       res.json(result);
     });
   } catch (err) { next(err); }

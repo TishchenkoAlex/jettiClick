@@ -17,6 +17,7 @@ export interface INoSqlDocument {
   isfolder: boolean;
   parent: Ref;
   info: string;
+  timestamp: Date;
   doc: { [x: string]: any };
 }
 

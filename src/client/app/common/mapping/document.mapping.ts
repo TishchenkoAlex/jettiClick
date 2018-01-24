@@ -15,6 +15,7 @@ export function mapDocToApiFormat(model: DocumentBase): INoSqlDocument {
     company: model.company['id'],
     user: model.user['id'],
     info: model.info,
+    timestamp: model.timestamp,
     doc: {}
   };
 

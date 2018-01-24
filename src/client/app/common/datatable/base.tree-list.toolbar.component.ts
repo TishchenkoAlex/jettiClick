@@ -17,7 +17,7 @@ import { BaseTreeListComponent } from '../../common/datatable/base.tree-list.com
       </div>
     </p-toolbar>`
 })
-export class BaseTreeListToolbarComponent implements OnInit {
+export class BaseTreeListToolbarComponent {
   @Input() owner: BaseTreeListComponent;
 
   private _selection: TreeNode = null;
@@ -28,7 +28,7 @@ export class BaseTreeListToolbarComponent implements OnInit {
   }
 
   buttons: MenuItem[] = [];
-  ngOnInit() {
+  initState() {
     this.buttons = [
       { label: 'add', icon: 'fa-plus', styleClass: 'ui-button-success', command: this.owner.add.bind(this.owner), visible: true },
       { label: 'delete', icon: 'fa-trash', styleClass: 'ui-button-danger', command: this.owner.delete.bind(this.owner), visible: this.selection !== null },
@@ -36,8 +36,8 @@ export class BaseTreeListToolbarComponent implements OnInit {
   }
 
   private recalcButtonsState() {
-      // tslint:disable-next-line:no-non-null-assertion
-      this.buttons.find(b => b.label === 'delete')!.visible = this.selection !== null;
+    if (!this.buttons.length) { this.initState(); }
+    this.buttons.find(b => b.label === 'delete').visible = this.selection !== null;
   }
 
 }

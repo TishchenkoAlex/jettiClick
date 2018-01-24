@@ -1,23 +1,23 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    EventEmitter,
-    Input,
-    OnDestroy,
-    OnInit,
-    Output,
-    ViewChild,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core';
 import { FormArray, FormGroup, FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import {
-    BaseJettiFormControl,
-    ScriptJettiFormControl,
-    TableDynamicControl,
+  BaseJettiFormControl,
+  ScriptJettiFormControl,
+  TableDynamicControl,
 } from '../../common/dynamic-form/dynamic-form-base';
 import { patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
@@ -74,6 +74,13 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getControl(i: number) {
     return this.formGroup.controls[i] as FormGroup;
+  }
+
+  getControlValue(index: number, field: string) {
+    const value = this.getControl(index).controls[field].value;
+    const result = value.value || typeof value === 'object' ? value.value || '' : value || '';
+    console.log(result);
+    return result;
   }
 
   ngOnDestroy() {

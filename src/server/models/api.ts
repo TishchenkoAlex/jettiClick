@@ -95,3 +95,9 @@ export interface ISuggest {
   code: string;
   description: string;
 }
+
+export function calculateDescription(description: string, date: Date, code: string, group = '') {
+  const Group = group ? '(' + group + ')' : '';
+  const value = `${description} ${Group} #${code}, ${date.toISOString()}`;
+  return value;
+}

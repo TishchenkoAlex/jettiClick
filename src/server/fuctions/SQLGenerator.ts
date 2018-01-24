@@ -86,7 +86,7 @@ export class SQLGenegator {
 
     let query = `
       SELECT
-      d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder,d.info,
+      d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder,d.info, d.timestamp,
       jsonb_build_object('id', "parent".id, 'value', "parent".description, 'type',
         coalesce("parent".type, 'Types.Document'), 'code', "parent".code) "parent",
       jsonb_build_object('id', "user".id, 'value', "user".description, 'type', 'Catalog.User', 'code', "user".code) "user",
@@ -134,7 +134,7 @@ export class SQLGenegator {
         ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = d.doc ->> '${prop}' AND "${prop}".type = '${type}'\n`;
 
 
-    let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent,
+    let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent, d.timestamp,
             "company".description "company",
             "user".description "user"\n`;
 
@@ -247,7 +247,7 @@ export class SQLGenegator {
 }
 
 export function excludeProps(doc) {
-  const { user, company, parent, info, isfolder, description, id, type, date, code, posted, deleted, ...newObject } = doc;
+  const { user, company, parent, info, isfolder, description, id, type, date, code, posted, deleted, timestamp, ...newObject } = doc;
   return newObject;
 }
 

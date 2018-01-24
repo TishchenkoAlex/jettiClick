@@ -1,4 +1,4 @@
-<form novalidate [formGroup]="viewModel.formGroup" cdkTrapFocus>
+<form novalidate [formGroup]="form" cdkTrapFocus>
   <p-panel [header]="description?.value?.concat(isPosted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
@@ -7,7 +7,7 @@
       <div class="ui-toolbar-group-right">
         <!--  <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
         <button *ngIf="isPosted" pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()"></button>
-        <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="Print()"></button>
+        <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="getPrice()"></button>
         <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>
       </div>
     </p-toolbar>
@@ -77,8 +77,8 @@
   <button pButton type="button" id="Post" icon="fa-check" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
   <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="unPost()" *ngIf="!isDeleted && isPosted && isDoc"></button>
   <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Save()" *ngIf="!isDeleted && !isPosted || !isDoc"></button>
-  <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Copy()" *ngIf="!isDeleted && !isCopy"></button>
-  <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!(isCopy || isNew)" (click)="Delete()"></button>
+  <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Copy()" *ngIf="!isDeleted && !isNew"></button>
+  <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!isNew" (click)="Delete()"></button>
 </ng-template>
 
 <p-confirmDialog [key]="this.paramID" appendTo="body"></p-confirmDialog>

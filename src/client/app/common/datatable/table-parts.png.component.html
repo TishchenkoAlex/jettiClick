@@ -28,9 +28,7 @@
         <span *ngSwitchCase="'boolean'">
           <i [class]="getControl(row.index).controls[col.field]?.value ? 'fa fa-check-square' : 'fa fa-square-o'"></i>
         </span>
-        <span *ngSwitchDefault>{{ getControl(row.index).controls[col.field]?.value?.value || getControl(row.index).controls[col.field]?.value?.toString()
-          === '[object Object]' ? getControl(row.index).controls[col.field]?.value?.value || getControl(row.index).controls[col.field]?.value?.type
-          : getControl(row.index).controls[col.field]?.value || '' }}
+        <span *ngSwitchDefault>{{ getControlValue(row.index, col.field) }}
         </span>
       </span>
     </ng-template>

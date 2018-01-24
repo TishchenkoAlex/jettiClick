@@ -88,6 +88,9 @@ export class DocumentBase {
   @Props({ type: 'string', hiddenInList: true, order: -1, controlType: 'textarea' })
   info = '';
 
+  @Props({ type: 'datetime', hiddenInList: true, order: -1, hidden: true })
+  timestamp: Date = null;
+
   private targetProp(target: Object, propertyKey: string): PropOptions {
     const result = Reflect.getMetadata(symbolProps, target, propertyKey);
     return result;

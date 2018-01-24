@@ -5,10 +5,10 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, IJob, IJobs, ITree, PatchValue, ISuggest } from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, IJob, IJobs, ISuggest, ITree, PatchValue } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { DocumentBase } from '../../../server/models/document';
-import { AllTypes, DocTypes } from '../../../server/models/documents.types';
+import { DocTypes } from '../../../server/models/documents.types';
 import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 import { INoSqlDocument } from '../../../server/models/ServerDocument';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
@@ -148,7 +148,7 @@ export class ApiService {
     return this.http.post(query, callConfig).toPromise();
   }
 
-  server(doc: DocumentBase, func: string, params: any): Observable<{ doc: DocumentBase, result: any }> {
+  docMethodOnServer(doc: DocumentBase, func: string, params: any): Observable<{ doc: DocumentBase, result: any }> {
     const query = `${environment.api}/server/${doc.type}/${func}`;
     return this.http.post<{ doc: DocumentBase, result: any }>(query, { doc, params });
   }
