@@ -1,56 +1,37 @@
 import locale from '@angular/common/locales/ru';
 import { NgModule } from '@angular/core';
-import { MessageService } from 'primeng/components/common/messageservice';
 import { NgDragDropModule } from 'ng-drag-drop';
-import {
-    AccordionModule,
-    AutoCompleteModule,
-    // BlockUIModule,
-    BreadcrumbModule,
-    ButtonModule,
-    CalendarModule,
-    CheckboxModule,
-    ConfirmationService,
-    ConfirmDialogModule,
-    ContextMenuModule,
-    DataTableModule,
-    DialogModule,
-    DropdownModule,
-    FieldsetModule,
-    GrowlModule,
-    InplaceModule,
-    InputMaskModule,
-    InputTextareaModule,
-    InputTextModule,
-    // MenuModule,
-    MessageModule,
-    MessagesModule,
-    // MultiSelectModule,
-    PaginatorModule,
-    PanelMenuModule,
-    PanelModule,
-    PasswordModule,
-    ProgressBarModule,
-    ProgressSpinnerModule,
-    SelectButtonModule,
-    SharedModule,
-    SpinnerModule,
-    SplitButtonModule,
-    TabMenuModule,
-    TabViewModule,
-    // TieredMenuModule,
-    ToggleButtonModule,
-    ToolbarModule,
-    TooltipModule,
-    TreeTableModule,
-    TriStateCheckboxModule,
-} from 'primeng/primeng';
+import { AutoCompleteModule } from 'primeng/components/autocomplete/autocomplete';
+import { ButtonModule } from 'primeng/components/button/button';
+import { CalendarModule } from 'primeng/components/calendar/calendar';
+import { ConfirmationService } from 'primeng/components/common/confirmationservice';
+import { MessageService } from 'primeng/components/common/messageservice';
+import { ConfirmDialogModule } from 'primeng/components/confirmdialog/confirmdialog';
+import { ContextMenuModule } from 'primeng/components/contextmenu/contextmenu';
+import { DataTableModule } from 'primeng/components/datatable/datatable';
+import { DialogModule } from 'primeng/components/dialog/dialog';
+import { FieldsetModule } from 'primeng/components/fieldset/fieldset';
+import { GrowlModule } from 'primeng/components/growl/growl';
+import { InputTextModule } from 'primeng/components/inputtext/inputtext';
+import { InputTextareaModule } from 'primeng/components/inputtextarea/inputtextarea';
+import { PaginatorModule } from 'primeng/components/paginator/paginator';
+import { PanelModule } from 'primeng/components/panel/panel';
+import { ProgressBarModule } from 'primeng/components/progressbar/progressbar';
+import { ProgressSpinnerModule } from 'primeng/components/progressspinner/progressspinner';
+import { SelectButtonModule } from 'primeng/components/selectbutton/selectbutton';
+import { SpinnerModule } from 'primeng/components/spinner/spinner';
+import { SplitButtonModule } from 'primeng/components/splitbutton/splitbutton';
+import { ToolbarModule } from 'primeng/components/toolbar/toolbar';
+import { TooltipModule } from 'primeng/components/tooltip/tooltip';
+import { TreeTableModule } from 'primeng/components/treetable/treetable';
+import { TriStateCheckboxModule } from 'primeng/components/tristatecheckbox/tristatecheckbox';
 
 import { TableModule } from './common/datatable/table';
+import { TabViewModule } from './common/datatable/tabPanel';
 
 @NgModule({
   exports: [
-    SharedModule,
+    // SharedModule,
     DataTableModule,
     AutoCompleteModule,
     CalendarModule,
@@ -61,22 +42,21 @@ import { TableModule } from './common/datatable/table';
     DialogModule,
     // SidebarModule,
     TooltipModule,
-    AccordionModule,
+    // AccordionModule,
     FieldsetModule,
-    TabViewModule,
-    MessagesModule,
-    MessageModule,
+    // MessagesModule,
+    // MessageModule,
     GrowlModule,
     TreeTableModule,
-    CheckboxModule,
+    // CheckboxModule,
     SelectButtonModule,
     InputTextModule,
     // ChipsModule,
-    DropdownModule,
+    // DropdownModule,
     InputTextareaModule,
-    InputMaskModule,
-    PasswordModule,
-    ToggleButtonModule,
+    // InputMaskModule,
+    // PasswordModule,
+    // ToggleButtonModule,
     TriStateCheckboxModule,
     // RadioButtonModule,
     PaginatorModule,
@@ -84,20 +64,23 @@ import { TableModule } from './common/datatable/table';
     PanelModule,
     // MenuModule,
     ContextMenuModule,
-    PanelMenuModule,
-    TabMenuModule,
+    // PanelMenuModule,
+    // TabMenuModule,
     // MegaMenuModule,
     // SlideMenuModule,
-    BreadcrumbModule,
+    // BreadcrumbModule,
     // TieredMenuModule,
     // StepsModule,
     // DragDropModule,
     ProgressBarModule,
     ProgressSpinnerModule,
     //  MultiSelectModule,
-    InplaceModule,
+    // InplaceModule,
     // BlockUIModule,
+
     TableModule,
+    TabViewModule,
+
     NgDragDropModule
   ],
     providers: [ConfirmationService, MessageService]

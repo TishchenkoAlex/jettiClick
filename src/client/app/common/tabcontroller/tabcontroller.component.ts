@@ -18,6 +18,7 @@ export class TabControllerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.cd.detectChanges();
     combineLatest(this.route.paramMap, this.route.queryParams).pipe(
       filter(() => this.tcs.menuItems.length > 0),
     ).subscribe((params) => {

@@ -9,13 +9,14 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { Column, DataTable } from 'primeng/primeng';
 
 import { DocumentOptions } from '../../../server/models/document';
 import { createDocument } from '../../../server/models/documents.factory';
 import { FormListFilter } from '../../../server/models/user.settings';
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { ApiService } from '../services/api.service';
+import { DataTable } from 'primeng/components/datatable/datatable';
+import { Column } from 'primeng/components/common/shared';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

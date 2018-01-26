@@ -20,13 +20,13 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AutoComplete } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 
 import { ISuggest } from '../../../../server/models/api';
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
+import { AutoComplete } from 'primeng/components/autocomplete/autocomplete';
 
 // tslint:disable:no-non-null-assertion
 function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {

@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
+import { take } from 'rxjs/operators/take';
 
+import { AuthService } from '../../auth/auth.service';
 import { BaseDynamicCompoment } from '../../common/dynamic-component/dynamic-component';
 import { HomeComponent } from '../../home/home.component';
 import { getDocListComponent, getDocObjectComponent, getFormComponent } from '../../UI/userForms';
 import { MenuItem, SubSystemsMenu } from './../../../../server/models/SubSystems/SubSystems';
-
 
 export interface TabDef {
   header: string; icon: string; description: string; docType: string; docID: string;
@@ -28,8 +29,9 @@ export class TabControllerService {
     { header: HOME, docType: HOME, icon: 'fa fa-home', docID: '', description: '', params: {}, component: this.homeComponent };
   tabs: TabDef[] = [this.homeTab];
 
-  constructor() {
-    SubSystemsMenu().forEach(el => this.menuItems.push(...el.items));
+  constructor(private auth: AuthService) {
+    this.auth.userProfile$.pipe(take(1)).subscribe(() =>
+      SubSystemsMenu(this.auth.userRoleObjects).forEach(el => this.menuItems.push(...el.items)));
   }
 
   GetComponent(docType: string, docID: string) {

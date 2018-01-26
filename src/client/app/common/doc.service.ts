@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { ConfirmationService } from 'primeng/primeng';
 import { take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { ApiService } from '../services/api.service';
 import { DocumentBase } from './../../../server/models/document';
+import { ConfirmationService } from 'primeng/components/common/confirmationservice';
 
 @Injectable()
 export class DocService {

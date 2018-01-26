@@ -1,17 +1,15 @@
 // tslint:disable:max-line-length
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { MenuItem } from 'primeng/primeng';
+import { MenuItem } from 'primeng/components/common/menuitem';
 
 import { SubSystemsMenu } from './../../server/models/SubSystems/SubSystems';
 import { AppComponent } from './app.component';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-menu',
-  template: `
-    <ul app-submenu [item]="model" root="true" class="layout-menu layout-main-menu clearfix" [reset]="reset" visible="true"></ul>
-  `
+  template: `<ul app-submenu [item]="model" root="true" class="layout-menu layout-main-menu clearfix" [reset]="reset" visible="true"></ul>`
 })
 export class AppMenuComponent implements OnInit {
 
@@ -21,7 +19,8 @@ export class AppMenuComponent implements OnInit {
 
   constructor(public app: AppComponent, private cd: ChangeDetectorRef) {
     this.app.auth.userProfile$.subscribe(userProfile => {
-      this.buildMenu();
+      this.model = this.buildMenu();
+      this.cd.detectChanges();
     });
   }
 
@@ -116,14 +115,14 @@ export class AppMenuComponent implements OnInit {
         ]
       },
     ],
-    ...SubSystemsMenu(),
+    ...SubSystemsMenu(this.app.auth.userRoleObjects),
     { label: 'Utils', icon: 'fa fa-fw fa-wrench', routerLink: ['/'] },
     { label: 'Documentation', icon: 'fa fa-fw fa-book', routerLink: ['/'] }
     ];
   }
 
   ngOnInit() {
-    this.model = this.buildMenu();
+
   }
 
   changeTheme(theme: string) {
@@ -143,9 +142,7 @@ export class AppMenuComponent implements OnInit {
 }
 
 @Component({
-  /* tslint:disable:component-selector */
   selector: '[app-submenu]',
-  /* tslint:enable:component-selector */
   template: `
     <ng-template ngFor let-child let-i="index" [ngForOf]="(root ? item : item.items)">
       <li [ngClass]="{'active-menuitem': isActive(i)}" [class]="child.badgeStyleClass" *ngIf="child.visible === false ? false : true">
@@ -197,13 +194,10 @@ export class AppMenuComponent implements OnInit {
 export class AppSubMenuComponent {
 
   @Input() item: MenuItem;
-
   @Input() root: boolean;
-
   @Input() visible: boolean;
 
   _reset: boolean;
-
   activeIndex: number;
 
   constructor(public app: AppComponent) { }

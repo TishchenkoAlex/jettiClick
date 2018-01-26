@@ -12,23 +12,19 @@ import { environment } from './../../environments/environment';
 @Injectable()
 export class EventsService implements OnDestroy {
 
-  private _latestJobs = new Subject<IJobs>();
-  latestJobs$ = this._latestJobs.asObservable();
-
-  private _debonce = new Subject<IJob>();
-  private debonce$ = this._debonce.asObservable();
-
-  private _authSubscription$: Subscription = Subscription.EMPTY;
+  private _latestJobs$ = new Subject<IJobs>();
+  latestJobs$ = this._latestJobs$.asObservable();
+  private debonce$ = new Subject<IJob>();
   private socket: SocketIOClient.Socket;
 
   constructor(private auth: AuthService, private api: ApiService) {
 
     this.debonce$.pipe(throttleTime(5000)).subscribe(job => this.update(job));
 
-    this._authSubscription$ = this.auth.userProfile$.subscribe(u => {
+    this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
         this.socket = socketIOClient(environment.host, {  query: 'token=' + u.token, path: environment.path + '/socket.io'});
-        this.socket.on('job', (job: IJob) =>  job.finishedOn ? this.update(job) : this._debonce.next(job));
+        this.socket.on('job', (job: IJob) =>  job.finishedOn ? this.update(job) : this.debonce$.next(job));
         this.update();
       } else {
         if (this.socket) { this.socket.disconnect(); }
@@ -37,13 +33,11 @@ export class EventsService implements OnDestroy {
   }
 
   private update(job?: IJob) {
-    this.api.jobs().pipe(take(1)).subscribe(jobs => this._latestJobs.next(jobs));
+    this.api.jobs().pipe(take(1)).subscribe(jobs => this._latestJobs$.next(jobs));
   }
 
   ngOnDestroy() {
-    this._authSubscription$.unsubscribe();
-    this._latestJobs.unsubscribe();
-    this._debonce.unsubscribe();
+    this.debonce$.complete();
     this.socket.disconnect();
   }
 }

@@ -15,12 +15,12 @@ export const ANONYMOUS_USER: ILoginResponse = { account: undefined, token: undef
 @Injectable()
 export class AuthService {
 
-  private _userProfile$ = new BehaviorSubject<ILoginResponse>(undefined);
-  userProfile$ = this._userProfile$.asObservable().pipe(filter(u => !!u), tap(u => this.userProfile = u));
+  private readonly _userProfile$ = new BehaviorSubject<ILoginResponse>(undefined);
+  userProfile$ = this._userProfile$.asObservable().pipe(filter(u => !!u));
   isLoggedIn$ = this.userProfile$.pipe(map(p => p.account !== undefined));
   isLoggedOut$ = this.isLoggedIn$.pipe(map(isLoggedIn => !isLoggedIn));
 
-  userProfile: ILoginResponse;
+  get userProfile() { return this._userProfile$.value; }
   userRoles: RoleType[] = [];
   userRoleObjects: RoleObject[] = [];
 
@@ -32,6 +32,7 @@ export class AuthService {
   constructor(private router: Router, private http: HttpClient) {
     if (this.token) { this.setEnv(); }
   }
+
   public login(email: string, password: string) {
     return this.http.post<ILoginResponse>(`${environment.auth}login`, { email, password }).pipe(
       tap(loginResponse => { if (loginResponse.account) { this.init(loginResponse); } }),
@@ -40,8 +41,8 @@ export class AuthService {
 
   public logout() {
     localStorage.removeItem('jetti_token');
-    this._userProfile$.next(ANONYMOUS_USER);
-    return this.router.navigate(['Home']);
+    this._userProfile$.next({...ANONYMOUS_USER});
+    return this.router.navigate(['/Home']);
   }
 
   public getAccount() {

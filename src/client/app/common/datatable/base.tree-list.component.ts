@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { OnInit } from '@angular/core';
-import { TreeNode } from 'primeng/primeng';
+import { TreeNode } from 'primeng/components/common/treenode';
 import { Observable } from 'rxjs/Observable';
 import { map, share, take, tap } from 'rxjs/operators';
 
