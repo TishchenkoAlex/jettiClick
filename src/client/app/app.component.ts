@@ -8,6 +8,7 @@ import { TabControllerService } from './common/tabcontroller/tabcontroller.servi
 import { ApiService } from './services/api.service';
 import * as fromRoot from './store/reducers';
 import * as Auth from './auth/store/actions';
+import * as UI from './UI/store/actions';
 
 enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
 
@@ -50,6 +51,8 @@ export class AppComponent implements AfterViewInit {
 
     store.select(fromRoot.getAccount).subscribe(data => console.log('getAccount', data));
     this.store.dispatch(new Auth.Login({email: 'tischenko.a@gmail.com', password: 'Pa$$word'}));
+    store.select(fromRoot.getColor).subscribe(data => console.log('getColor', data));
+    this.store.dispatch(new UI.SetColor({color: 'accent'}));
   }
 
   ngAfterViewInit() {

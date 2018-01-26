@@ -1,12 +1,13 @@
 import { Account } from './models';
 import { AuthActions, AuthActionTypes } from './actions';
+import { createSelector } from '@ngrx/store';
 
 export interface State {
   loggedIn: boolean;
   account: Account | null;
 }
 
-export const initialState: State = {
+const initialState: State = {
   loggedIn: false,
   account: null,
 };
@@ -33,3 +34,4 @@ export function reducer(state = initialState, action: AuthActions): State {
 
 export const getLoggedIn = (state: State) => state.loggedIn;
 export const getAccount = (state: State) => state.account;
+

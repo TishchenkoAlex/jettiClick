@@ -66,6 +66,6 @@
 <div *ngIf="showDialog">
   <p-dialog [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true" [closeOnEscape]="true"
     [width]="400" [height]="555" appendTo="body">
-    <j-suggest-list [docType]="this.value.type || this.type" [docID]="this.value.id" [filters]="calcFilters()" (onSelect)="searchComplete($event)"></j-suggest-list>
+    <j-suggest-list [docType]="this.value.type || this.type" [docID]="this.value.id" [filters]="calcFilters()" (Select)="searchComplete($event)"></j-suggest-list>
   </p-dialog>
 </div>

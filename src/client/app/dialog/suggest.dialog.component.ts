@@ -29,7 +29,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
   private _afterViewInit = false;
 
   @Input() pageSize = 15; @Input() docType = ''; @Input() docID = ''; @Input() filters: FormListFilter[] = [];
-  @Output() onSelect = new EventEmitter();
+  @Output() Select = new EventEmitter();
   @ViewChild(DataTable) dataTable: DataTable = null;
 
   isDoc: boolean; additianalColumn1 = ''; additianalColumn2 = '';
@@ -66,6 +66,6 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
   }
 
   Sort = (event) => { if (this._afterViewInit) { this.dataSource.sort(); } };
-  onSelectHandler = (row) => this.onSelect.emit(row);
+  onSelectHandler = (row) => this.Select.emit(row);
 
 }

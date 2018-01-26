@@ -73,6 +73,8 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     suggest: new FormControl({ value: this.value, disabled: this.disabled }, AutocompleteValidator(this))
   });
   suggest = this.form.controls['suggest'] as FormControl;
+  suggests$: ISuggest[] = [];
+
 
   private NO_EVENT = false;
   showDialog = false;
@@ -127,7 +129,6 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) {}
 
-  suggests$: ISuggest[] = [];
   getSuggests(text) {
     this.api.getSuggests(this.value.type || this.type, text || '', this.isCatalogParent).pipe(take(1)).subscribe(data => {
       this.suggests$ = data;
