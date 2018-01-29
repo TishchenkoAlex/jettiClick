@@ -27,4 +27,7 @@ export class CatalogCounterpartie extends DocumentBase {
   @Props({ type: 'boolean', required: true })
   Supplier: boolean = null;
 
+  @Props({ type: 'Catalog.Department', required: false })
+  Department: Ref = null;
+
 }

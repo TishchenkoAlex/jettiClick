@@ -23,8 +23,9 @@ export type CatalogTypes =
   'Catalog.Subcount' |
   'Catalog.Documents' |
   'Catalog.User' |
-  'Catalog.Unit'
-  ;
+  'Catalog.Unit' |
+  'Catalog.Brand'
+ ;
 
 export type DocumentTypes =
   'Document.CashIn' |

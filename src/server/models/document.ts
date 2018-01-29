@@ -61,7 +61,7 @@ export class DocumentBase {
   @Props({ type: 'datetime', order: 1 })
   date = new Date();
 
-  @Props({ type: 'string', order: 2, style: { width: '110px' } })
+  @Props({ type: 'string', order: 2, style: { width: '120px' } })
   code = '';
 
   @Props({ type: 'string', order: 3, required: true, style: { width: '300px' } })

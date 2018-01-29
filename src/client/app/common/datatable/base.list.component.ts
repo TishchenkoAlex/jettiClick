@@ -128,7 +128,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.sort(event);
   }
   update(col: ColumnDef, event, center = 'like') {
-    if (!event || (event && !event.value)) { event = null; }
+    if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array) )) { event = null; }
     this._debonce.next({ col, event, center });
   }
 

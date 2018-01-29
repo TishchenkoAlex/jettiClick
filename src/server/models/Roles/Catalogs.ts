@@ -2,6 +2,7 @@ import { RoleObject } from './Base';
 
 export const CatalogsRoleObject: RoleObject[] = [
   { type: 'Catalog.Product', read: true, write: true },
+  { type: 'Catalog.Brand', read: true, write: true },
   { type: 'Catalog.Counterpartie', read: true, write: true },
   { type: 'Catalog.Currency', read: true, write: true },
   { type: 'Catalog.Manager', read: true, write: true },

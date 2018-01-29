@@ -3,6 +3,7 @@ import { CatalogAccount } from './Catalogs/Catalog.Account';
 import { CatalogBalance } from './Catalogs/Catalog.Balance';
 import { CatalogBalanceAnalytics } from './Catalogs/Catalog.Balance.Analytics';
 import { CatalogBankAccount } from './Catalogs/Catalog.BankAccount';
+import { CatalogBrand } from './Catalogs/Catalog.Brand';
 import { CatalogCashFlow } from './Catalogs/Catalog.CashFlow';
 import { CatalogCashRegister } from './Catalogs/Catalog.CashRegister';
 import { CatalogCompany } from './Catalogs/Catalog.Company';
@@ -68,6 +69,7 @@ export const RegisteredDocument: IRegisteredDocument<any>[] = [
   { type: 'Catalog.User', Class: CatalogUser },
   { type: 'Catalog.Documents', Class: CatalogDocuments },
   { type: 'Catalog.Subcount', Class: CatalogSubcount },
+  { type: 'Catalog.Brand', Class: CatalogBrand },
 
   { type: 'Document.ExchangeRates', Class: DocumentExchangeRates },
   { type: 'Document.Invoice', Class: DocumentInvoice },
