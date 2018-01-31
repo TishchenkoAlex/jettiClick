@@ -6,7 +6,7 @@ import { IJWTPayload } from '../auth';
 
 export async function authHTTP (req: Request, res: Response, next: NextFunction) {
   try {
-    const token = (req.headers.authorization as string).split(' ')[1];
+    const token = ((req.headers.authorization as string) || '').split(' ')[1];
     const decoded = await jwt.verify(token, JTW_KEY as string) as IJWTPayload;
     (<any>req).user = decoded;
     next();
