@@ -7,6 +7,7 @@ export class BaseDynamicCompoment {
 }
 
 @Directive({
+  // tslint:disable-next-line:directive-selector
   selector: '[component-host]',
 })
 export class DynamicComponentDirective {

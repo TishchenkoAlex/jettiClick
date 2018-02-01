@@ -6,6 +6,10 @@
 // tslint:disable:no-input-rename
 // tslint:disable:use-host-property-decorator
 // tslint:disable:directive-class-suffix
+// tslint:disable:directive-selector
+// tslint:disable:member-ordering
+// tslint:disable:no-output-on-prefix
+
 import { CommonModule } from '@angular/common';
 import {
   AfterContentInit,

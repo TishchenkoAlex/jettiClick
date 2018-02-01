@@ -24,10 +24,11 @@ import { SplitButtonModule } from 'primeng/components/splitbutton/splitbutton';
 import { ToolbarModule } from 'primeng/components/toolbar/toolbar';
 import { TooltipModule } from 'primeng/components/tooltip/tooltip';
 import { TreeTableModule } from 'primeng/components/treetable/treetable';
+import { TabViewModule } from 'primeng/components/tabview/tabview';
+import { TableModule } from 'primeng/components/table/table';
 import { TriStateCheckboxModule } from 'primeng/components/tristatecheckbox/tristatecheckbox';
 
-import { TableModule } from './common/datatable/table';
-import { TabViewModule } from './common/datatable/tabPanel';
+// import { TableModule } from './common/datatable/table';
 
 @NgModule({
   exports: [

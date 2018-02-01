@@ -35,6 +35,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
 
+  // tslint:disable-next-line:no-output-on-prefix
   @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
   @ViewChild(DataTable) dataTable: DataTable;
 
