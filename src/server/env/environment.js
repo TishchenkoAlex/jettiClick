@@ -10,7 +10,7 @@ exports.connString = {
     database: process.env.SUBSCRIPTION_ID || 'jetti',
     user: process.env.POSTGRES_DB_USER || 'postgres',
     password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
-    poolSize: 50,
+    poolSize: 400,
 };
 exports.accountDB = {
     host: process.env.POSTGRES_DB_ACCOUNTS_HOST ? process.env.POSTGRES_DB_ACCOUNTS_HOST.split(':')[0] : PG_DEV_SERVER,

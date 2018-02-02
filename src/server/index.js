@@ -54,4 +54,5 @@ exports.IO.use(check_auth_1.authIO);
 const port = (+process.env.PORT) || 3000;
 exports.HTTP.listen(port, () => console.log(`API running on port:${port}`));
 tasks_1.JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
+console.log(environment_1.connString);
 //# sourceMappingURL=index.js.map

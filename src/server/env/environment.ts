@@ -9,7 +9,7 @@ export const connString = {
   database: process.env.SUBSCRIPTION_ID || 'jetti',
   user: process.env.POSTGRES_DB_USER || 'postgres',
   password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
-  poolSize: 50,
+  poolSize: 200,
 };
 
 export const accountDB = {
