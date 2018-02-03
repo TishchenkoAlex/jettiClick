@@ -1,24 +1,21 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
-import { Injectable, Injector, isDevMode } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { MessageService } from 'primeng/components/common/messageservice';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { of as observableOf } from 'rxjs/observable/of';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { dateReviver } from './../../server/fuctions/dateReviver';
-import { environment } from './../environments/environment';
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
-import { MessageService } from 'primeng/components/common/messageservice';
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
-  private auth: AuthService;
 
-  constructor(private lds: LoadingService, private inj: Injector, private messageService: MessageService) {}
+  constructor(private lds: LoadingService, private auth: AuthService, private messageService: MessageService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    this.auth = this.inj.get(AuthService);
     req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}`}});
 
     if (req.url.includes('user/settings') || req.url.includes('/jobs')) { // exclude setting requests
