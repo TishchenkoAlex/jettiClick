@@ -63,7 +63,7 @@ export async function List(req: Request, res: Response) {
     let where = ' ';
     filter.filter(f => f.right).forEach(f => {
       if (typeof f.right === 'object' && f.right.id && f.left !== 'company' && f.left !== 'user') {
-        where += ` AND d.doc @> jsonb_build_object('${f.left}', '${f.right.id}') `;
+        where += ` AND d.doc->>'${f.left}' = '${f.right.id}' `;
         return;
       }
     });

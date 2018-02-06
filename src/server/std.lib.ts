@@ -152,7 +152,7 @@ async function avgCost(date = new Date(), company: Ref, analytics: { [key: strin
 async function inventoryBalance(date = new Date(), company: Ref, analytics: { [key: string]: Ref }, tx = db): Promise<number> {
   const queryText = `
     SELECT
-      SUM((data ->> 'Qty')::NUMERIC(15, 2)  * CASE WHEN kind THEN 1 ELSE -1 END) result
+      SUM((data ->> 'Qty')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) result
     FROM "Register.Accumulation"
     WHERE type = 'Register.Accumulation.Inventory'
       AND date <= $1
