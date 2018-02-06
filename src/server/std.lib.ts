@@ -135,17 +135,21 @@ async function registerBalance(type: RegisterAccumulationTypes, date = new Date(
   return (result ? result : {});
 }
 
+// designed forr boost calculate using specical index
 async function avgCost(date = new Date(), company: Ref, analytics: { [key: string]: Ref }, tx = db): Promise<number> {
   const queryText = `
     SELECT
       SUM((data ->> 'Cost')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) /
       NullIf(SUM((data ->> 'Qty')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END), 0) result
     FROM "Register.Accumulation"
-    WHERE type = 'Register.Accumulation.Inventory'
+    WHERE TRUE
+      AND type = 'Register.Accumulation.Inventory'
       AND date <= $1
       AND company = $2
-      AND data @> $3`;
-  const result = await tx.oneOrNone(queryText, [date, company, analytics]);
+      AND data->>'SKU' = $3
+      AND data->>'Storehouse' = $4
+    `;
+  const result = await tx.oneOrNone(queryText, [date, company, analytics.SKU, analytics.Storehouse]);
   return result ? result.result : null;
 }
 

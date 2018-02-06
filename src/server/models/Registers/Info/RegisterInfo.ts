@@ -56,5 +56,5 @@ export class RegisterInfo {
     return result;
   }
 
-  get QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type); }
+  QueryList() { return SQLGenegator.QueryRegisterInfoList(this.Props(), this.type); }
 }

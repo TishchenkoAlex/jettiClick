@@ -3,6 +3,7 @@ import * as express from 'express';
 
 import { db } from './../db';
 import { createRegisterAccumulation } from '../models/Registers/Accumulation/factory';
+import { createRegisterInfo } from '../models/Registers/Info/factory';
 
 export const router = express.Router();
 
@@ -38,13 +39,20 @@ router.get('/register/accumulation/:type/:id', async (req: Request, res: Respons
   try {
     let result; let config_schema;
     const JRegister = createRegisterAccumulation(req.params.type, true, {});
-    if (JRegister) {
-      config_schema = { queryObject: JRegister.QueryList() };
-    } else {
-      config_schema = await db.one(`SELECT "queryObject" "queryObject" FROM config_schema WHERE type = $1`, [req.params.type]);
-    }
-    result = await db.manyOrNone(`${config_schema.queryObject} AND r.document = $1`, [req.params.id]);
+    config_schema = { queryObject: JRegister.QueryList() };
+    result = await db.manyOrNone(`${config_schema.queryObject} AND r.data @> = $1`, [{ document: req.params.id }]);
     res.json(result);
   } catch (err) { next(err); }
 });
+
+router.get('/register/info/:type/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let result; let config_schema;
+    const JRegister = createRegisterInfo(req.params.type, {});
+    config_schema = { queryObject: JRegister.QueryList() };
+    result = await db.manyOrNone(`${config_schema.queryObject} AND r.data @> = $1`, [{ document: req.params.id }]);
+    res.json(result);
+  } catch (err) { next(err); }
+});
+
 

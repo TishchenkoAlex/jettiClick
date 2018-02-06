@@ -244,6 +244,9 @@ export class SQLGenegator {
     return query;
   }
 
+  static QueryRegisterInfoList(doc: { [x: string]: any }, type: string) {
+    return this.QueryRegisterAccumulatioList(doc, type);
+  }
 }
 
 export function excludeProps(doc) {
