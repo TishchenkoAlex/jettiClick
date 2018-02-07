@@ -98,7 +98,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     let totalCost = 0;
     for (const row of this.Items) {
       const avgSumma = await lib.register.avgCost(
-        this.date, this.company, { SKU: row.SKU, Storehouse: this.Storehouse }, tx) * row.Qty;
+        this.date, { company: this.company, SKU: row.SKU, Storehouse: this.Storehouse }, tx) * row.Qty;
       totalCost += avgSumma;
 
       // Account
@@ -199,7 +199,7 @@ async function onPostJS(document: INoSqlDocument, Registers = { Account: [], Acc
   let totalCost = 0;
   for (const row of doc.Items) {
     const avgSumma = await lib.register.avgCost(
-      doc.date, doc.company, { SKU: row.SKU, Storehouse: doc.Storehouse }, tx) * row.Qty;
+      doc.date, {company: doc.company, SKU: row.SKU, Storehouse: doc.Storehouse }, tx) * row.Qty;
     totalCost += avgSumma;
 
     // Account

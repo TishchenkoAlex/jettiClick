@@ -108,9 +108,9 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx); }
       doc = await tx.one(`
         DELETE FROM "Register.Account" WHERE document = $1;
-        DELETE FROM "Register.Info" WHERE document = $1;
-        DELETE FROM "Register.Accumulation" WHERE document = $1;
-        UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;`, [id]);
+        DELETE FROM "Register.Info" WHERE data @> $2;
+        DELETE FROM "Register.Accumulation" WHERE data @> $2;
+        UPDATE "Documents" SET deleted = not deleted, posted = false WHERE id = $1 RETURNING *;`, [id, {document: id}]);
       if (serverDoc && serverDoc.afterDelete) { await serverDoc.afterDelete(tx); }
       await doSubscriptions(doc, 'after detele', tx);
       const model = await tx.one(`${configSchema.get(serverDoc.type as any).QueryObject} AND d.id = $1`, [id]);
@@ -127,8 +127,8 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: TX) 
   if (serverDoc.isDoc) {
     await tx.none(`
     DELETE FROM "Register.Account" WHERE document = $1;
-    DELETE FROM "Register.Info" WHERE document = $1;
-    DELETE FROM "Register.Accumulation" WHERE document = $1;`, id);
+    DELETE FROM "Register.Info" WHERE data @> $2;
+    DELETE FROM "Register.Accumulation" WHERE data @> $2;`, [id, {document: id}]);
   }
   if (!!doc.posted && serverDoc.beforePost) { await serverDoc.beforePost(tx); }
   if (isNew) {

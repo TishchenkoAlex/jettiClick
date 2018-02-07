@@ -28,17 +28,17 @@ export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostRe
   }
 
   for (const rec of Registers.Accumulation) {
-    const data = JSON.stringify(rec.data);
+    const data = JSON.stringify({...rec.data, type: rec.type, company: rec.company || doc.company, document: doc.id});
     query += `
-    INSERT INTO "Register.Accumulation" (kind, type, date, document, company, data)
-    VALUES (${rec.kind}, '${rec.type}', '${new Date(doc.date).toJSON()}', '${doc.id}', '${rec.company || doc.company}', '${data}');`;
+    INSERT INTO "Register.Accumulation" (kind, date, data)
+    VALUES (${rec.kind}, '${new Date(doc.date).toJSON()}', '${data}');`;
   }
 
   for (const rec of Registers.Info) {
-    const data = JSON.stringify(rec.data);
+    const data = JSON.stringify({...rec.data, type: rec.type, document: doc.id, company: rec.company || doc.company});
     query += `
-    INSERT INTO "Register.Info" (type, date, document, company, data)
-    VALUES ('${rec.type}', '${new Date(doc.date).toJSON()}', '${doc.id}', '${rec.company || doc.company}', '${data}');`;
+    INSERT INTO "Register.Info" (date, data)
+    VALUES ('${new Date(doc.date).toJSON()}', '${data}');`;
   }
 
   if (query) { await tx.none(query); }

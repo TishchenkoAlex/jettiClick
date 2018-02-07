@@ -238,9 +238,9 @@ export class SQLGenegator {
       jsonb_build_object('id', company.id, 'type', company.type, 'code', company.code, 'value', company.description) "company"
       ${select}
       FROM "Register.Accumulation" r
-        LEFT JOIN "Documents" "company" ON company.id = r.company AND company.type = 'Catalog.Company'
+        LEFT JOIN "Documents" company ON company.id = r.data->>'company'
         ${LeftJoin}
-      WHERE r.type = '${type}'\n`;
+      WHERE r.data @> '{"type": "${type}"}'\n`;
     return query;
   }
 

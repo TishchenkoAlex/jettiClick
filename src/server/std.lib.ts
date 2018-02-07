@@ -17,10 +17,10 @@ export interface JTL {
     byCode: (code: string, tx?: TX) => Promise<string>
   };
   register: {
-    balance: (type: RegisterAccumulationTypes, date: Date, company: Ref, resource: string[],
+    balance: (type: RegisterAccumulationTypes, date: Date, resource: string[],
       analytics: { [key: string]: Ref }, tx?: TX) => Promise<{ [x: string]: number }>,
-    avgCost: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
-    inventoryBalance: (date: Date, company: Ref, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
+    avgCost: (date: Date, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
+    inventoryBalance: (date: Date, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
   };
   doc: {
     byCode: (type: DocTypes, code: string, tx?: TX) => Promise<string>;
@@ -118,7 +118,7 @@ async function balance(account: Ref, date = new Date().toJSON(), company: Ref): 
   return result ? result.result : null;
 }
 
-async function registerBalance(type: RegisterAccumulationTypes, date = new Date(), company: Ref,
+async function registerBalance(type: RegisterAccumulationTypes, date = new Date(),
   resource: string[], analytics: { [key: string]: Ref }, tx = db): Promise<{ [x: string]: number }> {
 
   const addQuery = (key) => `SUM((data->>'${key}')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) "${key}",\n`;
@@ -127,57 +127,67 @@ async function registerBalance(type: RegisterAccumulationTypes, date = new Date(
   const result = await db.oneOrNone(`
     SELECT ${query}
     FROM "Register.Accumulation"
-    WHERE type = $1
-      AND date <= $2
-      AND company = $3
-      AND data @> $4
-  `, [type, date, company, analytics]);
+    WHERE TRUE
+      AND date <= $1
+      AND data @> $2
+  `, [date, {...analytics, type}]);
   return (result ? result : {});
 }
 
-// designed forr boost calculate using specical index
-async function avgCost(date = new Date(), company: Ref, analytics: { [key: string]: Ref }, tx = db): Promise<number> {
+// designed for calculation perfomanse using specical index
+/* create index "Register.Accumulation-avg-cost" ON "Register.Accumulation" (
+  ((data ->> 'SKU')::VARCHAR(36)),
+  ((data ->> 'Storehouse')::VARCHAR(36)),
+  ((data ->> 'company')::VARCHAR(36)),
+  ((data ->> 'type')::VARCHAR(100)),
+  date,
+  ((data ->> 'Cost')::NUMERIC),
+  ((data ->> 'Qty')::NUMERIC),
+  kind) */
+async function avgCost(date = new Date(), analytics: { [key: string]: Ref }, tx = db): Promise<number> {
   const queryText = `
     SELECT
       SUM((data ->> 'Cost')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) /
       NullIf(SUM((data ->> 'Qty')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END), 0) result
     FROM "Register.Accumulation"
     WHERE TRUE
-      AND type = 'Register.Accumulation.Inventory'
       AND date <= $1
-      AND company = $2
-      AND data->>'SKU' = $3
-      AND data->>'Storehouse' = $4
+      AND (data->>'type')::VARCHAR(100) = 'Register.Accumulation.Inventory'
+      AND (data->>'company')::VARCHAR(36) = $2
+      AND (data->>'SKU')::VARCHAR(36) = $3
+      AND (data->>'Storehouse')::VARCHAR(36) = $4
     `;
-  const result = await tx.oneOrNone(queryText, [date, company, analytics.SKU, analytics.Storehouse]);
+  const result = await tx.oneOrNone(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
   return result ? result.result : null;
 }
 
-async function inventoryBalance(date = new Date(), company: Ref, analytics: { [key: string]: Ref }, tx = db): Promise<number> {
+async function inventoryBalance(date = new Date(), analytics: { [key: string]: Ref }, tx = db): Promise<number> {
   const queryText = `
     SELECT
       SUM((data ->> 'Qty')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) result
     FROM "Register.Accumulation"
-    WHERE type = 'Register.Accumulation.Inventory'
+    WHERE TRUE
       AND date <= $1
-      AND company = $2
-      AND data @> $3`;
-  const result = await tx.oneOrNone(queryText, [date, company, analytics]);
+      AND (data->>'type')::VARCHAR(100) = 'Register.Accumulation.Inventory'
+      AND (data->>'company')::VARCHAR(36) = $2
+      AND (data->>'SKU')::VARCHAR(36) = $3
+      AND (data->>'Storehouse')::VARCHAR(36) = $4
+    `;
+  const result = await tx.oneOrNone(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
   return result ? result.result : null;
 }
 
 async function sliceLast(type: string, date = new Date(), company: Ref,
   resource: string, analytics: { [key: string]: any }, tx = db): Promise<number> {
+  const params =  {...analytics, type, company };
   const queryText = `
     SELECT data->'${resource}' result FROM "Register.Info"
-    WHERE
-      type = 'Register.Info.${type}'
+    WHERE TRUE
       AND date <= $1
-      AND company = $2
-      AND data @> $3
+      AND data @> $2
     ORDER BY date DESC
     LIMIT 1`;
-  const result = await tx.oneOrNone(queryText, [date, company, analytics]);
+  const result = await tx.oneOrNone(queryText, [date, params]);
   return result ? result.result : null;
 }
 
@@ -188,9 +198,9 @@ export async function postById(id: string, posted: boolean, tx: TX = db) {
     if (serverDoc.isDoc) {
       await subtx.none(`
           DELETE FROM "Register.Account" WHERE document = $1;
-          DELETE FROM "Register.Info" WHERE document = $1;
-          DELETE FROM "Register.Accumulation" WHERE document = $1;
-          UPDATE "Documents" d SET posted = $2 WHERE d.id = $1`, [id, posted]);
+          DELETE FROM "Register.Info" WHERE data @> $2;
+          DELETE FROM "Register.Accumulation" WHERE data @> $2;
+          UPDATE "Documents" d SET posted = $3 WHERE d.id = $1`, [id, {document: id}, posted]);
     }
     if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
     serverDoc = undefined;
