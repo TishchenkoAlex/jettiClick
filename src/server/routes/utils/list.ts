@@ -117,7 +117,7 @@ export async function List(req: Request, res: Response) {
   query = `SELECT d.*,
     (select count(*) FROM "Documents" where parent = d.id) "childs",
     (select count(*) FROM "Documents" where id = d.parent) "parents" FROM (${query}) d`;
-  // console.log(query);
+  console.log(query);
   const data = await db.manyOrNone(query);
   let result = [];
 

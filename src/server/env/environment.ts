@@ -9,7 +9,8 @@ export const connString = {
   database: process.env.SUBSCRIPTION_ID || 'jetti',
   user: process.env.POSTGRES_DB_USER || 'postgres',
   password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
-  poolSize: 800,
+  poolSize: 100,
+  statement_timeout: 1000 * 60 * 2,
 };
 
 export const accountDB = {
@@ -17,4 +18,5 @@ export const accountDB = {
   database: 'accounts',
   user: process.env.POSTGRES_DB_USER || 'postgres',
   password: process.env.POSTGRES_DB_PASSWORD || 'Pa$$word',
+  statement_timeout: 1000 * 60 * 2,
 };
