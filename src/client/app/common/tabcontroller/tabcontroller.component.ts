@@ -21,7 +21,7 @@ export class TabControllerComponent implements OnInit {
     this.cd.detectChanges();
     combineLatest(this.route.paramMap, this.route.queryParams).pipe(
       filter(() => this.tcs.menuItems.length > 0),
-    ).subscribe((params) => {
+    ).subscribe(params => {
       this.tcs.tabid = params[0].get('type') || HOME;
       this.tcs.docID = params[0].get('id') || '';
       this.tcs.params = params[1];

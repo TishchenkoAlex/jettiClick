@@ -88,14 +88,14 @@ spec:
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: client-0001-app
+  name: bcd
   labels:
-    app: client-0001-app
+    app: bcd
 spec:
   template:
     metadata:
       labels:
-        app: client-0001-app
+        app: bcd
         tier: web
     spec:
       containers:
@@ -111,6 +111,8 @@ spec:
               value: 127.0.0.1:5432
             - name: POSTGRES_DB_ACCOUNTS_HOST
               value: 127.0.0.1:5432
+            - name: POSTGRES_DB_NAME
+              value: bcd
             # [START cloudsql_secrets]
             - name: POSTGRES_DB_USER
               valueFrom:
@@ -161,13 +163,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: client-0001-app
-  labels:
-    app: client-0001-app
+  name: bcd
+    app: bcd
 spec:
   type: NodePort
   selector:
-    app: client-0001-app
+    app: bcd
   ports:
   - port: 8080
     targetPort: 8080
@@ -191,9 +192,9 @@ spec:
   - host: cl.jetti-app.com
     http:
       paths:
-      - path: /client-0001-app/*
+      - path: /bcd/*
         backend:
-          serviceName: client-0001-app
+          serviceName: bcd
           servicePort: 8080
       - path: /*
         backend:

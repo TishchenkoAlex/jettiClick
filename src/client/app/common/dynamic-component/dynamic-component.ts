@@ -1,6 +1,15 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ComponentFactoryResolver, Input, ViewChild } from '@angular/core';
-import { Directive, ViewContainerRef } from '@angular/core';
-import { ChangeDetectionStrategy, Type } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ComponentFactoryResolver,
+  Directive,
+  Input,
+  Type,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 
 export class BaseDynamicCompoment {
   constructor(public component: Type<any>) {}

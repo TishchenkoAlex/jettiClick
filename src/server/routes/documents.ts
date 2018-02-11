@@ -18,7 +18,8 @@ import { List } from './utils/list';
 import { DocumentOperation } from '../models/Documents/Document.Operation';
 import { createDocument } from '../models/documents.factory';
 import { CatalogOperation } from '../models/Catalogs/Catalog.Operation';
-import { SQLGenegator } from '../fuctions/SQLGenerator';
+import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
+import { sdb } from '../mssql';
 
 export const router = express.Router();
 
@@ -30,9 +31,9 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 });
 
 async function buildOperationViewAndSQL(id: string, view: any, config_schema: any) {
-  const Parameters = await db.one(`
-    select doc -> 'Parameters' "Parameters" from "Documents"
-    where id = (select doc ->> 'Operation' from "Documents" where id = $1)`, id);
+  const Parameters = await sdb.oneOrNone<any>(`
+    select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents"
+    where id = (select JSON_VALUE(doc, '$.Operation') from "Documents" where id = '${id}')`);
   Parameters.Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
     label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
     [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
@@ -50,22 +51,24 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     config_schema = {
       queryObject: serverDoc.QueryObject,
       queryNewObject: serverDoc.QueryNew,
-      settings: ((await db.oneOrNone(`SELECT settings->'${req.params.type}' settings from users where email = '${user}'`)) || {}).settings,
+      settings: await sdb.oneOrNone<FormListSettings>(`
+        SELECT JSON_VALUE(settings, '$.${req.params.type}') settings from users where email = '${user}'`),
       schemaFull: view,
       prop: serverDoc.Prop
     };
 
-    const columnDef = buildColumnDef(view, config_schema.settings || new FormListSettings());
+    if (config_schema.settings && !config_schema.settings.filter) { config_schema.settings = new FormListSettings(); }
+    const columnDef = buildColumnDef(view, config_schema.settings);
 
     let model; const id = req.params['0']; const OperationID = req.params['1'];
     if (id) {
       if (id === 'new') {
-        model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
+        model = config_schema.queryNewObject ? await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`) : {};
       } else {
         if (id.startsWith('copy-')) {
           if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id.slice(5), view, config_schema); }
-          model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id.slice(5)]);
-          const newDoc = await db.one(`${config_schema.queryNewObject}`);
+          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = '${id.slice(5)}'`);
+          const newDoc = await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`);
           model.id = newDoc.id; model.date = newDoc.date; model.code = newDoc.code;
           model.posted = false; model.deleted = false; model.timestamp = null;
           model.parent = { ...model.parent, id: null, code: null, value: null };
@@ -77,14 +80,14 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           } else {
             if (id.startsWith('folder-')) {
               model = config_schema.queryNewObject ? await db.one(`${config_schema.queryNewObject}`) : {};
-              const parentDoc = await db.oneOrNone(`${config_schema.queryObject} AND d.id = $1`, [id.slice(7)]) || {};
+              const parentDoc = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = '${id.slice(7)}'`) || {};
               // tslint:disable-next-line:max-line-length
               const parent = { ...model.parent, id: parentDoc.id || null, code: parentDoc.code || null, value: parentDoc.description || null };
               model.parent = parent;
               model.isfolder = true;
             } else {
               if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
-              model = await db.one(`${config_schema.queryObject} AND d.id = $1`, [id]);
+              model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = '${id}'`);
             }
           }
         }

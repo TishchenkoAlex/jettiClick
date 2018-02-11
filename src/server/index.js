@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const compression = require("compression");
 const cors = require("cors");
 const express = require("express");
+const tediousExpress = require("express4-tedious");
 const httpServer = require("http");
 const path = require("path");
 const socketIO = require("socket.io");
@@ -20,6 +21,7 @@ const suggest_1 = require("./routes/suggest");
 const tasks_2 = require("./routes/tasks");
 const user_settings_1 = require("./routes/user.settings");
 const utils_1 = require("./routes/utils");
+const config_1 = require("./models/config");
 const root = './';
 const app = express();
 app.use(compression());
@@ -27,7 +29,19 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(root, 'dist')));
-app.use('/liveness_check', (req, res, next) => res.json('liveness_check'));
+app.use(function (req, res, next) {
+    res.type('application/json');
+    req['sql'] = tediousExpress(environment_1.connString_MSSQL);
+    next();
+});
+app.use('/liveness_check', (req, res, next) => {
+    req.sql(`
+    select top 10
+    id, type, parent, date, code, description,
+    posted, deleted, isfolder, company, [user], info, timestamp,
+    JSON_QUERY(doc) doc from Documents for JSON PATH, INCLUDE_NULL_VALUES`)
+        .into(res);
+});
 console.log('SUBSCRIPTION_ID', environment_1.SUBSCRIPTION_ID, `${environment_1.SUBSCRIPTION_ID}/api`);
 const api = `${environment_1.SUBSCRIPTION_ID}/api`;
 app.use(api, check_auth_1.authHTTP, server_1.router);
@@ -54,5 +68,5 @@ exports.IO.use(check_auth_1.authIO);
 const port = (+process.env.PORT) || 3000;
 exports.HTTP.listen(port, () => console.log(`API running on port:${port}`));
 tasks_1.JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
-console.log(environment_1.connString);
+console.log(config_1.configSchema.get('Document.Invoice').QueryObject);
 //# sourceMappingURL=index.js.map

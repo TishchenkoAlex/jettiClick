@@ -1,4 +1,4 @@
-import { SQLGenegator } from '../fuctions/SQLGenerator';
+import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { CatalogSubcount } from './../models/Catalogs/Catalog.Subcount';
 import { DocumentOperation } from './../models/Documents/Document.Operation';
 import { CatalogDocuments } from './Catalogs/Catalog.Documents';

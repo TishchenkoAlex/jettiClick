@@ -30,7 +30,7 @@ export class TabControllerService {
   tabs: TabDef[] = [this.homeTab];
 
   constructor(private auth: AuthService) {
-    this.auth.userProfile$.pipe(take(1)).subscribe(() =>
+    this.auth.userProfile$.subscribe(() =>
       SubSystemsMenu(this.auth.userRoleObjects).forEach(el => this.menuItems.push(...el.items)));
   }
 
