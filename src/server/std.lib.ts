@@ -1,4 +1,3 @@
-import { db, TX } from './db';
 import { RefValue } from './models/api';
 import { Ref, DocumentBase } from './models/document';
 import { createDocumentServer } from './models/documents.factory.server';
@@ -7,6 +6,8 @@ import { RegisterAccumulationTypes } from './models/Registers/Accumulation/facto
 import { DocumentBaseServer, INoSqlDocument } from './models/ServerDocument';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
 import { configSchema } from './models/config';
+import { sdb } from './mssql';
+import { TX } from './db';
 
 export interface JTL {
   db: TX;
@@ -36,7 +37,7 @@ export interface JTL {
 }
 
 export const lib: JTL = {
-  db: db,
+  db: sdb,
   account: {
     balance: balance,
     debit: debit,
@@ -60,147 +61,144 @@ export const lib: JTL = {
   }
 };
 
-async function accountByCode(code: string, tx: TX = db) {
-  const result = await tx.oneOrNone(`
-    SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = $1`, [code]);
+async function accountByCode(code: string, tx: TX = sdb) {
+  const result = await tx.oneOrNone<any>(`
+    SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = @p1`, [code]);
   return result ? result.result as string : null;
 }
 
-async function byCode(type: string, code: string, tx: TX = db) {
-  const result = await tx.oneOrNone(`SELECT id result FROM "Documents" WHERE type = $1 AND code = $2`, [type, code]);
+async function byCode(type: string, code: string, tx: TX = sdb) {
+  const result = await tx.oneOrNone<any>(`SELECT id result FROM "Documents" WHERE type = @p1 AND code = @p2`, [type, code]);
   return result ? result.result as string : null;
 }
 
-async function byId(id: string, tx: TX = db): Promise<INoSqlDocument> {
-  const result = await tx.oneOrNone<INoSqlDocument>(`SELECT * FROM "Documents" WHERE id = $1`, [id]);
+async function byId(id: string, tx: TX = sdb): Promise<INoSqlDocument> {
+  const result = await tx.oneOrNone<INoSqlDocument>(`
+  SELECT id, type, parent, date, code, description, posted, deleted, isfolder, company, [user], info, timestamp,
+  JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
   return result;
 }
 
-async function viewModelById<T extends DocumentBase>(id: string, tx: TX = db): Promise<T> {
+async function viewModelById<T extends DocumentBase>(id: string, tx: TX = sdb): Promise<T> {
   const doc = await byId(id, tx);
-  return await tx.one<T>(`${configSchema.get(doc.type).QueryObject} AND d.id = $1`, id);
+  return await tx.oneOrNone<T>(`${configSchema.get(doc.type).QueryObject} AND d.id = @p1`, [id]);
 }
 
-async function formControlRef(id: string, tx: TX = db): Promise<RefValue> {
+async function formControlRef(id: string, tx: TX = sdb): Promise<RefValue> {
   const result = await tx.oneOrNone<RefValue>(`
-    SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = $1`, [id]);
+    SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = @p1`, [id]);
   return result;
 }
 
 async function debit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
-  const result = await db.oneOrNone(`
-    SELECT SUM(sum)::NUMERIC(15,2) result FROM "Register.Account"
-    WHERE dt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);
+  const result = await sdb.oneOrNone<any>(`
+    SELECT SUM(sum) result FROM "Register.Account"
+    WHERE dt = @p1 AND datetime <= @p2 AND company = @p3`, [account, date, company]);
   return result ? result.result : null;
 }
 
 async function kredit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
-  const result = await db.oneOrNone(`
-    SELECT SUM(sum)::NUMERIC(15,2) result FROM "Register.Account"
-    WHERE kt = $1 AND datetime <= $2 AND company = $3`, [account, date, company]);
+  const result = await sdb.oneOrNone<any>(`
+    SELECT SUM(sum) result FROM "Register.Account"
+    WHERE kt = @p1 AND datetime <= @p2 AND company = @p3`, [account, date, company]);
   return result ? result.result : null;
 }
 
 async function balance(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
-  const result = await db.oneOrNone(`
-  SELECT (SUM(u.dt) - SUM(u.kt))::NUMERIC(15,2) result  FROM (
+  const result = await sdb.oneOrNone<any>(`
+  SELECT (SUM(u.dt) - SUM(u.kt)) result  FROM (
       SELECT SUM(sum) dt, 0 kt
       FROM "Register.Account"
-      WHERE dt = $1 AND datetime <= $2 AND company = $3
+      WHERE dt = @p1 AND datetime <= @p2 AND company = @p3
 
       UNION ALL
 
       SELECT 0 dt, SUM(sum) kt
       FROM "Register.Account"
-      WHERE kt = $1 AND datetime <= $2 AND company = $3
+      WHERE kt = @p1 AND datetime <= @p2 AND company = @p3
     ) u
     `, [account, date, company]);
   return result ? result.result : null;
 }
 
 async function registerBalance(type: RegisterAccumulationTypes, date = new Date(),
-  resource: string[], analytics: { [key: string]: Ref }, tx = db): Promise<{ [x: string]: number }> {
+  resource: string[], analytics: { [key: string]: Ref }, tx = sdb): Promise<{ [x: string]: number }> {
 
-  const addQuery = (key) => `SUM((data->>'${key}')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) "${key}",\n`;
-  let query = ''; for (const el of resource) { query += addQuery(el); } query = query.slice(0, -2);
+  const addFields = (key) => `SUM(JSON_VALUE(data, '$.${key}') * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "${key}",\n`;
+  let fields = ''; for (const el of resource) { fields += addFields(el); } fields = fields.slice(0, -2);
 
-  const result = await db.oneOrNone(`
-    SELECT ${query}
-    FROM "Register.Accumulation"
-    WHERE TRUE
-      AND date <= $1
-      AND data @> $2
-  `, [date, {...analytics, type}]);
+  const addWhere = (key) => `NEAR((${key}, ${analytics[key]}),1) AND `;
+  let where = ''; for (const el of resource) { where += addWhere(el); } where = where.slice(0, -4);
+
+  const result = await sdb.oneOrNone<any>(`
+    SELECT ${fields}
+    FROM "Accumulation"
+    WHERE (1=1)
+      AND date <= @p1
+      AND type = @p2
+      AND CONTAINS(data, '${where}')
+  `, [date, type]);
   return (result ? result : {});
 }
-
-// designed for calculation perfomanse using specical index
-/* create index "Register.Accumulation-avg-cost" ON "Register.Accumulation" (
-  ((data ->> 'SKU')::VARCHAR(36)),
-  ((data ->> 'Storehouse')::VARCHAR(36)),
-  ((data ->> 'company')::VARCHAR(36)),
-  ((data ->> 'type')::VARCHAR(100)),
-  date,
-  ((data ->> 'Cost')::NUMERIC),
-  ((data ->> 'Qty')::NUMERIC),
-  kind) */
-async function avgCost(date = new Date(), analytics: { [key: string]: Ref }, tx = db): Promise<number> {
+async function avgCost(date = new Date(), analytics: { [key: string]: Ref }, tx = sdb): Promise<number> {
   const queryText = `
     SELECT
-      SUM((data ->> 'Cost')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) /
-      NullIf(SUM((data ->> 'Qty')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END), 0) result
-    FROM "Register.Accumulation"
-    WHERE TRUE
-      AND date <= $1
-      AND (data->>'type')::VARCHAR(100) = 'Register.Accumulation.Inventory'
-      AND (data->>'company')::VARCHAR(36) = $2
-      AND (data->>'SKU')::VARCHAR(36) = $3
-      AND (data->>'Storehouse')::VARCHAR(36) = $4
+      SUM(JSON_VALUE(data, '$.Cost') * CASE WHEN kind = 1 THEN 1 ELSE -1 END) /
+      NULLIF(SUM(JSON_VALUE(data, '$.Qty') * CASE WHEN kind = 1 THEN 1 ELSE -1 END), 0) result
+    FROM "Accumulation"
+    WHERE (1=1)
+      AND date <= @p1
+      AND type = 'Register.Accumulation.Sales'
+      AND company = '${analytics.company}'
+      AND CONTAINS(data, 'NEAR((SKU, ${analytics.SKU}),1) AND NEAR((Storehouse, ${analytics.Storehouse}),1)')
     `;
-  const result = await tx.oneOrNone(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
+  const result = await tx.oneOrNone<any>(queryText, [date]);
   return result ? result.result : null;
 }
 
-async function inventoryBalance(date = new Date(), analytics: { [key: string]: Ref }, tx = db): Promise<number> {
+async function inventoryBalance(date = new Date(), analytics: { [key: string]: Ref }, tx = sdb): Promise<number> {
   const queryText = `
     SELECT
-      SUM((data ->> 'Qty')::NUMERIC * CASE WHEN kind THEN 1 ELSE -1 END) result
+      SUM(JSON_VALUE(data, '$.Qty') * CASE WHEN kind = 1 THEN 1 ELSE -1 END) result
     FROM "Register.Accumulation"
-    WHERE TRUE
-      AND date <= $1
-      AND (data->>'type')::VARCHAR(100) = 'Register.Accumulation.Inventory'
-      AND (data->>'company')::VARCHAR(36) = $2
-      AND (data->>'SKU')::VARCHAR(36) = $3
-      AND (data->>'Storehouse')::VARCHAR(36) = $4
+    WHERE (1=1)
+      AND date <= @p1
+      AND type = 'Register.Accumulation.Sales'
+      AND company = '${analytics.company}'
+      AND CONTAINS(data, 'NEAR((SKU, ${analytics.SKU}),1) AND NEAR((Storehouse, ${analytics.Storehouse}),1)')
     `;
-  const result = await tx.oneOrNone(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
+  const result = await tx.oneOrNone<any>(queryText, [date]);
   return result ? result.result : null;
 }
 
 async function sliceLast(type: string, date = new Date(), company: Ref,
-  resource: string, analytics: { [key: string]: any }, tx = db): Promise<number> {
-  const params =  {...analytics, type, company };
+  resource: string, analytics: { [key: string]: any }, tx = sdb): Promise<number> {
+
+  const addWhere = (key) => `NEAR((${key}, ${analytics[key]}),1) AND `;
+  let where = ''; for (const el of resource) { where += addWhere(el); } where = where.slice(0, -4);
+
   const queryText = `
-    SELECT data->'${resource}' result FROM "Register.Info"
-    WHERE TRUE
-      AND date <= $1
-      AND data @> $2
-    ORDER BY date DESC
-    LIMIT 1`;
-  const result = await tx.oneOrNone(queryText, [date, params]);
+    SELECT TOP 1 JSON_VALUE(data, '$.${resource}') result FROM "Register.Info"
+    WHERE (1=1)
+      AND date <= @p1
+      AND type = '${type}'
+      AND company = '${company}'
+      AND CONTAINS(data, '${where}')
+    ORDER BY date DESC`;
+  const result = await tx.oneOrNone<any>(queryText, [date]);
   return result ? result.result : null;
 }
 
-export async function postById(id: string, posted: boolean, tx: TX = db) {
-  return tx.task(async subtx => {
+export async function postById(id: string, posted: boolean, tx: TX = sdb) {
+  return tx.tx<any>(async subtx => {
     const doc = await lib.doc.byId(id, subtx);
     let serverDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
     if (serverDoc.isDoc) {
       await subtx.none(`
-          DELETE FROM "Register.Account" WHERE document = $1;
-          DELETE FROM "Register.Info" WHERE data @> $2;
-          DELETE FROM "Register.Accumulation" WHERE data @> $2;
-          UPDATE "Documents" d SET posted = $3 WHERE d.id = $1`, [id, {document: id}, posted]);
+        DELETE FROM "Register.Account" WHERE document = @p1;
+        DELETE FROM "Register.Info" WHERE document = @p1;
+        DELETE FROM "Accumulation" WHERE document = @p1;
+        UPDATE "Documents" SET posted = @p2 WHERE id = @p1`, [id, posted ? 1 : 0 ]);
     }
     if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
     serverDoc = undefined;

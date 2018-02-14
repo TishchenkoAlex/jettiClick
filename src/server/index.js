@@ -21,7 +21,6 @@ const suggest_1 = require("./routes/suggest");
 const tasks_2 = require("./routes/tasks");
 const user_settings_1 = require("./routes/user.settings");
 const utils_1 = require("./routes/utils");
-const config_1 = require("./models/config");
 const root = './';
 const app = express();
 app.use(compression());
@@ -68,5 +67,5 @@ exports.IO.use(check_auth_1.authIO);
 const port = (+process.env.PORT) || 3000;
 exports.HTTP.listen(port, () => console.log(`API running on port:${port}`));
 tasks_1.JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
-console.log(config_1.configSchema.get('Document.Invoice').QueryObject);
+// console.log(configSchema.get('Catalog.Account').QueryObject);
 //# sourceMappingURL=index.js.map

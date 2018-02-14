@@ -1,7 +1,7 @@
 import { DocumentOptions } from '../document';
 import { createDocument, RegisteredDocument } from '../documents.factory';
 import { AllTypes } from '../documents.types';
-import { buildTypesQueryList } from './../../fuctions/SQLGenerator';
+import { buildTypesQueryList } from './../../fuctions/SQLGenerator.MSSQL';
 import { TypesBase } from './TypesBase';
 
 export class TypesSubcount extends TypesBase {

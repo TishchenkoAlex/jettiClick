@@ -31,7 +31,7 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
 
   async baseOn(docId: string, tx: TX): Promise<DocumentPriceList> {
     const ISource = await lib.doc.byId(docId, tx);
-    let documentPriceList = await tx.one<DocumentPriceList>(`${configSchema.get(this.type).QueryNew}`);
+    let documentPriceList = await tx.oneOrNone<DocumentPriceList>(`${configSchema.get(this.type).QueryNew}`);
     Object.keys(documentPriceList).forEach(k => this[k] = documentPriceList[k]);
     switch (ISource.type) {
       case 'Document.Invoice':

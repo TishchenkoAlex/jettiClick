@@ -1,100 +1,162 @@
 {
-  "id": "3E90CDFA-C3F2-11E7-97ED-03236C2D1478",
-  "type": "Document.Invoice",
-  "date": "2016-03-13",
-  "time": "22:00:00",
-  "code": "370",
-  "description": "Invoice #370, 2016-03-13 22:00:00",
-  "posted": true,
-  "deleted": false,
-  "isfolder": false,
-  "company": {
-    "id": "9BCC3F56-A17C-11E7-AE4F-FFBD4E97D2D4",
-    "value": "NAT USA",
-    "code": "NATUSA",
-    "type": "Catalog.Company"
+  "Document.Operation": {
+    "filter": [
+      {
+        "left": "date",
+        "center": "=",
+        "right": null
+      },
+      {
+        "left": "code",
+        "center": "like",
+        "right": null
+      },
+      {
+        "left": "company",
+        "center": "=",
+        "right": null
+      },
+      {
+        "left": "Group",
+        "center": "=",
+        "right": null
+      },
+      {
+        "left": "Operation",
+        "center": "=",
+        "right": null
+      },
+      {
+        "left": "Amount",
+        "center": "=",
+        "right": null
+      },
+      {
+        "left": "currency",
+        "center": "=",
+        "right": null
+      }
+    ],
+    "order": [
+      {
+        "field": "date",
+        "order": "desc"
+      }
+    ]
   },
-  "parent": {
-    "id": null,
-    "value": null,
-    "code": null,
-    "type": null
+  "Catalog.Counterpartie": {
+    "filter": [
+      {
+        "left": "code",
+        "center": "like",
+        "right": null
+      },
+      {
+        "left": "description",
+        "center": "like",
+        "right": null
+      },
+      {
+        "left": "FullName",
+        "center": "like",
+        "right": null
+      },
+      {
+        "left": "Client",
+        "center": "=",
+        "right": null
+      },
+      {
+        "left": "Supplier",
+        "center": "=",
+        "right": null
+      },
+      { 
+        "left": "Department",
+        "center": "=",
+        "right": null
+      }
+    ],
+    "order": []
   },
-  "user": null,
-  "info": null,
-  "timestamp": null,
-  "Items": [
-    {
-      "SKU": {
-        "id": "40AEEBC0-A945-11E7-8206-03F51F4C48A6",
-        "value": "1003 (Xdar, Wheat, vodka, 0.375L X 24\/case)",
-        "code": "SKU-00000003",
-        "type": "Catalog.Product"
+  "Catalog.Product": {
+    "filter": [
+      {
+        "left": "code",
+        "center": "like",
+        "right": null
       },
-      "Qty": 24
-    },
-    {
-      "SKU": {
-        "id": "BE01A212-666E-11E7-84C6-7BE710A256C4",
-        "value": "1004 (Xdar, Wheat, vodka, 0.75L X 12\/case)",
-        "code": "SKU-00000004",
-        "type": "Catalog.Product"
+      {
+        "left": "description",
+        "center": "like",
+        "right": null
       },
-      "Qty": 24
-    },
-    {
-      "SKU": {
-        "id": "1B339E94-6751-11E7-9C49-33E7E6D303AC",
-        "value": "1005 (Xdar, Wheat, vodka, 1L X 12\/case)",
-        "code": "SKU-00000005",
-        "type": "Catalog.Product"
+      {
+        "left": "Brand",
+        "center": "=",
+        "right": null
       },
-      "Qty": 36
-    },
-    {
-      "SKU": {
-        "id": "1FB7CDE0-A947-11E7-BAE1-CF015BDAF61B",
-        "value": "1006 (Xdar, Wheat, vodka, 1.75L X 6\/case)",
-        "code": "SKU-00000006",
-        "type": "Catalog.Product"
+      {
+        "left": "Volume",
+        "center": "=",
+        "right": null
+      }
+    ],
+    "order": [
+      {
+        "field": "code",
+        "order": "asc"
+      }
+    ]
+  },
+  "Document.Invoice": {
+    "filter": [
+      {
+        "left": "date",
+        "center": "=",
+        "right": null
       },
-      "Qty": 18
-    },
-    {
-      "SKU": {
-        "id": "758425DA-C269-11E7-B47D-871BAE16B92F",
-        "value": "1032 (Kozak, Vodka, 1L X 12\/case)",
-        "code": "SKU-00000019",
-        "type": "Catalog.Product"
+      {
+        "left": "code",
+        "center": "like",
+        "right": null
       },
-      "Qty": 24
-    },
-    {
-      "SKU": {
-        "id": "5660A07A-C269-11E7-8DA7-53451A4D61CD",
-        "value": "1031 (Kozak, Vodka, 0.375L X 24\/case)",
-        "code": "SKU-00000018",
-        "type": "Catalog.Product"
+      {
+        "left": "company",
+        "center": "=",
+        "right": null
       },
-      "Qty": 24
-    },
-    {
-      "SKU": {
-        "id": "2A7B4C26-6751-11E7-9C49-DB1644EDDD24",
-        "value": "2006 (Koblevo, Muscat, wine, 0.75L X 12\/case)",
-        "code": "SKU-00000012",
-        "type": "Catalog.Product"
+      {
+        "left": "Customer",
+        "center": "=",
+        "right": null
       },
-      "Qty": 24
-    },
-    {
-      "SKU": {
-        "id": "4F9DC302-C0D0-11E7-9CAE-D7545DD7BEFA",
-        "value": "2007 (Koblevo, Kagor, wine, 0.75L X 12\/case)",
-        "code": "SKU-00000013",
-        "type": "Catalog.Product"
+      {
+        "left": "Manager",
+        "center": "=",
+        "right": null
       },
-      "Qty": 24
-    }
-  ]
+      {
+        "left": "Status",
+        "center": "like",
+        "right": null
+      },
+      {
+        "left": "Amount",
+        "center": "=",
+        "right": null
+      },
+      {
+        "left": "Tax",
+        "center": "=",
+        "right": null
+      },
+      {
+        "left": "currency",
+        "center": "=",
+        "right": null
+      }
+    ],
+    "order": []
+  }
 }

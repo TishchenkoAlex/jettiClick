@@ -11,7 +11,7 @@ import * as httpServer from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 
-import { connString, connString_MSSQL, SUBSCRIPTION_ID } from './env/environment';
+import { connString_MSSQL, SUBSCRIPTION_ID } from './env/environment';
 import { JQueue } from './models/Tasks/tasks';
 import { router as auth } from './routes/auth';
 import { router as documents } from './routes/documents';
@@ -80,6 +80,5 @@ IO.use(authIO);
 const port = (+process.env.PORT) || 3000;
 HTTP.listen(port, () => console.log(`API running on port:${port}`));
 JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
-console.log(configSchema.get('Document.Invoice').QueryObject);
-
+// console.log(configSchema.get('Catalog.Account').QueryObject);
 

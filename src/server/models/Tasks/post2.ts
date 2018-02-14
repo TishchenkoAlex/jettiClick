@@ -6,11 +6,11 @@ export default async function (job: Queue.Job) {
   await job.progress(0);
   const params = job.data;
   const query = `SELECT id FROM "Documents"
-    WHERE type = $1 AND company = $2 AND date between $3 AND $4 ORDER BY date, code`;
+    WHERE type = @p1 AND company = @p2 AND date between @p3 AND @p4 ORDER BY date, code`;
   const TaskList = [];
   const endDate = new Date(params.EndDate);
   endDate.setHours(23, 59, 59, 999);
-  const list = await lib.db.manyOrNone(query, [params.type, params.company, params.StartDate, endDate]);
+  const list = await lib.db.manyOrNone<any>(query, [params.type, params.company, params.StartDate, endDate]);
   const count = list.length; let offset = 0;
   while (offset < count) {
     let i = 0;

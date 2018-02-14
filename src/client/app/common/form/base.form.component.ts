@@ -54,7 +54,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     this._subscription$ = merge(...[
       this.ds.save$,
       this.ds.delete$]).pipe(
-      filter(doc => (doc.id === this.model.id) && (doc.isfolder !== true)))
+        filter(doc => (doc.id === this.model.id) && (doc.isfolder !== true)))
       .subscribe(doc => {
         this.viewModel.formGroup.patchValue(doc, { emitEvent: false });
         if (this.docModel.isDoc) { this.showDescription(); }
@@ -78,16 +78,18 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       this.form.get('code').valueChanges,
       this.form.get('Group') ?
         this.form.get('Group').valueChanges : observableOf('')]).pipe(
-      filter(() => this.docModel.isDoc))
+          filter(() => this.docModel.isDoc))
       .subscribe(data => this.showDescription());
   }
 
   private showDescription() {
-    const date = this.form.get('date').value;
-    const code = this.form.get('code').value;
-    const group = this.form.get('Group') && this.form.get('Group').value ? this.form.get('Group').value.value : '';
-    const value = calculateDescription(this.docDescription, date, code, group);
-    this.description.patchValue(value, { emitEvent: false, onlySelf: true });
+    if (this.isDoc) {
+      const date = this.form.get('date').value;
+      const code = this.form.get('code').value;
+      const group = this.form.get('Group') && this.form.get('Group').value ? this.form.get('Group').value.value : '';
+      const value = calculateDescription(this.docDescription, date, code, group);
+      this.description.patchValue(value, { emitEvent: false, onlySelf: true });
+    }
   }
 
   Save() { this.showDescription(); this.ds.save(this.model); }

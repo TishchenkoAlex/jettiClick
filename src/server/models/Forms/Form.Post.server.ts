@@ -1,10 +1,11 @@
-import { db, TX } from '../../db';
+import { TX } from '../../db';
 import { ICallRequest } from '../../routes/utils/interfaces';
 import { lib } from '../../std.lib';
 import { PatchValue } from '../api';
 import { userSocketsEmit } from './../../sockets';
 import { FormPost } from './Form.Post';
 import { JQueue } from '../Tasks/tasks';
+import { sdb } from '../../mssql';
 
 export default class FormPostServer extends FormPost {
 
@@ -12,7 +13,7 @@ export default class FormPostServer extends FormPost {
     super(CallRequest.formView as FormPost);
   }
 
-  async Execute(tx: TX = db, CR: ICallRequest) {
+  async Execute(tx: TX = sdb, CR: ICallRequest) {
     const endDate = new Date(this.CallRequest.formView.EndDate);
     endDate.setHours(23, 59, 59, 999);
 
@@ -31,11 +32,11 @@ export default class FormPostServer extends FormPost {
     try {
       const query = `
       SELECT id, date, code FROM "Documents"
-      WHERE type = $1 AND company = $2 AND date between $3 AND $4
+      WHERE type = @p1 AND company = @p2 AND date between @p3 AND @p4
       ORDER BY date, code`;
       const endDate = new Date(this.CallRequest.formView.EndDate);
       endDate.setHours(23, 59, 59, 999);
-      const list = await db.manyOrNone(query, [
+      const list = await sdb.manyOrNone<any>(query, [
         this.CallRequest.formView.type.id,
         this.CallRequest.formView.company.id,
         this.CallRequest.formView.StartDate,
@@ -46,7 +47,7 @@ export default class FormPostServer extends FormPost {
       for (const row of list) {
         userSocketsEmit(this.CallRequest.userID, 'Form.Post', ++count / list.length * 100);
         try {
-          await lib.doc.postById(row.id, true, db);
+          await lib.doc.postById(row.id, true, sdb);
         } catch (err) {
           console.log(err);
         }

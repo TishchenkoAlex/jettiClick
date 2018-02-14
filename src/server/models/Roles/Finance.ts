@@ -1,6 +1,7 @@
 import { RoleObject } from './Base';
 
 export const FinanceRoleObject: RoleObject[] = [
+  { type: 'Catalog.Account', read: true, write: true },
   { type: 'Catalog.Balance', read: true, write: true },
   { type: 'Catalog.Balance.Analytics', read: true, write: true },
   { type: 'Catalog.BankAccount', read: true, write: true },

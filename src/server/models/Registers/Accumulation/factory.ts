@@ -5,6 +5,12 @@ import { RegisterAccumulationInventory } from './Inventory';
 import { RegisterAccumulation } from './RegisterAccumulation';
 import { RegisterAccumulationSales } from './Sales';
 import { RegisterAccumulationPL } from './PL';
+import { RegisterAccumulationAccountablePersons } from './AccountablePersons';
+import { RegisterAccumulationAP } from './AP';
+import { RegisterAccumulationBank } from './Bank';
+import { RegisterAccumulationCash } from './Cash';
+import { RegisterAccumulationCashTransit } from './Cash.Transit';
+import { RegisterAccumulationLoan } from './Loan';
 
 export type RegisterAccumulationTypes =
   'Register.Accumulation.AccountablePersons' |
@@ -21,11 +27,17 @@ export type RegisterAccumulationTypes =
 
 interface IRegisteredRegisterAccumulation { type: RegisterAccumulationTypes; Class: typeof RegisterAccumulation; }
 export const RegisteredRegisterAccumulation: IRegisteredRegisterAccumulation[] = [
-  { type: 'Register.Accumulation.Balance', Class: RegisterAccumulationBalance },
+  { type: 'Register.Accumulation.AccountablePersons', Class: RegisterAccumulationAccountablePersons },
+  { type: 'Register.Accumulation.AP', Class: RegisterAccumulationAP },
   { type: 'Register.Accumulation.AR', Class: RegisterAccumulationAR },
+  { type: 'Register.Accumulation.Bank', Class: RegisterAccumulationBank },
+  { type: 'Register.Accumulation.Balance', Class: RegisterAccumulationBalance },
+  { type: 'Register.Accumulation.Cash', Class: RegisterAccumulationCash },
+  { type: 'Register.Accumulation.Cash.Transit', Class: RegisterAccumulationCashTransit },
   { type: 'Register.Accumulation.Inventory', Class: RegisterAccumulationInventory },
-  { type: 'Register.Accumulation.Sales', Class: RegisterAccumulationSales },
+  { type: 'Register.Accumulation.Loan', Class: RegisterAccumulationLoan },
   { type: 'Register.Accumulation.PL', Class: RegisterAccumulationPL },
+  { type: 'Register.Accumulation.Sales', Class: RegisterAccumulationSales },
 ];
 
 export function createRegisterAccumulation(

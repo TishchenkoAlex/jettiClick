@@ -10,33 +10,33 @@
 
     <div fxLayout="column" fxFlex=30 fxFill class="account-box">
       <div fxLayoutAlign="center end" fxFlex fxFill class="account">
-        {{ item.debet.account }}
+        {{ item.debit.account }}
       </div>
       <div fxLayoutAlign="center start" fxFlex fxFill class="decription">
-        <span style="margin-top: 4px">{{ item.debet.description }} </span>
+        <span style="margin-top: 4px">{{ item.debit.description }} </span>
       </div>
     </div>
 
     <div fxLayout="column" fxFill fxFlex=50 class="account-box">
-      <div *ngIf="item.debet.subcount1.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debet.subcount1.code" tooltipPosition="bottom">
-        {{ item.debet.subcount1.value }}
+      <div *ngIf="item.debit.subcount1.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debit.subcount1.code" tooltipPosition="bottom">
+        {{ item.debit.subcount1.value }}
       </div>
-      <div *ngIf="item.debet.subcount2.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debet.subcount2.code" tooltipPosition="bottom">
-        {{ item.debet.subcount2.value }}
+      <div *ngIf="item.debit.subcount2.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debit.subcount2.code" tooltipPosition="bottom">
+        {{ item.debit.subcount2.value }}
       </div>
-      <div *ngIf="item.debet.subcount3.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debet.subcount3.code" tooltipPosition="bottom">
-        {{ item.debet.subcount3.value }}
+      <div *ngIf="item.debit.subcount3.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debit.subcount3.code" tooltipPosition="bottom">
+        {{ item.debit.subcount3.value }}
       </div>
-      <div *ngIf="item.debet.subcount4.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debet.subcount4.code" tooltipPosition="bottom">
-        {{ item.debet.subcount4.value }}
+      <div *ngIf="item.debit.subcount4.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debit.subcount4.code" tooltipPosition="bottom">
+        {{ item.debit.subcount4.value }}
       </div>
     </div>
     
     <div fxFlex="10" fxFill fxLayoutAlign="center center" class="account-box">
-      {{ item.debet.qty | number }}
+      {{ item.debit.qty | number }}
     </div>
     <div fxFlex="10" fxFill fxLayoutAlign="center center" class="account-box">
-      {{ item.debet.currency }}
+      {{ item.debit.currency }}
     </div>
 
   </div>

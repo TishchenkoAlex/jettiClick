@@ -1,21 +1,23 @@
 import { ITask } from 'pg-promise';
 
-import { TX, db } from '../../db';
 import { PostResult } from '../../models/post.interfaces';
 import { DocumentBaseServer, INoSqlDocument } from './../../models/ServerDocument';
 import { lib } from './../../std.lib';
+import { TX } from '../../db';
+import { sdb } from '../../mssql';
 
-export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostResult, tx: TX = db) {
+export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostResult, tx: TX = sdb) {
   let query = '';
   for (const rec of Registers.Account) {
     query += `
       INSERT INTO "Register.Account" (
-        datetime, document, operation, sum, company,
+        date, time, document, operation, sum, company,
         dt, dt_subcount1, dt_subcount2, dt_subcount3, dt_subcount4, dt_qty, dt_cur,
         kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur )
       VALUES (
-        '${new Date(doc.date).toJSON()}',
-        '${doc.id}', '${rec.operation || doc.doc['Operation'] || doc.type}', ${rec.sum || 0}, '${rec.company || doc.company}',
+        '${new Date(doc.date).toJSON()}', '${new Date(doc.date).toJSON()}',
+        '${doc.id}', '${rec.operation || doc.doc['Operation'] || '00000000-0000-0000-0000-000000000000'}'
+        ,${rec.sum || 0}, '${rec.company || doc.company}',
         '${rec.debit.account}',
         '${rec.debit.subcounts[0]}', '${rec.debit.subcounts[1]}',
         '${rec.debit.subcounts[2]}', '${rec.debit.subcounts[3]}',
@@ -30,23 +32,24 @@ export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostRe
   for (const rec of Registers.Accumulation) {
     const data = JSON.stringify({...rec.data, type: rec.type, company: rec.company || doc.company, document: doc.id});
     query += `
-    INSERT INTO "Register.Accumulation" (kind, date, data)
-    VALUES (${rec.kind}, '${new Date(doc.date).toJSON()}', '${data}');`;
+    INSERT INTO "Accumulation" (kind, date, type, company, document, data)
+    VALUES (${rec.kind ? 1 : 0}, '${new Date(doc.date).toJSON()}', '${rec.type}' , '${rec.company || doc.company}',
+    '${doc.id}', JSON_QUERY('${data}'));`;
   }
 
   for (const rec of Registers.Info) {
     const data = JSON.stringify({...rec.data, type: rec.type, document: doc.id, company: rec.company || doc.company});
     query += `
-    INSERT INTO "Register.Info" (date, data)
-    VALUES ('${new Date(doc.date).toJSON()}', '${data}');`;
+    INSERT INTO "Register.Info" (date, type, company, data)
+    VALUES ('${new Date(doc.date).toJSON()}', '${rec.type}', '${rec.company || doc.company}', '${doc.id}', JSON_QUERY('${data}'));`;
   }
-
+  query = query.replace(/\'undefined\'/g, 'NULL');
   if (query) { await tx.none(query); }
 }
 
 export async function doSubscriptions(doc: INoSqlDocument, script: string, tx: TX) {
-  const scripts = await tx.manyOrNone(`
-    SELECT "then" FROM "Subscriptions" WHERE "what" ? $1 AND "when" = $2 ORDER BY "order"`, [doc.type, script]);
+/*   const scripts = await tx.manyOrNone<any>(`
+    SELECT "then" FROM "Subscriptions" WHERE "what" ? @p1 AND "when" = @p2 ORDER BY "order"`, [doc.type, script]);
   if (scripts.length) {
     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
     for (const scr of scripts) {
@@ -55,5 +58,5 @@ export async function doSubscriptions(doc: INoSqlDocument, script: string, tx: T
         await func(JSON.parse(JSON.stringify(doc)), tx);
       }
     }
-  }
+  } */
 }

@@ -1,4 +1,3 @@
-import { TX, db } from '../../db';
 import { lib } from '../../std.lib';
 import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
 import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
@@ -11,6 +10,7 @@ import { DocumentBase, Ref } from '../../models/document';
 import { configSchema } from '../../models/config';
 import { CatalogCounterpartie } from '../../models/Catalogs/Catalog.Counterpartie';
 import { RefValue } from '../../models/api';
+import { TX } from '../../db';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
@@ -49,7 +49,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
 
   async baseOn(docID: string, tx: TX): Promise<DocumentBase> {
     const ISource = await lib.doc.byId(docID, tx);
-    let documentInvoice = await tx.one<DocumentInvoice>(`${configSchema.get(this.type).QueryNew}`);
+    let documentInvoice = await tx.oneOrNone<DocumentInvoice>(`${configSchema.get(this.type).QueryNew}`);
     switch (ISource.type) {
       case 'Catalog.Counterpartie':
         const Counterpartie = await lib.doc.viewModelById<CatalogCounterpartie>(docID);

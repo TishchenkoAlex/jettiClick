@@ -1,4 +1,4 @@
-import { SQLGenegator } from '../../../fuctions/SQLGenerator';
+import { SQLGenegator } from '../../../fuctions/SQLGenerator.MSSQL';
 import { PropOptions, Props, Ref, symbolProps } from './../../document';
 import { RegisterInfoTypes } from './factory';
 

@@ -1,12 +1,9 @@
 import { Request, Response } from 'express';
 
-import { db } from './../../db';
+import { sdb } from '../../mssql';
 import { DocListRequestBody } from './../../models/api';
 import { configSchema } from './../../models/config';
 import { FilterInterval, FormListFilter } from './../../models/user.settings';
-import { Int, UniqueIdentifier } from 'mssql';
-import { sqlConfig } from '../../env/environment';
-import { sdb } from '../../mssql';
 
 export async function List(req: Request, res: Response) {
   const params = req.body as DocListRequestBody;
@@ -57,7 +54,7 @@ export async function List(req: Request, res: Response) {
           }
           break;
         case 'like':
-          where += ` AND d."${f.left}" ILIKE '%${(f.right['value'] || f.right).toString().replace('\'', '\'\'')}%' `;
+          where += ` AND d."${f.left}" LIKE '%${(f.right['value'] || f.right).toString().replace('\'', '\'\'')}%' `;
           break;
         case 'beetwen':
           const interval = f.right as FilterInterval;
@@ -70,7 +67,7 @@ export async function List(req: Request, res: Response) {
 
   const filterBuilderForDoc = (filter: FormListFilter[]) => {
     let where = ' ';
-    filter.filter(f => f.right).forEach(f => {
+    filter.filter(f => (f.right && f.right.id)).forEach(f => {
       where += ` AND JSON_VALUE(d.doc, '$.${f.left}') = '${f.right.id}' `;
       return;
     });
@@ -120,10 +117,11 @@ export async function List(req: Request, res: Response) {
       query = `${queryBefore} \nUNION ALL\n${queryAfter} `;
     }
   }
-  query = `SELECT d.*,
-    (select count(*) FROM "Documents" where parent = d.id) "childs",
-    (select count(*) FROM "Documents" where id = d.parent) "parents" FROM (${query}) d ${orderbyAfter} `;
-  console.log(query);
+  query = `SELECT d.*
+    -- , (select count(*) FROM "Documents" where parent = d.id) "childs"
+    -- , (select count(*) FROM "Documents" where id = d.parent) "parents"
+    FROM (${query}) d ${orderbyAfter} `;
+  // console.log(query);
   const data = await sdb.manyOrNone<any>(query);
   let result = [];
 

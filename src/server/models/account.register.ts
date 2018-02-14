@@ -17,10 +17,9 @@ export interface Account {
 }
 
 export interface AccountRegister {
-    document_id: string;
+    document: {id: string; value: string; code: string; type: string};
     date: string;
-    document: string;
-    debet: Account;
+    debit: Account;
     kredit: Account;
     sum: number;
     company: string;

@@ -36,8 +36,8 @@ export class DocumentOperationServer extends DocumentOperation implements Server
   async onPost(tx: TX) {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
 
-    const query = `SELECT (doc->>'script') script FROM "Documents" WHERE id = $1`;
-    const Operation = await tx.oneOrNone(query, [this.Operation]);
+    const query = `SELECT JSON_VALUE(doc, '$.script') script FROM "Documents" WHERE id = @p1`;
+    const Operation = await tx.oneOrNone<any>(query, [this.Operation]);
     const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', {currency: this.currency}, tx) || 1;
     let script = Operation.script.replace(/\$\./g, 'doc.');
     script = script.replace(/\lib\./g, 'await lib.');
