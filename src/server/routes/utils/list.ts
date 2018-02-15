@@ -103,14 +103,14 @@ export async function List(req: Request, res: Response) {
     query = `SELECT * FROM (SELECT * FROM(${queryList} ${filterBuilderForDoc(params.filter)}) d
       WHERE ${where}\n${orderbyAfter} OFFSET 0 ROWS FETCH NEXT ${params.count + 1} ROWS ONLY) d`;
     const idQuery = `SELECT d.id FROM (${query}) d`;
-    query = query.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
+    query = query.replace('FROM dbo\.\"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
   } else {
     if (params.command === 'last') {
       const where = filterBuilder(params.filter || []);
       query = `SELECT * FROM (SELECT * FROM(${queryList} ${filterBuilderForDoc(params.filter)}) d
         WHERE ${where}\n${orderbyBefore} OFFSET 0 ROWS FETCH NEXT ${params.count + 1} ROWS ONLY) d`;
       const idQuery = `SELECT d.id FROM (${query}) d`;
-      query = query.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
+      query = query.replace('FROM dbo\.\"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
     } else {
       const queryBefore = queryBuilder(true);
       const queryAfter = queryBuilder(false);

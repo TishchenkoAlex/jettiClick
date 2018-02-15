@@ -203,7 +203,7 @@ export class SQLGenegator {
       GETDATE() date,
       '${options.type}' "type",
       ${options.prefix ? `'${options.prefix}'` : `''`} +
-      ${options.prefix ? ` FORMAT((NEXT VALUE FOR "Sq.${options.type}"), '0000000000')` : ``} code,
+      ${options.prefix ? ` FORMAT((NEXT VALUE FOR "Sq.${options.type}"), '0000000000')` : `''`} code,
       ${options.type.startsWith('Document.') ?
         `'${options.description} #' +
          ${options.prefix ? `'${options.prefix}'` : `''`} +
@@ -397,7 +397,6 @@ export class SQLGenegator {
     return query;
   }
 }
-
 
 export function buildTypesQueryList(select: { type: any; description: string; }[]) {
   let query = '';
