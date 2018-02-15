@@ -55,6 +55,9 @@ app.use('/auth', auth_1.router);
 app.get('*', (req, res) => {
     res.sendFile('dist/index.html', { root: root });
 });
+app.get('**', (req, res) => {
+    res.sendFile('dist/index.html', { root: root });
+});
 app.use(errorHandler);
 function errorHandler(err, req, res, next) {
     console.log(err.message);

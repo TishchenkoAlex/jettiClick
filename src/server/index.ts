@@ -65,6 +65,11 @@ app.get('*', (req: Request, res: Response) => {
   res.sendFile('dist/index.html', { root: root });
 });
 
+app.get('**', (req: Request, res: Response) => {
+  res.sendFile('dist/index.html', { root: root });
+});
+
+
 app.use(errorHandler);
 function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
   console.log(err.message);

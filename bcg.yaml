@@ -56,7 +56,7 @@ spec:
             - name: SUBSCRIPTION_ID
               value: 
             - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
-              value: 'воскресенье, 18 января 2018 г. 05:18:60 (EET)'
+              value: 'воскресенье, 38 января 2018 г. 05:18:60 (EET)'
             # [END cloudsql_secrets]
       # [START volumes]
       volumes:
@@ -101,13 +101,5 @@ spec:
   backend:
     serviceName: bcg
     servicePort: 8080
-  rules:
-  - host: bcg.jetti-app.com
-    http:
-      paths:
-      - path: /*
-        backend:
-          serviceName: bcg
-          servicePort: 8080
 
 #sed -ie "s/суббота, 13 января 2018 г. 21:31:39 (EET)/$(date)/g" add-account.yaml
