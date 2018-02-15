@@ -1,14 +1,14 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: bcd
+  name: bcg
   labels:
-    app: bcd
+    app: bcg
 spec:
   template:
     metadata:
       labels:
-        app: bcd
+        app: bcg
         tier: web
     spec:
       containers:
@@ -25,7 +25,7 @@ spec:
             - name: DB_ACCOUNTS_HOST
               value: db.jetti-app.com
             - name: DB_NAME
-              value: bcd
+              value: bcg
           # [START cloudsql_secrets]
             - name: DB_USER
               valueFrom:
@@ -64,13 +64,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: bcd
+  name: bcg
   labels:
-    app: bcd
+    app: bcg
 spec:
   type: NodePort
   selector:
-    app: bcd
+    app: bcg
   ports:
   - port: 8080
     targetPort: 8080
@@ -78,25 +78,25 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: bcd-ingress
+  name: bcg-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: bcd
+    kubernetes.io/ingress.global-static-ip-name: bcg
     kubernetes.io/ingress.allow-http: "false"
   labels:
-    app: bcd
+    app: bcg
 spec:
   tls:
   - secretName: jetti-ssl
   backend:
-    serviceName: bcd
+    serviceName: bcg
     servicePort: 8080
   rules:
-  - host: bcd.jetti-app.com
+  - host: bcg.jetti-app.com
     http:
       paths:
       - path: /*
         backend:
-          serviceName: bcd
+          serviceName: bcg
           servicePort: 8080
 
 

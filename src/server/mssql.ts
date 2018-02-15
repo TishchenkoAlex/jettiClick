@@ -9,6 +9,7 @@ export class MSSQL {
     if (transaction) {
       this.pool = transaction;
     } else {
+      console.log('config', config);
       new sql.ConnectionPool(config)
         .connect()
         .then(p => this.pool = p)
