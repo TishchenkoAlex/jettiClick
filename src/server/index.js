@@ -6,7 +6,6 @@ const bodyParser = require("body-parser");
 const compression = require("compression");
 const cors = require("cors");
 const express = require("express");
-const tediousExpress = require("express4-tedious");
 const httpServer = require("http");
 const path = require("path");
 const socketIO = require("socket.io");
@@ -28,19 +27,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(root, 'dist')));
-app.use(function (req, res, next) {
-    res.type('application/json');
-    req['sql'] = tediousExpress(environment_1.connString_MSSQL);
-    next();
-});
-app.use('/liveness_check', (req, res, next) => {
-    req.sql(`
-    select top 10
-    id, type, parent, date, code, description,
-    posted, deleted, isfolder, company, [user], info, timestamp,
-    JSON_QUERY(doc) doc from Documents for JSON PATH, INCLUDE_NULL_VALUES`)
-        .into(res);
-});
 console.log('SUBSCRIPTION_ID', environment_1.SUBSCRIPTION_ID, `${environment_1.SUBSCRIPTION_ID}/api`);
 const api = `${environment_1.SUBSCRIPTION_ID}/api`;
 app.use(api, check_auth_1.authHTTP, server_1.router);
@@ -53,9 +39,6 @@ app.use(api, check_auth_1.authHTTP, tasks_2.router);
 app.use(`${environment_1.SUBSCRIPTION_ID}/auth`, auth_1.router);
 app.use('/auth', auth_1.router);
 app.get('*', (req, res) => {
-    res.sendFile('dist/index.html', { root: root });
-});
-app.get('**', (req, res) => {
     res.sendFile('dist/index.html', { root: root });
 });
 app.use(errorHandler);

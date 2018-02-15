@@ -34,21 +34,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(root, 'dist')));
 
-app.use(function (req, res, next) {
-  res.type('application/json');
-  req['sql'] = tediousExpress(connString_MSSQL);
-  next();
-});
-
-app.use('/liveness_check', (req: Request & { sql: any }, res: Response, next: NextFunction) => {
-  req.sql(`
-    select top 10
-    id, type, parent, date, code, description,
-    posted, deleted, isfolder, company, [user], info, timestamp,
-    JSON_QUERY(doc) doc from Documents for JSON PATH, INCLUDE_NULL_VALUES`)
-    .into(res);
-});
-
 console.log('SUBSCRIPTION_ID', SUBSCRIPTION_ID, `${SUBSCRIPTION_ID}/api`);
 const api = `${SUBSCRIPTION_ID}/api`;
 app.use(api, authHTTP, server);
@@ -64,11 +49,6 @@ app.use('/auth', auth);
 app.get('*', (req: Request, res: Response) => {
   res.sendFile('dist/index.html', { root: root });
 });
-
-app.get('**', (req: Request, res: Response) => {
-  res.sendFile('dist/index.html', { root: root });
-});
-
 
 app.use(errorHandler);
 function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
