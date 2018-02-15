@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
@@ -29,7 +29,9 @@ export class ApiInterceptor implements HttpInterceptor {
       tap(data => {
         if (data instanceof HttpResponse) {
           this.lds.loading = false;
-          console.log('API', req.url);
+          if (isDevMode()) {
+            console.log('API', req.url);
+          }
         }
       }),
       catchError((err: HttpErrorResponse) => {
