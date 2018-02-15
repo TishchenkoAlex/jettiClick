@@ -23,7 +23,6 @@ export class RegisterInfoComponent implements OnInit {
   ngOnInit() {
     this.apiService.getDocInfoMovements(this.register, this.doc.id).pipe(take(1))
       .subscribe(data => {
-        console.log(data);
         this.movements = data;
         this.additionalColumns =
           Object.keys(data[0]).filter(el => ['date', 'kind', 'company', 'document'].findIndex(e => e === el) === -1);

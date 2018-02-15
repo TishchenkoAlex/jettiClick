@@ -101,6 +101,13 @@ spec:
   backend:
     serviceName: bcg
     servicePort: 8080
-
+  rules:
+  - host: bcg.jetti-app.com
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: bcg
+          servicePort: 8080
 
 #sed -ie "s/суббота, 13 января 2018 г. 21:31:39 (EET)/$(date)/g" add-account.yaml

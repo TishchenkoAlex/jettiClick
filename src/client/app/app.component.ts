@@ -49,10 +49,10 @@ export class AppComponent implements AfterViewInit {
     const lm = localStorage.getItem('layoutMode');
     const a = this.layoutMode.toString();
 
-    store.select(fromRoot.getAccount).subscribe(data => console.log('getAccount', data));
-    this.store.dispatch(new Auth.Login({email: 'tischenko.a@gmail.com', password: 'Pa$$word'}));
-    store.select(fromRoot.getColor).subscribe(data => console.log('getColor', data));
-    this.store.dispatch(new UI.SetColor({color: 'accent'}));
+    // store.select(fromRoot.getAccount).subscribe(data => console.log('getAccount', data));
+    // this.store.dispatch(new Auth.Login({email: 'tischenko.a@gmail.com', password: 'Pa$$word'}));
+    // store.select(fromRoot.getColor).subscribe(data => console.log('getColor', data));
+    // this.store.dispatch(new UI.SetColor({color: 'accent'}));
   }
 
   ngAfterViewInit() {
