@@ -14,10 +14,10 @@ export class RegisterAccumulationSales extends RegisterAccumulation {
   @Props({ type: 'Catalog.Department' })
   Department: Ref = null;
 
-  @Props({ type: 'Catalog.Counterpartie' })
+  @Props({ type: 'Catalog.Counterpartie', required: true })
   Customer: Ref = null;
 
-  @Props({ type: 'Catalog.Product' })
+  @Props({ type: 'Catalog.Product', required: true })
   Product: Ref = null;
 
   @Props({ type: 'Catalog.Manager' })
@@ -26,7 +26,7 @@ export class RegisterAccumulationSales extends RegisterAccumulation {
   @Props({ type: 'Types.Document' })
   AO: Ref = null;
 
-  @Props({ type: 'Catalog.Storehouse' })
+  @Props({ type: 'Catalog.Storehouse', required: true })
   Storehouse: Ref = null;
 
   @Props({ type: 'number' })

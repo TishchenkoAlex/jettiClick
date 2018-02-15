@@ -136,23 +136,34 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQ
   const jsonDoc = JSON.stringify(doc);
   if (isNew) {
     doc = await tx.none<INoSqlDocument>(`
-      INSERT INTO Documents
+      INSERT INTO Documents(
+         [id]
+        ,[type]
+        ,[code]
+        ,[description]
+        ,[posted]
+        ,[deleted]
+        ,[doc]
+        ,[parent]
+        ,[isfolder]
+        ,[company]
+        ,[user]
+        ,[info])
       OUTPUT inserted.*
       SELECT *
       FROM OPENJSON(@p1) WITH (
         [id] UNIQUEIDENTIFIER,
         [type] NVARCHAR(100),
-        [date] DATE,
         [code] NVARCHAR(36),
         [description] NVARCHAR(150),
         [posted] BIT,
         [deleted] BIT,
+        [doc] NVARCHAR(max) N'$.doc' AS JSON,
+        [parent] UNIQUEIDENTIFIER,
         [isfolder] BIT,
         [company] UNIQUEIDENTIFIER,
         [user] UNIQUEIDENTIFIER,
-        [info] NVARCHAR(4000),
-        [parent] UNIQUEIDENTIFIER,
-        [doc] NVARCHAR(max) N'$.doc' AS JSON
+        [info] NVARCHAR(4000)
       )`, [jsonDoc]);
   } else {
     doc = await tx.none<INoSqlDocument>(`

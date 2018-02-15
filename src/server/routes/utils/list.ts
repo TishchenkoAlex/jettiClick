@@ -89,7 +89,7 @@ export async function List(req: Request, res: Response) {
           (char1 === '>') ? orderbyAfter : orderbyBefore :
           (char1 === '<') ? orderbyAfter : orderbyBefore} OFFSET 0 ROWS FETCH NEXT ${params.count + 1} ROWS ONLY)`;
       const idQuery = `SELECT d.id FROM (${addQuery} d) d`;
-      addQuery = addQuery.replace('FROM \"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
+      addQuery = addQuery.replace('FROM dbo\.\"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
       const split = addQuery.split('WHERE d.type =');
       result += split[0] + (split[1] ? ' WHERE d.type = ' + split[1] + ') d) ' : ' ');
       result += ` "tmp${o.field}"\nUNION ALL`;

@@ -23,6 +23,7 @@ import { router as tasks } from './routes/tasks';
 import { router as userSettings } from './routes/user.settings';
 import { router as utils } from './routes/utils';
 import { configSchema } from './models/config';
+import { SQLGenegator } from './fuctions/SQLGenerator.MSSQL';
 
 const root = './';
 const app = express();
@@ -60,8 +61,6 @@ app.use(api, authHTTP, tasks);
 app.use(`${SUBSCRIPTION_ID}/auth`, auth);
 app.use('/auth', auth);
 
-
-
 app.get('*', (req: Request, res: Response) => {
   res.sendFile('dist/index.html', { root: root });
 });
@@ -81,4 +80,6 @@ const port = (+process.env.PORT) || 3000;
 HTTP.listen(port, () => console.log(`API running on port:${port}`));
 JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
 // console.log(configSchema.get('Catalog.Account').QueryObject);
-
+// console.log(SQLGenegator.AlterTriggerRegisterAccumulation());
+// console.log(SQLGenegator.CreateTableRegisterAccumulation());
+// console.log(SQLGenegator.CreateViewCatalogs());

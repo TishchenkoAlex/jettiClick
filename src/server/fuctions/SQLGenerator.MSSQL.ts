@@ -1,3 +1,5 @@
+import { createDocument, RegisteredDocument } from '../models/documents.factory';
+import { createRegisterAccumulation, RegisteredRegisterAccumulation } from '../models/Registers/Accumulation/factory';
 import { DocumentOptions } from './../models/document';
 
 // tslint:disable:max-line-length
@@ -41,7 +43,7 @@ export class SQLGenegator {
             `,  JSON_QUERY(CASE WHEN "${prop}".id IS NULL THEN JSON_QUERY(d.doc, '$.${prop}')
               ELSE (SELECT "${prop}".id "id", "${prop}".description "value",
                 ISNULL("${prop}".type, '${type}') "type", "${prop}".code "code" FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) END, '$') "${prop}"\n` :
-           `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
+            `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
 
       const addLeftJoin = (prop: string, type: string) =>
         type.startsWith('Catalog.Subcount') ?
@@ -141,8 +143,8 @@ export class SQLGenegator {
 
     const addLeftJoin = (prop: string, type: string) =>
       type.startsWith('Types.') ?
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"')\n` :
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"') AND "${prop}".type = '${type}'\n`;
+        ` LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"')\n` :
+        ` LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"') AND "${prop}".type = '${type}'\n`;
 
 
     let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent, d.timestamp,
@@ -162,10 +164,10 @@ export class SQLGenegator {
     }
 
     query += `
-      FROM "Documents" d
-      LEFT JOIN "Documents" "parent" ON "parent".id = d."parent"
-      LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
-      LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
+      FROM dbo."Documents" d
+      LEFT JOIN dbo."Documents" "parent" ON "parent".id = d."parent"
+      LEFT JOIN dbo."Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
+      LEFT JOIN dbo."Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
       ${LeftJoin}
       WHERE d.type = '${options.type}'  `;
 
@@ -181,7 +183,7 @@ export class SQLGenegator {
     };
 
     const complexProperty = (prop: string, type: string) =>
-      `, null "${prop}.id", null "${prop}.code", "${type}" "${prop}.type", null "${prop}.value"\n`;
+      `, null "${prop}.id", null "${prop}.code", '${type}' "${prop}.type", null "${prop}.value"\n`;
 
     let query = '';
 
@@ -200,19 +202,19 @@ export class SQLGenegator {
       NEWID() id,
       GETDATE() date,
       '${options.type}' "type",
-      ${options.prefix ? `'${options.prefix}'` : `''`}
-      ${options.prefix ? `''` : `''`} code,
+      ${options.prefix ? `'${options.prefix}'` : `''`} +
+      ${options.prefix ? ` FORMAT((NEXT VALUE FOR "Sq.${options.type}"), '0000000000')` : ``} code,
       ${options.type.startsWith('Document.') ?
-        `'${options.description} #' ||
-         ${options.prefix ? `'${options.prefix}'` : `''`}
-         ${options.prefix ? `''` : `''`} ` : `''`} description,
-      false posted,
-      false deleted,
-      false isfolder,
+        `'${options.description} #' +
+         ${options.prefix ? `'${options.prefix}'` : `''`} +
+         ${options.prefix ? `FORMAT((NEXT VALUE FOR "Sq.${options.type}"), '0000000000')` : `''`} ` : `''`} description,
+      0 posted,
+      0 deleted,
+      0 isfolder,
       '' info
-      , null "parent.id", null "parent.code", "${options.type}" "parent.type", null "parent.value"\n
-      , null "user.id", null "user.code", "Catalog.User" "user.type", null "user.value"\n
-      , null "company.id", null "company.code", "Catalog.Company" "user.type", null "company.value"\n
+      , null "parent.id", null "parent.code", '${options.type}' "parent.type", null "parent.value"\n
+      , null "user.id", null "user.code", 'Catalog.User' "user.type", null "user.value"\n
+      , null "company.id", null "company.code", 'Catalog.Company' "company.type", null "company.value"\n
       ${query}`;
     return query;
   }
@@ -258,22 +260,110 @@ export class SQLGenegator {
   static QueryRegisterInfoList(doc: { [x: string]: any }, type: string) {
     return this.QueryRegisterAccumulatioList(doc, type);
   }
+
+  static QueryTriggerRegisterAccumulation(doc: { [x: string]: any }, type: string) {
+
+    const simleProperty = (prop: string, type: string) => {
+      if (type === 'boolean') { return `, ISNULL(JSON_VALUE(data, '$.${prop}'), 0) "${prop}"\n`; }
+      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(data, '$.${prop}') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
+      return `, JSON_VALUE(data, '$.${prop}') "${prop}"\n`;
+    };
+
+    const complexProperty = (prop: string, type: string) =>
+      `, CAST(JSON_VALUE(data, '$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}"\n`;
+
+    let insert = ''; let select = '';
+    for (const prop in excludeRegisterAccumulatioProps(doc)) {
+      insert += `, ${prop}\n`;
+      const type: string = doc[prop].type || 'string';
+      if (type.includes('.')) {
+        select += complexProperty(prop, type);
+      } else {
+        select += simleProperty(prop, type);
+      }
+    }
+
+    const query = `
+      INSERT INTO "${type}"
+      (date, document, company, kind ${insert})
+      SELECT
+        CAST(date AS DATE) date,
+        document,
+        company,
+        kind
+        ${select}
+      FROM INSERTED WHERE type = '${type}';\n`;
+    return query;
+  }
+
+  static AlterTriggerRegisterAccumulation() {
+    let query = '';
+    for (const type of RegisteredRegisterAccumulation) {
+      const register = createRegisterAccumulation(type.type, true, {});
+      query += SQLGenegator.QueryTriggerRegisterAccumulation(register.Props(), register.Prop().type);
+    }
+
+    query = `
+    ALTER TRIGGER "Accumulation.Insert" ON dbo."Accumulation"
+    FOR INSERT AS
+    BEGIN
+      ${query}
+    END;`;
+    return query;
+  }
+
+  static CreateTableRegisterAccumulation() {
+
+    const simleProperty = (prop: string, type: string, required: boolean) => {
+      const nullText = required ? ' NOT NULL ' : ' NULL ';
+      if (type.includes('.')) { return `, "${prop}" UNIQUEIDENTIFIER ${nullText}\n`; }
+      if (type === 'boolean') { return `, "${prop}" BIT ${nullText}\n`; }
+      if (type === 'number') { return `, "${prop}" MONEY ${nullText}\n`; }
+      if (type === 'date') { return `, "${prop}" DATE ${nullText}\n`; }
+      if (type === 'datetime') { return `, "${prop}" DATE ${nullText}\n`; }
+      return `, "${prop}" NVARCHAR(150)\n ${nullText}`;
+    };
+
+    let query = '';
+    for (const register of RegisteredRegisterAccumulation) {
+      const doc = createRegisterAccumulation(register.type, true, {});
+      const props = doc.Props();
+      let select = '';
+      for (const prop in excludeRegisterAccumulatioProps(doc)) {
+        select += simleProperty(prop, (props[prop].type || 'string'), !!props[prop].required);
+      }
+
+      query += `\n
+      CREATE TABLE "${register.type}" (
+        [kind] [bit] NULL,
+        [company] [uniqueidentifier] NULL,
+        [document] [uniqueidentifier] NOT NULL,
+        [date] [date] NOT NULL
+        ${select}
+      );
+      CREATE CLUSTERED COLUMNSTORE INDEX "cci.${register.type}" ON "${register.type}";\n`;
+    }
+    return query;
+  }
+
+  static CreateViewCatalogs() {
+
+    let query = '';
+    for (const catalog of RegisteredDocument) {
+      const doc = createDocument(catalog.type);
+      const select = SQLGenegator.QueryList(doc.Props(), doc.Prop() as DocumentOptions);
+
+      query += `\n
+      CREATE OR ALTER VIEW dbo."${catalog.type}" WITH SCHEMABINDING AS
+        ${select};
+      GO
+      -- CREATE UNIQUE CLUSTERED INDEX "uci.${catalog.type}" ON dbo."${catalog.type}"(id) WITH (DROP_EXISTING = ON);\n
+      -- GO`;
+    }
+    return query;
+  }
 }
 
-export function excludeProps(doc) {
-  const { user, company, parent, info, isfolder, description, id, type, date, code, posted, deleted, timestamp, ...newObject } = doc;
-  return newObject;
-}
-
-export function excludeRegisterAccumulatioProps(doc) {
-  const { kind, date, type, company, ...newObject } = doc;
-  return newObject;
-}
-
-export function excludeRegisterInfoProps(doc) {
-  const { kind, date, type, company, ...newObject } = doc;
-  return newObject;
-}
 
 export function buildTypesQueryList(select: { type: any; description: string; }[]) {
   let query = '';
@@ -309,4 +399,19 @@ export function buildSubcountQueryList(select: { type: any; description: string;
   }
   query = `SELECT * FROM (${query.slice(0, -10)}) d WHERE (1=1) `;
   return query;
+}
+
+export function excludeProps(doc) {
+  const { user, company, parent, info, isfolder, description, id, type, date, code, posted, deleted, timestamp, ...newObject } = doc;
+  return newObject;
+}
+
+export function excludeRegisterAccumulatioProps(doc) {
+  const { kind, date, type, company, data, document, ...newObject } = doc;
+  return newObject;
+}
+
+export function excludeRegisterInfoProps(doc) {
+  const { kind, date, type, company, data, document, ...newObject } = doc;
+  return newObject;
 }

@@ -33,9 +33,9 @@ exports.connString_MSSQL = {
 };
 exports.sqlConfig = {
     database: process.env.DB_NAME || 'jetti-app',
-    server: process.env.DB_HOST || 'jetti.database.windows.net',
-    user: process.env.DB_USER || 'yuralex',
-    password: process.env.DB_PASSWORD || 'MyNew01Password',
+    server: process.env.DB_HOST || 'db.jetti-app.com',
+    user: process.env.DB_USER || 'jetti-app',
+    password: process.env.DB_PASSWORD || 'Pa$$word',
     connectionTimeout: 1000 * 60 * 2,
     requestTimeout: 1000 * 60 * 2,
     pool: {
@@ -48,9 +48,9 @@ exports.sqlConfig = {
 };
 exports.sqlConfigAccounts = {
     database: process.env.DB_NAME || 'accounts',
-    server: process.env.DB_HOST || 'jetti.database.windows.net',
-    user: process.env.DB_USER || 'yuralex',
-    password: process.env.DB_PASSWORD || 'MyNew01Password',
+    server: process.env.DB_HOST || 'db.jetti-app.com',
+    user: process.env.DB_USER || 'jetti-app',
+    password: process.env.DB_PASSWORD || 'Pa$$word',
     options: {
         encrypt: true,
     }

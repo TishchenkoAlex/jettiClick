@@ -20,22 +20,22 @@ spec:
           # The following environment variables will contain the database host,
           # user and password to connect to the PostgreSQL instance.
           env:
-            - name: POSTGRES_DB_JETTI_HOST
+            - name: DB_HOST
               value: db.jetti-app.com
-            - name: POSTGRES_DB_ACCOUNTS_HOST
-              value: 127.0.0.1:5432
-            - name: POSTGRES_DB_NAME
+            - name: DB_ACCOUNTS_HOST
+              value: db.jetti-app.com
+            - name: DB_NAME
               value: bcd
           # [START cloudsql_secrets]
-            - name: POSTGRES_DB_USER
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: cloudsql-db-credentials
+                  name: mssql-db-credentials
                   key: username
-            - name: POSTGRES_DB_PASSWORD
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cloudsql-db-credentials
+                  name: mssql-db-credentials
                   key: password
             - name: REDIS_DB_HOST
               value: redis-master
@@ -49,21 +49,6 @@ spec:
             - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
               value: 'воскресенье, 19 января 2018 г. 05:18:60 (EET)'
             # [END cloudsql_secrets]
-        # [START proxy_container]
-        - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
-          command: ["/cloud_sql_proxy", "--dir=/cloudsql",
-                    "-instances=jetti-pg:europe-west3:jetti-pg=tcp:5432",
-                    "-credential_file=/secrets/cloudsql/credentials.json"]
-          volumeMounts:
-            - name: cloudsql-instance-credentials
-              mountPath: /secrets/cloudsql
-              readOnly: true
-            - name: ssl-certs
-              mountPath: /etc/ssl/certs
-            - name: cloudsql
-              mountPath: /cloudsql
-         # [START proxy_container]
       # [START volumes]
       volumes:
         - name: cloudsql-instance-credentials

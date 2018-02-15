@@ -16,6 +16,7 @@ export function JRegisterAccumulation(props: RegisterAccumulationOptions) {
   };
 }
 export class RegisterAccumulation {
+  query: string;
   @Props({ type: 'boolean' })
   kind: boolean = null;
 
