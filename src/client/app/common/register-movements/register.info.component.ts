@@ -14,14 +14,16 @@ export class RegisterInfoComponent implements OnInit {
   @Input() register: string;
   @Input() doc: DocumentBase;
   movements: DocumentBase[] = [];
-  displayedColumns: any[] = ['kind', 'date', 'company'];
+  displayedColumns: any[] = [];
   additionalColumns: any[] = [];
+  selection: any;
 
   constructor(private apiService: ApiService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.apiService.getDocAccumulationMovements(this.register, this.doc.id).pipe(take(1))
+    this.apiService.getDocInfoMovements(this.register, this.doc.id).pipe(take(1))
       .subscribe(data => {
+        console.log(data);
         this.movements = data;
         this.additionalColumns =
           Object.keys(data[0]).filter(el => ['date', 'kind', 'company', 'document'].findIndex(e => e === el) === -1);

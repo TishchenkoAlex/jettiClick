@@ -251,14 +251,48 @@ export class SQLGenegator {
       "company".id "company.id", "company".description "company.value", "company".code "company.code", 'Catalog.Company' "company.type"
       ${select}
       FROM "Accumulation" r
-        LEFT JOIN "Documents" company ON company.id = JSON_VALUE(r.data, '$.company')
+        LEFT JOIN "Documents" company ON company.id = r.company AND "company".type = 'Catalog.Company'
         ${LeftJoin}
       WHERE r.type = '${type}'\n`;
     return query;
   }
 
   static QueryRegisterInfoList(doc: { [x: string]: any }, type: string) {
-    return this.QueryRegisterAccumulatioList(doc, type);
+
+    const simleProperty = (prop: string, type: string) => {
+      if (type === 'boolean') { return `, ISNULL(JSON_VALUE(r.data, '$.${prop}'), 0) "${prop}"\n`; }
+      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, '$.${prop}') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
+      return `, JSON_VALUE(r.data, '$.${prop}') "${prop}"\n`;
+    };
+
+    const complexProperty = (prop: string, type: string) =>
+      `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
+
+    const addLeftJoin = (prop: string, type: string) =>
+      type.startsWith('Types.') ?
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, '$.${prop}')\n` :
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, '$.${prop}') AND "${prop}".type = '${type}'\n`;
+
+    let LeftJoin = ''; let select = '';
+    for (const prop in excludeRegisterInfoProps(doc)) {
+      const type: string = doc[prop].type || 'string';
+      if (type.includes('.')) {
+        select += complexProperty(prop, type);
+        LeftJoin += addLeftJoin(prop, type);
+      } else {
+        select += simleProperty(prop, type);
+      }
+    }
+
+    const query = `
+      SELECT r.date, r."kind",
+      "company".id "company.id", "company".description "company.value", "company".code "company.code", 'Catalog.Company' "company.type"
+      ${select}
+      FROM "Register.Info" r
+        LEFT JOIN "Documents" company ON company.id = r.company AND "company".type = 'Catalog.Company'
+        ${LeftJoin}
+      WHERE r.type = '${type}'\n`;
+    return query;
   }
 
   static QueryTriggerRegisterAccumulation(doc: { [x: string]: any }, type: string) {

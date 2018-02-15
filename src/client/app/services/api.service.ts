@@ -99,6 +99,12 @@ export class ApiService {
     return (this.http.get(query) as Observable<any[]>);
   }
 
+  getDocInfoMovements(type: string, id: string) {
+    const query = `${environment.api}register/info/${type}/${id}`;
+    return (this.http.get(query) as Observable<any[]>);
+  }
+
+
   getOperationsGroups(): Observable<JettiComplexObject[]> {
     const query = `${environment.api}operations/groups`;
     return (this.http.get<JettiComplexObject[]>(query));

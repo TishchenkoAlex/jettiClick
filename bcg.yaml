@@ -88,6 +88,8 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: bcg-ingress
+  labels:
+    app: bcg
   annotations:
     kubernetes.io/ingress.global-static-ip-name: bcg
     kubernetes.io/ingress.allow-http: "false"

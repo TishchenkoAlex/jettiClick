@@ -33,15 +33,15 @@ export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostRe
     const data = JSON.stringify({...rec.data, type: rec.type, company: rec.company || doc.company, document: doc.id});
     query += `
     INSERT INTO "Accumulation" (kind, date, type, company, document, data)
-    VALUES (${rec.kind ? 1 : 0}, '${new Date(doc.date).toJSON()}', '${rec.type}' , '${rec.company || doc.company}',
-    '${doc.id}', JSON_QUERY('${data}'));`;
+    VALUES (${rec.kind ? 1 : 0}, '${new Date(doc.date).toJSON()}', N'${rec.type}' , N'${rec.company || doc.company}',
+    '${doc.id}', JSON_QUERY(N'${data}'));`;
   }
 
   for (const rec of Registers.Info) {
     const data = JSON.stringify({...rec.data, type: rec.type, document: doc.id, company: rec.company || doc.company});
     query += `
-    INSERT INTO "Register.Info" (date, type, company, data)
-    VALUES ('${new Date(doc.date).toJSON()}', '${rec.type}', '${rec.company || doc.company}', '${doc.id}', JSON_QUERY('${data}'));`;
+    INSERT INTO "Register.Info" (date, type, company, document, data)
+    VALUES ('${new Date(doc.date).toJSON()}', N'${rec.type}', N'${rec.company || doc.company}', '${doc.id}', JSON_QUERY(N'${data}'));`;
   }
   query = query.replace(/\'undefined\'/g, 'NULL');
   if (query) { await tx.none(query); }

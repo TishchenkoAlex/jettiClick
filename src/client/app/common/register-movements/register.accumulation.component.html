@@ -2,7 +2,7 @@
 <p-table [value]="movements" selectionMode="single" [resizableColumns]="true" [autoLayout]="false" [(selection)]="selection">
   <ng-template pTemplate="header">
     <tr>
-      <th pResizableColumn *ngIf="!doc.type.includes('Info')" style="width: 22px; text-align: center"></th>
+      <th pResizableColumn style="width: 22px; text-align: center"></th>
       <th pResizableColumn pSortableColumn="date" style="width: 120px; text-align: center">date</th>
       <th pResizableColumn pSortableColumn="company" style="width: 150px; text-align: center">company</th>
       <th pResizableColumn [pSortableColumn]="column" *ngFor="let column of additionalColumns" 
@@ -13,7 +13,7 @@
 
   <ng-template pTemplate="body" let-rowData>
     <tr [pSelectableRow]="rowData">
-      <td *ngIf="!doc.type.includes('Info')" style="width: 22px; text-align: center">
+      <td style="width: 22px; text-align: center">
         <i *ngIf="rowData['kind']" class="fa fa-plus" style="color: #5cb85c"></i>
         <i *ngIf="!rowData['kind']" class="fa fa-minus" style="color: #d9534f"></i>
       </td>
