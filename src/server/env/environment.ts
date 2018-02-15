@@ -32,10 +32,10 @@ export const sqlConfig: config = {
 };
 
 export const sqlConfigAccounts: config = {
-  database: process.env.DB_NAME || 'accounts',
+  database: process.env.DB_ACCOUNTS_NAME || 'accounts',
   server: process.env.DB_ACCOUNTS_HOST || 'db.jetti-app.com',
-  user: process.env.DB_USER || 'jetti-app',
-  password: process.env.DB_PASSWORD || 'Pa$$word',
+  user: process.env.DB_ACCOUNTS_USER || 'jetti-app',
+  password: process.env.DB_ACCOUNTS_PASSWORD || 'Pa$$word',
   options: {
     encrypt: true,
   }

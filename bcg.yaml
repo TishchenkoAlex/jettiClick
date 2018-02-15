@@ -22,17 +22,28 @@ spec:
           env:
             - name: DB_HOST
               value: db.jetti-app.com
-            - name: DB_ACCOUNTS_HOST
-              value: db.jetti-app.com
             - name: DB_NAME
               value: bcg
-          # [START cloudsql_secrets]
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: mssql-db-credentials
                   key: username
             - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-db-credentials
+                  key: password
+            - name: DB_ACCOUNTS_HOST
+              value: db.jetti-app.com
+            - name: DB_ACCOUNTS_NAME
+              value: accounts
+            - name: DB_ACCOUNTS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-db-credentials
+                  key: username
+            - name: DB_ACCOUNTS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mssql-db-credentials
@@ -47,7 +58,7 @@ spec:
             - name: SUBSCRIPTION_ID
               value: 
             - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
-              value: 'воскресенье, 19 января 2018 г. 05:18:60 (EET)'
+              value: 'воскресенье, 18 января 2018 г. 05:18:60 (EET)'
             # [END cloudsql_secrets]
       # [START volumes]
       volumes:
