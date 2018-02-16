@@ -33,9 +33,11 @@ async function buildOperationViewAndSQL(id: string, view: any, config_schema: an
   const Parameters = await sdb.oneOrNone<any>(`
     select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents"
     where id = (select JSON_VALUE(doc, '$.Operation') from "Documents" where id = '${id}')`);
+  let i = 1;
   Parameters.Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
     label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-    [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
+    [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null,
+    additional: c.type.startsWith('Catalog.') ? i++ : null
   });
   config_schema.queryObject = SQLGenegator.QueryObject(view, config_schema.prop);
 }
@@ -112,7 +114,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
         DELETE FROM "Register.Account" WHERE document = @p1;
         DELETE FROM "Register.Info" WHERE document = @p1;
         DELETE FROM "Accumulation" WHERE document = @p1;
-        UPDATE "Documents" SET deleted = not deleted, posted = false OUTPUT inserted.* WHERE id = @p1;`, [id]);
+        UPDATE "Documents" SET deleted = @p2, posted = 0 OUTPUT inserted.*  WHERE id = @p1;`, [id, !!!doc.deleted]);
       if (serverDoc && serverDoc.afterDelete) { await serverDoc.afterDelete(tx); }
       await doSubscriptions(doc, 'after detele', tx);
       const model = await tx.oneOrNone(`${configSchema.get(serverDoc.type as any).QueryObject} AND d.id = @p1`, [id]);

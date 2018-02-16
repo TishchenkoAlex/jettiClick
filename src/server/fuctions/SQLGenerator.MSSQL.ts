@@ -131,9 +131,9 @@ export class SQLGenegator {
   static QueryList(doc: { [x: string]: any }, options: DocumentOptions) {
 
     const simleProperty = (prop: string, type: string) => {
-      if (type === 'boolean') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS BIT), 0) "${prop}"\n`; }
-      if (type === 'number') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
-      return `, JSON_VALUE(d.doc, '$."${prop}"') "${prop}"\n`;
+      if (type === 'boolean') { return `, ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS BIT), 0) "${prop}"\n`; }
+      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
+      return `, ISNULL(JSON_VALUE(d.doc, '$."${prop}"'), '') "${prop}"\n`;
     };
 
     const complexProperty = (prop: string, type: string) =>
@@ -143,13 +143,13 @@ export class SQLGenegator {
 
     const addLeftJoin = (prop: string, type: string) =>
       type.startsWith('Types.') ?
-        ` LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"')\n` :
-        ` LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"') AND "${prop}".type = '${type}'\n`;
+        `LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"')\n` :
+        `LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"') AND "${prop}".type = '${type}'\n`;
 
 
     let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent, d.timestamp,
-            ISNULL("company".description, '') "company",
-            ISNULL("user".description, '') "user"\n`;
+      ISNULL("company".description, '') "company",
+      ISNULL("user".description, '') "user"\n`;
 
     let LeftJoin = '';
 
@@ -165,10 +165,10 @@ export class SQLGenegator {
 
     query += `
       FROM dbo."Documents" d
-      LEFT JOIN dbo."Documents" "parent" ON "parent".id = d."parent"
-      LEFT JOIN dbo."Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
-      LEFT JOIN dbo."Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
-      ${LeftJoin}
+        LEFT JOIN dbo."Documents" "parent" ON "parent".id = d."parent"
+        LEFT JOIN dbo."Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
+        LEFT JOIN dbo."Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
+        ${LeftJoin}
       WHERE d.type = '${options.type}'  `;
 
     return query;

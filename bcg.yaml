@@ -56,7 +56,7 @@ spec:
             - name: SUBSCRIPTION_ID
               value: 
             - name: FOR_GODS_SAKE_PLEASE_REDEPLOY
-              value: 'воскресенье, 17 января 2018 г. 05:18:60 (EET)'
+              value: 'воскресенье, 18 января 2018 г. 05:18:60 (EET)'
             # [END cloudsql_secrets]
       # [START volumes]
       volumes:

@@ -9,7 +9,7 @@ router.get('/suggest/:id', async (req: Request, res: Response, next: NextFunctio
   try {
     const query = `
         SELECT id as id, description as value, code as code, type as type
-        FROM "Documents" WHERE id = $1`;
+        FROM "Documents" WHERE id = @p1`;
     const data = await sdb.oneOrNone(query, req.params.id);
     res.json(data);
   } catch (err) { next(err); }
@@ -22,7 +22,7 @@ router.get('/suggest/:type/isfolder/*', async (req: Request, res: Response, next
     query = `
       SELECT top 10 id as id, description as value, code as code, type as type
       FROM "Documents" WHERE type = '${req.params.type}' AND isfolder = 1
-      AND (description LIKE $1 OR code LIKE $1)
+      AND (description LIKE @p1 OR code LIKE @p1)
       ORDER BY type, description`;
     const data = await sdb.manyOrNone<any>(query, ['%' + req.params[0] + '%']);
     res.json(data);
@@ -36,7 +36,7 @@ router.get('/suggest/:type/*', async (req: Request, res: Response, next: NextFun
     query = `
       SELECT top 10 id as id, description as value, code as code, type as type
       FROM "Documents" WHERE type = '${req.params.type}'
-      AND (description LIKE $1 OR code LIKE $1)
+      AND (description LIKE @p1 OR code LIKE @p1)
       ORDER BY type, description`;
     const data = await sdb.manyOrNone<any>(query, ['%' + req.params[0] + '%']);
     res.json(data);

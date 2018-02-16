@@ -6,7 +6,7 @@
       </div>
       <div class="ui-toolbar-group-right">
         <!--  <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
-        <button *ngIf="isPosted" pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()"></button>
+        <button *ngIf="!isNew" pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()"></button>
         <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="getPrice()"></button>
         <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="Close()"></button>
       </div>
@@ -76,7 +76,7 @@
   <button pButton type="button" id="PostClose "icon="fa-check-square-o" [label]="(media.asObservable() | async)?.mqAlias === 'xs' ? '.' : 'Post&Close'" class="ui-button-warning" [disabled]="!v.formGroup.valid" (click)="PostClose()" *ngIf="!isDeleted"></button>
   <button pButton type="button" id="Post" icon="fa-check" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
   <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="unPost()" *ngIf="!isDeleted && isPosted && isDoc"></button>
-  <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Save()" *ngIf="!isDeleted && !isPosted || !isDoc"></button>
+  <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Save()" *ngIf="!isPosted || !isDoc"></button>
   <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!v.formGroup.valid" (click)="Copy()" *ngIf="!isDeleted && !isNew"></button>
   <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!isNew" (click)="Delete()"></button>
 </ng-template>

@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { getViewModel } from '../../common/dynamic-form/dynamic-form.service';
 import { BaseDocFormComponent } from '../../common/form/base.form.component';
+import { FormControl } from '@angular/forms';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,6 +19,24 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this._subscription$.unsubscribe();
     this._subscription$ = this.viewModel.formGroup.controls['Operation'].valueChanges.subscribe(v => this.update(v));
+
+    this.super.Save = (doc = this.super.model, close = false) => {
+      const additional1 = Object.keys(this.viewModel.schema).find(k => this.viewModel.schema[k].additional === 1);
+      if (additional1) {
+        const value = this.super.form.get(additional1).value;
+        console.log(value);
+        (this.super.form.get('p1') as FormControl).patchValue(value, {emitEvent: false});
+      }
+      const additional2 = Object.keys(this.viewModel.schema).find(k => this.viewModel.schema[k].additional === 2);
+      if (additional2) {
+        const value = this.super.form.get(additional2).value;
+        console.log(value);
+        (this.super.form.get('p2') as FormControl).patchValue(value, {emitEvent: false});
+      }
+      this.super.showDescription();
+      this.super.ds.save(doc, close);
+      console.log(doc.timestamp);
+    };
   }
 
   update = async (value) => {
@@ -32,6 +51,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
     this.ngAfterViewInit();
     this.super.cd.detectChanges();
   }
+
 
   ngOnDestroy = () => this._subscription$.unsubscribe();
 }

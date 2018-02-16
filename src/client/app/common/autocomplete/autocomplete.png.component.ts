@@ -145,7 +145,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   searchComplete(row: ISuggest) {
     this.showDialog = false;
     if (!row) { return; }
-    this.value = { id: row.id, code: row.code, type: row.type, value: this.isTypeValue ? null : row.description };
+    this.value = { id: this.isTypeValue ? null : row.id, code: row.code, type: row.type, value: this.isTypeValue ? null : row.description };
   }
 
   calcFilters() {

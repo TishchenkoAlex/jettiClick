@@ -15,7 +15,7 @@ export default async function (job: Queue.Job) {
     const count = list.length; let offset = 0;
     while (offset < count) {
       let i = 0;
-      for (i = 0; i < 20; i++) {
+      for (i = 0; i < 49; i++) {
         if (!list[i + offset]) { break; }
         const q = lib.doc.postById(list[i + offset].id, true);
         TaskList.push(q);

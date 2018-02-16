@@ -12,6 +12,7 @@ export interface PropOptions {
   readOnly?: boolean;
   hidden?: boolean;
   hiddenInList?: boolean;
+  hiddenInForm?: boolean;
   order?: number;
   controlType?: PrimitiveTypes;
   style?: { [x: string]: any };

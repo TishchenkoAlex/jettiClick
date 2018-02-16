@@ -30,4 +30,10 @@ export class DocumentOperation extends DocumentBase {
   @Props({ type: 'Catalog.Currency', required: true, order: 7, label: 'Cur', style: { width: '70px' } })
   currency: Ref = null;
 
+  @Props({ type: 'Types.Catalog', label: 'additional filed #1', style: { width: '270px' }, hiddenInForm: true })
+  p1: Ref = null;
+
+  @Props({ type: 'Types.Catalog', label: 'additional filed #2', style: { width: '270px' }, hiddenInForm: true })
+  p2: Ref = null;
+
 }

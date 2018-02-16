@@ -29,6 +29,7 @@ export interface ViewModel {
   model: DocumentBase;
   formGroup: FormGroup;
   controlsByKey: { [s: string]: BaseJettiFormControl };
+  schema: { [s: string]: any };
 }
 
 function toFormGroup(controls: BaseJettiFormControl[]) {
@@ -53,7 +54,7 @@ function toFormGroup(controls: BaseJettiFormControl[]) {
 
 export const patchOptionsNoEvents = { onlySelf: false, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
-export function getViewModel(view, model, isExists: boolean) {
+export function getViewModel(view, model, isExists: boolean): ViewModel {
   let fields: BaseJettiFormControl[] = [];
 
   const processRecursive = (v, f: BaseJettiFormControl[]) => {
@@ -142,8 +143,9 @@ export function getViewModel(view, model, isExists: boolean) {
     ...fields.filter(el => el.order > 0 && el.type === 'table'),
     ...fields.filter(el => el.order <= 0)
   ];
+  fields.forEach(el => { if (el.key === 'p1' || el.key === 'p2') { el.hidden = true; }});
   formGroup.patchValue(model, patchOptionsNoEvents);
-  return { view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey };
+  return <ViewModel>{ view: fields, model: model, formGroup: formGroup, controlsByKey: controlsByKey, schema: view };
 }
 
 

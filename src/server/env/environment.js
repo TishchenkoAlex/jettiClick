@@ -14,7 +14,7 @@ exports.connString_MSSQL = {
     }
 };
 exports.sqlConfig = {
-    database: process.env.DB_NAME || 'jetti-app',
+    database: process.env.DB_NAME || 'jettibig',
     server: process.env.DB_HOST || 'db.jetti-app.com',
     user: process.env.DB_USER || 'jetti-app',
     password: process.env.DB_PASSWORD || 'Pa$$word',
@@ -22,7 +22,7 @@ exports.sqlConfig = {
     requestTimeout: 1000 * 60 * 2,
     pool: {
         min: 25,
-        max: 250,
+        max: 500,
     },
     options: {
         encrypt: true,

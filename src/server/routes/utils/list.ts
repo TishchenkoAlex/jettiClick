@@ -68,7 +68,7 @@ export async function List(req: Request, res: Response) {
   const filterBuilderForDoc = (filter: FormListFilter[]) => {
     let where = ' ';
     filter.filter(f => (f.right && f.right.id)).forEach(f => {
-      where += ` AND JSON_VALUE(d.doc, '$.${f.left}') = '${f.right.id}' `;
+      where += `\nAND CONTAINS(d.doc, 'NEAR((${f.left}, ${f.right.id}),1)') `;
       return;
     });
     return where;
@@ -121,7 +121,7 @@ export async function List(req: Request, res: Response) {
     -- , (select count(*) FROM "Documents" where parent = d.id) "childs"
     -- , (select count(*) FROM "Documents" where id = d.parent) "parents"
     FROM (${query}) d ${orderbyAfter} `;
-  // console.log(query);
+  console.log(query);
   const data = await sdb.manyOrNone<any>(query);
   let result = [];
 

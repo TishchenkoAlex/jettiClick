@@ -82,7 +82,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       .subscribe(data => this.showDescription());
   }
 
-  private showDescription() {
+  showDescription() {
     if (this.isDoc) {
       const date = this.form.get('date').value;
       const code = this.form.get('code').value;
@@ -92,12 +92,13 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  Save() { this.showDescription(); this.ds.save(this.model); }
+  Save(doc = this.model, close = false) { this.showDescription(); this.ds.save(doc, close); }
   Delete() { this.ds.delete(this.model.id); }
   Copy() { return this.router.navigate([this.model.type, 'copy-' + this.model.id]); }
-  Post() { const doc = this.model; doc.posted = true; this.ds.save(doc); }
-  unPost() { const doc = this.model; doc.posted = false; this.ds.save(doc); }
-  PostClose() { const doc = this.model; doc.posted = true; this.ds.save(doc, true); }
+  Post() { const doc = this.model; doc.posted = true; this.Save(doc); }
+  unPost() { const doc = this.model; doc.posted = false; this.Save(doc); }
+  PostClose() { const doc = this.model; doc.posted = true; this.Save(doc, true); }
+
   Goto() {
     return this.router.navigate([this.model.type], { queryParams: { goto: this.model.id }, replaceUrl: true })
       .then(() => this.ds.goto$.next(this.model));
