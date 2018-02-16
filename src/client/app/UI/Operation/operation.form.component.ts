@@ -24,18 +24,15 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
       const additional1 = Object.keys(this.viewModel.schema).find(k => this.viewModel.schema[k].additional === 1);
       if (additional1) {
         const value = this.super.form.get(additional1).value;
-        console.log(value);
         (this.super.form.get('p1') as FormControl).patchValue(value, {emitEvent: false});
       }
       const additional2 = Object.keys(this.viewModel.schema).find(k => this.viewModel.schema[k].additional === 2);
       if (additional2) {
         const value = this.super.form.get(additional2).value;
-        console.log(value);
         (this.super.form.get('p2') as FormControl).patchValue(value, {emitEvent: false});
       }
       this.super.showDescription();
       this.super.ds.save(doc, close);
-      console.log(doc.timestamp);
     };
   }
 
