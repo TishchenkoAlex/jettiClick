@@ -9,11 +9,13 @@ export class MSSQL {
     if (transaction) {
       this.pool = transaction;
     } else {
-      console.log('config', config);
       new sql.ConnectionPool(config)
         .connect()
-        .then(p => this.pool = p)
-        .catch(err => console.log('Connection error'));
+        .then(p => {
+          this.pool = p;
+          console.log('config', config);
+        })
+        .catch(err => console.log('Connection error', err));
     }
   }
 

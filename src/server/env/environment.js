@@ -14,10 +14,10 @@ exports.connString_MSSQL = {
     }
 };
 exports.sqlConfig = {
-    database: process.env.DB_NAME || 'jettibig',
+    database: process.env.DB_NAME || 'bcg',
     server: process.env.DB_HOST || 'db.jetti-app.com',
-    user: process.env.DB_USER || 'jetti-app',
-    password: process.env.DB_PASSWORD || 'Pa$$word',
+    user: process.env.DB_USER || 'bcg',
+    password: process.env.DB_PASSWORD || 'bcg',
     connectionTimeout: 1000 * 60 * 2,
     requestTimeout: 1000 * 60 * 2,
     pool: {

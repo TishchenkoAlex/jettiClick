@@ -121,7 +121,7 @@ export async function List(req: Request, res: Response) {
     -- , (select count(*) FROM "Documents" where parent = d.id) "childs"
     -- , (select count(*) FROM "Documents" where id = d.parent) "parents"
     FROM (${query}) d ${orderbyAfter} `;
-  console.log(query);
+  // console.log(query);
   const data = await sdb.manyOrNone<any>(query);
   let result = [];
 
