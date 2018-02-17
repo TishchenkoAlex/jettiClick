@@ -137,19 +137,14 @@ export class SQLGenegator {
     };
 
     const complexProperty = (prop: string, type: string) =>
-      type.startsWith('Types.') ?
-        `, ISNULL("${prop}".description, JSON_VALUE(d.doc, '$."${prop}".value')) "${prop}"\n` :
-        `, ISNULL("${prop}".description, '') "${prop}"\n`;
+        `, ISNULL("${prop}".description, '') "${prop}.value", "${prop}".type "${prop}.type", CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}.id"\n`;
 
     const addLeftJoin = (prop: string, type: string) =>
-      type.startsWith('Types.') ?
-        `LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"')\n` :
-        `LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"') AND "${prop}".type = '${type}'\n`;
+        `LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
 
-
-    let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent, d.timestamp,
-      ISNULL("company".description, '') "company",
-      ISNULL("user".description, '') "user"\n`;
+    let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent, d.timestamp
+      , ISNULL("company".description, '') "company.value", d."company" "company.id", "company".type "company.type"
+      , ISNULL("user".description, '') "user.value", d."user" "user.id", "user".type "user.type"\n`;
 
     let LeftJoin = '';
 
@@ -164,12 +159,12 @@ export class SQLGenegator {
     }
 
     query += `
-      FROM dbo."Documents" d
-        LEFT JOIN dbo."Documents" "parent" ON "parent".id = d."parent"
-        LEFT JOIN dbo."Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
-        LEFT JOIN dbo."Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
-        ${LeftJoin}
-      WHERE d.type = '${options.type}'  `;
+    FROM dbo."Documents" d
+      LEFT JOIN dbo."Documents" "parent" ON "parent".id = d."parent"
+      LEFT JOIN dbo."Documents" "user" ON "user".id = d."user"
+      LEFT JOIN dbo."Documents" "company" ON "company".id = d.company
+      ${LeftJoin}
+    WHERE d.type = '${options.type}'  `;
 
     return query;
   }

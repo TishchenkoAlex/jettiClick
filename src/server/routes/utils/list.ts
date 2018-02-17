@@ -10,17 +10,16 @@ export async function List(req: Request, res: Response) {
   params.filter = params.filter || [];
   params.command = params.command || 'first';
   const direction = params.command !== 'prev';
-  const queryList = configSchema.get(params.type as any).QueryList;
+  const {QueryList, Props} = configSchema.get(params.type as any);
 
-  // const row = await db.oneOrNone(`SELECT row_to_json(q) "row" FROM (${queryList} AND d.id = $1) q`, [params.id]);
   let row;
-  if (params.id) {
-    row = (await sdb.oneOrNone<any>(`${queryList} AND d.id = '${params.id}'`));
-  }
-
+  if (params.id) { row = (await sdb.oneOrNone<any>(`${QueryList} AND d.id = '${params.id}'`)); }
+  params.order.forEach(el => el.field += Props[el.field].type.includes('.') ? '.value' : '');
+  params.filter.forEach(el => el.left += Props[el.left].type.includes('.') ? '.id' : '');
   const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
-  params.order.filter(el => el.order !== '').forEach(el => {
-    valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? row[el.field] : null });
+  params.order.filter(el => el.order !== '' && row).forEach(el => {
+    const value = el.field.includes('.value') ? row[el.field.split('.')[0]].value : row[el.field];
+    valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? value : '' });
   });
   if (!row && params.command !== 'last') { params.command = 'first'; }
   const lastORDER = valueOrder.length ? valueOrder[valueOrder.length - 1].order === 'asc' : true;
@@ -68,7 +67,7 @@ export async function List(req: Request, res: Response) {
   const filterBuilderForDoc = (filter: FormListFilter[]) => {
     let where = ' ';
     filter.filter(f => (f.right && f.right.id)).forEach(f => {
-      where += `\nAND CONTAINS(d.doc, 'NEAR((${f.left}, ${f.right.id}),1)') `;
+      where += `\nAND CONTAINS(d.doc, 'NEAR((${f.left.split('.')[0]}, ${f.right.id}),1)') `;
       return;
     });
     return where;
@@ -84,7 +83,7 @@ export async function List(req: Request, res: Response) {
       order.filter(_o => _o.value !== null).forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
         char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
       order.length--;
-      let addQuery = `\nSELECT * FROM(SELECT * FROM(${queryList} ${filterBuilderForDoc(params.filter)}) d
+      let addQuery = `\nSELECT * FROM(SELECT * FROM(${QueryList} ${filterBuilderForDoc(params.filter)}) d
         WHERE ${where}\n${lastORDER ?
           (char1 === '>') ? orderbyAfter : orderbyBefore :
           (char1 === '<') ? orderbyAfter : orderbyBefore} OFFSET 0 ROWS FETCH NEXT ${params.count + 1} ROWS ONLY)`;
@@ -100,27 +99,20 @@ export async function List(req: Request, res: Response) {
   let query = '';
   if (params.command === 'first') {
     const where = filterBuilder(params.filter || []);
-    query = `SELECT * FROM (SELECT * FROM(${queryList} ${filterBuilderForDoc(params.filter)}) d
+    query = `SELECT * FROM (SELECT * FROM(${QueryList} ${filterBuilderForDoc(params.filter)}) d
       WHERE ${where}\n${orderbyAfter} OFFSET 0 ROWS FETCH NEXT ${params.count + 1} ROWS ONLY) d`;
-    const idQuery = `SELECT d.id FROM (${query}) d`;
-    query = query.replace('FROM dbo\.\"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
   } else {
     if (params.command === 'last') {
       const where = filterBuilder(params.filter || []);
-      query = `SELECT * FROM (SELECT * FROM(${queryList} ${filterBuilderForDoc(params.filter)}) d
+      query = `SELECT * FROM (SELECT * FROM(${QueryList} ${filterBuilderForDoc(params.filter)}) d
         WHERE ${where}\n${orderbyBefore} OFFSET 0 ROWS FETCH NEXT ${params.count + 1} ROWS ONLY) d`;
-      const idQuery = `SELECT d.id FROM (${query}) d`;
-      query = query.replace('FROM dbo\.\"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
     } else {
       const queryBefore = queryBuilder(true);
       const queryAfter = queryBuilder(false);
       query = `${queryBefore} \nUNION ALL\n${queryAfter} `;
     }
   }
-  query = `SELECT d.*
-    -- , (select count(*) FROM "Documents" where parent = d.id) "childs"
-    -- , (select count(*) FROM "Documents" where id = d.parent) "parents"
-    FROM (${query}) d ${orderbyAfter} `;
+  query = `SELECT d.* FROM (${query}) d ${orderbyAfter} `;
   // console.log(query);
   const data = await sdb.manyOrNone<any>(query);
   let result = [];

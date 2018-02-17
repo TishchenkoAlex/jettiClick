@@ -128,13 +128,13 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.sort(event);
   }
   update(col: ColumnDef, event, center = 'like') {
-    if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array) )) { event = null; }
+    if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) { event = null; }
     this._debonce.next({ col, event, center });
   }
 
   sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
 
-  close() { this.ds.close$.next(<any>{id: '', type: this.docType, close: true}); }
+  close() { this.ds.close$.next(<any>{ id: '', type: this.docType, close: true }); }
 
   add() { this.router.navigate([this.dataTable.selection[0] ? this.dataTable.selection[0].type : this.dataSource.docType, 'new']); }
 
@@ -157,18 +157,16 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   parentChange(event) {
-    this.dataTable.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null};
+    this.dataTable.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null };
     this.dataSource.sort();
   }
 
   onContextMenuSelect(event) {
-    this.ds.api.getViewModel(this.docType, event.data.id).pipe(take(1))
-      .subscribe((data: any) => {
-        const model = data.model as DocumentBase;
-        let el = (event.originalEvent as MouseEvent).srcElement;
-        while (!el.id && el.lastElementChild) { el = el.lastElementChild; }
-        this.ctxData = { column: el.id, value: model[el.id] };
-      });
+    let el = (event.originalEvent as MouseEvent).srcElement;
+    while (!el.id && el.lastElementChild) { el = el.lastElementChild; }
+    const value = this.dataTable.selection[0][el.id];
+    this.ctxData = { column: el.id, value: value && value.id ? value : value };
+    // this.dataTable.selection = [];
   }
 
   private saveUserSettings() {

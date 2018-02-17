@@ -50,7 +50,7 @@
                 <i *ngIf="!row[column.field]" class="fa fa-square-o" [id]="column.field"></i>
               </span>
               <span *ngSwitchCase="'string'" [id]="column.field">{{row[column.field]}}</span>
-              <span *ngSwitchDefault [id]="column.field">{{row[column.field]}}</span>
+              <span *ngSwitchDefault [id]="column.field">{{row[column.field]?.value || row[column.field]}}</span>
             </span>
           </ng-template>
           <ng-template pTemplate="filter" let-col>
