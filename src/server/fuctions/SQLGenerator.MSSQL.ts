@@ -294,7 +294,11 @@ export class SQLGenegator {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `, ISNULL(JSON_VALUE(data, '$.${prop}'), 0) "${prop}"\n`; }
-      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(data, '$.${prop}') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
+      if (type === 'number') { return `
+        , ISNULL(CAST(JSON_VALUE(data, '$.${prop}') AS MONEY), 0) * IIF(kind = 1, 1, -1) "${prop}"
+        , ISNULL(CAST(JSON_VALUE(data, '$.${prop}') AS MONEY), 0) * IIF(kind = 1, 1, 0) "${prop}.In"
+        , ISNULL(CAST(JSON_VALUE(data, '$.${prop}') AS MONEY), 0) * IIF(kind = 1, 0, 1) "${prop}.Out"\n`;
+      }
       return `, JSON_VALUE(data, '$.${prop}') "${prop}"\n`;
     };
 
@@ -303,8 +307,12 @@ export class SQLGenegator {
 
     let insert = ''; let select = '';
     for (const prop in excludeRegisterAccumulatioProps(doc)) {
-      insert += `, ${prop}\n`;
       const type: string = doc[prop].type || 'string';
+      insert += `, "${prop}"\n`;
+      if (type === 'number') {
+        insert += `, "${prop}.In"\n, "${prop}.Out"\n`;
+      }
+
       if (type.includes('.')) {
         select += complexProperty(prop, type);
       } else {
@@ -347,9 +355,16 @@ export class SQLGenegator {
       const nullText = required ? ' NOT NULL ' : ' NULL ';
       if (type.includes('.')) { return `, "${prop}" UNIQUEIDENTIFIER ${nullText}\n`; }
       if (type === 'boolean') { return `, "${prop}" BIT ${nullText}\n`; }
-      if (type === 'number') { return `, "${prop}" MONEY ${nullText}\n`; }
       if (type === 'date') { return `, "${prop}" DATE ${nullText}\n`; }
       if (type === 'datetime') { return `, "${prop}" DATE ${nullText}\n`; }
+
+      if (type === 'number') {
+        return `
+        , "${prop}" MONEY ${nullText}
+        , "${prop}.In" MONEY ${nullText}
+        , "${prop}.Out" MONEY ${nullText}\n`;
+      }
+
       return `, "${prop}" NVARCHAR(150)\n ${nullText}`;
     };
 
@@ -363,6 +378,7 @@ export class SQLGenegator {
       }
 
       query += `\n
+      DROP TABLE "${register.type}";
       CREATE TABLE "${register.type}" (
         [kind] [bit] NULL,
         [company] [uniqueidentifier] NULL,

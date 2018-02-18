@@ -20,6 +20,7 @@ const suggest_1 = require("./routes/suggest");
 const tasks_2 = require("./routes/tasks");
 const user_settings_1 = require("./routes/user.settings");
 const utils_1 = require("./routes/utils");
+const SQLGenerator_MSSQL_1 = require("./fuctions/SQLGenerator.MSSQL");
 const root = './';
 const app = express();
 app.use(compression());
@@ -54,7 +55,7 @@ const port = (+process.env.PORT) || 3000;
 exports.HTTP.listen(port, () => console.log(`API running on port:${port}`));
 tasks_1.JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
 // console.log(configSchema.get('Catalog.Account').QueryObject);
-// console.log(SQLGenegator.AlterTriggerRegisterAccumulation());
+console.log(SQLGenerator_MSSQL_1.SQLGenegator.AlterTriggerRegisterAccumulation());
 // console.log(SQLGenegator.CreateTableRegisterAccumulation());
 // console.log(SQLGenegator.CreateViewCatalogs());
 //# sourceMappingURL=index.js.map

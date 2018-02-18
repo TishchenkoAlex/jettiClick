@@ -6,20 +6,20 @@ export const REDIS_DB_PREFIX = process.env.REDIS_DB_PREFIX || 'bull';
 export const JTW_KEY = process.env.JTW_KEY || 'Pa5315word';
 
 export const connString_MSSQL = {
-  server: process.env.DB_HOST || 'db.jetti-app.com',
-  userName: process.env.DB_USER || 'jetti-app',
-  password: process.env.DB_PASSWORD || 'Pa$$word',
+  server: process.env.DB_HOST || 'jetti.database.windows.net',
+  userName: process.env.DB_USER || 'yuralex',
+  password: process.env.DB_PASSWORD || 'MyNew01Password',
   options: {
     encrypt: true,
-    database: process.env.DB_NAME || 'jetti-app',
+    database: process.env.DB_NAME || 'bcg',
   }
 };
 
 export const sqlConfig: config = {
-  database: process.env.DB_NAME || 'jettibig',
-  server: process.env.DB_HOST || 'db.jetti-app.com',
-  user: process.env.DB_USER || 'jetti-app',
-  password: process.env.DB_PASSWORD || 'Pa$$word',
+  database: process.env.DB_NAME || 'bcg',
+  server: process.env.DB_HOST || 'jetti.database.windows.net',
+  user: process.env.DB_USER || 'yuralex',
+  password: process.env.DB_PASSWORD || 'MyNew01Password',
   connectionTimeout: 1000 * 60 * 2,
   requestTimeout: 1000 * 60 * 2,
   pool: {
@@ -33,9 +33,9 @@ export const sqlConfig: config = {
 
 export const sqlConfigAccounts: config = {
   database: process.env.DB_ACCOUNTS_NAME || 'accounts',
-  server: process.env.DB_ACCOUNTS_HOST || 'db.jetti-app.com',
-  user: process.env.DB_ACCOUNTS_USER || 'jetti-app',
-  password: process.env.DB_ACCOUNTS_PASSWORD || 'Pa$$word',
+  server: process.env.DB_ACCOUNTS_HOST || 'jetti.database.windows.net',
+  user: process.env.DB_ACCOUNTS_USER || 'yuralex',
+  password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',
   options: {
     encrypt: true,
   }
