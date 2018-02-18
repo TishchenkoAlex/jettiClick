@@ -17,8 +17,8 @@ export async function List(req: Request, res: Response) {
   params.order.forEach(el => el.field += Props[el.field].type.includes('.') ? '.value' : '');
   params.filter.forEach(el => el.left += Props[el.left].type.includes('.') ? '.id' : '');
   const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
-  params.order.filter(el => el.order !== '' && row).forEach(el => {
-    const value = el.field.includes('.value') ? row[el.field.split('.')[0]].value : row[el.field];
+  params.order.filter(el => el.order !== '').forEach(el => {
+    const value = row ? el.field.includes('.value') ? row[el.field.split('.')[0]].value : row[el.field] : '';
     valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? value : '' });
   });
   if (!row && params.command !== 'last') { params.command = 'first'; }
@@ -113,7 +113,7 @@ export async function List(req: Request, res: Response) {
     }
   }
   query = `SELECT d.* FROM (${query}) d ${orderbyAfter} `;
-  // console.log(query);
+  console.log(query);
   const data = await sdb.manyOrNone<any>(query);
   let result = [];
 
