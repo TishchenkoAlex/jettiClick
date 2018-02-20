@@ -11,7 +11,7 @@ export class DocumentPriceList extends DocumentBase {
   @Props({ type: 'Types.Document', hiddenInList: true, order: -1 })
   parent = null;
 
-  @Props({ type: 'Catalog.PriceType', required: true, label: 'price type' })
+  @Props({ type: 'Catalog.PriceType', required: true, label: 'price type', onChangeServer: true })
   PriceType = null;
 
   @Props({ type: 'boolean', required: true, label: 'tax include' })

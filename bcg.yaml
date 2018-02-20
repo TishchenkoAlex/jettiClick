@@ -21,7 +21,7 @@ spec:
             - name: DB_HOST
               value: jetti.database.windows.net
             - name: DB_NAME
-              value: big
+              value: bcg
             - name: DB_USER
               valueFrom:
                 secretKeyRef:

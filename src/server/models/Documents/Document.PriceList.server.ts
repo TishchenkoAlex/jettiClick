@@ -8,6 +8,7 @@ import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
 import { DocumentPriceList } from './Document.PriceList';
+import { CatalogPriceType } from '../Catalogs/Catalog.PriceType';
 
 export class DocumentPriceListServer extends DocumentPriceList implements ServerDocument {
 
@@ -15,6 +16,9 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
     switch (prop) {
       case 'company':
         return {};
+      case 'PriceType':
+        const priceType = await lib.doc.viewModelById<CatalogPriceType>(value.id, tx);
+        return priceType ? {TaxInclude: priceType.TaxInclude} : {};
       default:
         return {};
     }
