@@ -24,9 +24,7 @@ export class SQLGenegator {
         `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
 
     const addLeftJoin = (prop: string, type: string) =>
-      type.startsWith('Types.') ?
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"')\n` :
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"') AND "${prop}".type = '${type}'\n`;
+      ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"')\n`;
 
     const tableProperty = (prop: string, value: any) => {
 
@@ -48,9 +46,7 @@ export class SQLGenegator {
       const addLeftJoin = (prop: string, type: string) =>
         type.startsWith('Catalog.Subcount') ?
           `\n` :
-          type.startsWith('Types.') ?
-            ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = x."${prop}"\n` :
-            ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = x."${prop}" AND "${prop}".type = '${type}'\n`;
+          ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = x."${prop}"\n`;
 
       function xTableLine(prop: string, type: string) {
         switch (type) {
@@ -121,8 +117,8 @@ export class SQLGenegator {
     query += `
       FROM "Documents" d
       LEFT JOIN "Documents" "parent" ON "parent".id = d."parent"
-      LEFT JOIN "Documents" "user" ON "user".id = d."user" AND "user".type = 'Catalog.User'
-      LEFT JOIN "Documents" "company" ON "company".id = d.company AND "company".type = 'Catalog.Company'
+      LEFT JOIN "Documents" "user" ON "user".id = d."user"
+      LEFT JOIN "Documents" "company" ON "company".id = d.company
       ${LeftJoin}
       WHERE d.type = '${options.type}' `;
     return query;

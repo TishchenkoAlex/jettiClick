@@ -16,7 +16,7 @@ export class HomeComponent  {
 
   login(email: string, password: string) {
     this.auth.login(email, password).pipe(take(1)).subscribe(
-      () => { },
+      r => { },
       console.error
     );
   }

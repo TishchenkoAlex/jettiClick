@@ -81,54 +81,53 @@ async function balance(account, date = new Date().toJSON(), company) {
     return result ? result.result : null;
 }
 async function registerBalance(type, date = new Date(), resource, analytics, tx = mssql_1.sdb) {
-    const addFields = (key) => `SUM(JSON_VALUE(data, '$.${key}') * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "${key}",\n`;
+    const addFields = (key) => `SUM("${key}") "${key}",\n`;
     let fields = '';
     for (const el of resource) {
         fields += addFields(el);
     }
     fields = fields.slice(0, -2);
-    const addWhere = (key) => `NEAR((${key}, ${analytics[key]}),1) AND `;
+    const addWhere = (key) => `AND "${key}" = '${analytics[key]}'\n`;
     let where = '';
     for (const el of resource) {
         where += addWhere(el);
     }
-    where = where.slice(0, -4);
-    const result = await mssql_1.sdb.oneOrNone(`
-    SELECT ${fields}
-    FROM "Accumulation"
-    WHERE (1=1)
-      AND date <= @p1
-      AND type = @p2
-      AND CONTAINS(data, '${where}')
-  `, [date, type]);
+    where = where.slice(0, -2);
+    const queryText = `
+  SELECT ${fields}
+  FROM "${type}"
+  WHERE (1=1)
+    AND date <= @p1
+    ${where}
+  `;
+    const result = await mssql_1.sdb.oneOrNone(queryText, [date]);
     return (result ? result : {});
 }
 async function avgCost(date = new Date(), analytics, tx = mssql_1.sdb) {
     const queryText = `
-    SELECT
-      SUM(JSON_VALUE(data, '$.Cost') * CASE WHEN kind = 1 THEN 1 ELSE -1 END) /
-      NULLIF(SUM(JSON_VALUE(data, '$.Qty') * CASE WHEN kind = 1 THEN 1 ELSE -1 END), 0) result
-    FROM "Accumulation"
-    WHERE (1=1)
-      AND date <= @p1
-      AND type = 'Register.Accumulation.Sales'
-      AND company = '${analytics.company}'
-      AND CONTAINS(data, 'NEAR((SKU, ${analytics.SKU}),1) AND NEAR((Storehouse, ${analytics.Storehouse}),1)')
-    `;
+  SELECT
+    SUM("Cost") / NULLIF(SUM("Qty"), 0) result
+  FROM "Register.Accumulation.Inventory"
+  WHERE (1=1)
+    AND date <= @p1
+    AND company = '${analytics.company}'
+    AND "SKU" = '${analytics.SKU}'
+    AND "Storehouse" = '${analytics.Storehouse}'
+  `;
     const result = await tx.oneOrNone(queryText, [date]);
     return result ? result.result : null;
 }
 async function inventoryBalance(date = new Date(), analytics, tx = mssql_1.sdb) {
     const queryText = `
-    SELECT
-      SUM(JSON_VALUE(data, '$.Qty') * CASE WHEN kind = 1 THEN 1 ELSE -1 END) result
-    FROM "Register.Accumulation"
-    WHERE (1=1)
-      AND date <= @p1
-      AND type = 'Register.Accumulation.Sales'
-      AND company = '${analytics.company}'
-      AND CONTAINS(data, 'NEAR((SKU, ${analytics.SKU}),1) AND NEAR((Storehouse, ${analytics.Storehouse}),1)')
-    `;
+  SELECT
+    SUM("Qty") result
+  FROM "Register.Accumulation.Inventory"
+  WHERE (1=1)
+    AND date <= @p1
+    AND company = '${analytics.company}'
+    AND "SKU" = '${analytics.SKU}'
+    AND "Storehouse" = '${analytics.Storehouse}'
+  `;
     const result = await tx.oneOrNone(queryText, [date]);
     return result ? result.result : null;
 }
