@@ -2,9 +2,9 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Catalog.Brand',
-  description: 'Бенды',
+  description: 'Бренд',
   icon: 'fa fa-money',
-  menu: 'Бенды',
+  menu: 'Бренды',
   prefix: 'BRAND-'
 })
 export class CatalogBrand extends DocumentBase {

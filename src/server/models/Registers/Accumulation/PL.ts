@@ -3,7 +3,7 @@ import { Ref, Props } from '../../document';
 
 @JRegisterAccumulation({
   type: 'Register.Accumulation.PL',
-  description: 'Активы/Пассивы'
+  description: 'Доходы/Расходы'
 })
 export class RegisterAccumulationPL extends RegisterAccumulation {
   @Props({ type: 'Catalog.Department' })

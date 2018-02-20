@@ -396,14 +396,47 @@ export class SQLGenegator {
     let query = '';
     for (const catalog of RegisteredDocument) {
       const doc = createDocument(catalog.type);
-      const select = SQLGenegator.QueryList(doc.Props(), doc.Prop() as DocumentOptions);
+      let select = SQLGenegator.QueryList(doc.Props(), doc.Prop() as DocumentOptions);
+      const type = (doc.Prop() as DocumentOptions).type.split('.');
+      const name = type.length === 2 ? type[1] : type[0];
+      select = select.replace('FROM dbo\.\"Documents\" d', `
+
+      ,COALESCE(
+        (SELECT description from [dbo].[Documents] where [dbo].[Documents].id = d.[parent] ), d.description ) as "${name}.Level4"
+      ,COALESCE(
+        (SELECT description from [dbo].[Documents] where [dbo].[Documents].id =
+          (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id = d.[parent])),
+        COALESCE(
+          (SELECT description from [dbo].[Documents] where [dbo].[Documents].id = d.[parent] ), d.description)) "${name}.Level3"
+      ,COALESCE(
+        (SELECT description from [dbo].[Documents] where [dbo].[Documents].id =
+          (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id =
+            (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id = d.[parent]))),
+        COALESCE(
+          (SELECT description from [dbo].[Documents] where [dbo].[Documents].id =
+            (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id = d.[parent])),
+          COALESCE(
+            (SELECT description from [dbo].[Documents] where [dbo].[Documents].id = d.[parent] ), d.description))) "${name}.Level2"
+      ,COALESCE(
+        (SELECT description from [dbo].[Documents] where [dbo].[Documents].id =
+          (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id =
+            (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id =
+              (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id = d.[parent])))),
+        COALESCE(
+          (SELECT description from [dbo].[Documents] where [dbo].[Documents].id =
+            (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id =
+             (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id = d.[parent]))),
+        COALESCE(
+          (SELECT description from [dbo].[Documents] where [dbo].[Documents].id =
+            (SELECT [parent] from [dbo].[Documents] where [dbo].[Documents].id = d.[parent])),
+        COALESCE(
+          (SELECT description from [dbo].[Documents] where [dbo].[Documents].id = d.[parent] ), d.description)))) as "${name}.Level1"
+      FROM dbo."Documents" d\n`).replace('d.description,', `d.description "${name}",`);
 
       query += `\n
       CREATE OR ALTER VIEW dbo."${catalog.type}" WITH SCHEMABINDING AS
-        ${select};
-      GO
-      -- CREATE UNIQUE CLUSTERED INDEX "uci.${catalog.type}" ON dbo."${catalog.type}"(id) WITH (DROP_EXISTING = ON);\n
-      -- GO`;
+        ${select}
+      GO`;
     }
     return query;
   }

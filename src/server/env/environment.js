@@ -10,11 +10,11 @@ exports.connString_MSSQL = {
     password: process.env.DB_PASSWORD || 'MyNew01Password',
     options: {
         encrypt: true,
-        database: process.env.DB_NAME || 'bcg',
+        database: process.env.DB_NAME || 'big',
     }
 };
 exports.sqlConfig = {
-    database: process.env.DB_NAME || 'bcg',
+    database: process.env.DB_NAME || 'big',
     server: process.env.DB_HOST || 'jetti.database.windows.net',
     user: process.env.DB_USER || 'yuralex',
     password: process.env.DB_PASSWORD || 'MyNew01Password',

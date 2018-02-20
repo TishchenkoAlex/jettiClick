@@ -67,4 +67,5 @@ JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
 // console.log(configSchema.get('Catalog.Account').QueryObject);
 // console.log(SQLGenegator.AlterTriggerRegisterAccumulation());
 // console.log(SQLGenegator.CreateTableRegisterAccumulation());
-// console.log(SQLGenegator.CreateViewCatalogs());
+const a = SQLGenegator.CreateViewCatalogs();
+console.log(a);
