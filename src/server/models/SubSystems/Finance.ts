@@ -9,6 +9,7 @@ export const FinanceSubSystem: ISubSystem = {
     'Catalog.BankAccount',
     'Catalog.CashRegister',
     'Catalog.Expense',
+    'Catalog.Expense.Analytics',
     'Catalog.Income',
     'Catalog.CashFlow',
     'Catalog.Loan',

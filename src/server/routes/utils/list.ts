@@ -15,7 +15,7 @@ export async function List(req: Request, res: Response) {
   let row;
   if (params.id) { row = (await sdb.oneOrNone<any>(`${QueryList} AND d.id = '${params.id}'`)); }
   params.order.forEach(el => el.field += Props[el.field].type.includes('.') ? '.value' : '');
-  params.filter.forEach(el => el.left += Props[el.left].type.includes('.') ? '.id' : '');
+  params.filter.forEach(el => el.left += (Props[el.left] && Props[el.left].type && Props[el.left].type.includes('.')) ? '.id' : '');
   const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
   params.order.filter(el => el.order !== '').forEach(el => {
     const value = row ? el.field.includes('.value') ? row[el.field.split('.')[0]].value : row[el.field] : '';
@@ -34,9 +34,6 @@ export async function List(req: Request, res: Response) {
   const filterBuilder = (filter: FormListFilter[]) => {
     let where = ' (1=1) ';
     filter.filter(f => f.right).forEach(f => {
-      if (typeof f.right === 'object' && f.right.id && f.left !== 'company' && f.left !== 'user') {
-        return;
-      }
       switch (f.center) {
         case '=': case '>=': case '<=': case '>': case '<':
           if (f.right instanceof Array) { // time interval
@@ -44,8 +41,8 @@ export async function List(req: Request, res: Response) {
             if (f.right[1]) { where += ` AND d."${f.left}" <= '${f.right[1]}'`; }
             break;
           }
-          if (typeof f.right === 'object') { f.right = f.right.value; }
           if (typeof f.right === 'string') { f.right = f.right.toString().replace('\'', '\'\''); }
+          if (typeof f.right === 'object') { f.right = f.right.id; }
           if (f.right === null) {
             where += ` AND d."${f.left}" IS NULL `;
           } else {
@@ -66,7 +63,7 @@ export async function List(req: Request, res: Response) {
 
   const filterBuilderForDoc = (filter: FormListFilter[]) => {
     let where = ' ';
-    filter.filter(f => (f.right && f.right.id)).forEach(f => {
+    filter.filter(f => (f.left !== 'parent' && f.left !== 'user' && f.left !== 'company' && f.right && f.right.id)).forEach(f => {
       where += `\nAND CONTAINS(d.doc, 'NEAR((${f.left.split('.')[0]}, ${f.right.id}),1)') `;
       return;
     });

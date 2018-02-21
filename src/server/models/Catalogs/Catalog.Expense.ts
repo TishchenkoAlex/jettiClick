@@ -5,7 +5,10 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   description: 'Статья расходов',
   icon: 'fa fa-money',
   menu: 'Статьи расходов',
-  prefix: null
+  prefix: null,
+  relations: [
+    {name: 'Expense analytics', type: 'Catalog.Expense.Analytics', field: 'parent'}
+  ]
 })
 export class CatalogExpense extends DocumentBase {
 

@@ -32,6 +32,7 @@ export class BaseTreeListToolbarComponent {
   initState() {
     this.buttons = [
       { label: 'add', icon: 'fa-plus', styleClass: 'ui-button-success', command: this.owner.add.bind(this.owner), visible: true },
+      { label: 'open', icon: 'fa-pencil-square-o', styleClass: 'ui-button-secondary', command: this.owner.open.bind(this.owner), visible: this.selection !== null },
       { label: 'delete', icon: 'fa-trash', styleClass: 'ui-button-danger', command: this.owner.delete.bind(this.owner), visible: this.selection !== null },
     ];
   }
@@ -39,6 +40,7 @@ export class BaseTreeListToolbarComponent {
   private recalcButtonsState() {
     if (!this.buttons.length) { this.initState(); }
     this.buttons.find(b => b.label === 'delete').visible = this.selection !== null;
+    this.buttons.find(b => b.label === 'open').visible = this.selection !== null && this.selection.data.id;
   }
 
 }

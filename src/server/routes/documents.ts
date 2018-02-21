@@ -59,9 +59,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
       prop: serverDoc.Prop
     };
 
-    const columnDef = buildColumnDef(view, config_schema.settings);
-
-    let model; const id = req.params['0']; const OperationID = req.params['1'];
+    let model; const id = req.params.id;
     if (id) {
       if (id === 'new') {
         model = config_schema.queryNewObject ? await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`) : {};
@@ -81,7 +79,9 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           } else {
             if (id.startsWith('folder-')) {
               model = config_schema.queryNewObject ? await sdb.oneOrNone(`${config_schema.queryNewObject}`) : {};
-              const parentDoc = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = '${id.slice(7)}'`) || {};
+              const parentId = id.slice(7);
+              const parentDoc = id.slice(7) === 'null' ? {} :
+                await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = '${parentId}'`) || {};
               // tslint:disable-next-line:max-line-length
               const parent = { ...model.parent, id: parentDoc.id || null, code: parentDoc.code || null, value: parentDoc.description || null };
               model.parent = parent;
@@ -94,12 +94,13 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
         }
       }
     }
+    const columnDef = buildColumnDef(view, config_schema.settings);
     const result = { view, model, columnDef, prop: config_schema.prop || {} };
     res.json(result);
   } catch (err) { next(err); }
 };
 router.get('/:type/view', viewAction);
-router.get('/:type/view/*/*', viewAction);
+router.get('/:type/view/:id', viewAction);
 
 // Delete document
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -291,7 +292,7 @@ router.post('/server/:type/:func', async (req: Request, res: Response, next: Nex
 // Get tree for document list
 router.get('/tree/:type', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const query = `select id, description, parent from "Documents" where isfolder and type = '${req.params.type}'`;
+    const query = `select id, description, parent from "Documents" where isfolder = 1 and type = '${req.params.type}'`;
     res.json(await sdb.manyOrNone(query));
   } catch (err) { next(err); }
 });

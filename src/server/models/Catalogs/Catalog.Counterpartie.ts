@@ -10,7 +10,7 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
     'Document.Invoice'
   ],
   relations: [
-    {name: 'Client orders relation', type: 'Document.Invoice', field: 'Customer'}
+    {name: 'Client invoices', type: 'Document.Invoice', field: 'Customer'}
   ]
 })
 export class CatalogCounterpartie extends DocumentBase {

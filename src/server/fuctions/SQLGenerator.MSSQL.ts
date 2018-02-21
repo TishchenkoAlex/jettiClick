@@ -138,7 +138,8 @@ export class SQLGenegator {
     const addLeftJoin = (prop: string, type: string) =>
         `LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
 
-    let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.parent, d.timestamp
+    let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.timestamp
+      , ISNULL("parent".description, '') "parent.value", d."parent" "parent.id", "parent".type "parent.type"
       , ISNULL("company".description, '') "company.value", d."company" "company.id", "company".type "company.type"
       , ISNULL("user".description, '') "user.value", d."user" "user.id", "user".type "user.type"\n`;
 
@@ -394,7 +395,7 @@ export class SQLGenegator {
       const doc = createDocument(catalog.type);
       let select = SQLGenegator.QueryList(doc.Props(), doc.Prop() as DocumentOptions);
       const type = (doc.Prop() as DocumentOptions).type.split('.');
-      const name = type.length === 2 ? type[1] : type[0];
+      const name = type.length === 1 ? type[0] : type[type.length - 1];
       select = select.replace('FROM dbo\.\"Documents\" d', `
 
       ,COALESCE(

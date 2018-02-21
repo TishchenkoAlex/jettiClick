@@ -154,8 +154,8 @@ export class DynamicFormService {
 
   constructor(private apiService: ApiService) { }
 
-  getViewModel$(docType: DocTypes, docID = '', operationID = ''): Observable<ViewModel> {
-    return this.apiService.getViewModel(docType, docID, operationID).pipe(
+  getViewModel$(docType: DocTypes, docID = ''): Observable<ViewModel> {
+    return this.apiService.getViewModel(docType, docID).pipe(
       map(viewModel => {
         return getViewModel({ ...viewModel.view, ...createDocument(docType).Props() }, viewModel.model, docID !== 'new');
       }));

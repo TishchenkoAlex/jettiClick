@@ -17,6 +17,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
   @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
 
   ngAfterViewInit() {
+    console.log(this.super.viewModel);
     this._subscription$.unsubscribe();
     this._subscription$ = this.viewModel.formGroup.controls['Operation'].valueChanges.subscribe(v => this.update(v));
 
@@ -40,9 +41,11 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
     const operation = await this.super.ds.api.getRawDoc(value.id).toPromise() || { doc: { Parameters: [] } };
     const view = this.super.docModel.Props();
     const Parameters = operation.doc['Parameters'];
+    let i = 1;
     Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
       label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-      [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
+      [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null,
+      additional: c.type.startsWith('Catalog.') ? i++ : null
     });
     this.viewModel = getViewModel(view, this.super.model, true);
     this.ngAfterViewInit();

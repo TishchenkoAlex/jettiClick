@@ -150,8 +150,8 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   calcFilters() {
     const result = [];
-    if (this.owner!.value && this.owner!.value.value) { result.push({ left: this.owner.owner, center: '=', right: this.owner.value }); }
-    if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
+    if (this.owner!.value && this.owner!.value.value) { result.push({ left: 'parent', center: '=', right: this.owner.value }); }
+    // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
     return result;
   }
 }
