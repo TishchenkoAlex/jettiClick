@@ -58,6 +58,10 @@ export class MSSQL {
       await func(new MSSQL(null, transaction));
       await transaction.commit();
     } catch (err) {
+      try {
+        console.log('rollback transaction');
+        await transaction.rollback();
+      } catch {}
       console.log(err);
       throw new Error(err);
     }
