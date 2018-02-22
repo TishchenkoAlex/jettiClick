@@ -1,12 +1,13 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 
-import { DocumentBase, DocumentOptions } from '../../server/models/document';
+import { DocumentBase, DocumentOptions, PropOptions } from '../../server/models/document';
 import { PatchValue, RefValue, calculateDescription } from '../models/api';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
 import { ColumnDef } from './../models/column';
 import { configSchema } from './../models/config';
+
 import { DocumentBaseServer, INoSqlDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
@@ -33,11 +34,9 @@ async function buildOperationViewAndSQL(id: string, view: any, config_schema: an
   const Parameters = await sdb.oneOrNone<any>(`
     select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents"
     where id = (select JSON_VALUE(doc, '$.Operation') from "Documents" where id = @p1)`, [id]);
-  let i = 1;
   Parameters.Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
     label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-    [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null,
-    additional: c.type.startsWith('Catalog.') ? i++ : null
+    [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
   });
   config_schema.queryObject = SQLGenegator.QueryObject(view, config_schema.prop);
 }
@@ -52,7 +51,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     config_schema = {
       queryObject: serverDoc.QueryObject,
       queryNewObject: serverDoc.QueryNew,
-      settings: (await sdb.oneOrNone<{settings: FormListSettings}>(`
+      settings: (await sdb.oneOrNone<{ settings: FormListSettings }>(`
         SELECT JSON_QUERY(settings, '$."${req.params.type}"') settings
         FROM users where email = @p1`, [user])).settings as FormListSettings || new FormListSettings(),
       schemaFull: view,
@@ -210,6 +209,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const doc: INoSqlDocument = req.body;
       doc.posted = true;
       const JDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+      await addAdditionalToOperation(doc, JDoc.Props());
       await post(doc, JDoc, tx);
       const query = `${configSchema.get(doc.type as any).QueryObject} AND d.id = @p1`;
       const docServer = await tx.oneOrNone<DocumentBaseServer>(query, [doc.id]);
@@ -217,6 +217,19 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     });
   } catch (err) { next(err); }
 });
+
+async function addAdditionalToOperation(doc: INoSqlDocument, schema: { [x: string]: PropOptions }) {
+  if (doc.type === 'Document.Operation') {
+    const Parameters = await sdb.oneOrNone<any>(`
+      select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents" where id = @p1`, [doc.doc.Operation]);
+    if (Parameters && Parameters.Parameters && Parameters.Parameters.length) {
+      let i = 1; Parameters.Parameters
+        .sort((a, b) => a.order - b.order)
+        .filter(p => p.type.startsWith('Catalog.'))
+        .forEach(p => doc.doc[`p${i++}`] = doc.doc[p.parameter]);
+    }
+  }
+}
 
 // unPost by id (without returns posted object to client, for post in cicle many docs)
 router.get('/unpost/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -293,7 +306,7 @@ router.post('/server/:type/:func', async (req: Request, res: Response, next: Nex
 // Get tree for document list
 router.get('/tree/:type', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const query = `select id, description, parent from "Documents" where isfolder = 1 and type = '${req.params.type}'`;
-    res.json(await sdb.manyOrNone(query));
+    const query = `select id, description, parent from "Documents" where isfolder = 1 and type = @p1`;
+    res.json(await sdb.manyOrNone(query, [req.params.type]));
   } catch (err) { next(err); }
 });

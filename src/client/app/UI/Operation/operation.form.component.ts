@@ -18,22 +18,9 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this._subscription$.unsubscribe();
-    this._subscription$ = this.viewModel.formGroup.controls['Operation'].valueChanges.subscribe(v => this.update(v));
+    this._subscription$ = this.viewModel.formGroup.controls['Operation'].valueChanges
+    .subscribe(v => this.update(v).then(() => this.super.cd.detectChanges()));
 
-    this.super.Save = (doc = this.super.model, close = false) => {
-      const additional1 = Object.keys(this.viewModel.schema).find(k => this.viewModel.schema[k].additional === 1);
-      if (additional1) {
-        const value = this.super.form.get(additional1).value;
-        (this.super.form.get('p1') as FormControl).patchValue(value, {emitEvent: false});
-      }
-      const additional2 = Object.keys(this.viewModel.schema).find(k => this.viewModel.schema[k].additional === 2);
-      if (additional2) {
-        const value = this.super.form.get(additional2).value;
-        (this.super.form.get('p2') as FormControl).patchValue(value, {emitEvent: false});
-      }
-      this.super.showDescription();
-      this.super.ds.save(this.super.model, close);
-    };
   }
 
   update = async (value) => {
@@ -41,10 +28,9 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
       (await this.super.ds.api.getRawDoc(value.id).toPromise()) :  { doc: { Parameters: [] }};
     const view = this.super.docModel.Props();
     const Parameters = operation.doc['Parameters'];
-    let i = 1; Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
+    Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
       label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-      [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null,
-      additional: c.type.startsWith('Catalog.') ? i++ : null
+      [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
     });
     this.viewModel = getViewModel(view, this.super.model, true);
     this.super.form = this.viewModel.formGroup;

@@ -50,7 +50,7 @@ export async function List(req: Request, res: Response) {
           }
           break;
         case 'like':
-          where += ` AND d."${f.left}" LIKE '%${(f.right['value'] || f.right).toString().replace('\'', '\'\'')}%' `;
+          where += ` AND d."${f.left}" LIKE N'%${(f.right['value'] || f.right).toString().replace('\'', '\'\'')}%' `;
           break;
         case 'beetwen':
           const interval = f.right as FilterInterval;

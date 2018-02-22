@@ -18,6 +18,7 @@ export interface PropOptions {
   style?: { [x: string]: any };
   owner?: string;
   totals?: number;
+  change?: boolean;
   onChange?: Function;
   onChangeServer?: boolean;
 }
@@ -110,7 +111,7 @@ export class DocumentBase {
     this.targetProp(this, 'date').hidden = this.isCatalog;
     this.targetProp(this, 'company').hidden = this.isCatalog;
 
-    const result: { [x: string]: any } = {};
+    const result: { [x: string]: PropOptions } = {};
     for (const prop of Object.keys(this)) {
       const Prop = this.targetProp(this, prop);
       if (!Prop) { continue; }
