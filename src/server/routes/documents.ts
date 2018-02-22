@@ -32,7 +32,7 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 async function buildOperationViewAndSQL(id: string, view: any, config_schema: any) {
   const Parameters = await sdb.oneOrNone<any>(`
     select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents"
-    where id = (select JSON_VALUE(doc, '$.Operation') from "Documents" where id = '${id}')`);
+    where id = (select JSON_VALUE(doc, '$.Operation') from "Documents" where id = @p1)`, [id]);
   let i = 1;
   Parameters.Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
     label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
@@ -54,7 +54,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
       queryNewObject: serverDoc.QueryNew,
       settings: (await sdb.oneOrNone<{settings: FormListSettings}>(`
         SELECT JSON_QUERY(settings, '$."${req.params.type}"') settings
-        FROM users where email = '${user}'`)).settings as FormListSettings || new FormListSettings(),
+        FROM users where email = @p1`, [user])).settings as FormListSettings || new FormListSettings(),
       schemaFull: view,
       prop: serverDoc.Prop
     };
@@ -66,7 +66,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
       } else {
         if (id.startsWith('copy-')) {
           if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id.slice(5), view, config_schema); }
-          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = '${id.slice(5)}'`);
+          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id.slice(5)]);
           const newDoc = await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`);
           model.id = newDoc.id; model.date = newDoc.date; model.code = newDoc.code;
           model.posted = false; model.deleted = false; model.timestamp = null;
@@ -81,14 +81,14 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
               model = config_schema.queryNewObject ? await sdb.oneOrNone(`${config_schema.queryNewObject}`) : {};
               const parentId = id.slice(7);
               const parentDoc = id.slice(7) === 'null' ? {} :
-                await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = '${parentId}'`) || {};
+                await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [parentId]) || {};
               // tslint:disable-next-line:max-line-length
               const parent = { ...model.parent, id: parentDoc.id || null, code: parentDoc.code || null, value: parentDoc.description || null };
               model.parent = parent;
               model.isfolder = true;
             } else {
               if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
-              model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = '${id}'`);
+              model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id]);
             }
           }
         }
@@ -175,7 +175,7 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQ
           type = i.type, parent = i.parent,
           date = i.date, code = i.code, description = i.description,
           posted = i.posted, deleted = i.deleted, isfolder = i.isfolder,
-          "user" = i."user", company = i.company, info = i.info,
+          "user" = i."user", company = i.company, info = i.info, timestamp = GETDATE(),
           doc = i.doc
         OUTPUT inserted.*
         FROM (
@@ -208,6 +208,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await sdb.tx(async tx => {
       const doc: INoSqlDocument = req.body;
+      doc.posted = true;
       const JDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await post(doc, JDoc, tx);
       const query = `${configSchema.get(doc.type as any).QueryObject} AND d.id = @p1`;
@@ -244,7 +245,7 @@ router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) =
 router.get(':type/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const serverDoc = configSchema.get(req.params.type);
-    res.json(await sdb.oneOrNone(`${serverDoc.QueryObject} AND d.id = '${req.params.id}'`));
+    res.json(await sdb.oneOrNone(`${serverDoc.QueryObject} AND d.id = @p1`, [req.params.id]));
   } catch (err) { next(err); }
 });
 

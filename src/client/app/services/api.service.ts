@@ -171,7 +171,7 @@ export class ApiService {
 
   jobAdd(data: any, opts?: JobOptions) {
     const query = `${environment.api}jobs/add`;
-    return this.http.post<IJob>(query, {data: data, opts: opts});
+    return this.http.post<IJob>(query, { data: data, opts: opts });
   }
 
   jobs() {

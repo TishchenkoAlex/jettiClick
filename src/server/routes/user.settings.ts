@@ -14,8 +14,8 @@ export function User(req: Request): string {
 router.get('/user/roles', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const email = User(req);
-    const query = `select JSON_QUERY(data, '$') result from "accounts" where id = '${email}'`;
-    const result = await sdba.oneOrNone<any>(query);
+    const query = `select JSON_QUERY(data, '$') result from "accounts" where id = @p1`;
+    const result = await sdba.oneOrNone<any>(query, [email]);
     res.json(result ? (result.result as IAccount).roles : []);
   } catch (err) { next(err); }
 });
@@ -23,8 +23,8 @@ router.get('/user/roles', async (req: Request, res: Response, next: NextFunction
 router.get('/user/settings/:type', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = User(req);
-    const query = `select JSON_QUERY(settings, '$."${req.params.type}"') result from users where email = '${user}'`;
-    const result = await sdb.oneOrNone<{ result: FormListSettings }>(query);
+    const query = `select JSON_QUERY(settings, '$."${req.params.type}"') result from users where email = @p1`;
+    const result = await sdb.oneOrNone<{ result: FormListSettings }>(query, [user]);
     res.json(result ? result.result : new FormListSettings());
   } catch (err) { next(err); }
 });
@@ -33,8 +33,8 @@ router.post('/user/settings/:type', async (req, res, next) => {
   try {
     const user = User(req);
     const data = req.body || {};
-    const query = `update users set settings = JSON_MODIFY(settings, '$."${req.params.type}"', JSON_QUERY(@p1)) where email = '${user}'`;
-    await sdb.none(query, [JSON.stringify(data)]);
+    const query = `update users set settings = JSON_MODIFY(settings, '$."${req.params.type}"', JSON_QUERY(@p1)) where email = @p2`;
+    await sdb.none(query, [JSON.stringify(data), user]);
     res.json(true);
   } catch (err) { next(err); }
 });
@@ -42,8 +42,8 @@ router.post('/user/settings/:type', async (req, res, next) => {
 router.get('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = User(req);
-    const query = `select JSON_QUERY(settings, '$."defaults"') result from users where email = '${user}'`;
-    const result = await sdb.oneOrNone<{ result: UserDefaultsSettings }>(query);
+    const query = `select JSON_QUERY(settings, '$."defaults"') result from users where email = @p1`;
+    const result = await sdb.oneOrNone<{ result: UserDefaultsSettings }>(query, [user]);
     res.json(result ? result.result : new UserDefaultsSettings());
   } catch (err) { next(err); }
 });
@@ -52,8 +52,8 @@ router.post('/user/settings/defaults', async (req: Request, res: Response, next:
   try {
     const user = User(req);
     const data = req.body || new UserDefaultsSettings();
-    const query = `update users set settings = JSON_MODIFY(settings, '$."defaults"', JSON_QUERY(@p1)) where email = '${user}'`;
-    const result = await sdb.none(query, [JSON.stringify(data)]);
+    const query = `update users set settings = JSON_MODIFY(settings, '$."defaults"', JSON_QUERY(@p1)) where email = @p2`;
+    const result = await sdb.none(query, [JSON.stringify(data), user]);
     res.json(true);
   } catch (err) { next(err); }
 });

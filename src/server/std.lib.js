@@ -40,7 +40,7 @@ async function byCode(type, code, tx = mssql_1.sdb) {
 async function byId(id, tx = mssql_1.sdb) {
     const result = await tx.oneOrNone(`
   SELECT id, type, parent, date, code, description, posted, deleted, isfolder, company, [user], info, timestamp,
-  JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
+  JSON_QUERY(doc) doc from Documents WHERE id = @p1`, [id]);
     return result;
 }
 async function viewModelById(id, tx = mssql_1.sdb) {
@@ -110,11 +110,11 @@ async function avgCost(date = new Date(), analytics, tx = mssql_1.sdb) {
   FROM "Register.Accumulation.Inventory"
   WHERE (1=1)
     AND date <= @p1
-    AND company = '${analytics.company}'
-    AND "SKU" = '${analytics.SKU}'
-    AND "Storehouse" = '${analytics.Storehouse}'
+    AND company = @p2
+    AND "SKU" = @p3
+    AND "Storehouse" = @p4
   `;
-    const result = await tx.oneOrNone(queryText, [date]);
+    const result = await tx.oneOrNone(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
     return result ? result.result : null;
 }
 async function inventoryBalance(date = new Date(), analytics, tx = mssql_1.sdb) {
@@ -124,11 +124,11 @@ async function inventoryBalance(date = new Date(), analytics, tx = mssql_1.sdb) 
   FROM "Register.Accumulation.Inventory"
   WHERE (1=1)
     AND date <= @p1
-    AND company = '${analytics.company}'
-    AND "SKU" = '${analytics.SKU}'
-    AND "Storehouse" = '${analytics.Storehouse}'
+    AND company = @p2
+    AND "SKU" = @p3
+    AND "Storehouse" = @p4
   `;
-    const result = await tx.oneOrNone(queryText, [date]);
+    const result = await tx.oneOrNone(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
     return result ? result.result : null;
 }
 async function sliceLast(type, date = new Date(), company, resource, analytics, tx = mssql_1.sdb) {
