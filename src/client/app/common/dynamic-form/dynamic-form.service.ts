@@ -73,16 +73,18 @@ export function getViewModel(view, model, isExists: boolean): ViewModel {
       const owner: string = prop['owner'] || null;
       const onChange = prop['onChange'];
       const onChangeServer = !!prop['onChangeServer'];
+      const value = prop['value'];
+
       let newControl: BaseJettiFormControl;
       const controlOptions: ControlOptions = {
-        key, label, type: controlType, required, readOnly, hidden, change, order, style, onChange, owner, totals, onChangeServer
+        value, key, label, type: controlType, required, readOnly, hidden, change, order, style, onChange, owner, totals, onChangeServer
       };
       switch (controlType) {
         case 'table':
-          const value: BaseJettiFormControl[] = [];
-          processRecursive(v[key][key] || {}, value);
+          const values: BaseJettiFormControl[] = [];
+          processRecursive(v[key][key] || {}, values);
           newControl = new TableDynamicControl(controlOptions);
-          (newControl as TableDynamicControl).controls = value;
+          (newControl as TableDynamicControl).controls = values;
           break;
         case 'boolean':
           newControl = new BooleanJettiFormControl(controlOptions);

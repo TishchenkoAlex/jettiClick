@@ -1,5 +1,16 @@
 import { JDocument, DocumentBase, Props, Ref } from './../document';
 
+const defaultScript = `
+// const CashFlow = lib.doc.byCode('Catalog.CashFlow', 'IN.CUSTOMER');
+
+// Account
+//Registers.Account.push({
+//    debit: { account: lib.account.byCode('50.01'), subcounts: [$.CashRegister, CashFlow] },
+//    kredit: { account: lib.account.byCode('62.01'), subcounts: [$.Customer] },
+//    sum: $.Amount
+// });
+`;
+
 @JDocument({
   type: 'Catalog.Operation',
   description: 'Правило операции',
@@ -21,7 +32,7 @@ export class CatalogOperation extends DocumentBase {
   @Props({ type: 'string', order: 3, required: true, style: { width: '50%' }})
   description = null;
 
-  @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '400px' } })
+  @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '400px' }, value: defaultScript })
   script: string = null;
 
   @Props({ type: 'table' })

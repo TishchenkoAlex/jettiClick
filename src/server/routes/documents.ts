@@ -62,6 +62,11 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     if (id) {
       if (id === 'new') {
         model = config_schema.queryNewObject ? await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`) : {};
+        // set defaults values to model
+        Object.keys(view).filter(p => view[p].value !== undefined).forEach(p => model[p] = view[p].value);
+        const newDoc = createDocumentServer(req.params.type, model) as DocumentBaseServer;
+        if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
+        model = newDoc;
       } else {
         if (id.startsWith('copy-')) {
           if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id.slice(5), view, config_schema); }
@@ -126,7 +131,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 // Upsert document
 async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQL) {
   const id = doc.id;
-  const isNew = (await tx.oneOrNone<boolean>('SELECT id FROM "Documents" WHERE id = @p1 AND type = @p2', [id, doc.type]) === null);
+  const isNew = (await tx.oneOrNone<any>('SELECT id FROM "Documents" WHERE id = @p1 AND type = @p2', [id, doc.type]) === null);
   await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
   if (serverDoc.isDoc) {
     await tx.none(`

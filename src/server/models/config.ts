@@ -2,7 +2,7 @@ import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { CatalogSubcount } from './../models/Catalogs/Catalog.Subcount';
 import { DocumentOperation } from './../models/Documents/Document.Operation';
 import { CatalogDocuments } from './Catalogs/Catalog.Documents';
-import { DocumentOptions } from './document';
+import { DocumentOptions, DocumentBase } from './document';
 import { createDocument, RegisteredDocument } from './documents.factory';
 import { AllDocTypes, AllTypes, ComplexTypes, DocumentTypes } from './documents.types';
 import { createTypes, RegisteredTypes } from './Types/Types.factory';
@@ -19,6 +19,7 @@ export interface IConfigSchema {
   dimensions?: { [x: string]: AllTypes }[];
   Props?: { [x: string]: any };
   Prop?: DocumentOptions;
+  doc?: DocumentBase;
 }
 
 export const configSchema = new Map([
@@ -37,7 +38,8 @@ export const configSchema = new Map([
       QueryList: SQLGenegator.QueryList(Props, Prop),
       QueryNew: SQLGenegator.QueryNew(Props, Prop),
       Props: Props,
-      Prop: Prop
+      Prop: Prop,
+      doc: doc
     });
     if (el.type === 'Catalog.Subcount') { result.QueryList = (doc as CatalogSubcount).QueryList(); }
     if (el.type === 'Catalog.Documents') { result.QueryList = (doc as CatalogDocuments).QueryList(); }

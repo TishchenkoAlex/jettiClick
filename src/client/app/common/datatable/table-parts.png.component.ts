@@ -79,7 +79,7 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getControlValue(index: number, field: string) {
     const value = this.getControl(index).controls[field].value;
-    const result = value.value || typeof value === 'object' ? value.value || '' : value || '';
+    const result = value && (value.value || typeof value === 'object' ? value.value || '' : value || '');
     return result;
   }
 

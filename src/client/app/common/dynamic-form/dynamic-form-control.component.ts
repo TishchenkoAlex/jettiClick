@@ -24,7 +24,7 @@ export class DynamicFormControlComponent {
         this.form.getRawValue(),
         this.form.controls[this.control.key].value
       );
-      console.log(this.control.key, patch);
+      // console.log(this.control.key, patch);
       if (patch) { this.form.patchValue(patch); }
     }
 
@@ -34,7 +34,7 @@ export class DynamicFormControlComponent {
         this.control.key,
         this.form.controls[this.control.key].value)
         .then(patch => {
-          console.log(this.control.key, patch);
+          // console.log(this.control.key, patch);
           if (patch) { this.form.patchValue(patch); }
         });
     }

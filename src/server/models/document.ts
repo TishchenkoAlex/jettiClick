@@ -21,6 +21,7 @@ export interface PropOptions {
   change?: boolean;
   onChange?: Function;
   onChangeServer?: boolean;
+  value?: any;
 }
 
 export interface DocumentOptions {
