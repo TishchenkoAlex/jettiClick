@@ -44,7 +44,7 @@
     "nanoscroller": "^0.8.7",
     "ng-drag-drop": "^4.0.0",
     "ngx-monaco-editor": "^4.0.1",
-    "pg-promise": "^7.5.4",
+    "pg-promise": "^8.0.0",
     "primeng": "^5.2.0",
     "reflect-metadata": "^0.1.12",
     "rxjs": "5.5.6",
