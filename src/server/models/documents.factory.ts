@@ -37,9 +37,9 @@ export interface IRegisteredDocument<T extends DocumentBase> { type: DocTypes; C
 export function createDocument<T extends DocumentBase>(type: DocTypes, document?: INoSqlDocument): T {
   const doc = RegisteredDocument.find(el => el.type === type);
   if (doc) {
-    const result = new doc.Class;
+    const result = <T>new doc.Class;
     result.map(document);
-    return result as T;
+    return result;
   }
 }
 

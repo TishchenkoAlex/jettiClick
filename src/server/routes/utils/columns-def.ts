@@ -12,7 +12,7 @@ export function buildColumnDef(view, settings: FormListSettings): ColumnDef[] {
     const type = prop['type'] || 'string';
     const readOnly = !!prop['readOnly'];
     const required = !!prop['required'];
-    const owner = prop['owner'] || '';
+    const owner = prop['owner'] || null;
     const totals = prop['totals'] * 1 || null;
     let style = prop['style'];
     if (type === 'number' && !style) { style = { 'width': '90px', 'text-align': 'right' }; }

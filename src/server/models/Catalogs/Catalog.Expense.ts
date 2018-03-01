@@ -7,7 +7,7 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   menu: 'Статьи расходов',
   prefix: null,
   relations: [
-    {name: 'Expense analytics', type: 'Catalog.Expense.Analytics', field: 'parent'}
+    { name: 'Expense analytics', type: 'Catalog.Expense.Analytics', field: 'parent' }
   ]
 })
 export class CatalogExpense extends DocumentBase {

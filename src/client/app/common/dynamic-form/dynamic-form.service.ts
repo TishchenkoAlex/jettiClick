@@ -70,7 +70,7 @@ export function getViewModel(view, model, isExists: boolean): ViewModel {
       const style = prop['style'];
       const totals = prop['totals'] * 1 || null;
       const change = prop['change'];
-      const owner: string = prop['owner'] || null;
+      const owner = prop['owner'] || null;
       const onChange = prop['onChange'];
       const onChangeServer = !!prop['onChangeServer'];
       const value = prop['value'];
@@ -159,7 +159,7 @@ export class DynamicFormService {
   getViewModel$(docType: DocTypes, docID = ''): Observable<ViewModel> {
     return this.apiService.getViewModel(docType, docID).pipe(
       map(viewModel => {
-        return getViewModel({ ...viewModel.view, ...createDocument(docType).Props() }, viewModel.model, docID !== 'new');
+        return getViewModel(viewModel.view, viewModel.model, docID !== 'new');
       }));
   }
 

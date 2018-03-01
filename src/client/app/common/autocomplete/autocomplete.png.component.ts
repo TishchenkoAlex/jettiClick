@@ -50,7 +50,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   dateFormat = dateFormat;
 
   @Input() readOnly = false;
-  @Input() owner;
+  @Input() owner: { owner: { dependsOn: string, filterBy: string }, value: any };
   @Input() placeholder = '';
   @Input() required = false;
   @Input() disabled = false;
@@ -127,7 +127,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   }
   // end of implementation Validator interface
 
-  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) {}
+  constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
 
   getSuggests(text) {
     this.api.getSuggests(this.value.type || this.type, text || '', this.isCatalogParent).pipe(take(1)).subscribe(data => {
@@ -150,7 +150,9 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   calcFilters() {
     const result = [];
-    if (this.owner!.value && this.owner!.value.value) { result.push({ left: 'parent', center: '=', right: this.owner.value }); }
+    if (this.owner && this.owner.owner && this.owner.owner.filterBy) {
+      result.push({ left: this.owner.owner.filterBy, center: '=', right: this.owner.value });
+    }
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
     return result;
   }

@@ -21,7 +21,7 @@
 
   <j-autocomplete-png #pc *ngSwitchCase="'autocomplete'" [required]="control.required" [formControl]="form.controls[control.key]"
     [id]="control.key" [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type" (change)="onChange($event)"
-    [owner]="{owner: control.owner, value: form.root.get(control.owner)?.value}" [showLabel]="control.showLabel" (focus)="pc.select()">
+    [owner]="{owner: control.owner, value: form.root.get(control.owner?.dependsOn)?.value}" [showLabel]="control.showLabel" (focus)="pc.select()">
   </j-autocomplete-png>
 
   <div *ngSwitchCase="'date'" [ngClass]="{'ui-float-label' : control.showLabel}">

@@ -9,7 +9,7 @@ export interface ControlOptions {
   order?: number;
   controlType?: string;
   style?: any;
-  owner?: string;
+  owner?: { dependsOn: string, filterBy: string };
   totals?: number;
   change?: string;
   onChange?: (doc, value) => Promise<any>;
@@ -27,7 +27,7 @@ export class BaseJettiFormControl {
   order: number;
   controlType: string;
   style: any;
-  owner?: string;
+  owner?: { dependsOn: string, filterBy: string };
   totals: number;
   showLabel = true;
   change?: string;

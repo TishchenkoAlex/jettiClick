@@ -29,7 +29,7 @@ export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'Catalog.Storehouse', hiddenInList: true, required: true, order: 11 })
   Storehouse: Ref = null;
 
-  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12, style: { width: '250px' } })
+  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12, style: { width: '100%' } })
   Customer: Ref = null;
 
   @Props({ type: 'Catalog.Manager', order: 13 })

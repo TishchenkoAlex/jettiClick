@@ -9,7 +9,7 @@ export interface ColumnDef {
     style: string;
     required: boolean;
     readOnly: boolean;
-    owner?: string;
+    owner?: { dependsOn: string, filterBy: string };
     totals?: number;
     onChange?: Function;
     onChangeServer?: boolean;

@@ -5,6 +5,8 @@ import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
 import { ICommand } from './commands';
 import { RefValue } from '../models/api';
 
+export interface OwnerRef { dependsOn: string; filterBy: string; }
+
 export interface PropOptions {
   type: AllTypes;
   label?: string;
@@ -16,7 +18,7 @@ export interface PropOptions {
   order?: number;
   controlType?: PrimitiveTypes;
   style?: { [x: string]: any };
-  owner?: string;
+  owner?: OwnerRef;
   totals?: number;
   change?: boolean;
   onChange?: Function;
@@ -34,7 +36,7 @@ export interface DocumentOptions {
   commands?: ICommand[];
   presentation?: 'code' | 'description';
   copyTo?: DocTypes[];
-  relations?: [{name: string, type: DocTypes, field: string}];
+  relations?: [{ name: string, type: DocTypes, field: string }];
 }
 
 export type Ref = string | null | RefValue;
@@ -70,7 +72,7 @@ export class DocumentBase {
   @Props({ type: 'string', order: 3, required: true, style: { width: '300px' } })
   description = '';
 
-  @Props({ type: 'Catalog.Company', order: 3, required: true, onChangeServer: true})
+  @Props({ type: 'Catalog.Company', order: 3, required: true, onChangeServer: true })
   company = null;
 
   @Props({ type: 'Catalog.User', hiddenInList: true, order: -1 })
@@ -107,6 +109,11 @@ export class DocumentBase {
     }
   }
 
+  get isDoc() { return this.type.startsWith('Document.'); }
+  get isCatalog() { return this.type.startsWith('Catalog.'); }
+  get isType() { return this.type.startsWith('Types.'); }
+  get isJornal() { return this.type.startsWith('Journal.'); }
+
   Props() {
     this.targetProp(this, 'description').hidden = this.isDoc;
     this.targetProp(this, 'date').hidden = this.isCatalog;
@@ -116,14 +123,14 @@ export class DocumentBase {
     for (const prop of Object.keys(this)) {
       const Prop = this.targetProp(this, prop);
       if (!Prop) { continue; }
-      result[prop] = Prop;
+      result[prop] = {...Prop};
       const value = (this as any)[prop];
       if (value instanceof Array && value.length) {
         const arrayProp: { [x: string]: any } = {};
         for (const arrProp of Object.keys(value[0])) {
           const PropArr = this.targetProp(value[0], arrProp);
           if (!PropArr) { continue; }
-          arrayProp[arrProp] = PropArr;
+          arrayProp[arrProp] = {...PropArr};
         }
         result[prop][prop] = arrayProp;
       }
@@ -131,15 +138,10 @@ export class DocumentBase {
     return result;
   }
 
-  get isDoc() { return this.type.startsWith('Document.'); }
-  get isCatalog() { return this.type.startsWith('Catalog.'); }
-  get isType() { return this.type.startsWith('Types.'); }
-  get isJornal() { return this.type.startsWith('Journal.'); }
-
   map(document: INoSqlDocument) {
     if (document) {
-       const {doc, ...header} = document;
-       Object.assign(this, header, doc);
+      const { doc, ...header } = document;
+      Object.assign(this, header, doc);
     }
   }
 }

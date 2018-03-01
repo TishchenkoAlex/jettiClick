@@ -21,7 +21,10 @@ export class DocumentOperation extends DocumentBase {
   @Props({ type: 'Catalog.Operation.Group', order: 4, label: 'Group', style: { display: 'none' } })
   Group: Ref = null;
 
-  @Props({ type: 'Catalog.Operation', owner: 'Group', required: true, onChangeServer: true, order: 5, style: { width: '270px' } })
+  @Props({
+    type: 'Catalog.Operation', owner: { dependsOn: 'Group', filterBy: 'Group' },
+    required: true, onChangeServer: true, order: 5, style: { width: '270px' }
+  })
   Operation: Ref = null;
 
   @Props({ type: 'number', order: 6 })
