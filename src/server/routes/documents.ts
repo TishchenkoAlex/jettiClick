@@ -43,59 +43,62 @@ async function buildOperationViewAndSQL(id: string, view: any, config_schema: an
 
 const viewAction = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const params = req.body as { [key: string]: any };
     let config_schema; let view;
     const user = User(req);
-    const serverDoc = configSchema.get(req.params.type);
+    const serverDoc = configSchema.get(params.type);
 
     view = Object.assign({}, serverDoc.Props);
     config_schema = {
       queryObject: serverDoc.QueryObject,
       queryNewObject: serverDoc.QueryNew,
       settings: (await sdb.oneOrNone<{ settings: FormListSettings }>(`
-        SELECT JSON_QUERY(settings, '$."${req.params.type}"') settings
+        SELECT JSON_QUERY(settings, '$."${params.type}"') settings
         FROM users where email = @p1`, [user])).settings as FormListSettings || new FormListSettings(),
       schemaFull: view,
       prop: serverDoc.Prop
     };
 
-    let model; const id = req.params.id;
+    let model; const id = params.id as string;
     if (id) {
-      if (id === 'new') {
-        model = config_schema.queryNewObject ? await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`) : {};
-        // set defaults values to model
-        Object.keys(view).filter(p => view[p].value !== undefined).forEach(p => model[p] = view[p].value);
-        const newDoc = createDocumentServer(req.params.type, model) as DocumentBaseServer;
-        if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
-        model = newDoc;
-      } else {
-        if (id.startsWith('copy-')) {
-          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id.slice(5), view, config_schema); }
-          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id.slice(5)]);
-          const newDoc = await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`);
-          model.id = newDoc.id; model.date = newDoc.date; model.code = newDoc.code;
+      switch (params.command) {
+        case 'new':
+          model = config_schema.queryNewObject ? await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`) : {};
+          Object.keys(view).filter(p => view[p].value !== undefined).forEach(p => model[p] = view[p].value);
+          for (const k in params) {
+            if (k === 'command' || k === 'type' || k === 'id') {  continue; }
+            model[k] = await lib.doc.formControlRef(params[k]);
+          }
+          const newDoc = createDocumentServer(params.type, model) as DocumentBaseServer;
+          if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
+          model = newDoc;
+          break;
+        case 'copy':
+          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
+          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id]);
+          const copyDoc = await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`);
+          model.id = copyDoc.id; model.date = copyDoc.date; model.code = copyDoc.code;
           model.posted = false; model.deleted = false; model.timestamp = null;
           model.parent = { ...model.parent, id: null, code: null, value: null };
           model.description = 'Copy: ' + model.description;
-        } else {
-          if (id.startsWith('base-')) {
-            const newDoc = createDocumentServer<DocumentBaseServer>(req.params.type);
-            model = await newDoc.baseOn(id.slice(5), sdb);
-          } else {
-            if (id.startsWith('folder-')) {
-              model = config_schema.queryNewObject ? await sdb.oneOrNone(`${config_schema.queryNewObject}`) : {};
-              const parentId = id.slice(7);
-              const parentDoc = id.slice(7) === 'null' ? {} :
-                await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [parentId]) || {};
-              // tslint:disable-next-line:max-line-length
-              const parent = { ...model.parent, id: parentDoc.id || null, code: parentDoc.code || null, value: parentDoc.description || null };
-              model.parent = parent;
-              model.isfolder = true;
-            } else {
-              if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
-              model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id]);
-            }
-          }
-        }
+          break;
+        case 'base':
+          const baseDoc = createDocumentServer<DocumentBaseServer>(params.type);
+          model = await baseDoc.baseOn(id, sdb);
+          break;
+        case 'folder':
+          model = config_schema.queryNewObject ? await sdb.oneOrNone(`${config_schema.queryNewObject}`) : {};
+          const parentId = id;
+          const parentDoc = id === 'null' ? {} :
+            await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [parentId]) || {};
+          const parent = { ...model.parent, id: parentDoc.id || null, code: parentDoc.code || null, value: parentDoc.description || null };
+          model.parent = parent;
+          model.isfolder = true;
+          break;
+        default:
+          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
+          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id]);
+          break;
       }
     }
     const columnDef = buildColumnDef(view, config_schema.settings);
@@ -103,8 +106,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     res.json(result);
   } catch (err) { next(err); }
 };
-router.get('/:type/view', viewAction);
-router.get('/:type/view/:id', viewAction);
+router.post('/view', viewAction);
 
 // Delete document
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {

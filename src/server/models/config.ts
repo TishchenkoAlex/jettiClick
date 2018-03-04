@@ -47,13 +47,16 @@ export const configSchema = new Map([
   }),
   ...RegisteredTypes.map(el => {
     const doc = createTypes(el.type as ComplexTypes);
+    const fakeDoc = new DocumentBase(); fakeDoc.type = el.type as any;
     const result: IConfigSchema = {
       type: el.type as DocumentTypes,
-      QueryList: doc.QueryList()
+      QueryList: doc.QueryList(),
+      Props: fakeDoc.Props()
     };
     return ({
       type: el.type as ComplexTypes,
-      QueryList: doc.QueryList()
+      QueryList: doc.QueryList(),
+      Props: fakeDoc.Props()
     });
   })]
   .map((i): [AllDocTypes, IConfigSchema] => [i.type, i]));

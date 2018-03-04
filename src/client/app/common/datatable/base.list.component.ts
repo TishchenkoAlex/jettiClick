@@ -1,12 +1,20 @@
-import { AfterViewInit, ChangeDetectorRef, Input, OnDestroy, OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
 import { DataTable } from 'primeng/components/datatable/datatable';
 import { Observable } from 'rxjs/Observable';
 import { merge } from 'rxjs/observable/merge';
-import { debounceTime, filter, map, share, take } from 'rxjs/operators';
+import { debounceTime, filter, map, share } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -35,6 +43,8 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   private _docSubscription$: Subscription = Subscription.EMPTY;
   private _closeSubscription$: Subscription = Subscription.EMPTY;
 
+  url = this.router.url;
+
   private AfterViewInit = false;
   private _debonce = new Subject<{ col: any, event: any, center: string }>();
   private debonce$ = this._debonce.asObservable().pipe(filter(event => this.AfterViewInit), debounceTime(500))
@@ -60,14 +70,18 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(doc => {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
         if (exist) {
-          this.dataTable.selection = [exist];
+          this.dataSource.dataTable.selection = [exist];
           this.dataSource.refresh();
-        } else { this.dataSource.goto(doc.id); }
+          setTimeout(() => { this.dataSource.dataTable.selection = [exist]; this.cd.detectChanges(); });
+        } else {
+          this.dataSource.goto(doc.id);
+          this.dataSource.dataTable.selection = [doc];
+          setTimeout(() => { this.dataSource.dataTable.selection = [doc]; this.cd.detectChanges(); });
+        }
       });
 
-    this._closeSubscription$ = this.ds.close$.pipe(
-      filter(data => data && data.type === this.docType && data.id === ''))
-      .subscribe(data => this.close());
+    this._closeSubscription$ = this.ds.close$.pipe(filter(url => url.url === this.url && url.skip))
+      .subscribe(url => this.close());
 
     this.docModel = createDocument(this.docType);
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
@@ -77,8 +91,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       this.columns = await this.ds.api.getView(this.docType).pipe(map(r => r.columnDef)).toPromise();
     }
 
-    const exclCol = this.docModel.isDoc ? ['description'] : ['date', 'company'];
-    this.columns.forEach(c => { if (exclCol.indexOf(c.field) > -1 || c.hidden) { c.style['display'] = 'none'; } });
+    this.columns.forEach(c => { if (c.hidden) { c.style['display'] = 'none'; } });
     this.columns = this.columns.filter(c => c.style['display'] !== 'none' || c.field === 'Group');
   }
 
@@ -110,7 +123,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: null });
         }
         this.dataSource.goto(id);
-        this.router.navigate([this.docType], { replaceUrl: true });
+        this.router.navigate([this.docType], { queryParams: {}, replaceUrl: true });
       } else {
         if (!this.filters.length) {
           this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
@@ -132,19 +145,42 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._debonce.next({ col, event, center });
   }
 
-  sort(event) { if (this.AfterViewInit) { this.dataSource.sort(); } }
+  sort(event) {
+    if (this.AfterViewInit) { this.dataSource.sort(); }
+  }
 
-  close() { this.ds.close$.next(<any>{ id: '', type: this.docType, close: true }); }
+  close() {
+    this.ds.close$.next({ url: this.url });
+  }
 
-  add() { this.router.navigate([this.dataTable.selection[0] ? this.dataTable.selection[0].type : this.dataSource.docType, 'new']); }
+  add() {
+    const filters = {};
+    Object.keys(this.dataTable.filters)
+      .filter(f => this.dataTable.filters[f].value && this.dataTable.filters[f].value.id)
+      .forEach(f => filters[f] = this.dataTable.filters[f].value.id);
 
-  copy() { this.router.navigate([this.dataTable.selection[0].type, 'copy-' + this.dataTable.selection[0].id]); }
+    this.router.navigate([this.dataTable.selection[0] ?
+      this.dataTable.selection[0].type : this.dataSource.docType, 'new'],
+      { queryParams: { command: 'new', ...filters } });
+  }
 
-  copyTo(type: DocTypes) { this.router.navigate([type, 'base-' + this.dataTable.selection[0].id]); }
+  copy() {
+    this.router.navigate([this.dataTable.selection[0].type, this.dataTable.selection[0].id],
+      { queryParams: { command: 'copy' } });
+  }
 
-  open() { this.router.navigate([this.dataTable.selection[0].type, this.dataTable.selection[0].id]); }
+  copyTo(type: DocTypes) {
+    this.router.navigate([type, this.dataTable.selection[0].id],
+      { queryParams: { command: 'base' } });
+  }
 
-  delete() { this.dataTable.selection.forEach(el => this.ds.delete(el.id)); }
+  open() {
+    this.router.navigate([this.dataTable.selection[0].type, this.dataTable.selection[0].id], { queryParams: {} });
+  }
+
+  delete() {
+    this.dataTable.selection.forEach(el => this.ds.delete(el.id));
+  }
 
   async post(mode = 'post') {
     const tasksCount = this.dataTable.selection.length; let i = tasksCount;

@@ -9,7 +9,7 @@ import { MenuItem, SubSystemsMenu } from './../../../../server/models/SubSystems
 
 export interface TabDef {
   header: string; icon: string; description: string; docType: string; docID: string;
-  params: { [key: string]: any }; component: BaseDynamicCompoment;
+  component: BaseDynamicCompoment; routerLink: string;
 }
 
 export const HOME = 'Home';
@@ -20,13 +20,14 @@ export class TabControllerService {
   index = 0;
   tabid = HOME;
   docID = '';
-  params: { [key: string]: any };
   HOME = HOME;
   homeComponent = new BaseDynamicCompoment(HomeComponent);
   menuItems: MenuItem[] = [];
 
-  homeTab: TabDef =
-    { header: HOME, docType: HOME, icon: 'fa fa-home', docID: '', description: '', params: {}, component: this.homeComponent };
+  homeTab: TabDef = {
+    header: HOME, docType: HOME, icon: 'fa fa-home', docID: '', description: '',
+    component: this.homeComponent, routerLink: '/' + HOME
+  };
   tabs: TabDef[] = [this.homeTab];
 
   constructor(private auth: AuthService) {

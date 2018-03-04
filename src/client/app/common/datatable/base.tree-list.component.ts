@@ -35,7 +35,7 @@ export class BaseTreeListComponent implements OnInit {
   treeNodes$: Observable<TreeNode[]>;
   selection: TreeNode = null;
 
-  constructor(private api: ApiService, public router: Router,  public ds: DocService) { }
+  constructor(private api: ApiService, public router: Router, public ds: DocService) { }
 
   ngOnInit() {
     this.treeNodes$ = this.load$().pipe(tap(data => this.selection = data[0]), share());
@@ -65,9 +65,9 @@ export class BaseTreeListComponent implements OnInit {
     });
   }
 
-  add = () =>  this.router.navigate([this.docType, 'folder-'  + this.selection.data.id]);
-  copy = () => this.router.navigate([this.docType, 'copy-'    + this.selection.data.id]);
-  open = () => this.router.navigate([this.docType, this.selection.data.id]);
+  add = () => this.router.navigate([this.docType, this.selection.data.id], { queryParams: { commamd: 'folder' } });
+  copy = () => this.router.navigate([this.docType, this.selection.data.id], { queryParams: { commamd: 'copy' } });
+  open = () => this.router.navigate([this.docType, this.selection.data.id], { queryParams: {} });
   delete = () => this.ds.delete(this.selection.data.id);
   onSelectionChange = (event) => this.selectionChange.emit(event);
 

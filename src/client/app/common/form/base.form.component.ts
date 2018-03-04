@@ -5,7 +5,7 @@ import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge } from 'rxjs/observable/merge';
 import { of as observableOf } from 'rxjs/observable/of';
-import { filter } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { calculateDescription } from '../../../../server/models/api';
@@ -32,6 +32,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   private _closeSubscription$: Subscription = Subscription.EMPTY;
   private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
+
+  url = this.router.url;
 
   get model() { return this.form.getRawValue() as DocumentBase; }
   docModel: DocumentBase = createDocument(this.model.type);
@@ -62,7 +64,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
         this.cd.detectChanges();
       });
 
-    this._saveCloseSubscription$ = this.ds.saveClose$.pipe(
+    this.ds.saveClose$.pipe(
       filter(doc => doc.id === this.model.id))
       .subscribe(doc => {
         this.viewModel.formGroup.markAsPristine();
@@ -70,7 +72,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       });
 
     this._closeSubscription$ = this.ds.close$.pipe(
-      filter(data => data && data.type === this.model.type && data.id === this.paramID))
+      filter(url => url.url === this.url && url.skip))
       .subscribe(data => this.Close());
 
     this._descriptionSubscription$ = merge(...[
@@ -94,7 +96,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   Save(doc = this.model, close = false) { this.showDescription(); this.ds.save(doc, close); }
   Delete() { this.ds.delete(this.model.id); }
-  Copy() { return this.router.navigate([this.model.type, 'copy-' + this.model.id]); }
+  Copy() { return this.router.navigate([this.model.type, this.model.id], { queryParams: { command: 'copy' } }); }
   Post() { const doc = this.model; doc.posted = true; this.Save(doc); }
   unPost() { const doc = this.model; doc.posted = false; this.Save(doc); }
   PostClose() { const doc = this.model; doc.posted = true; this.Save(doc, true); }
@@ -105,7 +107,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   }
 
   private _close() {
-    this.ds.close$.next(<any>{ id: this.paramID, type: this.paramTYPE, close: true });
+    this.ds.close$.next({ url: this.url });
   }
 
   Close() {

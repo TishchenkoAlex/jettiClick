@@ -13,7 +13,7 @@ import { stdDocumentListCommands } from '../commands';
   menu: 'Invoices',
   prefix: 'INV-',
   commands: [
-    {command: 'test', icon: 'fa-plus', label: 'test'}
+    { command: 'test', icon: 'fa-plus', label: 'test' }
   ],
   copyTo: [
     'Document.PriceList'
@@ -29,7 +29,7 @@ export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'Catalog.Storehouse', hiddenInList: true, required: true, order: 11 })
   Storehouse: Ref = null;
 
-  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12, style: { width: '100%' } })
+  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12, style: { width: '250px', 'min-width': '100%' } })
   Customer: Ref = null;
 
   @Props({ type: 'Catalog.Manager', order: 13 })
@@ -52,7 +52,7 @@ export class DocumentInvoice extends DocumentBase {
 
   @Props({
     type: 'table', required: true, order: 1,
-    onChange: function(doc: DocumentInvoiceItem, value: DocumentInvoiceItem[]) {
+    onChange: function (doc: DocumentInvoiceItem, value: DocumentInvoiceItem[]) {
       let Amount = 0, Tax = 0; value.forEach(el => { Amount += el.Amount; Tax += el.Tax; });
       return { Amount: Math.round(Amount * 100) / 100, Tax: Math.round(Tax * 100) / 100 };
     }
@@ -69,7 +69,7 @@ export class DocumentInvoiceItem {
 
   @Props({
     type: 'number', totals: 3, required: true, order: 3,
-    onChange: function(doc: DocumentInvoiceItem, value: number) {
+    onChange: function (doc: DocumentInvoiceItem, value: number) {
       return { Amount: Math.round(doc.Price * (value || 0) * 10000) / 10000, Tax: doc.Price * (value || 0) * 0.18 };
     }
   })
@@ -80,16 +80,16 @@ export class DocumentInvoiceItem {
 
   @Props({
     type: 'number', required: true, order: 4,
-    onChange: function(doc: DocumentInvoiceItem, value: number) {
-      return { Amount: Math.round(doc.Qty * (value || 0) * 100) / 100, Tax: doc.Qty * (value || 0) * 0.18};
+    onChange: function (doc: DocumentInvoiceItem, value: number) {
+      return { Amount: Math.round(doc.Qty * (value || 0) * 100) / 100, Tax: doc.Qty * (value || 0) * 0.18 };
     }
   })
   Price = 0;
 
   @Props({
     type: 'number', required: true, order: 10, totals: 3,
-    onChange: function(doc: DocumentInvoiceItem, value: number) {
-      return { Price: Math.round(value / doc.Qty * 10000) / 10000, Tax: value * 0.18};
+    onChange: function (doc: DocumentInvoiceItem, value: number) {
+      return { Price: Math.round(value / doc.Qty * 10000) / 10000, Tax: value * 0.18 };
     }
   })
   Amount = 0;

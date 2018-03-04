@@ -34,7 +34,7 @@ export class BaseFormComponent implements OnInit, OnDestroy {
     this.auth.userProfile$.pipe(take(1)).subscribe();
 
     this._closeSubscription$ = this.ds.close$.pipe(
-      filter(data => data && data.type === this.docType))
+      filter(url => url.url === this.router.url))
       .subscribe(data => this.Close());
   }
 

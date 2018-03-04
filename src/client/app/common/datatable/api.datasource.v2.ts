@@ -1,3 +1,4 @@
+import { DataTable } from 'primeng/components/datatable/datatable';
 import { Observable } from 'rxjs/Observable';
 import { of as observableOf } from 'rxjs/observable/of';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -7,7 +8,6 @@ import { Continuation, DocListResponse } from '../../../../server/models/api';
 import { FormListFilter, FormListOrder } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
 import { DocumentBase } from './../../../../server/models/document';
-import { DataTable } from 'primeng/components/datatable/datatable';
 
 interface DatasourceCommand { source: any; command: string; data?: any; }
 

@@ -13,10 +13,10 @@ import { LoadingService } from './common/loading.service';
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
 
-  constructor(private lds: LoadingService, private auth: AuthService, private messageService: MessageService) {}
+  constructor(private lds: LoadingService, private auth: AuthService, private messageService: MessageService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}`}});
+    req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}` } });
 
     if (req.url.includes('user/settings') || req.url.includes('/jobs')) { // exclude setting requests
       console.log('API', req.url);
@@ -42,7 +42,10 @@ export class ApiInterceptor implements HttpInterceptor {
         }
         this.lds.loading = true;
         this.lds.color = 'warn';
-        this.messageService.add({ severity: 'error', summary: err.statusText, detail: err.error, id: Math.random() });
+        this.messageService.add({
+          severity: 'error', summary: err.statusText,
+          detail: err.status === 500 ? err.error : err.message, id: Math.random()
+        });
         return ErrorObservable.create(err);
       }));
   }

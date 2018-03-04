@@ -42,7 +42,7 @@ export class AuthService {
   public logout() {
     localStorage.removeItem('jetti_token');
     this._userProfile$.next({...ANONYMOUS_USER});
-    return this.router.navigate(['/Home']);
+    return this.router.navigate(['/Home'], {queryParams: {}});
   }
 
   public getAccount() {

@@ -10,7 +10,7 @@ export async function List(req: Request, res: Response) {
   params.filter = params.filter || [];
   params.command = params.command || 'first';
   const direction = params.command !== 'prev';
-  const {QueryList, Props} = configSchema.get(params.type as any);
+  const { QueryList, Props } = configSchema.get(params.type as any);
 
   let row;
   if (params.id) { row = (await sdb.oneOrNone<any>(`${QueryList} AND d.id = '${params.id}'`)); }

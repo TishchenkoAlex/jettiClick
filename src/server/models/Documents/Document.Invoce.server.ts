@@ -1,3 +1,8 @@
+import { TX } from '../../db';
+import { RefValue } from '../../models/api';
+import { CatalogCounterpartie } from '../../models/Catalogs/Catalog.Counterpartie';
+import { configSchema } from '../../models/config';
+import { DocumentBase } from '../../models/document';
 import { lib } from '../../std.lib';
 import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
 import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
@@ -6,11 +11,6 @@ import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
 import { INoSqlDocument, ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
-import { DocumentBase, Ref } from '../../models/document';
-import { configSchema } from '../../models/config';
-import { CatalogCounterpartie } from '../../models/Catalogs/Catalog.Counterpartie';
-import { RefValue } from '../../models/api';
-import { TX } from '../../db';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 

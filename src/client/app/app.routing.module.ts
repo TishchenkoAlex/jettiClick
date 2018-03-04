@@ -29,9 +29,9 @@ export class TabResolver implements Resolve<any> {
     const type = route.params['type'];
     if (type === HOME) { return null; }
     if (type.startsWith('Form.')) { return this.dfs.getFormView$(type); }
-    if (this.tcs.tabs.findIndex(i => i.docType === type && i.docID === id) === -1) {
+    if (this.tcs.tabs.findIndex(i => i.routerLink === state.url) === -1) {
       return id ?
-        this.dfs.getViewModel$(route.params['type'], id) :
+        this.dfs.getViewModel$(route.params['type'], id, route.queryParams) :
         forkJoin(this.api.getView(type), this.api.getUserFormListSettings(type));
     }
   }
@@ -39,8 +39,8 @@ export class TabResolver implements Resolve<any> {
 
 // tslint:disable:max-line-length
 export const routes: Routes = [
-  { path: ':type', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuardService]},
   { path: ':type/:id', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuardService]},
+  { path: ':type', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuardService]},
   { path: '', redirectTo: HOME, pathMatch: 'full' },
   { path: '**', redirectTo: HOME }
 ];

@@ -38,14 +38,14 @@ export class ApiService {
   }
 
   getView(type: string): Observable<{ view: any[], columnDef: ColumnDef[] }> {
-    const query = `${environment.api}${type}/view/`;
-    return (this.http.get(query)).pipe(
+    const query = `${environment.api}view`;
+    return (this.http.post(query, {type})).pipe(
       map(data => ({ view: data['view'], columnDef: data['columnDef'] })));
   }
 
-  getViewModel(type: string, id = ''): Observable<any> {
-    const query = `${environment.api}${type}/view/${id}`;
-    return (this.http.get(query));
+  getViewModel(type: string, id = '', queryParams: {[key: string]: any} = {}): Observable<any> {
+    const query = `${environment.api}view`;
+    return this.http.post(query, {type, id, ...queryParams});
   }
 
   getSuggests(docType: string, filter = '', isfolder = false) {

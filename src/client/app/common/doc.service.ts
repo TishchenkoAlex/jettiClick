@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { take } from 'rxjs/operators';
+import { take, skip } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { ApiService } from '../services/api.service';
@@ -14,7 +14,7 @@ export class DocService {
   post$ = new Subject<boolean>();
   unpost$ = new Subject<boolean>();
   delete$ = new Subject<DocumentBase>();
-  close$ = new Subject<DocumentBase>();
+  close$ = new Subject<{url: string, skip?: boolean}>();
   saveClose$ = new Subject<DocumentBase>();
   goto$ = new Subject<DocumentBase>();
   do$ = new Subject<DocumentBase>();

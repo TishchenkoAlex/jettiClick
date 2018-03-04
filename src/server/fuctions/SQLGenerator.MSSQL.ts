@@ -73,13 +73,13 @@ export class SQLGenegator {
       query = query.slice(2); xTable = xTable.slice(2);
 
       return `,
-      (SELECT
+      ISNULL((SELECT
         ${query}
       FROM OPENJSON(d.doc, '$.${prop}') WITH (
         ${xTable}
       ) AS x
       ${LeftJoin}
-      FOR JSON PATH, INCLUDE_NULL_VALUES) "${prop}"\n`;
+      FOR JSON PATH, INCLUDE_NULL_VALUES), '[]') "${prop}"\n`;
     };
 
     let query = `

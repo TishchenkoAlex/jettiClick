@@ -123,6 +123,9 @@ export class DocumentBase {
     for (const prop of Object.keys(this)) {
       const Prop = this.targetProp(this, prop);
       if (!Prop) { continue; }
+      for (const el in Prop) {
+        if (typeof Prop[el] === 'function') { Prop[el] = Prop[el].toString(); }
+      }
       result[prop] = {...Prop};
       const value = (this as any)[prop];
       if (value instanceof Array && value.length) {
@@ -130,6 +133,9 @@ export class DocumentBase {
         for (const arrProp of Object.keys(value[0])) {
           const PropArr = this.targetProp(value[0], arrProp);
           if (!PropArr) { continue; }
+          for (const el in PropArr) {
+            if (typeof PropArr[el] === 'function') { PropArr[el] = PropArr[el].toString(); }
+          }
           arrayProp[arrProp] = {...PropArr};
         }
         result[prop][prop] = arrayProp;

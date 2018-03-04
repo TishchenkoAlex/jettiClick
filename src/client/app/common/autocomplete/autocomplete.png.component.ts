@@ -137,7 +137,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   }
 
   handleReset = (event: Event) => this.value = this.EMPTY;
-  handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id]);
+  handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id], {queryParams: {}});
   handleSearch = (event: Event) => this.showDialog = true;
   select = () => this.input.inputEL.nativeElement.select();
   onBlur() { if (this.value && this.suggest.value && (this.value.id !== this.suggest.value.id)) { this.value = this.value; } }
