@@ -2,29 +2,30 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/components/common/menuitem';
+import { Observable } from 'rxjs/Observable';
+import { map, filter } from 'rxjs/operators';
 
+import { getRoleObjects } from '../../server/models/Roles/Base';
 import { SubSystemsMenu } from './../../server/models/SubSystems/SubSystems';
 import { AppComponent } from './app.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-menu',
-  template: `<ul app-submenu [item]="model" root="true" class="layout-menu layout-main-menu clearfix" [reset]="reset" visible="true"></ul>`
+  template: `<ul app-submenu [item]="model$ | async" root="true" class="layout-menu layout-main-menu clearfix" [reset]="reset" visible="true"></ul>`
 })
 export class AppMenuComponent implements OnInit {
 
   @Input() reset: boolean;
 
-  model: any[];
+  model$: Observable<any[]>;
 
   constructor(public app: AppComponent, private cd: ChangeDetectorRef) {
-    this.app.auth.userProfile$.subscribe(userProfile => {
-      this.model = this.buildMenu();
-      this.cd.detectChanges();
-    });
+    this.model$ = this.app.auth.userProfile$.pipe(
+      map(userProfile => this.buildMenu(getRoleObjects(userProfile.account ? userProfile.account.roles : undefined))));
   }
 
-  private buildMenu() {
+  private buildMenu(userRoleObjects) {
     return [...[
       { label: 'Dashboard', icon: 'fa fa-fw fa-home', routerLink: ['/'] },
       {
@@ -115,7 +116,7 @@ export class AppMenuComponent implements OnInit {
         ]
       },
     ],
-    ...SubSystemsMenu(this.app.auth.userRoleObjects),
+    ...SubSystemsMenu(userRoleObjects),
     { label: 'Utils', icon: 'fa fa-fw fa-wrench', routerLink: ['/'] },
     { label: 'Documentation', icon: 'fa fa-fw fa-book', routerLink: ['/'] }
     ];

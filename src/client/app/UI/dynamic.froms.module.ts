@@ -21,13 +21,13 @@ import { BaseDocFormComponent } from './../common/form/base.form.component';
 import { BaseFormComponent } from './../common/forms/base.form.component';
 import { RegisterMovementComponent } from './../common/register-movements/register-movement.component';
 import { TabControllerComponent } from './../common/tabcontroller/tabcontroller.component';
-import { TabControllerService } from './../common/tabcontroller/tabcontroller.service';
 import { SuggestDialogComponent } from './../dialog/suggest.dialog.component';
 import { HomeComponent } from './../home/home.component';
 import { MaterialModule } from './../material.module';
 import { CatalogListComponent } from './../UI/Catalog/calatog-list.component';
 import { OperationFormComponent } from './Operation/operation.form.component';
 import { OperationListComponent } from './Operation/operation.list.component';
+import { TabsStore } from '../common/tabcontroller/tabs.store';
 
 @NgModule({
   declarations: [
@@ -69,9 +69,9 @@ import { OperationListComponent } from './Operation/operation.list.component';
   exports: [
   ],
   providers: [
-    TabControllerService,
     DynamicFormService,
     DocService,
+    TabsStore,
   ],
   entryComponents: [
     SuggestDialogComponent,

@@ -4,7 +4,6 @@ import { take } from 'rxjs/operators';
 
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
-import { TabControllerService } from './common/tabcontroller/tabcontroller.service';
 import { ApiService } from './services/api.service';
 import * as fromRoot from './store/reducers';
 import * as Auth from './auth/store/actions';
@@ -42,9 +41,7 @@ export class AppComponent implements AfterViewInit {
 
   constructor(
     public auth: AuthService, public apiService: ApiService, private store: Store<fromRoot.State>,
-    public lds: LoadingService, public tsc: TabControllerService) {
-
-    auth.getAccount().pipe(take(1)).subscribe();
+    public lds: LoadingService) {
 
     const lm = localStorage.getItem('layoutMode');
     const a = this.layoutMode.toString();

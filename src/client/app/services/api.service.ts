@@ -40,7 +40,7 @@ export class ApiService {
   getView(type: string): Observable<{ view: any[], columnDef: ColumnDef[] }> {
     const query = `${environment.api}view`;
     return (this.http.post(query, {type})).pipe(
-      map(data => ({ view: data['view'], columnDef: data['columnDef'] })));
+      map(data => ({ view: data['view'], columnDef: data['columnDef'], metadata: data['prop'] })));
   }
 
   getViewModel(type: string, id = '', queryParams: {[key: string]: any} = {}): Observable<any> {

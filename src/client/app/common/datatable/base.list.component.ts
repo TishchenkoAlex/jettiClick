@@ -22,6 +22,7 @@ import { ColumnDef } from '../../../../server/models/column';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
 import { calendarLocale, dateFormat } from '../../primeNG.module';
+import { TabsStore } from '../tabcontroller/tabs.store';
 import { DocumentBase, DocumentOptions } from './../../../../server/models/document';
 import { createDocument } from './../../../../server/models/documents.factory';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
@@ -36,14 +37,11 @@ import { LoadingService } from './../../common/loading.service';
 })
 export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  constructor(public route: ActivatedRoute, public router: Router, public ds: DocService,
+  constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private tabStore: TabsStore,
     public uss: UserSettingsService, public lds: LoadingService, private cd: ChangeDetectorRef) { }
 
   locale = calendarLocale; dateFormat = dateFormat;
   private _docSubscription$: Subscription = Subscription.EMPTY;
-  private _closeSubscription$: Subscription = Subscription.EMPTY;
-
-  url = this.router.url;
 
   private AfterViewInit = false;
   private _debonce = new Subject<{ col: any, event: any, center: string }>();
@@ -54,11 +52,11 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() docType: DocTypes = this.route.params['value'].type;
   @Input() filters: FormListFilter[] = [];
 
-  columns: ColumnDef[] = this.route.data['value'].detail[0] ? this.route.data['value'].detail[0]['columnDef'] : [];
+  columns: ColumnDef[] = this.route.snapshot.data.detail[0] ? this.route.snapshot.data.detail[0].columnDef : [];
+  metadata: DocumentOptions = this.route.snapshot.data.detail[0] ?  this.route.snapshot.data.detail[0].metadata : {};
   contexCommands: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
   showTree = false;
-  docModel: DocumentBase;
   dataSource: ApiDataSource | null = null;
   data$: Observable<DocumentBase[]>;
 
@@ -80,10 +78,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
 
-    this._closeSubscription$ = this.ds.close$.pipe(filter(url => url.url === this.url && url.skip))
-      .subscribe(url => this.close());
-
-    this.docModel = createDocument(this.docType);
     this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
 
     this.data$ = this.dataSource.result$.pipe(share());
@@ -111,13 +105,13 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
         label: 'Quick filter', icon: 'fa-search', command: (event) =>
           this._update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
       },
-      ...((this.docModel.Prop() as DocumentOptions).copyTo || []).map(el => {
+      ...(this.metadata.copyTo || []).map(el => {
         const copyToDoc = createDocument(el).Prop() as DocumentOptions;
         return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.copyTo(el) };
       })];
 
       // обработка команды найти в списке
-      const id = this.route.queryParams['value'].goto;
+      const id = this.route.snapshot.queryParams.goto;
       if (id) {
         if (!this.filters.length) {
           this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: null });
@@ -150,7 +144,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   close() {
-    this.ds.close$.next({ url: this.url });
+    this.tabStore.close(this.tabStore.state.tabs[this.tabStore.selectedIndex]);
   }
 
   add() {
@@ -217,7 +211,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
-    this._closeSubscription$.unsubscribe();
     this._debonce.unsubscribe();
     if (!this.route.queryParams['value'].goto && !this.filters.length) { this.saveUserSettings(); }
   }

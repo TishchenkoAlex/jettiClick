@@ -1,4 +1,4 @@
-import { INoSqlDocument } from './../../server/models/ServerDocument';
+import { INoSqlDocument } from '../models/ServerDocument';
 import { CatalogAccount } from './Catalogs/Catalog.Account';
 import { CatalogBalance } from './Catalogs/Catalog.Balance';
 import { CatalogBalanceAnalytics } from './Catalogs/Catalog.Balance.Analytics';

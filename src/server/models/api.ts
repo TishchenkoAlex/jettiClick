@@ -2,6 +2,7 @@ import { FormListFilter, FormListOrder } from './user.settings';
 import { DocumentBase, Ref } from './../models/document';
 import * as Queue from 'bull';
 import { AllTypes } from '../models/documents.types';
+import { RoleType } from './Roles/Base';
 
 export interface DocListRequestBody {
   id: string; type: string; command: string; count: number; offset: number;
@@ -74,7 +75,7 @@ export interface IAccount {
   password: string;
   status: string;
   isAdmin: boolean;
-  roles: string[];
+  roles: RoleType[];
   env: { [x: string]: string };
 }
 

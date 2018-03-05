@@ -5,7 +5,7 @@ import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge } from 'rxjs/observable/merge';
 import { of as observableOf } from 'rxjs/observable/of';
-import { filter, take } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 
 import { calculateDescription } from '../../../../server/models/api';
@@ -13,6 +13,7 @@ import { DocumentBase, DocumentOptions } from '../../../../server/models/documen
 import { createDocument } from '../../../../server/models/documents.factory';
 import { DocService } from '../../common/doc.service';
 import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
+import { TabsStore } from '../tabcontroller/tabs.store';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,17 +24,14 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
 
-  @Input() viewModel: ViewModel = this.route.data['value'].detail;
-  paramID = this.route.params['value'].id as string;
-  paramTYPE = this.route.params['value'].type as string;
+  @Input() viewModel: ViewModel = this.route.snapshot.data.detail;
+  paramID = this.route.snapshot.params.id as string;
+  paramTYPE = this.route.snapshot.params.type as string;
   form = this.viewModel.formGroup;
 
   private _subscription$: Subscription = Subscription.EMPTY;
-  private _closeSubscription$: Subscription = Subscription.EMPTY;
   private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
-
-  url = this.router.url;
 
   get model() { return this.form.getRawValue() as DocumentBase; }
   docModel: DocumentBase = createDocument(this.model.type);
@@ -50,7 +48,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   relations = (this.docModel.Prop() as DocumentOptions).relations || [];
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
-    public cd: ChangeDetectorRef, public ds: DocService, public location: Location) { }
+    public cd: ChangeDetectorRef, public ds: DocService, public location: Location, public tabStore: TabsStore) { }
 
   ngOnInit() {
     this._subscription$ = merge(...[
@@ -70,10 +68,6 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
         this.viewModel.formGroup.markAsPristine();
         this.Close();
       });
-
-    this._closeSubscription$ = this.ds.close$.pipe(
-      filter(url => url.url === this.url && url.skip))
-      .subscribe(data => this.Close());
 
     this._descriptionSubscription$ = merge(...[
       this.form.get('date').valueChanges,
@@ -107,7 +101,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   }
 
   private _close() {
-    this.ds.close$.next({ url: this.url });
+    this.tabStore.close(this.tabStore.state.tabs[this.tabStore.selectedIndex]);
   }
 
   Close() {
@@ -137,7 +131,6 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this._subscription$.unsubscribe();
     this._saveCloseSubscription$.unsubscribe();
-    this._closeSubscription$.unsubscribe();
     this._descriptionSubscription$.unsubscribe();
   }
 

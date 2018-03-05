@@ -19,14 +19,17 @@ export class AuthService {
   userProfile$ = this._userProfile$.asObservable().pipe(filter(u => !!u));
   isLoggedIn$ = this.userProfile$.pipe(map(p => p.account !== undefined));
   isLoggedOut$ = this.isLoggedIn$.pipe(map(isLoggedIn => !isLoggedIn));
+  isAdmin$ = this._userProfile$.asObservable().pipe(
+    filter(u => u.account.roles.findIndex(r => r === 'Admin') >= 0),
+    map(u => true)
+  );
 
-  get userProfile() { return this._userProfile$.value; }
   userRoles: RoleType[] = [];
   userRoleObjects: RoleObject[] = [];
+  get userProfile() { return this._userProfile$.value; }
 
   get token() { return localStorage.getItem('jetti_token'); }
   set token(value) { localStorage.setItem('jetti_token', value); }
-  get isAdmin() { return this.userRoles.findIndex(r => r === 'Admin') >= 0; }
   get tokenPayload() { return jwt_decode(this.token); }
 
   constructor(private router: Router, private http: HttpClient) {
@@ -42,7 +45,7 @@ export class AuthService {
   public logout() {
     localStorage.removeItem('jetti_token');
     this._userProfile$.next({...ANONYMOUS_USER});
-    return this.router.navigate(['/Home'], {queryParams: {}});
+    return this.router.navigate(['/home'], {queryParams: {}});
   }
 
   public getAccount() {
@@ -65,10 +68,10 @@ export class AuthService {
   }
 
   private init(loginResponse: ILoginResponse) {
-    this.userRoles = loginResponse.account.roles as RoleType[];
-    this.userRoleObjects = getRoleObjects(this.userRoles);
     this.token = loginResponse.token;
     this.setEnv();
+    this.userRoles = loginResponse.account.roles as RoleType[];
+    this.userRoleObjects = getRoleObjects(this.userRoles);
     this._userProfile$.next(loginResponse);
   }
 

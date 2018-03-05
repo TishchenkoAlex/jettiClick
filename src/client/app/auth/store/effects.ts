@@ -35,7 +35,7 @@ export class AuthEffects {
   @Effect({ dispatch: false })
   loginSuccess$ = this.actions$.pipe(
     ofType(AuthActionTypes.LoginSuccess),
-    // tap(() => this.router.navigate(['/Home']))
+    // tap(() => this.router.navigate(['/home']))
   );
 
   constructor(

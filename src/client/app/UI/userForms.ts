@@ -1,26 +1,22 @@
+import { Type } from '@angular/core';
+
 import { BaseDocListComponent } from '../common/datatable/base.list.component';
-import { BaseDocFormComponent } from '../common/form/base.form.component';
-import { BaseFormComponent } from './../common/forms/base.form.component';
+import { HomeComponent } from '../home/home.component';
+import { BaseDocFormComponent } from './../common/form/base.form.component';
 import { OperationFormComponent } from './Operation/operation.form.component';
 import { OperationListComponent } from './Operation/operation.list.component';
 
-export function getDocListComponent(type: string) {
-  const result = userForms.find(data => data.type === type);
-  return result ? result.listForm : BaseDocListComponent;
+
+export function getListComponent(type: string) {
+  return userForms[type] ? userForms[type].listComponent : BaseDocListComponent;
 }
 
 export function getFormComponent(type: string) {
-  const result = userForms.find(data => data.type === type);
-  return result ? result.docForm : BaseFormComponent;
+  return userForms[type] ? userForms[type].formComponent : BaseDocFormComponent;
 }
 
-
-export function getDocObjectComponent(type: string) {
-  const result = userForms.find((data) => data.type === type);
-  return result ? result.docForm : BaseDocFormComponent;
-}
-
-const userForms = [
-  { type: 'Document.Operation', docForm: OperationFormComponent, listForm: OperationListComponent },
+const userForms: { [x: string]: { formComponent: Type<any>, listComponent: Type<any> } } = {
+  'home': { formComponent: HomeComponent, listComponent: HomeComponent },
+  'Document.Operation': { formComponent: OperationFormComponent, listComponent: OperationListComponent },
   // add user's defined component for list- or doc-Form here
-];
+};

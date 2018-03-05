@@ -1,69 +1,64 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
-import { HOME, TabControllerService, TabDef } from '../../common/tabcontroller/tabcontroller.service';
-import { DocService } from './../../common/doc.service';
+import { INoSqlDocument } from '../../../../server/models/ServerDocument';
+import { TabDef, TabsStore } from './tabs.store';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-tabcontroller',
   templateUrl: './tabcontroller.component.html',
 })
-export class TabControllerComponent implements OnInit {
+export class TabControllerComponent {
 
-  constructor(private route: ActivatedRoute, private router: Router,
-    public tcs: TabControllerService, private ds: DocService, private cd: ChangeDetectorRef) { }
+  constructor(private router: Router, private route: ActivatedRoute, private tabStore: TabsStore) {
 
-  ngOnInit() {
-    setTimeout(() => this.cd.detectChanges());
-
-    this.route.url.pipe(
-      filter(params => this.tcs.menuItems.length > 0)).subscribe(params => this.changeTab(params));
-
-    this.ds.close$.pipe(filter(url => !!!url.skip))
-      .subscribe(url => {
-        const index = this.tcs.tabs.findIndex(i => i.routerLink === url.url);
-        if (index === -1) { return; }
-        this.tcs.tabs.splice(index, 1);
-        if (this.tcs.index >= this.tcs.tabs.length) { this.tcs.index = this.tcs.tabs.length - 1; }
-        this.onChange(this.tcs.index);
-        this.cd.detectChanges();
+    this.route.paramMap
+      .subscribe(paramMap => {
+        const type = paramMap.get('type') || '';
+        const id = paramMap.get('id') || '';
+        const index = tabStore.state.tabs.findIndex(el => el.routerLink === this.router.url);
+        if (index > -1) {
+          this.tabStore.selectedIndex = index;
+        } else {
+          const newLink: TabDef = {
+            docType: type, docID: id, icon: 'list', routerLink: this.router.url, header: type
+          };
+          tabStore.push(newLink);
+          setTimeout(() => { this.tabStore.selectedIndex = this.tabStore.selectedIndex; });
+        }
       });
 
-    this.route.data.pipe(filter(r => r.detail && r.detail.model)).subscribe(data => {
-      const t = this.tcs.tabs.find(i => i.routerLink === this.router.url);
-      t.description = data.detail.model.description;
-    });
+    this.route.data.pipe(filter(data => data.detail))
+      .subscribe(data => {
+        if (data.detail.formGroup instanceof FormGroup) {
+          const doc = data.detail.formGroup.getRawValue() as INoSqlDocument;
+          const tab = tabStore.state.tabs.find(i => (i.routerLink === this.router.url));
+          if (tab) {
+            tab.header = doc.description;
+            tabStore.replace(tab);
+          }
+        } else {
+          if (data.detail instanceof Array) {
+            const tab = tabStore.state.tabs.find(i => (i.docType === data.detail[0].metadata.type) && (i.docID === ''));
+            if (tab) {
+              tab.header = data.detail[0].metadata.menu;
+              tabStore.replace(tab);
+            }
+          }
+        }
+      });
   }
 
-  private changeTab(params) {
-    this.tcs.tabid = this.route.snapshot.params.type || HOME;
-    this.tcs.docID = this.route.snapshot.params.id || '';
-    const index = this.tcs.tabs.findIndex(i => i.routerLink === this.router.url);
-    if (index === -1) {
-      const menuItem = this.tcs.menuItems.find(el => el.type === this.tcs.tabid) ||
-        { icon: '', label: this.tcs.tabid.split('.')[1], type: this.tcs.tabid, routerLink: ['/' + this.tcs.tabid] };
-      const newTab: TabDef = {
-        header: menuItem.label, docType: this.tcs.tabid, icon: menuItem.icon,
-        docID: this.tcs.docID, description: menuItem.label,
-        component: this.tcs.GetComponent(this.tcs.tabid, this.tcs.docID), routerLink: this.router.url
-      };
-      this.tcs.tabs.push(newTab);
-      setTimeout(() => { this.tcs.index = this.tcs.tabs.length - 1; this.cd.detectChanges(); });
-    } else {
-      this.tcs.index = index;
-    }
-    this.cd.detectChanges();
+  selectedIndexChange(event: number) {
+    const tab = this.tabStore.state.tabs[event];
+    this.router.navigateByUrl(tab.routerLink);
   }
 
-  handleClose(event) {
-    this.tcs.index = event;
-    this.ds.close$.next({ url: this.tcs.tabs[event].routerLink, skip: true });
-  }
-
-  onChange(event) {
-    this.router.navigateByUrl(this.tcs.tabs[event].routerLink, { queryParams: {} }).then(() => this.cd.detectChanges());
-    this.cd.markForCheck();
+  handleClose(event: number) {
+    this.tabStore.close(this.tabStore.state.tabs[event]);
+    this.selectedIndexChange(this.tabStore.state.selectedIndex);
   }
 }

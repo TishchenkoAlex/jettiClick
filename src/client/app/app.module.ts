@@ -29,6 +29,7 @@ import { ApiService } from './services/api.service';
 import { EventsService } from './services/events.service';
 import { reducers } from './store/reducers';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
+import { take } from 'rxjs/operators';
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token');
@@ -71,7 +72,8 @@ export function getJwtToken(): string {
 })
 export class AppModule {
 
-  constructor() {
+  constructor(private auth: AuthService) {
     registerLocaleData(localeRU, localeRUExtra);
+    auth.getAccount().pipe(take(1)).subscribe();
   }
 }
