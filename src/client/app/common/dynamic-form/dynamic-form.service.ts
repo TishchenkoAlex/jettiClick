@@ -12,7 +12,7 @@ import { ApiService } from '../../services/api.service';
 import { cloneFormGroup } from '../utils';
 import {
   AutocompleteJettiFormControl,
-  BaseJettiFormControl,
+  FormControlInfo,
   BooleanJettiFormControl,
   ControlOptions,
   DateJettiFormControl,
@@ -25,14 +25,14 @@ import {
 } from './dynamic-form-base';
 
 export interface ViewModel {
-  view: BaseJettiFormControl[];
+  view: FormControlInfo[];
   model: DocumentBase;
   formGroup: FormGroup;
-  controlsByKey: { [s: string]: BaseJettiFormControl };
+  controlsByKey: { [s: string]: FormControlInfo };
   schema: { [s: string]: any };
 }
 
-function toFormGroup(controls: BaseJettiFormControl[]) {
+function toFormGroup(controls: FormControlInfo[]) {
   const group: any = {};
 
   controls.forEach(control => {
@@ -55,9 +55,9 @@ function toFormGroup(controls: BaseJettiFormControl[]) {
 export const patchOptionsNoEvents = { onlySelf: false, emitEvent: false, emitModelToViewChange: false, emitViewToModelChange: false };
 
 export function getViewModel(view, model, isExists: boolean): ViewModel {
-  let fields: BaseJettiFormControl[] = [];
+  let fields: FormControlInfo[] = [];
 
-  const processRecursive = (v, f: BaseJettiFormControl[]) => {
+  const processRecursive = (v, f: FormControlInfo[]) => {
     Object.keys(v).map(key => {
       const prop = v[key];
       const hidden = !!prop['hidden'];
@@ -75,13 +75,13 @@ export function getViewModel(view, model, isExists: boolean): ViewModel {
       const onChangeServer = !!prop['onChangeServer'];
       const value = prop['value'];
 
-      let newControl: BaseJettiFormControl;
+      let newControl: FormControlInfo;
       const controlOptions: ControlOptions = {
         value, key, label, type: controlType, required, readOnly, hidden, change, order, style, onChange, owner, totals, onChangeServer
       };
       switch (controlType) {
         case 'table':
-          const values: BaseJettiFormControl[] = [];
+          const values: FormControlInfo[] = [];
           processRecursive(v[key][key] || {}, values);
           newControl = new TableDynamicControl(controlOptions);
           (newControl as TableDynamicControl).controls = values;
@@ -138,7 +138,7 @@ export function getViewModel(view, model, isExists: boolean): ViewModel {
         }
       }
     });
-  const controlsByKey: { [s: string]: BaseJettiFormControl } = {};
+  const controlsByKey: { [s: string]: FormControlInfo } = {};
   fields.forEach(c => { controlsByKey[c.key] = c; });
   fields = [
     ...fields.filter(el => el.order > 0 && el.type !== 'table'),

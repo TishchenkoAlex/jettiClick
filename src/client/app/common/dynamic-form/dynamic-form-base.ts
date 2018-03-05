@@ -16,7 +16,7 @@ export interface ControlOptions {
   onChangeServer?: boolean;
 }
 
-export class BaseJettiFormControl {
+export class FormControlInfo {
   value: any;
   type: string;
   key: string;
@@ -56,7 +56,7 @@ export class BaseJettiFormControl {
   }
 }
 
-export class TextboxJettiFormControl extends BaseJettiFormControl {
+export class TextboxJettiFormControl extends FormControlInfo {
   controlType = 'string';
   type = 'string';
 
@@ -65,7 +65,7 @@ export class TextboxJettiFormControl extends BaseJettiFormControl {
   }
 }
 
-export class TextareaJettiFormControl extends BaseJettiFormControl {
+export class TextareaJettiFormControl extends FormControlInfo {
   controlType = 'textarea';
   type = 'string';
 
@@ -74,7 +74,7 @@ export class TextareaJettiFormControl extends BaseJettiFormControl {
   }
 }
 
-export class ScriptJettiFormControl extends BaseJettiFormControl {
+export class ScriptJettiFormControl extends FormControlInfo {
   controlType = 'script';
   style = { 'width': '500px' };
 
@@ -84,7 +84,7 @@ export class ScriptJettiFormControl extends BaseJettiFormControl {
   }
 }
 
-export class BooleanJettiFormControl extends BaseJettiFormControl {
+export class BooleanJettiFormControl extends FormControlInfo {
   controlType = 'boolean';
   type = 'boolean';
   style = { 'max-width': '45px', 'min-width': '24px', 'width' : '90px', 'text-align' : 'center'};
@@ -95,7 +95,7 @@ export class BooleanJettiFormControl extends BaseJettiFormControl {
   }
 }
 
-export class DateJettiFormControl extends BaseJettiFormControl {
+export class DateJettiFormControl extends FormControlInfo {
   controlType = 'date';
   type = 'date';
   style = { 'max-width' : '110px', 'width' : '110px'};
@@ -106,7 +106,7 @@ export class DateJettiFormControl extends BaseJettiFormControl {
   }
 }
 
-export class DateTimeJettiFormControl extends BaseJettiFormControl {
+export class DateTimeJettiFormControl extends FormControlInfo {
   controlType = 'datetime';
   type = 'datetime';
   style = { 'max-width' : '135px', 'width' : '145px' };
@@ -121,7 +121,7 @@ export interface JettiComplexObject {
   id: string; value: string; code: string; type: string; data?: any;
 }
 
-export class AutocompleteJettiFormControl extends BaseJettiFormControl {
+export class AutocompleteJettiFormControl extends FormControlInfo {
   controlType = 'autocomplete';
   style = { 'width' : '250px' };
   value: JettiComplexObject = { id: null, code: null, type: this.type, value: null };
@@ -132,7 +132,7 @@ export class AutocompleteJettiFormControl extends BaseJettiFormControl {
   }
 }
 
-export class NumberJettiFormControl extends BaseJettiFormControl {
+export class NumberJettiFormControl extends FormControlInfo {
   controlType = 'number';
   type = 'number';
   style = { 'width': '100px', 'text-align' : 'right' };
@@ -143,10 +143,10 @@ export class NumberJettiFormControl extends BaseJettiFormControl {
   }
 }
 
-export class TableDynamicControl extends BaseJettiFormControl {
+export class TableDynamicControl extends FormControlInfo {
   controlType = 'table';
   type = 'table';
-  controls: BaseJettiFormControl[] = [];
+  controls: FormControlInfo[] = [];
 
   constructor(options: ControlOptions = {}) {
     super(options);

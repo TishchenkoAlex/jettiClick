@@ -47,8 +47,8 @@
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-v="viewModel">
-  <button pButton type="button" icon="fa-check-square-o" label="Execute" class="ui-button-warning"
-    [disabled]="!v.formGroup.valid" (click)="Execute()"></button>
+  <button pButton type="button" icon="fa-check-square-o" label="Execute" class="ui-button-warning" [disabled]="!v.formGroup.valid"
+    (click)="Execute()"></button>
 </ng-template>
 
-<p-confirmDialog [key]="this.docId" appendTo="body"></p-confirmDialog>
+<p-confirmDialog [key]="this.paramID" appendTo="body"></p-confirmDialog>

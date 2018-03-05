@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
 import {
-  BaseJettiFormControl,
+  FormControlInfo,
   ScriptJettiFormControl,
   TableDynamicControl,
 } from '../../common/dynamic-form/dynamic-form-base';
@@ -31,7 +31,7 @@ import { DataTable } from 'primeng/components/datatable/datatable';
   templateUrl: './table-parts.png.component.html',
 })
 export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
-  private view: BaseJettiFormControl[];
+  private view: FormControlInfo[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
 

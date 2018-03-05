@@ -10,6 +10,7 @@ import {
   Type,
   ViewChild,
   ViewContainerRef,
+  ComponentRef,
 } from '@angular/core';
 
 import { getFormComponent, getListComponent } from '../../UI/userForms';
@@ -32,9 +33,11 @@ export class DynamicComponentDirective {
   template: `<ng-template component-host></ng-template>`,
 })
 export class DynamicComponent implements OnInit, AfterViewInit {
-  @Input() type;
+  @Input() type: string;
+  @Input() id: string;
   @Input() kind: 'list' | 'form';
   component: BaseDynamicCompoment;
+  componentRef: ComponentRef<any>;
 
   @ViewChild(DynamicComponentDirective) host: DynamicComponentDirective;
 
@@ -50,7 +53,7 @@ export class DynamicComponent implements OnInit, AfterViewInit {
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.component.component);
     const viewContainerRef = this.host.viewContainerRef;
     viewContainerRef.clear();
-    const componentRef = viewContainerRef.createComponent(componentFactory);
+    this.componentRef = viewContainerRef.createComponent(componentFactory);
     this.cd.detectChanges();
   }
 

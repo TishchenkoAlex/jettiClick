@@ -29,8 +29,8 @@ export class TabResolver implements Resolve<any> {
   constructor(private dfs: DynamicFormService, private api: ApiService, private tabStore: TabsStore) { }
 
   public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const id: string = route.params['id'] || '';
-    const type = route.params['type'];
+    const id: string = route.params.id || '';
+    const type = route.params.type;
     if (type === 'home') { return null; }
     if (type.startsWith('Form.')) { return this.dfs.getFormView$(type); }
     if (this.tabStore.state.tabs.findIndex(i => i.routerLink === state.url) === -1) {
@@ -41,10 +41,11 @@ export class TabResolver implements Resolve<any> {
   }
 }
 
+
 // tslint:disable:max-line-length
 export const routes: Routes = [
-  { path: ':type/:id', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuardService]},
-  { path: ':type', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuardService]},
+  { path: ':type/:id', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuardService] },
+  { path: ':type', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuardService] },
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: '**', redirectTo: 'home' }
 ];
@@ -55,7 +56,7 @@ export const routes: Routes = [
   providers: [
     { provide: RouteReuseStrategy, useClass: AppRouteReuseStrategy },
     AuthGuardService,
-    TabResolver
+    TabResolver,
   ]
 })
 export class RoutingModule { }

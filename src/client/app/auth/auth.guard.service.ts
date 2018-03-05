@@ -17,10 +17,13 @@ export class AuthGuardService implements CanActivate {
       roles.findIndex(r => r === 'Admin') >= 0 ||
       objects.findIndex(el => el.type === route.params.type) >= 0;
 
-    if (this.auth.userRoles.length) { return check(this.auth.userRoles, this.auth.userRoleObjects); }
+    if (this.auth.userRoles.length) {
+      return check(this.auth.userRoles, this.auth.userRoleObjects);
+    }
 
     return this.api.getUserRoles().toPromise()
       .then(data => check(data.roles, data.Objects))
       .catch(err => false);
   }
 }
+

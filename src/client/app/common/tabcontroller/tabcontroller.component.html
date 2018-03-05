@@ -1,13 +1,13 @@
 <p-tabView #tv
   [controlClose]="true" 
   [activeIndex]="(tabStore.state$ | async).selectedIndex" 
-  (onClose)="handleClose($event.index)" 
+  (onClose)="handleClose($event)" 
   (onChange)="selectedIndexChange($event.index)">
   <p-tabPanel #tp *ngFor="let tab of (tabStore.state$ | async).tabs" header="{{ tab.header | bcEllipsis:25 }}"
     [leftIcon]="tab.icon" [closable]="this.tab.docType !== 'home'">
     <ng-template pTemplate="content">
       <div class="card">
-        <dynamic-component [type]="tab.docType" [kind]="tab.docID ? 'form' :'list'"></dynamic-component>
+        <dynamic-component [type]="tab.docType" [kind]="tab.docID ? 'form' :'list'" [id]="tab.docID || ''"></dynamic-component>
       </div>
     </ng-template>
   </p-tabPanel>
