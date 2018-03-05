@@ -53,7 +53,7 @@ export class MSSQL {
 
   async tx<T>(func: (tx: MSSQL) => Promise<T>) {
     const transaction = new sql.Transaction(<any>this.pool);
-    await transaction.begin(sql.ISOLATION_LEVEL.SNAPSHOT);
+    await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
     try {
       await func(new MSSQL(null, transaction));
       await transaction.commit();

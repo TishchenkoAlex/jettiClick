@@ -16,7 +16,7 @@ export class TabControllerComponent implements OnInit {
     public tcs: TabControllerService, private ds: DocService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.cd.detectChanges();
+    setTimeout(() => this.cd.detectChanges());
 
     this.route.url.pipe(
       filter(params => this.tcs.menuItems.length > 0)).subscribe(params => this.changeTab(params));
@@ -64,5 +64,6 @@ export class TabControllerComponent implements OnInit {
 
   onChange(event) {
     this.router.navigateByUrl(this.tcs.tabs[event].routerLink, { queryParams: {} }).then(() => this.cd.detectChanges());
+    this.cd.markForCheck();
   }
 }

@@ -10,7 +10,7 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
     'Document.Invoice'
   ],
   relations: [
-    {name: 'Client invoices', type: 'Document.Invoice', field: 'Customer'}
+    { name: 'Client invoices', type: 'Document.Invoice', field: 'Customer' }
   ]
 })
 export class CatalogCounterpartie extends DocumentBase {
@@ -18,7 +18,7 @@ export class CatalogCounterpartie extends DocumentBase {
   @Props({ type: 'Catalog.Counterpartie', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
-  @Props({ type: 'string', required: true, style: {width: '50%'} })
+  @Props({ type: 'string', required: true })
   FullName: string = null;
 
   @Props({ type: 'boolean', required: true })

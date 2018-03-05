@@ -44,7 +44,7 @@ export class BaseJettiFormControl {
     this.hidden = !!options.hidden;
     this.order = options.order === undefined ? 9999999 : options.order;
     this.controlType = options.controlType;
-    this.style = options.style || { 'width': '150px'};
+    this.style = options.style || { 'width': '200px'};
     this.totals = options.totals || null;
     this.owner = options.owner;
     this.onChange = options.onChange;

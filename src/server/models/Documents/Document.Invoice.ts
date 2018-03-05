@@ -29,13 +29,19 @@ export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'Catalog.Storehouse', hiddenInList: true, required: true, order: 11 })
   Storehouse: Ref = null;
 
-  @Props({ type: 'Catalog.Counterpartie', required: true, order: 12, style: { width: '250px', 'min-width': '100%' } })
+  @Props({
+    type: 'Catalog.Counterpartie', required: true, order: 12,
+    style: { width: '250px', 'min-width': '250px', 'max-width': '250px',  }
+  })
   Customer: Ref = null;
 
-  @Props({ type: 'Catalog.Manager', order: 13 })
+  @Props({
+    type: 'Catalog.Manager', order: 13,
+    style: { width: '250px', 'min-width': '250px', 'max-width': '250px' }
+  })
   Manager: Ref = null;
 
-  @Props({ type: 'string', required: true, order: 14, style: { width: '80px' } })
+  @Props({ type: 'string', required: true, order: 14, style: { width: '80px', 'min-width': '80px', 'max-width': '80px' } })
   Status = 'PREPARED';
 
   @Props({ type: 'date', hiddenInList: true, order: 15 })
@@ -47,7 +53,7 @@ export class DocumentInvoice extends DocumentBase {
   @Props({ type: 'number', readOnly: true, order: 17 })
   Tax = 0;
 
-  @Props({ type: 'Catalog.Currency', required: true, order: 18, style: { width: '100px' } })
+  @Props({ type: 'Catalog.Currency', required: true, order: 18, style: { width: '100px', 'min-width': '100px', 'max-width': '100px' } })
   currency: Ref = null;
 
   @Props({
@@ -75,7 +81,7 @@ export class DocumentInvoiceItem {
   })
   Qty = 0;
 
-  @Props({ type: 'Catalog.PriceType', required: true, order: 5, style: { width: '120px' } })
+  @Props({ type: 'Catalog.PriceType', required: true, order: 5, style: { width: '120px', 'min-width': '120px', 'max-width': '120px' } })
   PriceType: Ref = null;
 
   @Props({
@@ -105,6 +111,6 @@ export class DocumentInvoiceComment {
   @Props({ type: 'Catalog.User' })
   User: Ref = null;
 
-  @Props({ type: 'string' })
+  @Props({ type: 'string'})
   Comment = '';
 }

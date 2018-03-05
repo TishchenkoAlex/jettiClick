@@ -20,7 +20,8 @@ export function buildColumnDef(view, settings: FormListSettings): ColumnDef[] {
     if (type === 'datetime' && !style) { style = { 'width': '130px', 'text-align': 'center' }; }
     if (type === 'date' && !style) { style = { 'width': '90px', 'text-align': 'center' }; }
     columnDef.push({
-      field: property, type: type, label: label, hidden: hidden, order: order, style: style || { 'width': '150px'},
+      field: property, type: type, label: label, hidden: hidden, order: order,
+      style: style || { 'width': '200px', 'min-width': '200px', 'max-width': '200px'},
       required: required, readOnly: readOnly, totals: totals, owner: owner,
       filter: settings.filter.find(f => f.left === property) || new FormListFilter(property),
       sort: settings.order.find(f => f.field === property) || new FormListOrder(property)
