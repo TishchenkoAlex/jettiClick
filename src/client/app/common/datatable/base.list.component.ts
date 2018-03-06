@@ -51,8 +51,10 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() pageSize = Math.floor((window.innerHeight - 275) / 24);
   @Input() docType: DocTypes = this.route.params['value'].type;
   @Input() filters: FormListFilter[] = [];
-
-  columns: ColumnDef[] = this.route.snapshot.data.detail[0] ? this.route.snapshot.data.detail[0].columnDef : [];
+  get isDoc() { return this.docType.startsWith('Document.'); }
+  get isCatalog() { return this.docType.startsWith('Catalog.'); }
+  columns = (this.route.snapshot.data.detail[0].columnsDef as ColumnDef[])
+    .filter(c => !c.hidden && !(c.field === 'description' && this.isDoc));
   metadata: DocumentOptions = this.route.snapshot.data.detail[0] ?  this.route.snapshot.data.detail[0].metadata : {};
   contexCommands: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
@@ -82,7 +84,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.data$ = this.dataSource.result$.pipe(share());
     if (!this.columns.length) {
-      this.columns = await this.ds.api.getView(this.docType).pipe(map(r => r.columnDef)).toPromise();
+      this.columns = await this.ds.api.getView(this.docType).pipe(map(r => r.columnsDef)).toPromise();
     }
 
     this.columns.forEach(c => { if (c.hidden) { c.style['display'] = 'none'; } });

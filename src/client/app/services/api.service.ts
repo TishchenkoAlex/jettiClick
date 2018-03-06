@@ -37,15 +37,17 @@ export class ApiService {
     return (this.http.post(query, body) as Observable<DocListResponse>);
   }
 
-  getView(type: string): Observable<{ view: any[], columnDef: ColumnDef[] }> {
+  getView(type: string): Observable<{ schema: { [x: string]: any }, columnsDef: ColumnDef[], metadata: { [x: string]: any } }> {
     const query = `${environment.api}view`;
-    return (this.http.post(query, {type})).pipe(
-      map(data => ({ view: data['view'], columnDef: data['columnDef'], metadata: data['prop'] })));
+    return this.http.post(query, {type}).pipe(
+      map(o => ({ schema: o['view'], columnsDef: o['columnDef'], metadata: o['prop'] })));
   }
 
-  getViewModel(type: string, id = '', queryParams: {[key: string]: any} = {}): Observable<any> {
+  getViewModel(type: string, id = '', queryParams: {[key: string]: any} = {}):
+    Observable<{ schema: any, columnsDef: ColumnDef[], metadata: { [x: string]: any }, DTO: any }> {
     const query = `${environment.api}view`;
-    return this.http.post(query, {type, id, ...queryParams});
+    return this.http.post(query, {type, id, ...queryParams}).pipe(
+      map(o => ({ schema: o['view'], columnsDef: o['columnDef'], metadata: o['prop'], DTO: o['model'] })));
   }
 
   getSuggests(docType: string, filter = '', isfolder = false) {

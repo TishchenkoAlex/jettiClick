@@ -1,4 +1,6 @@
-export interface ControlOptions {
+export type ControlTypes = 'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'table';
+
+export interface IFormControlInfo {
   value?: any;
   type?: string;
   key?: string;
@@ -6,6 +8,7 @@ export interface ControlOptions {
   required?: boolean;
   readOnly?: boolean;
   hidden?: boolean;
+  disabled?: boolean;
   order?: number;
   controlType?: string;
   style?: any;
@@ -24,6 +27,7 @@ export class FormControlInfo {
   required: boolean;
   readOnly: boolean;
   hidden: boolean;
+  disabled?: boolean;
   order: number;
   controlType: string;
   style: any;
@@ -34,7 +38,7 @@ export class FormControlInfo {
   onChange?: (doc, value) => Promise<any>;
   onChangeServer?: boolean;
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     this.value = options.value || null;
     this.type = options.type;
     this.key = options.key || '';
@@ -42,9 +46,10 @@ export class FormControlInfo {
     this.required = !!options.required;
     this.readOnly = !!options.readOnly;
     this.hidden = !!options.hidden;
+    this.disabled = !!options.disabled;
     this.order = options.order === undefined ? 9999999 : options.order;
     this.controlType = options.controlType;
-    this.style = options.style || { 'width': '200px'};
+    this.style = options.style || { 'width': '200px', 'min-width': '200px', 'max-width': '200px' };
     this.totals = options.totals || null;
     this.owner = options.owner;
     this.onChange = options.onChange;
@@ -56,40 +61,41 @@ export class FormControlInfo {
   }
 }
 
-export class TextboxJettiFormControl extends FormControlInfo {
+export class TextboxFormControl extends FormControlInfo {
   controlType = 'string';
   type = 'string';
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
   }
 }
 
-export class TextareaJettiFormControl extends FormControlInfo {
+export class TextareaFormControl extends FormControlInfo {
   controlType = 'textarea';
   type = 'string';
+  style = { 'min-width': '100%' };
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
   }
 }
 
-export class ScriptJettiFormControl extends FormControlInfo {
+export class ScriptFormControl extends FormControlInfo {
   controlType = 'script';
-  style = { 'width': '500px' };
+  style = { 'width': '500px', 'min-width': '500px', 'max-width': '500px'};
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
     if (options.style) { this.style = options.style; }
   }
 }
 
-export class BooleanJettiFormControl extends FormControlInfo {
+export class BooleanFormControl extends FormControlInfo {
   controlType = 'boolean';
   type = 'boolean';
-  style = { 'max-width': '45px', 'min-width': '24px', 'width' : '90px', 'text-align' : 'center'};
+  style = { 'min-width': '24px', 'max-width': '24px', 'width': '90px', 'text-align': 'center' };
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
     if (options.style) { this.style = options.style; }
   }
@@ -98,20 +104,20 @@ export class BooleanJettiFormControl extends FormControlInfo {
 export class DateJettiFormControl extends FormControlInfo {
   controlType = 'date';
   type = 'date';
-  style = { 'max-width' : '110px', 'width' : '110px'};
+  style = { 'min-width': '110px', 'max-width': '110px', 'width': '110px' };
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
     if (options.style) { this.style = options.style; }
   }
 }
 
-export class DateTimeJettiFormControl extends FormControlInfo {
+export class DateTimeFormControl extends FormControlInfo {
   controlType = 'datetime';
   type = 'datetime';
-  style = { 'max-width' : '135px', 'width' : '145px' };
+  style = { 'min-width': '145px', 'max-width': '145px', 'width': '145px' };
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
     if (options.style) { this.style = options.style; }
   }
@@ -121,23 +127,23 @@ export interface JettiComplexObject {
   id: string; value: string; code: string; type: string; data?: any;
 }
 
-export class AutocompleteJettiFormControl extends FormControlInfo {
+export class AutocompleteFormControl extends FormControlInfo {
   controlType = 'autocomplete';
-  style = { 'width' : '250px' };
+  style = { 'width': '250px', 'min-width': '250px', 'max-width': '250px'};
   value: JettiComplexObject = { id: null, code: null, type: this.type, value: null };
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
     if (options.style) { this.style = options.style; }
   }
 }
 
-export class NumberJettiFormControl extends FormControlInfo {
+export class NumberFormControl extends FormControlInfo {
   controlType = 'number';
   type = 'number';
-  style = { 'width': '100px', 'text-align' : 'right' };
+  style = {'min-width': '100px', 'max-width': '100px', 'width': '100px', 'text-align': 'right' };
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
     if (options.style) { this.style = options.style; }
   }
@@ -148,7 +154,7 @@ export class TableDynamicControl extends FormControlInfo {
   type = 'table';
   controls: FormControlInfo[] = [];
 
-  constructor(options: ControlOptions = {}) {
+  constructor(options: IFormControlInfo = {}) {
     super(options);
   }
 }

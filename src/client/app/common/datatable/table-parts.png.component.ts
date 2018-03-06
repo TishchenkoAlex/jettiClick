@@ -1,7 +1,6 @@
+// tslint:disable:no-output-on-prefix
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -10,46 +9,38 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { FormArray, FormGroup, FormControl } from '@angular/forms';
+import { FormArray, FormGroup } from '@angular/forms';
+import { DataTable } from 'primeng/components/datatable/datatable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
-import {
-  FormControlInfo,
-  ScriptJettiFormControl,
-  TableDynamicControl,
-} from '../../common/dynamic-form/dynamic-form-base';
+import { FormControlInfo, TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
 import { patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
 import { cloneFormGroup } from '../utils';
-import { DataTable } from 'primeng/components/datatable/datatable';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-table-part-png',
   templateUrl: './table-parts.png.component.html',
 })
-export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class TablePartsComponent implements OnInit, OnDestroy {
   private view: FormControlInfo[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
-
-  // tslint:disable-next-line:no-output-on-prefix
   @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
   @ViewChild(DataTable) dataTable: DataTable;
 
   dataSource: any[];
   columns: ColumnDef[] = [];
-  sampleRow: FormGroup;
   selection = [];
-  suggests = [];
   totalsCount = 0;
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _valueChanges$: Subscription = Subscription.EMPTY;
 
-  constructor(private api: ApiService, private ds: DocService, private cd: ChangeDetectorRef) { }
+  constructor(private api: ApiService, private ds: DocService) { }
 
   ngOnInit() {
     this.view = this.control.controls;
@@ -62,15 +53,9 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     this.view.forEach(v => v.showLabel = false);
     this.totalsCount = this.view.filter(v => v.totals > 0).length;
-    this.sampleRow = this.formGroup.controls[this.formGroup.length - 1] as FormGroup;
-    this.formGroup.removeAt(this.formGroup.length - 1);
     this.dataSource = this.formGroup.getRawValue();
     this._subscription$ = this.ds.save$.subscribe(data => this.dataSource = this.formGroup.getRawValue());
     this._valueChanges$ = this.formGroup.valueChanges.subscribe(data => this.onChange.emit(data));
-  }
-
-  ngAfterViewInit() {
-    this.cd.detectChanges();
   }
 
   getControl(i: number) {
@@ -83,15 +68,6 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
     return result;
   }
 
-  ngOnDestroy() {
-    this._subscription$.unsubscribe();
-    this._valueChanges$.unsubscribe();
-  }
-
-  private copyFormGroup(formGroup: FormGroup): FormGroup {
-    return cloneFormGroup(formGroup);
-  }
-
   private addCopy(newFormGroup) {
     newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
     this.formGroup.push(newFormGroup);
@@ -101,12 +77,12 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   add() {
-    this.addCopy(this.copyFormGroup(this.sampleRow));
+    this.addCopy(cloneFormGroup(this.formGroup['sample']));
     (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
 
   copy() {
-    const newFormGroup = this.copyFormGroup(this.formGroup.at(this.selection[0].index) as FormGroup);
+    const newFormGroup = cloneFormGroup(this.formGroup.at(this.selection[0].index) as FormGroup);
     this.addCopy(newFormGroup);
     (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
@@ -140,6 +116,11 @@ export class TablePartsComponent implements OnInit, AfterViewInit, OnDestroy {
     let result = 0;
     for (const c of <FormGroup[]>this.formGroup.controls) { result += c.controls[field].value; }
     return result;
+  }
+
+  ngOnDestroy() {
+    this._subscription$.unsubscribe();
+    this._valueChanges$.unsubscribe();
   }
 
 }

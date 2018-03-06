@@ -9,14 +9,14 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
+import { Column } from 'primeng/components/common/shared';
+import { DataTable } from 'primeng/components/datatable/datatable';
 
 import { DocumentOptions } from '../../../server/models/document';
 import { createDocument } from '../../../server/models/documents.factory';
 import { FormListFilter } from '../../../server/models/user.settings';
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { ApiService } from '../services/api.service';
-import { DataTable } from 'primeng/components/datatable/datatable';
-import { Column } from 'primeng/components/common/shared';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +28,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
   dataSource: ApiDataSource | null = null;
   private _afterViewInit = false;
 
-  @Input() pageSize = 15; @Input() docType = ''; @Input() docID = ''; @Input() filters: FormListFilter[] = [];
+  @Input() pageSize = 15; @Input() type = ''; @Input() id = ''; @Input() filters: FormListFilter[] = [];
   @Output() Select = new EventEmitter();
   @ViewChild(DataTable) dataTable: DataTable = null;
 
@@ -37,9 +37,9 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
   constructor(private apiService: ApiService, private elementRef: ElementRef) { }
 
   ngOnInit() {
-    this.isDoc = this.docType.startsWith('Document.') || this.docType.startsWith('Journal.');
-    this.dataSource = new ApiDataSource(this.apiService, this.docType, this.pageSize);
-    const doc = createDocument(this.docType as any);
+    this.isDoc = this.type.startsWith('Document.') || this.type.startsWith('Journal.');
+    this.dataSource = new ApiDataSource(this.apiService, this.type, this.pageSize);
+    const doc = createDocument(this.type as any);
     if (doc) {
       setTimeout(() => {
         const data = (doc.Prop() as DocumentOptions).dimensions || [];
@@ -54,7 +54,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.dataTable.columns.forEach(c => this.dataTable.filters[c.field] = { matchMode: '=', value: null });
       this.filters.filter(f => f.right).forEach(f => this.dataTable.filters[f.left] = { matchMode: f.center, value: f.right });
-      this.dataSource.goto(this.docID);
+      this.dataSource.goto(this.id);
       this._afterViewInit = true;
     });
   }

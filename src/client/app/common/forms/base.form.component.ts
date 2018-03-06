@@ -5,8 +5,9 @@ import { take } from 'rxjs/operators';
 
 import { AuthService } from '../../auth/auth.service';
 import { DocService } from '../../common/doc.service';
-import { ViewModel } from '../../common/dynamic-form/dynamic-form.service';
 import { TabsStore } from '../tabcontroller/tabs.store';
+import { FormGroup } from '@angular/forms';
+import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,18 +18,21 @@ export class BaseFormComponent implements OnInit {
   @Input() formTepmlate: TemplateRef<any>;
   @Input() actionTepmlate: TemplateRef<any>;
 
-  viewModel: ViewModel = this.route.snapshot.data.detail;
-  paramID = Math.random().toString();
-  paramTYPE = this.route.snapshot.params.type as string;
-  form = this.viewModel.formGroup;
+  @Input() id = Math.random().toString();
+  @Input() type = this.route.snapshot.params.type as string;
+  @Input() form: FormGroup = this.route.snapshot.data.detail;
 
-  get hasTables() { return this.viewModel.view.find(t => t.type === 'table'); }
-  get tables() { return this.viewModel.view.filter(t => t.type === 'table'); }
+  docDescription = <string>this.form['metadata'].description;
+  get v() { return <FormControlInfo[]>this.form['orderedControls']; }
+  get vk() { return <{ [key: string]: FormControlInfo }>this.form['byKeyControls']; }
+  get hasTables() { return !!(<FormControlInfo[]>this.form['orderedControls']).find(t => t.type === 'table'); }
+  get tables() { return (<FormControlInfo[]>this.form['orderedControls']).filter(t => t.type === 'table'); }
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService, private auth: AuthService, public tabStore: TabsStore) { }
 
   ngOnInit() {
+    console.log(this.form);
     this.auth.userProfile$.pipe(take(1)).subscribe();
   }
 
@@ -37,20 +41,20 @@ export class BaseFormComponent implements OnInit {
   }
 
   Close() {
-    if (this.viewModel.formGroup.pristine) { this._close(); return; }
+    if (this.form.pristine) { this._close(); return; }
     this.ds.confirmationService.confirm({
       message: 'Discard changes and close?',
       header: 'Confirmation',
       icon: 'fa fa-question-circle',
       accept: this._close.bind(this),
-      key: this.paramID
+      key: this.id
     });
     this.cd.detectChanges();
   }
 
   async Execute(): Promise<any> {
     const user = this.auth.userProfile;
-    const data = this.viewModel.formGroup.value;
+    const data = this.form.value;
     return await this.ds.api.jobAdd({
       job: { id: 'post', description: '(job) post Invoives' },
       userId: user ? user.account.email : null,

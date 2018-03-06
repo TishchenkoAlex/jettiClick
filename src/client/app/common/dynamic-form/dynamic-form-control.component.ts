@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 
 import { ApiService } from '../../services/api.service';
@@ -10,13 +10,20 @@ import { FormControlInfo } from './dynamic-form-base';
   selector: 'j-control',
   templateUrl: './dynamic-form-control.component.html'
 })
-export class DynamicFormControlComponent {
+export class DynamicFormControlComponent implements OnInit {
   @Input() control: FormControlInfo;
   @Input() form: FormGroup;
-  get getControls(): FormArray { return this.form.get(this.control.key) as FormArray; }
+  floatLabel = 'auto';
+  description = '';
+
   locale = calendarLocale; dateFormat = dateFormat;
 
   constructor(public api: ApiService) { }
+
+  ngOnInit() {
+    this.floatLabel = this.control.showLabel ? 'auto' : 'never';
+    this.description = this.form['metadata'] ? this.form['metadata'].description : '';
+  }
 
   onChange(event: Event) {
     if (this.control.onChange) {

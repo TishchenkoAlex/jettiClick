@@ -35,11 +35,10 @@ export class TabControllerComponent {
 
     this.route.data.pipe(filter(data => data.detail))
       .subscribe(data => {
-        if (data.detail.formGroup instanceof FormGroup) {
-          const doc = data.detail.formGroup.getRawValue() as INoSqlDocument;
+        if (data.detail instanceof FormGroup) {
+          const doc = data.detail.getRawValue() as INoSqlDocument;
           const tab = tabStore.state.tabs.find(i => (i.routerLink === this.router.url));
           if (tab) {
-            console.log(data.detail);
             tab.header = doc.description || tab.docType;
             tabStore.replace(tab);
           }

@@ -9,12 +9,12 @@
         <button pButton type="button" id="add" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
         <button pButton type="button" id="open" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="dataTable?.selection?.length == 1" (click)="open()"></button>
         <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="dataTable?.selection?.length == 1" (click)="copy()"></button>
-        <span *ngIf="docModel?.isDoc">
+        <span *ngIf="isDoc">
           <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="dataTable?.selection?.length >=1 && !dataTable?.selection[0].posted" (click)="post()"></button>
           <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="dataTable?.selection?.length >=1 && dataTable?.selection[0].posted" (click)="post('unpost')"></button>
         </span>
         <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="dataTable?.selection?.length" (click)="delete()"></button>
-        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="docModel?.isCatalog" (click)="showTree = !showTree"></button>
+        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree"></button>
       </div>
       <div class="ui-toolbar-group-right">
         <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first"></button>
