@@ -1,12 +1,11 @@
-import { ChangeDetectionStrategy, Component, ViewChild, QueryList, ContentChildren, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, QueryList, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 import { INoSqlDocument } from '../../../../server/models/ServerDocument';
-import { TabDef, TabsStore } from './tabs.store';
 import { DynamicComponent } from '../dynamic-component/dynamic-component';
-import { BaseDocListComponent } from '../datatable/base.list.component';
+import { TabDef, TabsStore } from './tabs.store';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,35 +15,34 @@ import { BaseDocListComponent } from '../datatable/base.list.component';
 export class TabControllerComponent {
   @ViewChildren(DynamicComponent) components: QueryList<DynamicComponent>;
 
-  constructor(private router: Router, private route: ActivatedRoute, public tabStore: TabsStore) {
+  constructor(private router: Router, private route: ActivatedRoute, public tabStore: TabsStore, private cd: ChangeDetectorRef) {
+
     this.route.params
       .subscribe(params => {
-        const type = params.type || '';
-        const id = params.id || '';
-        const index = tabStore.state.tabs.findIndex(el => el.routerLink === this.router.url);
+        const index = tabStore.state.tabs.findIndex(el => el.docType === params.type && el.docID === (params.id || ''));
         if (index > -1) {
-          this.tabStore.selectedIndex = index;
+          setTimeout(() => this.tabStore.selectedIndex = index);
         } else {
           const newLink: TabDef = {
-            docType: type, docID: id, icon: 'list', routerLink: this.router.url, header: type
+            docType: params.type, docID: (params.id || ''), icon: 'list', routerLink: this.router.url, header: params.type
           };
           tabStore.push(newLink);
+          setTimeout(() => this.tabStore.selectedIndex = this.tabStore.selectedIndex);
         }
-        setTimeout(() => { this.tabStore.selectedIndex = this.tabStore.selectedIndex; });
       });
 
     this.route.data.pipe(filter(data => data.detail))
       .subscribe(data => {
         if (data.detail instanceof FormGroup) {
           const doc = data.detail.getRawValue() as INoSqlDocument;
-          const tab = tabStore.state.tabs.find(i => (i.routerLink === this.router.url));
+          const tab = tabStore.state.tabs.find(i => (i.docType === doc.type && i.docID === doc.id));
           if (tab) {
             tab.header = doc.description || tab.docType;
             tabStore.replace(tab);
           }
         } else {
           if (data.detail instanceof Array) {
-            const tab = tabStore.state.tabs.find(i => (i.docType === data.detail[0].metadata.type) && (i.docID === ''));
+            const tab = tabStore.state.tabs.find(i => (i.docType === data.detail[0].metadata.type) && !i.docID);
             if (tab) {
               tab.header = data.detail[0].metadata.menu;
               tabStore.replace(tab);
@@ -54,21 +52,20 @@ export class TabControllerComponent {
       });
   }
 
-  selectedIndexChange(event: number) {
-    const tab = this.tabStore.state.tabs[event];
-    this.router.navigateByUrl(tab.routerLink)
-      .then(() => this.tabStore.selectedIndex = this.tabStore.selectedIndex);
+  selectedIndexChange(event) {
+    event.originalEvent.stopPropagation();
+    this.router.navigateByUrl(this.tabStore.state.tabs[event.index].routerLink);
   }
 
   handleClose(event) {
     event.originalEvent.stopPropagation();
     const tab = this.tabStore.state.tabs[event.index];
-    const component = this.components.find(e => e.type === tab.docType && e.id === tab.docID && e.kind === 'form');
+    const component = this.components.find(e => e.id === tab.docID);
     if (component && component.componentRef.instance.Close) {
-      component.componentRef.instance.Close();
+      return component.componentRef.instance.Close();
     } else {
       this.tabStore.close(tab);
+      this.router.navigateByUrl(this.tabStore.state.tabs[this.tabStore.state.selectedIndex].routerLink);
     }
-    this.selectedIndexChange(this.tabStore.state.selectedIndex);
   }
 }

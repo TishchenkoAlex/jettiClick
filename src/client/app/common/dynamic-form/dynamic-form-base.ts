@@ -93,7 +93,7 @@ export class ScriptFormControl extends FormControlInfo {
 export class BooleanFormControl extends FormControlInfo {
   controlType = 'boolean';
   type = 'boolean';
-  style = { 'min-width': '24px', 'max-width': '24px', 'width': '90px', 'text-align': 'center' };
+  style = { 'min-width': '24px', 'max-width': '24px', 'width': '90px', 'text-align': 'center', 'margin-top' : '26px' };
 
   constructor(options: IFormControlInfo = {}) {
     super(options);

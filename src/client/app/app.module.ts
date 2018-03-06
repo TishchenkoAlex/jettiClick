@@ -12,6 +12,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { NgDragDropModule } from 'ng-drag-drop';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
+import { take } from 'rxjs/operators';
 
 import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
@@ -29,7 +30,6 @@ import { ApiService } from './services/api.service';
 import { EventsService } from './services/events.service';
 import { reducers } from './store/reducers';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
-import { take } from 'rxjs/operators';
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token');

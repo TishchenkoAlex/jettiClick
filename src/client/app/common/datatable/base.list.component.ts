@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -38,10 +39,12 @@ import { LoadingService } from './../../common/loading.service';
 export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private tabStore: TabsStore,
-    public uss: UserSettingsService, public lds: LoadingService, private cd: ChangeDetectorRef) { }
+    public uss: UserSettingsService, public lds: LoadingService, private cd: ChangeDetectorRef, private location: Location) { }
 
   locale = calendarLocale; dateFormat = dateFormat;
   private _docSubscription$: Subscription = Subscription.EMPTY;
+  private _routeSubscruption$: Subscription = Subscription.EMPTY;
+  url = this.router.url;
 
   private AfterViewInit = false;
   private _debonce = new Subject<{ col: any, event: any, center: string }>();
@@ -55,7 +58,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   get isCatalog() { return this.docType.startsWith('Catalog.'); }
   columns = (this.route.snapshot.data.detail[0].columnsDef as ColumnDef[])
     .filter(c => !c.hidden && !(c.field === 'description' && this.isDoc));
-  metadata: DocumentOptions = this.route.snapshot.data.detail[0] ?  this.route.snapshot.data.detail[0].metadata : {};
+  metadata: DocumentOptions = this.route.snapshot.data.detail[0] ? this.route.snapshot.data.detail[0].metadata : {};
   contexCommands: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
   showTree = false;
@@ -113,19 +116,26 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       })];
 
       // обработка команды найти в списке
-      const id = this.route.snapshot.queryParams.goto;
-      if (id) {
-        if (!this.filters.length) {
-          this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: null });
-        }
-        this.dataSource.goto(id);
-        this.router.navigate([this.docType], { queryParams: {}, replaceUrl: true });
-      } else {
-        if (!this.filters.length) {
-          this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
-        }
-        this.dataSource.first();
+      this._routeSubscruption$ = this.route.queryParams.pipe(
+        filter(params => this.route.snapshot.params.type === this.docType && params.goto && !this.route.snapshot.params.id))
+        .subscribe(params => {
+          const exist = this.dataSource.renderedData.find(d => d.id === params.goto);
+          if (exist) {
+            this.dataSource.dataTable.selection = [exist];
+            setTimeout(() => { this.dataSource.dataTable.selection = [exist]; this.cd.detectChanges(); });
+          } else {
+            if (!this.filters.length) {
+              this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: null });
+            }
+            this.router.navigate([this.docType], { replaceUrl: true })
+              .then(() => this.dataSource.goto(params.goto));
+          }
+        });
+
+      if (!this.filters.length) {
+        this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
       }
+      this.dataSource.first();
       this.AfterViewInit = true;
       this.cd.detectChanges();
     });
@@ -146,7 +156,8 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   close() {
-    this.tabStore.close(this.tabStore.state.tabs[this.tabStore.selectedIndex]);
+    this.tabStore.close(this.tabStore.state.tabs.find(t => t.routerLink === this.url));
+    this.router.navigateByUrl(this.tabStore.state.tabs[this.tabStore.state.selectedIndex].routerLink);
   }
 
   add() {
@@ -214,6 +225,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
     this._debonce.unsubscribe();
+    this._routeSubscruption$.unsubscribe();
     if (!this.route.queryParams['value'].goto && !this.filters.length) { this.saveUserSettings(); }
   }
 

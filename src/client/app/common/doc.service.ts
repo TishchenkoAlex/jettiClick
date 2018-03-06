@@ -1,23 +1,37 @@
 import { Injectable } from '@angular/core';
+import { ConfirmationService } from 'primeng/components/common/confirmationservice';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { take, skip } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { ApiService } from '../services/api.service';
 import { DocumentBase } from './../../../server/models/document';
-import { ConfirmationService } from 'primeng/components/common/confirmationservice';
 
 @Injectable()
 export class DocService {
 
-  save$ = new Subject<DocumentBase>();
-  post$ = new Subject<boolean>();
-  unpost$ = new Subject<boolean>();
-  delete$ = new Subject<DocumentBase>();
-  close$ = new Subject<{url: string, skip?: boolean}>();
-  saveClose$ = new Subject<DocumentBase>();
-  goto$ = new Subject<DocumentBase>();
-  do$ = new Subject<DocumentBase>();
+  private readonly _save$ = new Subject<DocumentBase>();
+  save$ = this._save$.asObservable();
+
+  private readonly _post$ = new Subject<boolean>();
+  post$ = this._post$.asObservable();
+
+  private readonly _unpost$ = new Subject<boolean>();
+  unpost$ = this._unpost$.asObservable();
+
+  private readonly _delete$ = new Subject<DocumentBase>();
+  delete$ = this._delete$.asObservable();
+
+  private readonly _close$ = new Subject<{url: string, skip?: boolean}>();
+  close$ = this._close$.asObservable();
+
+  private readonly _saveClose$ = new Subject<DocumentBase>();
+  saveClose$ = this._saveClose$.asObservable();
+
+  private readonly _goto$ = new Subject<DocumentBase>();
+  goto$ = this._goto$.asObservable();
+
+  private readonly _do$ = new Subject<DocumentBase>();
+  do$ = this._do$.asObservable();
 
   constructor(public api: ApiService, private messageService: MessageService, public confirmationService: ConfirmationService) { }
 
@@ -25,7 +39,7 @@ export class DocService {
     return this.api.postDoc(doc).toPromise()
       .then(savedDoc => {
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
-        const subject$ = close ?  this.saveClose$ : this.save$;
+        const subject$ = close ?  this._saveClose$ : this._save$;
         subject$.next(savedDoc);
       });
   }
@@ -33,19 +47,23 @@ export class DocService {
   delete(id: string) {
     return this.api.deleteDoc(id).toPromise()
       .then(deletedDoc => {
-        this.delete$.next(deletedDoc);
+        this._delete$.next(deletedDoc);
         this.openSnackBar('success', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
       });
   }
 
   post(id: string) {
     return this.api.postDocById(id).toPromise()
-      .then(result => this.post$.next(result));
+      .then(result => this._post$.next(result));
   }
 
   unpost(id: string) {
     return this.api.unpostDocById(id).toPromise()
-      .then(result => this.unpost$.next(result));
+      .then(result => this._unpost$.next(result));
+  }
+
+  close(url: string, skip = false) {
+    this._close$.next({url, skip});
   }
 
   openSnackBar(severity: string, message: string, detail: string) {

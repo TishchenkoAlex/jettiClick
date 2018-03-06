@@ -1,8 +1,8 @@
-import { OnInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { SelectItem } from 'primeng/components/common/selectitem';
 import { filter, take } from 'rxjs/operators';
 
 import { BaseDocListComponent } from './../../common/datatable/base.list.component';
-import { SelectItem } from 'primeng/components/common/selectitem';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

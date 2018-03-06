@@ -3,7 +3,7 @@ import { Injectable, isDevMode } from '@angular/core';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { tap, map, filter } from 'rxjs/operators';
+import { filter, map, tap } from 'rxjs/operators';
 import { shareReplay } from 'rxjs/operators/shareReplay';
 
 import { IAccount, ILoginResponse } from '../../../server/models/api';

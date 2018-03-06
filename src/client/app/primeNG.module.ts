@@ -21,11 +21,11 @@ import { ProgressSpinnerModule } from 'primeng/components/progressspinner/progre
 import { SelectButtonModule } from 'primeng/components/selectbutton/selectbutton';
 import { SpinnerModule } from 'primeng/components/spinner/spinner';
 import { SplitButtonModule } from 'primeng/components/splitbutton/splitbutton';
+import { TableModule } from 'primeng/components/table/table';
+import { TabViewModule } from 'primeng/components/tabview/tabview';
 import { ToolbarModule } from 'primeng/components/toolbar/toolbar';
 import { TooltipModule } from 'primeng/components/tooltip/tooltip';
 import { TreeTableModule } from 'primeng/components/treetable/treetable';
-import { TabViewModule } from 'primeng/components/tabview/tabview';
-import { TableModule } from 'primeng/components/table/table';
 import { TriStateCheckboxModule } from 'primeng/components/tristatecheckbox/tristatecheckbox';
 
 // import { TableModule } from './common/datatable/table';
@@ -75,7 +75,7 @@ import { TriStateCheckboxModule } from 'primeng/components/tristatecheckbox/tris
     // DragDropModule,
     ProgressBarModule,
     ProgressSpinnerModule,
-    //  MultiSelectModule,
+    // MultiSelectModule,
     // InplaceModule,
     // BlockUIModule,
 

@@ -4,13 +4,13 @@ import {
   ChangeDetectorRef,
   Component,
   ComponentFactoryResolver,
+  ComponentRef,
   Directive,
   Input,
   OnInit,
   Type,
   ViewChild,
   ViewContainerRef,
-  ComponentRef,
 } from '@angular/core';
 
 import { getFormComponent, getListComponent } from '../../UI/userForms';

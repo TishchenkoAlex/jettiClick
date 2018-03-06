@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { take, throttleTime } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
 import * as socketIOClient from 'socket.io-client';
 
 import { IJob, IJobs } from '../../../server/models/api';

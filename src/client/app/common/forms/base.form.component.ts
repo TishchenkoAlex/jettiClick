@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, TemplateRef } from '@angular/core';
 import { ObservableMedia } from '@angular/flex-layout';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 
 import { AuthService } from '../../auth/auth.service';
 import { DocService } from '../../common/doc.service';
-import { TabsStore } from '../tabcontroller/tabs.store';
-import { FormGroup } from '@angular/forms';
 import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
+import { TabsStore } from '../tabcontroller/tabs.store';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

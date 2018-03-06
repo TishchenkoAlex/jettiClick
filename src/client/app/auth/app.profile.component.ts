@@ -1,6 +1,6 @@
 import { animate, Component, Input, state, style, transition, trigger } from '@angular/core';
+
 import { AuthService } from '../auth/auth.service';
-import { take } from 'rxjs/operators/take';
 
 @Component({
   selector: 'app-inline-profile',

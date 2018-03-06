@@ -3,7 +3,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { Observable } from 'rxjs/Observable';
-import { map, filter } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { getRoleObjects } from '../../server/models/Roles/Base';
 import { SubSystemsMenu } from './../../server/models/SubSystems/SubSystems';

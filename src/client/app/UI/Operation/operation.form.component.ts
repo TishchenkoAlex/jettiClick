@@ -1,9 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import { BaseDocFormComponent } from '../../common/form/base.form.component';
 import { getFormGroup } from '../../common/dynamic-form/dynamic-form.service';
+import { BaseDocFormComponent } from '../../common/form/base.form.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

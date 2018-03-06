@@ -1,14 +1,13 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { TreeNode } from 'primeng/components/common/treenode';
 import { Observable } from 'rxjs/Observable';
-import { map, share, take, tap } from 'rxjs/operators';
+import { map, share, tap } from 'rxjs/operators';
 
 import { ITree } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
-import { ApiService } from '../../services/api.service';
-import { Router } from '@angular/router';
 import { DocService } from '../../common/doc.service';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

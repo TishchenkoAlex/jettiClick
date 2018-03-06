@@ -41,7 +41,7 @@
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
-  <div *ngSwitchCase="'boolean'">
+  <div *ngSwitchCase="'boolean'" style="margin-top: 27px">
     <p-triStateCheckbox #pc *ngSwitchCase="'boolean'" [label]="control.showLabel ? control.label: ''" [formControlName]="control.key"
       (change)="onChange($event)"></p-triStateCheckbox>
   </div>

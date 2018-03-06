@@ -46,8 +46,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   get isFolder() { return (!!this.form.get('isfolder').value); }
 
   private _subscription$: Subscription = Subscription.EMPTY;
-  private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
+  private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService, public location: Location, public tabStore: TabsStore) { }
@@ -56,7 +56,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     this._subscription$ = merge(...[
       this.ds.save$,
       this.ds.delete$]).pipe(
-        filter(doc => (doc.id === this.model.id) && (doc.isfolder !== true)))
+        filter(doc => (doc.id === this.id) && (doc.isfolder !== true)))
       .subscribe(doc => {
         this.form.patchValue(doc, { emitEvent: false });
         if (this.isDoc) { this.showDescription(); }
@@ -64,8 +64,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
         this.cd.detectChanges();
       });
 
-    this.ds.saveClose$.pipe(
-      filter(doc => doc.id === this.model.id))
+    this._saveCloseSubscription$ = this.ds.saveClose$.pipe(
+      filter(doc => doc.id === this.id))
       .subscribe(doc => {
         this.form.markAsPristine();
         this.Close();
@@ -98,12 +98,20 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   PostClose() { const doc = this.model; doc.posted = true; this.Save(doc, true); }
 
   Goto() {
-    return this.router.navigate([this.model.type], { queryParams: { goto: this.model.id }, replaceUrl: true })
-      .then(() => this.ds.goto$.next(this.model));
+    return this.router.navigate([this.model.type], { queryParams: { goto: this  .id }, replaceUrl: true });
   }
 
   private _close() {
-    this.tabStore.close(this.tabStore.state.tabs[this.tabStore.selectedIndex]);
+    const tab = this.tabStore.state.tabs.find(t => t.docID === this.id);
+    if (tab) {
+      this.tabStore.close(tab);
+      const parentTab = this.tabStore.state.tabs.find(t => t.docType === this.type && !t.docID);
+      if (parentTab) {
+        this.router.navigate([parentTab.routerLink]);
+      } else {
+        this.router.navigate([this.tabStore.state.tabs[this.tabStore.selectedIndex].routerLink]);
+      }
+    }
   }
 
   Close() {
@@ -132,8 +140,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._subscription$.unsubscribe();
-    this._saveCloseSubscription$.unsubscribe();
     this._descriptionSubscription$.unsubscribe();
+    this._saveCloseSubscription$.unsubscribe();
   }
 
 }

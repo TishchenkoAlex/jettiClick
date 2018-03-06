@@ -1,13 +1,10 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { take } from 'rxjs/operators';
 
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
 import { ApiService } from './services/api.service';
 import * as fromRoot from './store/reducers';
-import * as Auth from './auth/store/actions';
-import * as UI from './UI/store/actions';
 
 enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
 

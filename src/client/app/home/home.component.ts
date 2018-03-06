@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-
-import { EventsService } from './../services/events.service';
-import { AuthService } from '../auth/auth.service';
 import { take } from 'rxjs/operators';
+
+import { AuthService } from '../auth/auth.service';
+import { EventsService } from './../services/events.service';
 
 @Component({
   selector: 'app-home',

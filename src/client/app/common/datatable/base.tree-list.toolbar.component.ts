@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { MenuItem } from 'primeng/components/common/menuitem';
+import { TreeNode } from 'primeng/components/common/treenode';
 
 import { BaseTreeListComponent } from '../../common/datatable/base.tree-list.component';
-import { TreeNode } from 'primeng/components/common/treenode';
-import { MenuItem } from 'primeng/components/common/menuitem';
 
 // tslint:disable:max-line-length
 @Component({
