@@ -1,24 +1,14 @@
 // tslint:disable:no-output-on-prefix
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { DataTable } from 'primeng/components/datatable/datatable';
+import { Table } from 'primeng/components/table/table';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
-import { FormControlInfo, TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
-import { patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
+import { TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
+import { cloneFormGroup, patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
-import { cloneFormGroup } from '../utils';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,16 +16,14 @@ import { cloneFormGroup } from '../utils';
   templateUrl: './table-parts.png.component.html',
 })
 export class TablePartsComponent implements OnInit, OnDestroy {
-  private view: FormControlInfo[];
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
-  @Output() onChange: EventEmitter<any> = new EventEmitter<any>();
-  @ViewChild(DataTable) dataTable: DataTable;
+  @ViewChild(Table) dataTable: Table;
 
   dataSource: any[];
   columns: ColumnDef[] = [];
   selection = [];
-  totalsCount = 0;
+  totalsCount = false;
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _valueChanges$: Subscription = Subscription.EMPTY;
@@ -43,78 +31,74 @@ export class TablePartsComponent implements OnInit, OnDestroy {
   constructor(private api: ApiService, private ds: DocService) { }
 
   ngOnInit() {
-    this.view = this.control.controls;
-    this.columns = this.view.map((el) => {
+    this.columns = this.control.controls.map((el) => {
       const result: ColumnDef = {
         field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, onChange: el.onChange, onChangeServer: el.onChangeServer,
         order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, data: el
       };
       return result;
     });
-    this.view.forEach(v => v.showLabel = false);
-    this.totalsCount = this.view.filter(v => v.totals > 0).length;
+    this.control.controls.forEach(v => v.showLabel = false);
+    this.totalsCount = this.control.controls.filter(v => v.totals > 0).length > 0;
     this.dataSource = this.formGroup.getRawValue();
     this._subscription$ = this.ds.save$.subscribe(data => this.dataSource = this.formGroup.getRawValue());
-    this._valueChanges$ = this.formGroup.valueChanges.subscribe(data => this.onChange.emit(data));
   }
 
   getControl(i: number) {
-    return this.formGroup.controls[i] as FormGroup;
+    return this.formGroup.at(i) as FormGroup;
   }
 
   getControlValue(index: number, field: string) {
-    const value = this.getControl(index).controls[field].value;
+    const value = this.getControl(index).get(field).value;
     const result = value && (value.value || typeof value === 'object' ? value.value || '' : value || '');
     return result;
   }
 
-  private addCopy(newFormGroup) {
+  private addCopy(newFormGroup: FormGroup) {
     newFormGroup.controls['index'].setValue(this.formGroup.length, patchOptionsNoEvents);
     this.formGroup.push(newFormGroup);
-    this.dataSource = this.formGroup.getRawValue();
+    this.dataSource.push(newFormGroup.getRawValue());
     this.selection = [newFormGroup.getRawValue()];
-    this.onChange.emit(this.selection[0]);
   }
 
   add() {
-    this.addCopy(cloneFormGroup(this.formGroup['sample']));
-    (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
+    const newFormGroup = cloneFormGroup(this.formGroup['sample']);
+    Object.values(newFormGroup.controls).forEach(c => { if (c.validator) { c.setErrors({ 'required': true }, { emitEvent: false }); } });
+    this.addCopy(newFormGroup);
+    // (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
 
   copy() {
     const newFormGroup = cloneFormGroup(this.formGroup.at(this.selection[0].index) as FormGroup);
     this.addCopy(newFormGroup);
-    (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
+    // (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
 
   delete() {
-    const index = this.selection[0].index;
     for (const element of this.selection) {
       const rowIndex = this.formGroup.controls.findIndex((el: FormGroup) => el.controls['index'].value === element.index);
-      this.onChange.emit((this.formGroup.at(rowIndex) as FormGroup).getRawValue());
       this.formGroup.removeAt(rowIndex);
     }
     for (let i = 0; i < this.formGroup.length; i++) { this.formGroup.get([i]).get('index').patchValue(i, { emitEvent: false }); }
     this.dataSource = this.formGroup.getRawValue();
+    const index = this.selection[0].index;
     const selectRow = this.dataSource[index] || this.dataSource[index - 1];
     this.selection = selectRow ? [selectRow] : [];
   }
 
   onEditComplete(event) {
-    console.log('onEditComplete', event);
   }
 
-  onEdit(event) {
-    console.log('onEdit', event);
+  onEditInit(event) {
   }
 
   onEditCancel(event) {
-    console.log('onEditCancel', event);
   }
 
   calcTotals(field: string): number {
     let result = 0;
-    for (const c of <FormGroup[]>this.formGroup.controls) { result += c.controls[field].value; }
+    const data = this.formGroup.value as any[];
+    (this.formGroup.value as any[]).forEach(r => result += r[field]);
     return result;
   }
 

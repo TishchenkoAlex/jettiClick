@@ -3,19 +3,6 @@ import * as moment from 'moment';
 
 import { dateReviver } from './../../../server/fuctions/dateReviver';
 
-export function cloneFormGroup(formGroup: FormGroup): FormGroup {
-  const newFormGroup = new FormGroup({});
-  Object.keys(formGroup.controls).forEach(key => {
-    const sourceFormControl = formGroup.controls[key];
-    const newValue = JSON.parse(JSON.stringify(sourceFormControl.value), dateReviver);
-    const newFormControl = sourceFormControl.validator ?
-      new FormControl(newValue, Validators.required) :
-      new FormControl(newValue);
-    newFormGroup.registerControl(key, newFormControl);
-  });
-  return newFormGroup;
-}
-
 export function getPeriod(value: string): { startDate: Date, endDate: Date } {
   switch (value) {
     case 'td': {

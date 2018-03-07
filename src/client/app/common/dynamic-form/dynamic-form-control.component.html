@@ -2,31 +2,31 @@
   class="ui-fluid">
   <div *ngSwitchCase="'string'" [ngClass]="{'ui-float-label' : control.showLabel}">
     <input #pc [required]="control.required" pInputText [formControlName]="control.key" [readOnly]="control.readOnly" autocomplete="off"
-      (change)="onChange($event)" (focus)="$event.target.select()">
+      (focus)="$event.target.select()">
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <div *ngSwitchCase="'textarea'" [ngClass]="{'ui-float-label' : control.showLabel}">
     <textarea #pc [required]="control.required" pInputTextarea [formControlName]="control.key" [readOnly]="control.readOnly"
-      (change)="onChange($event)" (focus)="$event.target.select()">
+      (focus)="$event.target.select()">
     </textarea>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <div *ngSwitchCase="'number'" [ngClass]="{'ui-float-label' : control.showLabel}">
     <input #pc [required]="control.required" pInputText type="number" [formControlName]="control.key" [readOnly]="control.readOnly"
-      autocomplete="off" (change)="onChange($event)" (focus)="$event.target.select()">
+      autocomplete="off" (focus)="$event.target.select()">
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <j-autocomplete-png #pc *ngSwitchCase="'autocomplete'" [required]="control.required" [formControl]="form.controls[control.key]"
-    [id]="control.key" [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type" (change)="onChange($event)"
+    [id]="control.key" [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type"
     [owner]="{owner: control.owner, value: form.root.get(control.owner?.dependsOn)?.value}" 
     [showLabel]="control.showLabel" (focus)="pc.select()">
   </j-autocomplete-png>
 
   <div *ngSwitchCase="'date'" [ngClass]="{'ui-float-label' : control.showLabel}">
-    <p-calendar #pc [required]="control.required" [formControlName]="control.key" showButtonBar="true" autocomplete="off" (change)="onChange($event)"
+    <p-calendar #pc [required]="control.required" [formControlName]="control.key" showButtonBar="true" autocomplete="off" 
       [showIcon]="true" [showOnFocus]="false" [locale]="locale" [dateFormat]="dateFormat" [utc]="true" (onSelect)="pc.overlayVisible=false"
       appendTo="body" (onFocus)="$event.target.select()">
     </p-calendar>
@@ -35,26 +35,25 @@
 
   <div *ngSwitchCase="'datetime'" [ngClass]="{'ui-float-label' : control.showLabel}">
     <p-calendar #pc [required]="control.required" [formControlName]="control.key" showTime="true" showButtonBar="true" autocomplete="off"
-      (change)="onChange($event)" [showIcon]="true" [dateFormat]="dateFormat" [utc]="true" [locale]="locale" (onSelect)="pc.overlayVisible=false"
+      [showIcon]="true" [dateFormat]="dateFormat" [utc]="true" [locale]="locale" (onSelect)="pc.overlayVisible=false"
       [showOnFocus]="false" appendTo="body" (onFocus)="$event.target.select()">
     </p-calendar>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <div *ngSwitchCase="'boolean'" style="margin-top: 27px">
-    <p-triStateCheckbox #pc *ngSwitchCase="'boolean'" [label]="control.showLabel ? control.label: ''" [formControlName]="control.key"
-      (change)="onChange($event)"></p-triStateCheckbox>
+    <p-triStateCheckbox #pc *ngSwitchCase="'boolean'" [label]="control.showLabel ? control.label: ''" [formControlName]="control.key"></p-triStateCheckbox>
   </div>
 
   <div *ngSwitchCase="'table'">
     <div [formArrayName]="control.key">
-      <j-table-part-png [formGroup]="form.controls[control.key]" [control]="control" (onChange)="onChange($event)"></j-table-part-png>
+      <j-table-part-png [formGroup]="form.controls[control.key]" [control]="control"></j-table-part-png>
     </div>
   </div>
 
   <div *ngSwitchCase="'script'">
     <label #pc *ngIf="control.showLabel" [for]="control.key">{{ control.label }}:</label>
-    <ngx-monaco-editor [options]="{language: control.type}" [ngStyle]="control.style" (change)="onChange($event)" [formControlName]="control.key">
+    <ngx-monaco-editor [options]="{language: control.type}" [ngStyle]="control.style" [formControlName]="control.key">
     </ngx-monaco-editor>
   </div>
 
