@@ -24,6 +24,7 @@ import { AutoComplete } from 'primeng/components/autocomplete/autocomplete';
 import { take } from 'rxjs/operators';
 
 import { ISuggest } from '../../../../server/models/api';
+import { FormListSettings } from '../../../../server/models/user.settings';
 import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
@@ -74,7 +75,6 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   });
   suggest = this.form.controls['suggest'] as FormControl;
   suggests$: ISuggest[] = [];
-
 
   private NO_EVENT = false;
   showDialog = false;
@@ -149,9 +149,9 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   }
 
   calcFilters() {
-    const result = [];
+    const result = new FormListSettings();
     if (this.owner && this.owner.owner && this.owner.owner.filterBy) {
-      result.push({ left: this.owner.owner.filterBy, center: '=', right: this.owner.value });
+      result.filter.push({ left: this.owner.owner.filterBy, center: '=', right: this.owner.value });
     }
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
     return result;

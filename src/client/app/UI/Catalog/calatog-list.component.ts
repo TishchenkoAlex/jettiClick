@@ -10,7 +10,7 @@ export class CatalogListComponent implements OnInit {
   @ViewChild('list') super: BaseDocListComponent;
 
   ngOnInit() {
-    this.super.ds.api.tree(this.super.docType);
+    this.super.ds.api.tree(this.super.type);
   }
 
 }

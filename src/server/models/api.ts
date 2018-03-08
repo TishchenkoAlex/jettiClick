@@ -1,8 +1,9 @@
-import { FormListFilter, FormListOrder } from './user.settings';
-import { DocumentBase, Ref } from './../models/document';
 import * as Queue from 'bull';
+
 import { AllTypes } from '../models/documents.types';
+import { Ref } from './../models/document';
 import { RoleType } from './Roles/Base';
+import { FormListFilter, FormListOrder } from './user.settings';
 
 export interface DocListRequestBody {
   id: string; type: string; command: string; count: number; offset: number;

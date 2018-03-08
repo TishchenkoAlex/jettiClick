@@ -8,7 +8,6 @@ import { ConfirmationService } from 'primeng/components/common/confirmationservi
 import { MessageService } from 'primeng/components/common/messageservice';
 import { ConfirmDialogModule } from 'primeng/components/confirmdialog/confirmdialog';
 import { ContextMenuModule } from 'primeng/components/contextmenu/contextmenu';
-import { DataTableModule } from 'primeng/components/datatable/datatable';
 import { DialogModule } from 'primeng/components/dialog/dialog';
 import { FieldsetModule } from 'primeng/components/fieldset/fieldset';
 import { GrowlModule } from 'primeng/components/growl/growl';
@@ -33,7 +32,7 @@ import { TriStateCheckboxModule } from 'primeng/components/tristatecheckbox/tris
 @NgModule({
   exports: [
     // SharedModule,
-    DataTableModule,
+    // DataTableModule,
     AutoCompleteModule,
     CalendarModule,
     ButtonModule,

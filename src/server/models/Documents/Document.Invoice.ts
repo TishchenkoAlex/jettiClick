@@ -7,7 +7,8 @@ import { stdDocumentListCommands } from '../commands';
   description: 'Invoice',
   dimensions: [
     { Customer: 'Catalog.Counterpartie' },
-    { Manager: 'Catalog.Manager' }
+    { Manager: 'Catalog.Manager' },
+    { Amount: 'number'},
   ],
   icon: 'fa fa-file-text-o',
   menu: 'Invoices',

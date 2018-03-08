@@ -41,10 +41,10 @@ export class TabControllerComponent {
             tabStore.replace(tab);
           }
         } else {
-          if (data.detail instanceof Array) {
-            const tab = tabStore.state.tabs.find(i => (i.docType === data.detail[0].metadata.type) && !i.docID);
+          if (data.detail.metadata) {
+            const tab = tabStore.state.tabs.find(i => (i.docType === data.detail.metadata.type) && !i.docID);
             if (tab) {
-              tab.header = data.detail[0].metadata.menu;
+              tab.header = data.detail.metadata.menu;
               tabStore.replace(tab);
             }
           }
@@ -54,7 +54,8 @@ export class TabControllerComponent {
 
   selectedIndexChange(event) {
     event.originalEvent.stopPropagation();
-    this.router.navigateByUrl(this.tabStore.state.tabs[event.index].routerLink);
+    const tab = this.tabStore.state.tabs[event.index];
+    this.router.navigate([tab.docType, tab.docID]);
   }
 
   handleClose(event) {
@@ -65,7 +66,8 @@ export class TabControllerComponent {
       return component.componentRef.instance.Close();
     } else {
       this.tabStore.close(tab);
-      this.router.navigateByUrl(this.tabStore.state.tabs[this.tabStore.state.selectedIndex].routerLink);
+      const returnTab = this.tabStore.state.tabs[this.tabStore.state.selectedIndex];
+      this.router.navigate([returnTab.docType, returnTab.docID]);
     }
   }
 }

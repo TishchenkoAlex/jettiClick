@@ -1,19 +1,23 @@
 <div [ngStyle]="{'display': showTree ? 'flex': 'block'}">
 
   <div *ngIf="showTree" style="margin-right: 4px">
-    <j-tree-list #tl [docType]="docType" (selectionChange)="parentChange($event)"></j-tree-list>
+    <j-tree-list #tl [docType]="type" (selectionChange)="parentChange($event)"></j-tree-list>
   </div>
   <div>
     <p-toolbar>
       <div class="ui-toolbar-group-left">
         <button pButton type="button" id="add" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
-        <button pButton type="button" id="open" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="dataTable?.selection?.length == 1" (click)="open()"></button>
-        <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="dataTable?.selection?.length == 1" (click)="copy()"></button>
+        <button pButton type="button" id="open" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
+          (click)="open()"></button>
+        <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
+          (click)="copy()"></button>
         <span *ngIf="isDoc">
-          <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="dataTable?.selection?.length >=1 && !dataTable?.selection[0].posted" (click)="post()"></button>
-          <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="dataTable?.selection?.length >=1 && dataTable?.selection[0].posted" (click)="post('unpost')"></button>
+          <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && !table?.selection[0].posted"
+            (click)="post()"></button>
+          <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && table?.selection[0].posted"
+            (click)="post('unpost')"></button>
         </span>
-        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="dataTable?.selection?.length" (click)="delete()"></button>
+        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()"></button>
         <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree"></button>
       </div>
       <div class="ui-toolbar-group-right">
@@ -21,68 +25,84 @@
         <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first"></button>
         <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last"></button>
         <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last"></button>
-        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh()"></button>
+        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id)"></button>
         <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="close()"></button>
       </div>
     </p-toolbar>
-    <p-dataTable [value]="(data$ | async)" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort($event)"
-      (onFilter)="sort($event)" [reorderableColumns]="true" sortMode="multiple" [resizableColumns]="true" [scrollable]="!showTree"
-      (onRowDblclick)="open()" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm">
 
-      <div *ngIf="dataTable !== null">
-        <p-column field="posted" [style]="{'width': '22px', 'text-align': 'center'}">
-          <ng-template let-row="rowData" pTemplate="body">
-            <i *ngIf="row['posted'] && !row['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
-            <i *ngIf="row['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
-            <i *ngIf="!row['posted'] && !row['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
-          </ng-template>
-        </p-column>
- 
-        <p-column *ngFor="let column of columns" [field]="column.field" [header]="column.label" sortable="custom" [filter]="true"
-          filterPlaceholder="Search" [style]="column.style || {}" [colId]="column.field">
-          <ng-template let-row="rowData" pTemplate="body">
-            <span [ngSwitch]="column.type" [id]="column.field">
-              <span *ngSwitchCase="'date'" [id]="column.field">{{row[column.field] | date:'dd.MM.yyyy'}}</span>
-              <span *ngSwitchCase="'datetime'" [id]="column.field">{{row[column.field] | date:'dd.MM.yyyy HH:mm:ss'}}</span>
-              <span *ngSwitchCase="'number'" [id]="column.field">{{row[column.field] | number:'1.2-4'}}</span>
-              <span *ngSwitchCase="'boolean'" [id]="column.field">
-                <i *ngIf="row[column.field]" class="fa fa-check-square" [id]="column.field"></i>
-                <i *ngIf="!row[column.field]" class="fa fa-square-o" [id]="column.field"></i>
-              </span>
-              <span *ngSwitchCase="'string'" [id]="column.field">{{row[column.field]}}</span>
-              <span *ngSwitchDefault [id]="column.field">{{row[column.field]?.value}}</span>
-            </span>
-          </ng-template>
-          <ng-template pTemplate="filter" let-col>
-            <div [ngSwitch]="column.type" class="ui-fluid ui-column-filter">
-              <div *ngSwitchCase="'boolean'">
-                <p-triStateCheckbox [ngModel]="dataTable.filters[col.field]?.value" (ngModelChange)="update(column, $event, '=')"></p-triStateCheckbox>
-              </div>
-              <div *ngSwitchCase="'number'">
-                <input [ngModel]="dataTable.filters[col.field]?.value" pInputText type="numeric" (ngModelChange)="update(column, $event, '>=')">
-              </div>
-              <div *ngSwitchCase="'date'">
-                <p-calendar selectionMode="range" showButtonBar="true" [ngModel]="dataTable.filters[col.field]?.value" readonlyInput="true"
-                  [appendTo]="'body'" [locale]="locale" (ngModelChange)="update(column, $event, '=')" [dateFormat]="dateFormat"></p-calendar>
-              </div>
-              <div *ngSwitchCase="'datetime'">
-                <p-calendar selectionMode="range" showButtonBar="true" [ngModel]="dataTable.filters[col.field]?.value" readonlyInput="true"
-                  [appendTo]="'body'" [locale]="locale" (ngModelChange)="update(column, $event, '=')" [dateFormat]="dateFormat"></p-calendar>
-              </div>
-              <div *ngSwitchCase="'string'">
-                <input [ngModel]="dataTable.filters[col.field]?.value" pInputText (ngModelChange)="update(column, $event, 'like')">
-              </div>
-              <div *ngSwitchDefault>
-                <j-autocomplete-png [checkValue]="false" [type]="dataTable.filters[col.field]?.value?.type || column.type || 'string'" [ngModel]="dataTable.filters[col.field]?.value"
-                  [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(column, $event, '=')" [id]="col.field">
-                </j-autocomplete-png>
-              </div>
+    <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort()"
+      (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [resizableColumns]="true"
+      [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm"
+      [metaKeySelection]="true" [columns]="columns">
+      
+      <ng-template pTemplate="colgroup" let-columns>
+          <colgroup>
+              <col>
+              <col *ngFor="let col of columns">
+          </colgroup>
+      </ng-template>
+      
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th [ngStyle]="{'width': '24px', 'text-align': 'center'}"></th>
+          <th pResizableColumn pReorderableColumn [pSortableColumn]="column.field" *ngFor="let column of columns" [ngStyle]="column.style">
+            {{column.label}}
+            <p-sortIcon [field]="column.field"></p-sortIcon>
+          </th>
+        </tr>
+        <tr>
+          <th [ngStyle]="{'width': '24px', 'text-align': 'center'}"></th>
+          <th *ngFor="let column of columns" [ngStyle]="column.style" [ngSwitch]="column.type" class="ui-fluid ui-column-filter">
+            <div *ngSwitchCase="'boolean'">
+              <p-triStateCheckbox [ngModel]="table?.filters[column.field]?.value" (ngModelChange)="update(column, $event, '=')"></p-triStateCheckbox>
             </div>
-          </ng-template>
-        </p-column>
-        <p-column></p-column>
-      </div>
-    </p-dataTable>
+            <div *ngSwitchCase="'number'">
+              <input [ngModel]="table?.filters[column.field]?.value" pInputText type="numeric" (ngModelChange)="update(column, $event, '>=')">
+            </div>
+            <div *ngSwitchCase="'date'">
+              <p-calendar selectionMode="range" showButtonBar="true" [ngModel]="table?.filters[column.field]?.value" readonlyInput="true"
+                [appendTo]="'body'" [locale]="locale" (ngModelChange)="update(column, $event, '=')" [dateFormat]="dateFormat"></p-calendar>
+            </div>
+            <div *ngSwitchCase="'datetime'">
+              <p-calendar selectionMode="range" showButtonBar="true" [ngModel]="table?.filters[column.field]?.value" readonlyInput="true"
+                [appendTo]="'body'" [locale]="locale" (ngModelChange)="update(column, $event, '=')" [dateFormat]="dateFormat"></p-calendar>
+            </div>
+            <div *ngSwitchCase="'string'">
+              <input [ngModel]="table?.filters[column.field]?.value" pInputText (ngModelChange)="update(column, $event, 'like')">
+            </div>
+            <div *ngSwitchDefault>
+              <j-autocomplete-png [checkValue]="false" [type]="table?.filters[column.field]?.value?.type || column.type || 'string'" [ngModel]="table?.filters[column.field]?.value"
+                [showOpen]="false" [showFind]="false" [showClear]="true" (ngModelChange)="update(column, $event, '=')" [id]="column.field">
+              </j-autocomplete-png>
+            </div>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr [pSelectableRow]="rowData" [pContextMenuRow]="rowData" (dblclick)="open()">
+          <td class="ui-resizable-column" [ngStyle]="{'width': '24px', 'text-align': 'center'}">
+            <i *ngIf="rowData['posted'] && !rowData['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
+            <i *ngIf="rowData['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
+            <i *ngIf="!rowData['posted'] && !rowData['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
+          </td>
+          <td *ngFor="let column of columns" [ngStyle]="column.style">
+            <span [ngSwitch]="column.type" [id]="column.field">
+              <span *ngSwitchCase="'date'" [id]="column.field">{{rowData[column.field] | date:'dd.MM.yyyy'}}</span>
+              <span *ngSwitchCase="'datetime'" [id]="column.field">{{rowData[column.field] | date:'dd.MM.yyyy HH:mm:ss'}}</span>
+              <span *ngSwitchCase="'number'" [id]="column.field">{{rowData[column.field] | number:'1.2-4'}}</span>
+              <span *ngSwitchCase="'boolean'" [id]="column.field">
+                <i *ngIf="rowData[column.field]" class="fa fa-check-square" [id]="column.field"></i>
+                <i *ngIf="!rowData[column.field]" class="fa fa-square-o" [id]="column.field"></i>
+              </span>
+              <span *ngSwitchCase="'string'" [id]="column.field">{{rowData[column.field]}}</span>
+              <span *ngSwitchDefault [id]="column.field">{{rowData[column.field]?.value}}</span>
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
   </div>
 </div>
 

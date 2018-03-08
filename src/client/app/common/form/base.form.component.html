@@ -34,8 +34,7 @@
 
   <div *ngFor="let r of relations">
     <p-panel [toggleable]="true" [collapsed]="true" #relation [header]="r.name">
-      <j-list *ngIf="!relation.collapsed" [docType]="r.type" [pageSize]=10
-        [filters]="[{left: r.field, center: '=', right: {id: model.id, type: model.type, value: model.description}}]"></j-list>
+      <j-list *ngIf="!relation.collapsed" [type]="r.type" [pageSize]=10 [settings]="{order: [], filter: [{left: r.field, center: '=', right: {id: model.id, type: model.type, value: model.description}}]}"></j-list>
     </p-panel>
   </div>
 
@@ -47,16 +46,16 @@
 
     <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px" fxLayoutGap.xs="0px" *ngFor="let i of [0,3,6,9,12,15]">
       <div fxFlex>
-        <j-control *ngIf="v[i+0] && v[i+0].order > 0 && v[i+0].type !== 'table' && v[i+0].controlType !== 'script'"
-          [control]="v[i+0]" [form]="form"></j-control>
+        <j-control *ngIf="v[i+0] && v[i+0].order > 0 && v[i+0].type !== 'table' && v[i+0].controlType !== 'script'" [control]="v[i+0]"
+          [form]="form"></j-control>
       </div>
       <div fxFlex>
-        <j-control *ngIf="v[i+1] && v[i+1].order > 0 && v[i+1].type !== 'table' && v[i+1].controlType !== 'script'"
-          [control]="v[i+1]" [form]="form"></j-control>
+        <j-control *ngIf="v[i+1] && v[i+1].order > 0 && v[i+1].type !== 'table' && v[i+1].controlType !== 'script'" [control]="v[i+1]"
+          [form]="form"></j-control>
       </div>
       <div fxFlex>
-        <j-control *ngIf="v[i+2] && v[i+2].order > 0 && v[i+2].type !== 'table' && v[i+2].controlType !== 'script'"
-          [control]="v[i+2]" [form]="form"></j-control>
+        <j-control *ngIf="v[i+2] && v[i+2].order > 0 && v[i+2].type !== 'table' && v[i+2].controlType !== 'script'" [control]="v[i+2]"
+          [form]="form"></j-control>
       </div>
     </div>
 
@@ -73,11 +72,16 @@
 </ng-template>
 
 <ng-template #actionTepmlateDefault let-form="form">
-  <button pButton type="button" id="PostClose "icon="fa-check-square-o" [label]="(media.asObservable() | async)?.mqAlias === 'xs' ? '.' : 'Post&Close'" class="ui-button-warning" [disabled]="!form.valid" (click)="PostClose()" *ngIf="!isDeleted"></button>
-  <button pButton type="button" id="Post" icon="fa-check" class="ui-button-secondary" [disabled]="!form.valid" (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
-  <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!form.valid" (click)="unPost()" *ngIf="!isDeleted && isPosted && isDoc"></button>
-  <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!form.valid" (click)="Save()" *ngIf="!isPosted || !isDoc"></button>
-  <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!form.valid" (click)="Copy()" *ngIf="!isDeleted && !isNew"></button>
+  <button pButton type="button" id="PostClose " icon="fa-check-square-o" [label]="(media.asObservable() | async)?.mqAlias === 'xs' ? '.' : 'Post&Close'"
+    class="ui-button-warning" [disabled]="!form.valid" (click)="PostClose()" *ngIf="!isDeleted"></button>
+  <button pButton type="button" id="Post" icon="fa-check" class="ui-button-secondary" [disabled]="!form.valid" (click)="Post()"
+    *ngIf="!isDeleted && isDoc"></button>
+  <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!form.valid" (click)="unPost()"
+    *ngIf="!isDeleted && isPosted && isDoc"></button>
+  <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!form.valid" (click)="Save()"
+    *ngIf="!isPosted || !isDoc"></button>
+  <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!form.valid" (click)="Copy()"
+    *ngIf="!isDeleted && !isNew"></button>
   <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!isNew" (click)="Delete()"></button>
 </ng-template>
 

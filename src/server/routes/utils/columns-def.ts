@@ -17,7 +17,7 @@ export function buildColumnDef(view, settings: FormListSettings): ColumnDef[] {
     let style = prop['style'];
     if (type === 'number' && !style) { style = { 'width': '90px', 'text-align': 'right' }; }
     if (type === 'boolean' && !style) { style = { 'width': '90px', 'text-align': 'center' }; }
-    if (type === 'datetime' && !style) { style = { 'width': '130px', 'text-align': 'center' }; }
+    if (type === 'datetime' && !style) { style = { 'width': '135px', 'text-align': 'center' }; }
     if (type === 'date' && !style) { style = { 'width': '90px', 'text-align': 'center' }; }
     columnDef.push({
       field: property, type: type, label: label, hidden: hidden, order: order,

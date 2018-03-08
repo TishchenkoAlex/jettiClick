@@ -8,7 +8,6 @@ import {
   RouterStateSnapshot,
   Routes,
 } from '@angular/router';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 
 import { AuthGuardService } from './auth/auth.guard.service';
 import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
@@ -29,14 +28,14 @@ export class TabResolver implements Resolve<any> {
   constructor(private dfs: DynamicFormService, private api: ApiService, private tabStore: TabsStore) { }
 
   public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const id: string = route.params.id || '';
+    const id = route.params.id || '';
     const type = route.params.type;
     if (type === 'home') { return null; }
     if (type.startsWith('Form.')) { return this.dfs.getFormView$(type); }
-    if (this.tabStore.state.tabs.findIndex(i => i.routerLink === state.url) === -1) {
+    if (this.tabStore.state.tabs.findIndex(i => i.docType === type && i.docID === id) === -1) {
       return id ?
-        this.dfs.getViewModel$(route.params['type'], id, route.queryParams) :
-        forkJoin(this.api.getView(type), this.api.getUserFormListSettings(type));
+        this.dfs.getViewModel$(type, id, route.queryParams) :
+        this.api.getView(type);
     }
   }
 }

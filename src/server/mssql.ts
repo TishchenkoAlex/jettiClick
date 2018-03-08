@@ -1,4 +1,5 @@
 import * as sql from 'mssql';
+import * as driver from 'tedious';
 
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
 
@@ -61,7 +62,7 @@ export class MSSQL {
       try {
         console.log('rollback transaction');
         await transaction.rollback();
-      } catch {}
+      } catch { }
       console.log(err);
       throw new Error(err);
     }
@@ -71,3 +72,4 @@ export class MSSQL {
 
 export const sdb = new MSSQL(sqlConfig);
 export const sdba = new MSSQL(sqlConfigAccounts);
+

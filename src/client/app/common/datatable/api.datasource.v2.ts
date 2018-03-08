@@ -1,80 +1,67 @@
-import { DataTable } from 'primeng/components/datatable/datatable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { of as observableOf } from 'rxjs/observable/of';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, share, switchMap, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { Continuation, DocListResponse } from '../../../../server/models/api';
-import { FormListFilter, FormListOrder } from '../../../../server/models/user.settings';
+import { DocTypes } from '../../../../server/models/documents.types';
+import { FormListSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
 import { DocumentBase } from './../../../../server/models/document';
 
-interface DatasourceCommand { source: any; command: string; data?: any; }
+interface DatasourceCommand { command: string; data?: any; }
 
 export class ApiDataSource {
+
   private paginator = new Subject<DatasourceCommand>();
+
+  id = '';
+  formListSettings = new BehaviorSubject<FormListSettings>(new FormListSettings());
 
   result$: Observable<DocumentBase[]>;
   renderedData: DocumentBase[] = [];
 
-  continuation: Continuation = { first: {id: 'first', type: this.docType}, last: {id: 'last', type: this.docType} };
+  continuation: Continuation = { first: { id: 'first', type: this.type }, last: { id: 'last', type: this.type } };
   private EMPTY: DocListResponse = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first } };
 
-  constructor(public apiService: ApiService, public docType: string, public pageSize: number,
-    public dataTable: DataTable = null) {
+  constructor(public api: ApiService, public type: DocTypes = null, public pageSize = 10) {
 
     this.result$ = this.paginator.pipe(
-      filter(stream => (this.dataTable !== null) && !(
+      filter(stream => !(
         (stream.command === 'prev' && !this.continuation.first) ||
         (stream.command === 'next' && !this.continuation.last))),
       switchMap(stream => {
         let offset = 0;
-        let id = this.dataTable.selection && this.dataTable.selection.length
-          && this.dataTable.selection[0] ? this.dataTable.selection[0].id : '';
+        let id = this.id;
         switch (stream.command) {
-          case 'prev': id = this.continuation.first.id; break;
-          case 'next': id = this.continuation.last.id; break;
+          case 'prev': id = this.continuation.first.id as string; break;
+          case 'next': id = this.continuation.last.id as string; break;
           case 'refresh': case 'sort': case undefined:
             offset = this.renderedData.findIndex(r => r.id === id);
-            if (offset === -1) { offset = 0;  } else { id = this.renderedData[offset].id; }
+            if (offset === -1) { offset = 0; } else { id = this.renderedData[offset].id; }
             stream.command = 'sort';
             break;
           case 'goto': id = stream.data; break;
         }
 
-        const filterArr = Object.keys(this.dataTable.filters).map(f =>
-          <FormListFilter>{left: f, center: this.dataTable.filters[f].matchMode, right: this.dataTable.filters[f].value}
-        );
-
-        const sortArr = (this.dataTable.multiSortMeta || [])
-          .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-        return this.apiService.getDocList(this.docType, id, stream.command, this.pageSize, offset, sortArr, filterArr).pipe(
+        return this.api.getDocList(this.type, id, stream.command, this.pageSize, offset,
+          this.formListSettings.value.order, this.formListSettings.value.filter).pipe(
           tap(data => {
             this.renderedData = data.data;
             this.continuation = data.continuation;
-            if (stream.command === 'goto') {
-              const gotoRow = this.renderedData.find(el => el.id === id);
-              this.dataTable.selection = [gotoRow] || [];
-            }
-            if (['first', 'last', 'next', 'prev'].indexOf(stream.command) > -1) { this.dataTable.selection = []; }
           }),
           catchError(err => { this.renderedData = []; return observableOf(this.EMPTY); }));
       }),
-      map(data => data['data']));
+      map(data => data['data']), share());
   }
 
-  refresh() { this.paginator.next({ source: this.paginator, command: 'refresh' }); }
-
-  goto(id: string) { this.paginator.next({ source: this.paginator, command: 'goto', data: id }); }
-
-  sort() { this.paginator.next({ source: this.paginator, command: 'sort' }); }
-
-  first() { this.paginator.next({ source: this.paginator, command: 'first' }); }
-
-  last() { this.paginator.next({ source: this.paginator, command: 'last' }); }
-
-  next() { this.paginator.next({ source: this.paginator, command: 'next' }); }
-
-  prev() { this.paginator.next({ source: this.paginator, command: 'prev' }); }
+  refresh(id: string) { this.paginator.next({ command: 'refresh' }); }
+  goto(id: string) { this.id = id; this.paginator.next({ command: 'goto' }); }
+  sort() { this.paginator.next({ command: 'sort' }); }
+  first() { this.paginator.next({ command: 'first' }); }
+  last() { this.paginator.next({ command: 'last' }); }
+  next() { this.paginator.next({ command: 'next' }); }
+  prev() { this.paginator.next({ command: 'prev' }); }
 
 }

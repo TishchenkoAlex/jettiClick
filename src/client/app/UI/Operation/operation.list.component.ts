@@ -8,11 +8,10 @@ import { BaseDocListComponent } from './../../common/datatable/base.list.compone
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <p-dropdown [style]="{'width' : '100%', 'background': 'beige'}" [scrollHeight]="500"
-      [options]="operationsGroups" [ngModel]="super.dataTable?.filters['Group']?.value" [autofocus]="true"
-      (onChange)="this.super.dataTable?.filters['Group'] =
-        { matchMode: '=', value: $event.value }; this.super.sort($event.value)"></p-dropdown>
-    <j-list></j-list>
-  `
+      [options]="operationsGroups" [ngModel]="super.table?.filters['Group']?.value" [autofocus]="true"
+      (onChange)="this.super.table?.filters['Group'] =
+        { matchMode: '=', value: $event.value }; this.super.sort()"></p-dropdown>
+    <j-list></j-list>`
 })
 export class OperationListComponent implements OnInit {
   @ViewChild(BaseDocListComponent) super: BaseDocListComponent;

@@ -6,15 +6,17 @@ body {
   font-size: 0.8em !important ;
 
 }
-/* 
-.ui-editable-column {
-  padding: 1px 4px !important;
+
+.ui-table .ui-table-tbody > tr > td {
+  height: 24px;
+  white-space: nowrap; /* Отменяем перенос текста */
+  overflow: hidden; /* Обрезаем содержимое */
+  text-overflow: ellipsis; 
 }
 
-.ui-cell-editing {
-  padding: 1px 1px !important;
+.ui-dropdown .ui-dropdown-clear-icon {
+  right: 3.5em;
 }
- */
 
 .ui-tabview .ui-tabview-panel {
   padding: 0;

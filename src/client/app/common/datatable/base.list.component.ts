@@ -12,10 +12,9 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
-import { DataTable } from 'primeng/components/datatable/datatable';
-import { Observable } from 'rxjs/Observable';
+import { Table } from 'primeng/components/table/table';
 import { merge } from 'rxjs/observable/merge';
-import { debounceTime, filter, map, share } from 'rxjs/operators';
+import { debounceTime, filter as filter$ } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -24,7 +23,7 @@ import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
 import { calendarLocale, dateFormat } from '../../primeNG.module';
 import { TabsStore } from '../tabcontroller/tabs.store';
-import { DocumentBase, DocumentOptions } from './../../../../server/models/document';
+import { DocumentOptions } from './../../../../server/models/document';
 import { createDocument } from './../../../../server/models/documents.factory';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
@@ -37,196 +36,206 @@ import { LoadingService } from './../../common/loading.service';
   templateUrl: 'base.list.component.html',
 })
 export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
+  locale = calendarLocale; dateFormat = dateFormat;
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private tabStore: TabsStore,
     public uss: UserSettingsService, public lds: LoadingService, private cd: ChangeDetectorRef, private location: Location) { }
 
-  locale = calendarLocale; dateFormat = dateFormat;
   private _docSubscription$: Subscription = Subscription.EMPTY;
   private _routeSubscruption$: Subscription = Subscription.EMPTY;
   url = this.router.url;
 
-  private AfterViewInit = false;
-  private _debonce = new Subject<{ col: any, event: any, center: string }>();
-  private debonce$ = this._debonce.asObservable().pipe(filter(event => this.AfterViewInit), debounceTime(500))
-    .subscribe(event => this._update(event.col, event.event, event.center));
+  private debonce$ = new Subject<{ col: any, event: any, center: string }>();
 
   @Input() pageSize = Math.floor((window.innerHeight - 275) / 24);
-  @Input() docType: DocTypes = this.route.params['value'].type;
-  @Input() filters: FormListFilter[] = [];
-  get isDoc() { return this.docType.startsWith('Document.'); }
-  get isCatalog() { return this.docType.startsWith('Catalog.'); }
-  columns = (this.route.snapshot.data.detail[0].columnsDef as ColumnDef[])
-    .filter(c => !c.hidden && !(c.field === 'description' && this.isDoc));
-  metadata: DocumentOptions = this.route.snapshot.data.detail[0] ? this.route.snapshot.data.detail[0].metadata : {};
+  @Input() type: DocTypes = this.route.snapshot.params.type;
+  @Input() settings: FormListSettings = this.route.snapshot.data.detail.settings;
+
+  get isDoc() { return this.type.startsWith('Document.'); }
+  get isCatalog() { return this.type.startsWith('Catalog.'); }
+  get id() { return this.table.selection && this.table.selection.length ? this.table.selection[0].id : ''; }
+
+  columns = (this.route.snapshot.data.detail.columnsDef as ColumnDef[])
+    .filter(c => (!c.hidden && !(c.field === 'description' && this.isDoc)) || c.field === 'Group') || [];
+  metadata: DocumentOptions = this.route.snapshot.data.detail.metadata || {};
+
   contexCommands: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
   showTree = false;
+
   dataSource: ApiDataSource | null = null;
-  data$: Observable<DocumentBase[]>;
+  @ViewChild(Table) table: Table = null;
 
-  @ViewChild(DataTable) dataTable: DataTable = null;
+  ngOnInit() {
+    this.dataSource = new ApiDataSource(this.ds.api, this.type, this.pageSize);
 
-  async ngOnInit() {
     this._docSubscription$ = merge(...[this.ds.save$, this.ds.delete$, this.ds.saveClose$, this.ds.goto$]).pipe(
-      filter(doc => doc && doc.type === this.docType))
+      filter$(doc => doc && doc.type === this.type))
       .subscribe(doc => {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
         if (exist) {
-          this.dataSource.dataTable.selection = [exist];
-          this.dataSource.refresh();
-          setTimeout(() => { this.dataSource.dataTable.selection = [exist]; this.cd.detectChanges(); });
+          this.table.selection = [exist];
+          this.dataSource.refresh(exist.id);
+          setTimeout(() => { this.table.selection = [exist]; this.cd.markForCheck(); });
         } else {
           this.dataSource.goto(doc.id);
-          this.dataSource.dataTable.selection = [doc];
-          setTimeout(() => { this.dataSource.dataTable.selection = [doc]; this.cd.detectChanges(); });
+          this.table.selection = [doc];
+          setTimeout(() => { this.table.selection = [doc]; this.cd.markForCheck(); });
         }
       });
-
-    this.dataSource = new ApiDataSource(this.ds.api, this.docType, this.pageSize);
-
-    this.data$ = this.dataSource.result$.pipe(share());
-    if (!this.columns.length) {
-      this.columns = await this.ds.api.getView(this.docType).pipe(map(r => r.columnsDef)).toPromise();
-    }
-
-    this.columns.forEach(c => { if (c.hidden) { c.style['display'] = 'none'; } });
-    this.columns = this.columns.filter(c => c.style['display'] !== 'none' || c.field === 'Group');
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.dataSource.dataTable = this.dataTable;
-      this.dataTable.multiSortMeta = this.columns
-        .map(c => c.sort)
-        .filter(e => !!e.order)
-        .map(e => <SortMeta>{ field: e.field, order: e.order === 'asc' ? 1 : -1 });
+    this.setSortOrder();
+    this.setFilters();
+    this.setContextMenu();
+    this.dataSource.formListSettings.next(this.settings);
+    this.dataSource.first();
 
-      if (this.filters.length) {
-        this.filters.filter(f => f.right).forEach(f => this.dataTable.filters[f.left] = { matchMode: f.center, value: f.right });
-      }
-
-      this.contexCommands = [{
-        label: 'Quick filter', icon: 'fa-search', command: (event) =>
-          this._update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
-      },
-      ...(this.metadata.copyTo || []).map(el => {
-        const copyToDoc = createDocument(el).Prop() as DocumentOptions;
-        return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.copyTo(el) };
-      })];
-
-      // обработка команды найти в списке
-      this._routeSubscruption$ = this.route.queryParams.pipe(
-        filter(params => this.route.snapshot.params.type === this.docType && params.goto && !this.route.snapshot.params.id))
-        .subscribe(params => {
-          const exist = this.dataSource.renderedData.find(d => d.id === params.goto);
-          if (exist) {
-            this.dataSource.dataTable.selection = [exist];
-            setTimeout(() => { this.dataSource.dataTable.selection = [exist]; this.cd.detectChanges(); });
-          } else {
-            if (!this.filters.length) {
-              this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: null });
-            }
-            this.router.navigate([this.docType], { replaceUrl: true })
-              .then(() => this.dataSource.goto(params.goto));
+    // обработка команды найти в списке
+    this._routeSubscruption$ = this.route.queryParams.pipe(
+      filter$(params => this.route.snapshot.params.type === this.type && params.goto && !this.route.snapshot.params.id))
+      .subscribe(params => {
+        const exist = this.dataSource.renderedData.find(d => d.id === params.goto);
+        if (exist) {
+          this.table.selection = [exist];
+          setTimeout(() => { this.table.selection = [exist]; this.cd.markForCheck(); });
+          this.router.navigate([this.type], { replaceUrl: true });
+        } else {
+          if (!this.settings.filter.length) {
+            this.columns.forEach(f => this.table.filters[f.field] = { matchMode: f.filter.center, value: null });
           }
-        });
+          this.router.navigate([this.type], { replaceUrl: true })
+            .then(() => {
+              this.dataSource.goto(params.goto);
+              setTimeout(() => { this.table.selection = [{ id: params.goto, type: this.type }]; this.cd.markForCheck(); });
+            });
+        }
+      });
 
-      if (!this.filters.length) {
-        this.columns.forEach(f => this.dataTable.filters[f.field] = { matchMode: f.filter.center, value: f.filter.right });
-      }
-      this.dataSource.first();
-      this.AfterViewInit = true;
-      this.cd.detectChanges();
-    });
+    this.debonce$.pipe(debounceTime(500))
+      .subscribe(event => this._update(event.col, event.event, event.center));
+  }
+
+  private setFilters() {
+    if (this.settings.filter.length) {
+      this.settings.filter
+        .filter(f => f.right)
+        .forEach(f => this.table.filters[f.left] = { matchMode: f.center, value: f.right });
+    }
+  }
+
+  private setSortOrder() {
+    this.table.multiSortMeta = this.columns
+      .map(c => c.sort)
+      .filter(e => !!e.order)
+      .map(e => <SortMeta>{ field: e.field, order: e.order === 'asc' ? 1 : -1 });
+  }
+
+  private setContextMenu() {
+    this.contexCommands = [{
+      label: 'Quick filter', icon: 'fa-search',
+      command: (event) => this._update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
+    },
+    ...(this.metadata.copyTo || []).map(el => {
+      const copyToDoc = createDocument(el).Prop() as DocumentOptions;
+      return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.copyTo(el) };
+    })];
   }
 
   private _update(col: ColumnDef, event, center) {
     if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
-    this.dataTable.filters[col.field] = { matchMode: center || col.filter.center, value: event };
-    this.sort(event);
+    this.table.filters[col.field] = { matchMode: center || col.filter.center, value: event };
+    this.sort();
   }
   update(col: ColumnDef, event, center = 'like') {
     if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) { event = null; }
-    this._debonce.next({ col, event, center });
+    this.debonce$.next({ col, event, center });
   }
 
-  sort(event) {
-    if (this.AfterViewInit) { this.dataSource.sort(); }
+  sort() {
+    this.dataSource.id = this.id;
+    const order = (this.table.multiSortMeta || [])
+      .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
+    const filter = Object.keys(this.table.filters).map(f =>
+      <FormListFilter>{ left: f, center: this.table.filters[f].matchMode, right: this.table.filters[f].value });
+    const state: FormListSettings = { filter, order };
+    this.dataSource.formListSettings.next(state);
+    this.dataSource.sort();
   }
 
   close() {
-    this.tabStore.close(this.tabStore.state.tabs.find(t => t.routerLink === this.url));
-    this.router.navigateByUrl(this.tabStore.state.tabs[this.tabStore.state.selectedIndex].routerLink);
+    this.tabStore.close(this.tabStore.state.tabs.find(t => t.docType === this.type && !t.docID));
+    const tab = this.tabStore.state.tabs[this.tabStore.state.selectedIndex];
+    this.router.navigate([tab.docType, tab.docID]);
   }
 
   add() {
     const filters = {};
-    Object.keys(this.dataTable.filters)
-      .filter(f => this.dataTable.filters[f].value && this.dataTable.filters[f].value.id)
-      .forEach(f => filters[f] = this.dataTable.filters[f].value.id);
+    Object.keys(this.table.filters)
+      .filter(f => this.table.filters[f].value && this.table.filters[f].value.id)
+      .forEach(f => filters[f] = this.table.filters[f].value.id);
 
-    this.router.navigate([this.dataTable.selection[0] ?
-      this.dataTable.selection[0].type : this.dataSource.docType, 'new'],
+    this.router.navigate([this.table.selection[0] ?
+      this.table.selection[0].type : this.dataSource.type, 'new'],
       { queryParams: { command: 'new', ...filters } });
   }
 
   copy() {
-    this.router.navigate([this.dataTable.selection[0].type, this.dataTable.selection[0].id],
+    this.router.navigate([this.table.selection[0].type, this.table.selection[0].id],
       { queryParams: { command: 'copy' } });
   }
 
   copyTo(type: DocTypes) {
-    this.router.navigate([type, this.dataTable.selection[0].id],
+    this.router.navigate([type, this.table.selection[0].id],
       { queryParams: { command: 'base' } });
   }
 
   open() {
-    this.router.navigate([this.dataTable.selection[0].type, this.dataTable.selection[0].id], { queryParams: {} });
+    this.router.navigate([this.table.selection[0].type, this.table.selection[0].id], { queryParams: {} });
   }
 
   delete() {
-    this.dataTable.selection.forEach(el => this.ds.delete(el.id));
+    this.table.selection.forEach(el => this.ds.delete(el.id));
   }
 
   async post(mode = 'post') {
-    const tasksCount = this.dataTable.selection.length; let i = tasksCount;
-    for (const s of this.dataTable.selection) {
+    const tasksCount = this.table.selection.length; let i = tasksCount;
+    for (const s of this.table.selection) {
       this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
       if (mode === 'post') { await this.ds.post(s.id); } else { await this.ds.unpost(s.id); }
     }
     this.lds.counter = 0;
-    this.dataSource.refresh();
+    this.dataSource.refresh(this.table.selection[0].id);
   }
 
   parentChange(event) {
-    this.dataTable.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null };
-    this.dataSource.sort();
+    this.table.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null };
+    this.sort();
   }
 
   onContextMenuSelect(event) {
     let el = (event.originalEvent as MouseEvent).srcElement;
     while (!el.id && el.lastElementChild) { el = el.lastElementChild; }
-    const value = this.dataTable.selection[0][el.id];
+    const value = this.table.selection[0][el.id];
     this.ctxData = { column: el.id, value: value && value.id ? value : value };
-    // this.dataTable.selection = [];
   }
 
   private saveUserSettings() {
     const formListSettings: FormListSettings = {
-      filter: (Object.keys(this.dataTable.filters) || [])
-        .map(f => (<FormListFilter>{ left: f, center: this.dataTable.filters[f].matchMode, right: this.dataTable.filters[f].value })),
-      order: ((<SortMeta[]>this.dataTable.multiSortMeta) || [])
+      filter: (Object.keys(this.table.filters) || [])
+        .map(f => (<FormListFilter>{ left: f, center: this.table.filters[f].matchMode, right: this.table.filters[f].value })),
+      order: ((<SortMeta[]>this.table.multiSortMeta) || [])
         .map(o => <FormListOrder>{ field: o.field, order: o.order === 1 ? 'asc' : 'desc' })
     };
-    this.uss.setFormListSettings(this.docType, formListSettings);
+    this.uss.setFormListSettings(this.type, formListSettings);
   }
 
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
-    this._debonce.unsubscribe();
+    this.debonce$.unsubscribe();
     this._routeSubscruption$.unsubscribe();
-    if (!this.route.queryParams['value'].goto && !this.filters.length) { this.saveUserSettings(); }
+    if (!this.route.snapshot.queryParams.goto) { this.saveUserSettings(); }
   }
 
 }

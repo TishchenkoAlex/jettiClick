@@ -102,7 +102,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
       }
     }
     const columnDef = buildColumnDef(view, config_schema.settings);
-    const result = { view, model, columnDef, prop: config_schema.prop || {} };
+    const result = { view, model, columnDef, prop: config_schema.prop || {}, settings: config_schema.settings};
     res.json(result);
   } catch (err) { next(err); }
 };

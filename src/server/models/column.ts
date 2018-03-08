@@ -6,7 +6,7 @@ export interface ColumnDef {
     label: string;
     hidden: boolean;
     order: number;
-    style: string;
+    style: string | {[key: string]: any};
     required: boolean;
     readOnly: boolean;
     owner?: { dependsOn: string, filterBy: string };

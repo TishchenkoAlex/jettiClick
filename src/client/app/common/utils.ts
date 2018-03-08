@@ -1,7 +1,4 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
-
-import { dateReviver } from './../../../server/fuctions/dateReviver';
 
 export function getPeriod(value: string): { startDate: Date, endDate: Date } {
   switch (value) {

@@ -107,9 +107,10 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       this.tabStore.close(tab);
       const parentTab = this.tabStore.state.tabs.find(t => t.docType === this.type && !t.docID);
       if (parentTab) {
-        this.router.navigate([parentTab.routerLink]);
+        this.router.navigate([parentTab.docType, parentTab.docID]);
       } else {
-        this.router.navigate([this.tabStore.state.tabs[this.tabStore.selectedIndex].routerLink]);
+        const returnTab = this.tabStore.state.tabs[this.tabStore.selectedIndex];
+        this.router.navigate([returnTab.docType, returnTab.docID]);
       }
     }
   }

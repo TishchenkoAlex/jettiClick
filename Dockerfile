@@ -8,6 +8,9 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app/package.json
 RUN npm install
 
+#patch mssql driver
+COPY tedious.js node_modules/mssql/lib/tedious.js
+
 #build Angular app
 COPY .angular-cli.json /usr/src/app/.angular-cli.json
 COPY tsconfig.json /usr/src/app/tsconfig.json

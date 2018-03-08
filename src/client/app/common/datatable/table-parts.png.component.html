@@ -7,8 +7,8 @@
 </p-toolbar>
 
 <p-table [value]="dataSource" selectionMode="multiple" [metaKeySelection]="true" [(selection)]="selection" dataKey="index"
-  [scrollable]="true"
-  (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)" (onEditInit)="onEditInit($event)">
+  [scrollable]="true" (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)" (onEditInit)="onEditInit($event)">
+
   <ng-template pTemplate="header">
     <tr>
       <th [pSortableColumn]="col.field" *ngFor="let col of columns" [ngStyle]="col.style">
@@ -46,7 +46,7 @@
   <ng-template pTemplate="footer">
     <tr *ngIf="totalsCount">
       <th *ngFor="let col of columns" [ngStyle]="col.style">
-        <span [ngSwitch]="col.type">
+        <span [ngSwitch]="col.type" *ngIf="col.totals">
           <span *ngSwitchCase="'number'" style="padding-right: 5px">
             {{calcTotals(col.field) | number:'1.2-2'}}
           </span>
