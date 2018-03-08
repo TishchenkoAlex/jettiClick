@@ -15,6 +15,7 @@
         {{col.label}}
         <p-sortIcon [field]="col.field"></p-sortIcon>
       </th>
+      <th></th>
     </tr>
   </ng-template>
 
@@ -40,11 +41,12 @@
           </ng-template>
         </p-cellEditor>
       </td>
+      <td></td>
     </tr>
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <tr *ngIf="totalsCount" style="height: 24px">
+    <tr *ngIf="showTotals" style="height: 24px">
       <th *ngFor="let col of columns" [ngStyle]="col.style">
         <span [ngSwitch]="col.type" *ngIf="col.totals">
           <span *ngSwitchCase="'number'" style="padding-right: 5px">
@@ -53,6 +55,7 @@
           <span *ngSwitchDefault></span>
         </span>
       </th>
+      <th></th>
     </tr>
   </ng-template>
 

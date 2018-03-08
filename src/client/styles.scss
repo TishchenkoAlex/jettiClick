@@ -28,11 +28,14 @@ body {
   height: 26px; 
 }
 
-.ui-table {
+.tabViewClassInForm {
+  .ui-table {
   .ui-corner-all {
     border-radius: 0 !important;
   }
 }
+}
+
 
 .ui-panel-titlebar {
   padding: 6px 12px 6px 12px !important;
@@ -115,7 +118,6 @@ body {
 j-control {
   width: 100% !important;
 }  
-
 
 .profile-image {
   border-radius: 50%;

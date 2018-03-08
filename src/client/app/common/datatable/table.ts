@@ -2045,6 +2045,7 @@ export class SelectableRow implements OnInit, OnDestroy {
     }
   }
 
+  // Tishchenko
   @HostListener('window:keyup', ['$event'])
   onKeyUp(event: KeyboardEvent) {
     if (!(event.key === 'ArrowUp' || event.key === 'ArrowDown') ||

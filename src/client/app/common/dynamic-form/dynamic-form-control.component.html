@@ -2,13 +2,13 @@
   class="ui-fluid">
   <div *ngSwitchCase="'string'" [ngClass]="{'ui-float-label' : control.showLabel}">
     <input #pc [required]="control.required" pInputText [formControlName]="control.key" [readonly]="control.readOnly" autocomplete="off"
-      (focus)="$event.target.select()">
+      (focus)="$event.target.select()" spellcheck="false">
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <div *ngSwitchCase="'textarea'" [ngClass]="{'ui-float-label' : control.showLabel}">
     <textarea #pc [required]="control.required" pInputTextarea [formControlName]="control.key" [readonly]="control.readOnly"
-      (focus)="$event.target.select()">
+      (focus)="$event.target.select()" spellcheck="false">
     </textarea>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>

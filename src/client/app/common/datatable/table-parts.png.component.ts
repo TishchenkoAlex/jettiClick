@@ -1,5 +1,14 @@
 // tslint:disable:no-output-on-prefix
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -8,7 +17,7 @@ import { TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base
 import { cloneFormGroup, patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
-import { Table } from './table';
+import { EditableColumn, Table } from './table';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,11 +28,12 @@ export class TablePartsComponent implements OnInit, OnDestroy {
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
   @ViewChild(Table) dataTable: Table;
+  @ViewChildren(EditableColumn) editableColumns: QueryList<EditableColumn>;
 
   dataSource: any[];
   columns: ColumnDef[] = [];
   selection = [];
-  totalsCount = false;
+  showTotals = false;
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _valueChanges$: Subscription = Subscription.EMPTY;
@@ -32,14 +42,13 @@ export class TablePartsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.columns = this.control.controls.map((el) => {
-      const result: ColumnDef = {
+      return <ColumnDef>{
         field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, onChange: el.onChange, onChangeServer: el.onChangeServer,
         order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, data: el
       };
-      return result;
     });
     this.control.controls.forEach(v => v.showLabel = false);
-    this.totalsCount = this.control.controls.filter(v => v.totals > 0).length > 0;
+    this.showTotals = this.control.controls.findIndex(v => v.totals > 0) !== -1;
     this.dataSource = this.formGroup.getRawValue();
     this._subscription$ = this.ds.save$.subscribe(data => this.dataSource = this.formGroup.getRawValue());
   }
@@ -65,6 +74,15 @@ export class TablePartsComponent implements OnInit, OnDestroy {
     const newFormGroup = cloneFormGroup(this.formGroup['sample']);
     Object.values(newFormGroup.controls).forEach(c => { if (c.validator) { c.setErrors({ 'required': true }, { emitEvent: false }); } });
     this.addCopy(newFormGroup);
+    setTimeout(() => {
+      const rows = this.editableColumns.toArray();
+      const firsFiled = rows[0].field;
+      for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].field === firsFiled) {
+          return rows[i].openCell();
+        }
+      }
+    });
     // (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
 
@@ -86,14 +104,9 @@ export class TablePartsComponent implements OnInit, OnDestroy {
     this.selection = selectRow ? [selectRow] : [];
   }
 
-  onEditComplete(event) {
-  }
-
-  onEditInit(event) {
-  }
-
-  onEditCancel(event) {
-  }
+  onEditComplete(event) { }
+  onEditInit(event) { }
+  onEditCancel(event) { }
 
   calcTotals(field: string): number {
     let result = 0;
