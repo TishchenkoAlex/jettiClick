@@ -2418,8 +2418,8 @@ export class EditableColumn implements AfterViewInit {
     }
   }
 
-  isValid() {
-    return (this.dt.editingCell && this.domHandler.find(this.dt.editingCell, '.ng-invalid.ng-dirty').length === 0);
+  isValid() { // Tishchenko Fix
+    return true; //return (this.dt.editingCell && this.domHandler.find(this.dt.editingCell, '.ng-invalid.ng-dirty').length === 0);
   }
 
   @HostListener('click', ['$event'])

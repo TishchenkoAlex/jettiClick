@@ -18,14 +18,24 @@ body {
 }
 
 .ui-table .ui-table-tbody > tr > td {
-  height: 24px;
+  height: 24px; 
   white-space: nowrap; /* Отменяем перенос текста */
   overflow: hidden; /* Обрезаем содержимое */
   text-overflow: ellipsis; 
 }
 
+.tabViewClassInForm .ui-table .ui-table-tbody > tr > td {
+  height: 26px; 
+}
+
+.ui-table {
+  .ui-corner-all {
+    border-radius: 0 !important;
+  }
+}
+
 .ui-panel-titlebar {
-  padding: 6px 12px 6px 12px!important;
+  padding: 6px 12px 6px 12px !important;
 }
 
 .ui-panel .ui-panel-content {
@@ -42,6 +52,10 @@ body {
 
 .ui-tabview-nav li a {
   padding: 8px !important;
+}
+
+.tabViewClassInForm .ui-tabview-nav li a {
+  padding: 6px !important;
 }
 
 .ui-tabview.ui-tabview-top > .ui-tabview-nav {
@@ -75,7 +89,7 @@ body {
 // buttons
 .ui-button-icon-only .fa {
   margin-top : -.45em !important;
-  margin-left: -.45em !important;;
+  margin-left: -.48em !important;;
 }
 
 .ui-button-text-icon-left .fa {
