@@ -1,20 +1,20 @@
 <div [formGroup]="form" [ngSwitch]="control.controlType" *ngIf="!control.hidden" [style.marginTop]="control.showLabel ? '24px': ''"
   class="ui-fluid">
   <div *ngSwitchCase="'string'" [ngClass]="{'ui-float-label' : control.showLabel}">
-    <input #pc [required]="control.required" pInputText [formControlName]="control.key" [readOnly]="control.readOnly" autocomplete="off"
+    <input #pc [required]="control.required" pInputText [formControlName]="control.key" [readonly]="control.readOnly" autocomplete="off"
       (focus)="$event.target.select()">
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <div *ngSwitchCase="'textarea'" [ngClass]="{'ui-float-label' : control.showLabel}">
-    <textarea #pc [required]="control.required" pInputTextarea [formControlName]="control.key" [readOnly]="control.readOnly"
+    <textarea #pc [required]="control.required" pInputTextarea [formControlName]="control.key" [readonly]="control.readOnly"
       (focus)="$event.target.select()">
     </textarea>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <div *ngSwitchCase="'number'" [ngClass]="{'ui-float-label' : control.showLabel}">
-    <input #pc [required]="control.required" pInputText type="number" [formControlName]="control.key" [readOnly]="control.readOnly"
+    <input #pc [required]="control.required" pInputText type="number" [formControlName]="control.key" [readonly]="control.readOnly"
       autocomplete="off" (focus)="$event.target.select()">
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>

@@ -38,6 +38,7 @@ export class TabControllerComponent {
           const tab = tabStore.state.tabs.find(i => (i.docType === doc.type && i.docID === doc.id));
           if (tab) {
             tab.header = doc.description || tab.docType;
+            tab.icon = data.detail['metadata'].icon;
             tabStore.replace(tab);
           }
         } else {
@@ -45,6 +46,7 @@ export class TabControllerComponent {
             const tab = tabStore.state.tabs.find(i => (i.docType === data.detail.metadata.type) && !i.docID);
             if (tab) {
               tab.header = data.detail.metadata.menu;
+              tab.icon = data.detail.metadata.icon;
               tabStore.replace(tab);
             }
           }
@@ -67,7 +69,8 @@ export class TabControllerComponent {
     } else {
       this.tabStore.close(tab);
       const returnTab = this.tabStore.state.tabs[this.tabStore.state.selectedIndex];
-      this.router.navigate([returnTab.docType, returnTab.docID]);
+      this.router.navigate([returnTab.docType, returnTab.docID])
+        .then(() => setTimeout(() => this.tabStore.selectedIndex = this.tabStore.selectedIndex));
     }
   }
 }

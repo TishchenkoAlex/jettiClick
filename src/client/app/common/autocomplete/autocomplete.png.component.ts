@@ -130,17 +130,19 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
 
   getSuggests(text) {
-    this.api.getSuggests(this.value.type || this.type, text || '', this.isCatalogParent).pipe(take(1)).subscribe(data => {
+    this.api.getSuggests(this.value.type || this.type, text, this.isCatalogParent).pipe(take(1)).subscribe(data => {
       this.suggests$ = data;
       this.cd.detectChanges();
     });
   }
 
   handleReset = (event: Event) => this.value = this.EMPTY;
-  handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id], {queryParams: {}});
+  handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id], { queryParams: {} });
   handleSearch = (event: Event) => this.showDialog = true;
   select = () => this.input.inputEL.nativeElement.select();
-  onBlur() { if (this.value && this.suggest.value && (this.value.id !== this.suggest.value.id)) { this.value = this.value; } }
+  onBlur = (event: Event) => {
+    if (this.value && this.suggest.value && (this.value.id !== this.suggest.value.id)) { this.value = this.value; }
+  }
 
   searchComplete(row: ISuggest) {
     this.showDialog = false;

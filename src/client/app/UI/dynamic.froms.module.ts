@@ -56,6 +56,7 @@ import { TabsStore } from '../common/tabcontroller/tabs.store';
 
     OperationFormComponent,
     OperationListComponent,
+
   ],
   imports: [
     CommonModule,

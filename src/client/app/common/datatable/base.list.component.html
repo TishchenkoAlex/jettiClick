@@ -7,48 +7,27 @@
     <p-toolbar>
       <div class="ui-toolbar-group-left">
         <button pButton type="button" id="add" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
-        <button pButton type="button" id="open" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
-          (click)="open()"></button>
-        <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
-          (click)="copy()"></button>
-        <span *ngIf="isDoc">
-          <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && !table?.selection[0].posted"
-            (click)="post()"></button>
-          <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && table?.selection[0].posted"
-            (click)="post('unpost')"></button>
-        </span>
+        <button pButton type="button" id="open" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="table?.selection?.length == 1" (click)="open()"></button>
+        <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="table?.selection?.length == 1" (click)="copy()"></button>
+        <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && !table?.selection[0].posted && isDoc" (click)="post()"></button>
+        <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && table?.selection[0].posted && isDoc" (click)="post('unpost')"></button>
         <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()"></button>
         <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree"></button>
       </div>
-      <div class="ui-toolbar-group-right">
-        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first"></button>
-        <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first"></button>
-        <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last"></button>
-        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last"></button>
-        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id)"></button>
-        <button pButton type="button" icon="fa-close" class="ui-button-danger" (click)="close()"></button>
-      </div>
     </p-toolbar>
 
-    <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort()"
-      (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [resizableColumns]="true"
-      [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm"
-      [metaKeySelection]="true" [columns]="columns">
-      
-      <ng-template pTemplate="colgroup" let-columns>
-          <colgroup>
-              <col>
-              <col *ngFor="let col of columns">
-          </colgroup>
-      </ng-template>
-      
+    <p-table #tbl [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort()"
+      (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [filterDelay]="500"
+      (onContextMenuSelect)="onContextMenuSelect($event)" [contextMenu]="cm" [metaKeySelection]="true" [columns]="columns">
+
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th [ngStyle]="{'width': '24px', 'text-align': 'center'}"></th>
-          <th pResizableColumn pReorderableColumn [pSortableColumn]="column.field" *ngFor="let column of columns" [ngStyle]="column.style">
+          <th pReorderableColumn [pSortableColumn]="column.field" *ngFor="let column of columns" [ngStyle]="column.style">
             {{column.label}}
             <p-sortIcon [field]="column.field"></p-sortIcon>
           </th>
+          <th></th>
         </tr>
         <tr>
           <th [ngStyle]="{'width': '24px', 'text-align': 'center'}"></th>
@@ -76,11 +55,12 @@
               </j-autocomplete-png>
             </div>
           </th>
+          <th></th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-rowData let-columns="columns">
-        <tr [pSelectableRow]="rowData" [pContextMenuRow]="rowData" (dblclick)="open()">
+        <tr [pSelectableRow]="rowData" (dblclick)="open()">
           <td class="ui-resizable-column" [ngStyle]="{'width': '24px', 'text-align': 'center'}">
             <i *ngIf="rowData['posted'] && !rowData['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
             <i *ngIf="rowData['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
@@ -99,10 +79,20 @@
               <span *ngSwitchDefault [id]="column.field">{{rowData[column.field]?.value}}</span>
             </span>
           </td>
+          <td></td>
         </tr>
       </ng-template>
 
     </p-table>
+    <p-toolbar>
+      <div class="ui-toolbar-group-right">
+        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id)"></button>        
+        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last"></button>
+        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last"></button>
+      </div>
+    </p-toolbar>
   </div>
 </div>
 

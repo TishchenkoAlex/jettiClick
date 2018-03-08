@@ -15,6 +15,7 @@ import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings }
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToNoSQLFormat } from '../common/mapping/document.mapping';
+import { of } from 'rxjs/observable/of';
 
 @Injectable()
 export class ApiService {
@@ -51,6 +52,7 @@ export class ApiService {
   }
 
   getSuggests(docType: string, filter = '', isfolder = false) {
+    if (!filter) { return of([]); }
     const query = `${environment.api}suggest/${docType}/${isfolder ? 'isfolder/' : ''}${filter}`;
     return (this.http.get<ISuggest[]>(query));
   }

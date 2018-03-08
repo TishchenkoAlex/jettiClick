@@ -1,18 +1,8 @@
 import { Location } from '@angular/common';
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
-import { Table } from 'primeng/components/table/table';
 import { merge } from 'rxjs/observable/merge';
 import { debounceTime, filter as filter$ } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
@@ -29,6 +19,7 @@ import { UserSettingsService } from './../../auth/settings/user.settings.service
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
+import { Table } from './table';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +30,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   locale = calendarLocale; dateFormat = dateFormat;
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private tabStore: TabsStore,
-    public uss: UserSettingsService, public lds: LoadingService, private cd: ChangeDetectorRef, private location: Location) { }
+    public uss: UserSettingsService, public lds: LoadingService, private location: Location) { }
 
   private _docSubscription$: Subscription = Subscription.EMPTY;
   private _routeSubscruption$: Subscription = Subscription.EMPTY;
@@ -54,8 +45,12 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   get isDoc() { return this.type.startsWith('Document.'); }
   get isCatalog() { return this.type.startsWith('Catalog.'); }
   get id() { return this.table.selection && this.table.selection.length ? this.table.selection[0].id : ''; }
+  set id(value: string) {
+    this.table.preventSelectionSetterPropagation = false;
+    this.table.selection = [{ id: value, type: this.type }];
+  }
 
-  columns = (this.route.snapshot.data.detail.columnsDef as ColumnDef[])
+  columns = (this.route.snapshot.data.detail.columnsDef as ColumnDef[] || [])
     .filter(c => (!c.hidden && !(c.field === 'description' && this.isDoc)) || c.field === 'Group') || [];
   metadata: DocumentOptions = this.route.snapshot.data.detail.metadata || {};
 
@@ -74,13 +69,11 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(doc => {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
         if (exist) {
-          this.table.selection = [exist];
           this.dataSource.refresh(exist.id);
-          setTimeout(() => { this.table.selection = [exist]; this.cd.markForCheck(); });
+          this.id = exist.id;
         } else {
           this.dataSource.goto(doc.id);
-          this.table.selection = [doc];
-          setTimeout(() => { this.table.selection = [doc]; this.cd.markForCheck(); });
+          this.id = doc.id;
         }
       });
   }
@@ -98,9 +91,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(params => {
         const exist = this.dataSource.renderedData.find(d => d.id === params.goto);
         if (exist) {
-          this.table.selection = [exist];
-          setTimeout(() => { this.table.selection = [exist]; this.cd.markForCheck(); });
-          this.router.navigate([this.type], { replaceUrl: true });
+          this.router.navigate([this.type], { replaceUrl: true }).then(() => this.id = params.goto);
         } else {
           if (!this.settings.filter.length) {
             this.columns.forEach(f => this.table.filters[f.field] = { matchMode: f.filter.center, value: null });
@@ -108,7 +99,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.router.navigate([this.type], { replaceUrl: true })
             .then(() => {
               this.dataSource.goto(params.goto);
-              setTimeout(() => { this.table.selection = [{ id: params.goto, type: this.type }]; this.cd.markForCheck(); });
+              this.id = params.goto;
             });
         }
       });
@@ -154,14 +145,18 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   sort() {
+    this.prepareDataSource();
+    this.dataSource.sort();
+  }
+
+  private prepareDataSource() {
     this.dataSource.id = this.id;
     const order = (this.table.multiSortMeta || [])
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-    const filter = Object.keys(this.table.filters).map(f =>
-      <FormListFilter>{ left: f, center: this.table.filters[f].matchMode, right: this.table.filters[f].value });
+    const filter = Object.keys(this.table.filters)
+      .map(f => <FormListFilter>{ left: f, center: this.table.filters[f].matchMode, right: this.table.filters[f].value });
     const state: FormListSettings = { filter, order };
     this.dataSource.formListSettings.next(state);
-    this.dataSource.sort();
   }
 
   close() {
@@ -237,5 +232,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this._routeSubscruption$.unsubscribe();
     if (!this.route.snapshot.queryParams.goto) { this.saveUserSettings(); }
   }
+
 
 }

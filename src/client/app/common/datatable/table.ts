@@ -1946,7 +1946,7 @@ export class SortableColumn implements OnInit, OnDestroy {
   }
 
   isEnabled() {
-    return this.pSortableColumnDisabled !== false;
+    return this.pSortableColumnDisabled !== true;
   }
 
   ngOnDestroy() {
@@ -2045,6 +2045,22 @@ export class SelectableRow implements OnInit, OnDestroy {
     }
   }
 
+  @HostListener('window:keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    if (!(event.key === 'ArrowUp' || event.key === 'ArrowDown') ||
+      !(this.dt.selection && this.dt.selection[0] && this.dt.dataKey)) return;
+    if (this.dt.selection[0][this.dt.dataKey] === this.data[this.dt.dataKey]) {
+      event.stopImmediatePropagation();
+      const index = this.dt.value.findIndex(r => r[this.dt.dataKey] === this.data[this.dt.dataKey]);
+      let data;
+      if (event.key === 'ArrowDown') data = this.dt.value[index + 1]; else data = this.dt.value[index - 1];
+      if (data) {
+        this.dt.preventSelectionSetterPropagation = false;
+        this.dt.selection = [data];
+      }
+    }
+  }
+
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: Event) {
     if (this.isEnabled()) {
@@ -2053,7 +2069,7 @@ export class SelectableRow implements OnInit, OnDestroy {
   }
 
   isEnabled() {
-    return this.pSelectableRowDisabled !== false;
+    return this.pSelectableRowDisabled !== true;
   }
 
   ngOnDestroy() {
@@ -2109,7 +2125,7 @@ export class SelectableRowDblClick implements OnInit, OnDestroy {
   }
 
   isEnabled() {
-    return this.pSelectableRowDisabled !== false;
+    return this.pSelectableRowDisabled !== true;
   }
 
   ngOnDestroy() {
@@ -2188,7 +2204,7 @@ export class RowToggler {
   }
 
   isEnabled() {
-    return this.pRowTogglerDisabled !== false;
+    return this.pRowTogglerDisabled !== true;
   }
 }
 
@@ -2260,7 +2276,7 @@ export class ResizableColumn implements AfterViewInit, OnDestroy {
   }
 
   isEnabled() {
-    return this.pResizableColumnDisabled !== false;
+    return this.pResizableColumnDisabled !== true;
   }
 
   ngOnDestroy() {
@@ -2374,7 +2390,7 @@ export class ReorderableColumn implements AfterViewInit, OnDestroy {
   }
 
   isEnabled() {
-    return this.pReorderableColumnDisabled !== false;
+    return this.pReorderableColumnDisabled !== true;
   }
 
   ngOnDestroy() {
@@ -2553,7 +2569,7 @@ export class EditableColumn implements AfterViewInit {
   }
 
   isEnabled() {
-    return this.pEditableColumnDisabled !== false;
+    return this.pEditableColumnDisabled !== true;
   }
 
 }
@@ -2887,7 +2903,7 @@ export class ReorderableRow implements AfterViewInit {
   }
 
   isEnabled() {
-    return this.pReorderableRowDisabled !== false;
+    return this.pReorderableRowDisabled !== true;
   }
 
   @HostListener('drop', ['$event'])

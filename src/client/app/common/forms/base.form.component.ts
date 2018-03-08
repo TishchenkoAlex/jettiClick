@@ -32,7 +32,6 @@ export class BaseFormComponent implements OnInit {
     public cd: ChangeDetectorRef, public ds: DocService, private auth: AuthService, public tabStore: TabsStore) { }
 
   ngOnInit() {
-    console.log(this.form);
     this.auth.userProfile$.pipe(take(1)).subscribe();
   }
 

@@ -71,7 +71,7 @@ export class BaseTreeListComponent implements OnInit {
   onSelectionChange = (event) => this.selectionChange.emit(event);
 
   onDragEnd(event) {
-    console.log('drop', event);
+    // console.log('drop', event);
   }
 
 }

@@ -7,6 +7,16 @@ body {
 
 }
 
+.layout-wrapper .layout-main {
+  padding: 70px 8px 0px 8px;
+  margin: 0;
+}
+
+.card {
+  padding: 8px;
+  margin: 0;
+}
+
 .ui-table .ui-table-tbody > tr > td {
   height: 24px;
   white-space: nowrap; /* Отменяем перенос текста */
@@ -14,22 +24,24 @@ body {
   text-overflow: ellipsis; 
 }
 
-.ui-dropdown .ui-dropdown-clear-icon {
-  right: 3.5em;
+.ui-panel-titlebar {
+  padding: 6px 12px 6px 12px!important;
+}
+
+.ui-panel .ui-panel-content {
+  padding: 8px !important;
+}
+
+.ui-toolbar {
+  padding: 1px !important;
 }
 
 .ui-tabview .ui-tabview-panel {
   padding: 0;
 }
 
-.tabViewClassInForm .ui-tabview.ui-tabview-top .ui-tabview-nav {
-  padding: 0;
-  margin-bottom: -24px;
-  z-index: 31;
-}
-
-.tabViewClassInForm .ui-tabview-panels {
-  border-top: none !important;
+.ui-tabview-nav li a {
+  padding: 8px !important;
 }
 
 .ui-tabview.ui-tabview-top > .ui-tabview-nav {
@@ -40,25 +52,56 @@ body {
   padding: 0 !important;
 }
 
+.ui-tabview-nav li.ui-state-active {
+  border-bottom-color: #2399e5 !important;
+  .ui-tabview-title {
+    font-weight: bold;
+  }
+}
+
+.tabViewClassInForm .ui-tabview.ui-tabview-top .ui-tabview-nav {
+  padding: 0;
+  margin-bottom: -24px;
+}
+
+.tabViewClassInForm .ui-tabview-panels {
+  border-top: none !important;
+}
+
+.ui-dropdown .ui-dropdown-clear-icon {
+  right: 3.5em;
+}
+
+// buttons
+.ui-button-icon-only .fa {
+  margin-top : -.45em !important;
+  margin-left: -.45em !important;;
+}
+
+.ui-button-text-icon-left .fa {
+  margin-top: -.41em !important;
+}
+
+.ui-button-icon-only {
+  width: 2em !important;
+}
+
 .ui-datepicker.ui-widget .ui-datepicker-calendar td a {
   padding: 4px !important; 
 }
 
 .ui-timepicker {
   padding: 0px !important; 
-}
+}  
 
 .ui-spinner-button {
   display: none !important; 
-}
+}  
 
 j-control {
   width: 100% !important;
-}
+}  
 
-.ui-button-icon-only {
-  width: 2em !important;
-}
 
 .profile-image {
   border-radius: 50%;
@@ -75,22 +118,6 @@ j-control {
 .ui-column-filter {
   font-size: xx-small !important
 }
-/*
-.ui-datatable .ui-selection-column {
-  padding: 0.286em 0.55em !important;
-}
-
-.ui-table table {
-  border-collapse: collapse;
-  width: 100%;
-  table-layout: fixed;
-}
-
- .ui-table th,
-.ui-table td {
-  padding: .25em .5em;
-  border: 1px solid #d9d9d9;
-} */
 
 @keyframes ui-progress-spinner-color {
   100%,

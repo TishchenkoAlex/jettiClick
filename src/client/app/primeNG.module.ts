@@ -20,14 +20,14 @@ import { ProgressSpinnerModule } from 'primeng/components/progressspinner/progre
 import { SelectButtonModule } from 'primeng/components/selectbutton/selectbutton';
 import { SpinnerModule } from 'primeng/components/spinner/spinner';
 import { SplitButtonModule } from 'primeng/components/splitbutton/splitbutton';
-import { TableModule } from 'primeng/components/table/table';
+// import { TableModule } from 'primeng/components/table/table';
 import { TabViewModule } from 'primeng/components/tabview/tabview';
 import { ToolbarModule } from 'primeng/components/toolbar/toolbar';
 import { TooltipModule } from 'primeng/components/tooltip/tooltip';
 import { TreeTableModule } from 'primeng/components/treetable/treetable';
 import { TriStateCheckboxModule } from 'primeng/components/tristatecheckbox/tristatecheckbox';
 
-// import { TableModule } from './common/datatable/table';
+import { TableModule } from './common/datatable/table';
 
 @NgModule({
   exports: [

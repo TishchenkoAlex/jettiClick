@@ -11,7 +11,7 @@ interface TabsState {
 
 const initailState: TabsState = {
   selectedIndex: 0,
-  tabs: [{ header: 'home', docType: 'home', icon: 'fa fa-home', docID: '', routerLink: '/' + 'home' }]
+  tabs: [{ header: 'Home', docType: 'home', icon: 'fa fa-home', docID: '', routerLink: '/' + 'home' }]
 };
 
 export class TabsStore {

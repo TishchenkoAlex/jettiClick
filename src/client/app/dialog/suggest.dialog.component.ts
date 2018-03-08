@@ -10,15 +10,15 @@ import {
   ViewChild,
 } from '@angular/core';
 import { SortMeta } from 'primeng/components/common/sortmeta';
-import { Table } from 'primeng/components/table/table';
 import { debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { ColumnDef } from '../../../server/models/column';
-import { DocumentOptions, DocumentBase } from '../../../server/models/document';
+import { DocumentBase, DocumentOptions } from '../../../server/models/document';
 import { createDocument } from '../../../server/models/documents.factory';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../server/models/user.settings';
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
+import { Table } from '../common/datatable/table';
 import { calendarLocale, dateFormat } from '../primeNG.module';
 import { ApiService } from '../services/api.service';
 
@@ -38,6 +38,9 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
   columns: ColumnDef[] = [];
   doc: DocumentBase;
 
+  get isDoc() { return this.type.startsWith('Document.'); }
+  get isCatalog() { return this.type.startsWith('Catalog.'); }
+
   locale = calendarLocale; dateFormat = dateFormat;
   dataSource: ApiDataSource | null = null;
   private debonce$ = new Subject<{ col: any, event: any, center: string }>();
@@ -46,7 +49,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
 
   ngOnInit() {
     this.dataSource = new ApiDataSource(this.api, this.type, this.pageSize);
-    const data = [{ description: 'string' }, { code: 'string' }];
+    const data = [{ description: 'string' }, { code: 'string' }, { id: 'string' }];
     this.doc = createDocument(this.type as any);
     const schema = this.doc ? this.doc.Props() : {};
     const dimensions = this.doc ? (this.doc.Prop() as DocumentOptions).dimensions || [] : [];
@@ -55,11 +58,10 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
       this.columns.push({
         field, type: schema[field] && schema[field].type || type, label: schema[field] && schema[field].label || field,
         hidden: !!(schema[field] && schema[field].hidden), required: true, readOnly: false, sort: new FormListOrder(field),
-        order: schema[field] && schema[field].order || 0, style: schema[field] && schema[field].style || {width: '150px'},
+        order: schema[field] && schema[field].order || 0, style: schema[field] && schema[field].style || { width: '150px' },
       });
     });
     this.columns = this.columns.filter(c => !c.hidden);
-    console.log(this.columns);
   }
 
   ngAfterViewInit() {
@@ -67,6 +69,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
     this.setFilters();
     this.dataSource.formListSettings.next(this.settings);
     this.dataSource.goto(this.id);
+    this.table.preventSelectionSetterPropagation = false;
     this.table.selection = [{ id: this.id, type: this.type }];
 
     this.debonce$.pipe(debounceTime(500))
@@ -99,14 +102,18 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   sort() {
+    this.prepareDataSource();
+    this.dataSource.sort();
+  }
+
+  private prepareDataSource() {
     this.dataSource.id = this.table.selection && this.table.selection.length ? this.table.selection[0].id : '';
     const order = (this.table.multiSortMeta || [])
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-    const filter = Object.keys(this.table.filters).map(f =>
-      <FormListFilter>{ left: f, center: this.table.filters[f].matchMode, right: this.table.filters[f].value });
+    const filter = Object.keys(this.table.filters)
+      .map(f => <FormListFilter>{ left: f, center: this.table.filters[f].matchMode, right: this.table.filters[f].value });
     const state: FormListSettings = { filter, order };
     this.dataSource.formListSettings.next(state);
-    this.dataSource.sort();
   }
 
   open(event) {

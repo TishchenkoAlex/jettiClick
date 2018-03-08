@@ -51,9 +51,13 @@ export class ApiDataSource {
             this.renderedData = data.data;
             this.continuation = data.continuation;
           }),
-          catchError(err => { this.renderedData = []; return observableOf(this.EMPTY); }));
+          catchError(err => {
+            this.renderedData = this.EMPTY.data;
+            this.continuation = this.EMPTY.continuation;
+            return observableOf(this.EMPTY);
+          }));
       }),
-      map(data => data['data']), share());
+      map(data => data.data), share());
   }
 
   refresh(id: string) { this.paginator.next({ command: 'refresh' }); }

@@ -2,7 +2,7 @@
 
   <div *ngIf="value?.type === 'string'">
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
-      <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" [readOnly]="readOnly"
+      <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" [readonly]="readOnly"
         autocomplete="off" (focus)="$event.target.select()" (ngModelChange)="value={id: 'string', code: '', type: 'string', value: $event}">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
@@ -12,7 +12,7 @@
   <div *ngIf="value?.type === 'number'">
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
       <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" type="number"
-        [readOnly]="readOnly" autocomplete="off" (focus)="$event.target.select()" (ngModelChange)="value={id: 'number', code: '', type: 'number', value: $event}">
+        [readonly]="readOnly" autocomplete="off" (focus)="$event.target.select()" (ngModelChange)="value={id: 'number', code: '', type: 'number', value: $event}">
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
@@ -50,7 +50,8 @@
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
       <p-autoComplete #ac [formControl]="suggest" [suggestions]="suggests$" [required]="required" [readonly]="readOnly" autocomplete="off"
         appendTo="body" (completeMethod)="getSuggests($event.query)" field="value" (onSelect)="this.value = this.suggest.value"
-        [inputStyle]="inputStyle" (onClear)="handleReset($event)" dataKey="id" (onFocus)="this.focus.emit($event)" (onBlur)="onBlur()">
+        [inputStyle]="inputStyle" (onClear)="handleReset($event)" dataKey="id" (onFocus)="this.focus.emit($event)" (onBlur)="onBlur($event)"
+        [autoHighlight]="true">
       </p-autoComplete>
       <button pButton type="button" icon="fa-search" class="ui-button-secondary" *ngIf="showFind" (click)="handleSearch($event)"
         [tabIndex]=-1></button>
@@ -65,7 +66,7 @@
 
 <div *ngIf="showDialog">
   <p-dialog [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true" [closeOnEscape]="true"
-    [width]="400" [height]="555" appendTo="body">
+    [width]="500" [height]="555" appendTo="body">
     <j-suggest-list [type]="value.type || type" [id]="value.id" [settings]="calcFilters()" (Select)="searchComplete($event)"></j-suggest-list>
   </p-dialog>
 </div>

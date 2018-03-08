@@ -1,7 +1,6 @@
 // tslint:disable:no-output-on-prefix
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { Table } from 'primeng/components/table/table';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -9,6 +8,7 @@ import { TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base
 import { cloneFormGroup, patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
+import { Table } from './table';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
