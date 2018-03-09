@@ -44,10 +44,10 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get isDoc() { return this.type.startsWith('Document.'); }
   get isCatalog() { return this.type.startsWith('Catalog.'); }
-  get id() { return this.table.selection && this.table.selection.length ? this.table.selection[0].id : ''; }
-  set id(value: string) {
+  get id() { return { id: this.table.selection && this.table.selection.length ? this.table.selection[0].id : '', posted: true }; }
+  set id(value: { id: string, posted: boolean }) {
     this.table.preventSelectionSetterPropagation = false;
-    this.table.selection = [{ id: value, type: this.type }];
+    this.table.selection = [{ id: value.id, type: this.type, posted: value.posted }];
   }
 
   columns = (this.route.snapshot.data.detail.columnsDef as ColumnDef[] || [])
@@ -70,10 +70,10 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
         if (exist) {
           this.dataSource.refresh(exist.id);
-          this.id = exist.id;
+          this.id = { id: exist.id, posted: exist.posted };
         } else {
           this.dataSource.goto(doc.id);
-          this.id = doc.id;
+          this.id = { id: doc.id, posted: doc.posted };
         }
       });
   }
@@ -91,7 +91,9 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(params => {
         const exist = this.dataSource.renderedData.find(d => d.id === params.goto);
         if (exist) {
-          this.router.navigate([this.type], { replaceUrl: true }).then(() => this.id = params.goto);
+          this.dataSource.refresh(exist.id);
+          this.router.navigate([this.type], { replaceUrl: true })
+            .then(() => this.id = { id: exist.id, posted: exist.posted });
         } else {
           if (!this.settings.filter.length) {
             this.columns.forEach(f => this.table.filters[f.field] = { matchMode: f.filter.center, value: null });
@@ -99,7 +101,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.router.navigate([this.type], { replaceUrl: true })
             .then(() => {
               this.dataSource.goto(params.goto);
-              this.id = params.goto;
+              this.id = { id: params.goto, posted: true };
             });
         }
       });
@@ -150,7 +152,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private prepareDataSource() {
-    this.dataSource.id = this.id;
+    this.dataSource.id = this.id.id;
     const order = (this.table.multiSortMeta || [])
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
     const filter = Object.keys(this.table.filters)
@@ -198,7 +200,9 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     const tasksCount = this.table.selection.length; let i = tasksCount;
     for (const s of this.table.selection) {
       this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
-      if (mode === 'post') { await this.ds.post(s.id); } else { await this.ds.unpost(s.id); }
+      if (mode === 'post') await this.ds.post(s.id); else await this.ds.unpost(s.id);
+      this.table.preventSelectionSetterPropagation = false;
+      this.table.selection = [s];
     }
     this.lds.counter = 0;
     this.dataSource.refresh(this.table.selection[0].id);

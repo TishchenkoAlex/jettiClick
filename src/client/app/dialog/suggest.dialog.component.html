@@ -1,12 +1,4 @@
-<div cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
-  <p-toolbar>
-    <div class="ui-toolbar-group-right">
-      <button pButton type="button" icon="fa-fast-backward" (click)="dataSource.first()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.first"></button>
-      <button pButton type="button" icon="fa-step-backward" (click)="dataSource.prev()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.first"></button>
-      <button pButton type="button" icon="fa-step-forward" (click)="dataSource.next()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.last"></button>
-      <button pButton type="button" icon="fa-fast-forward" (click)="dataSource.last()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.last"></button>
-    </div>
-  </p-toolbar>
+<div cdkTrapFocus [cdkTrapFocusAutoCapture]="true" fxFill>
 
   <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort()"
     (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [resizableColumns]="true"
@@ -80,4 +72,14 @@
     </ng-template>
 
   </p-table>
+  <div *ngIf="dataSource.renderedData.length === pageSize" style="bottom: 8px; left: 8px; right: 8px; position: absolute">
+    <p-toolbar>
+      <div class="ui-toolbar-group-right">
+        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource.first()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-backward" (click)="dataSource.prev()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-forward" (click)="dataSource.next()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.last"></button>
+        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource.last()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.last"></button>
+      </div>
+    </p-toolbar>
+  </div>
 </div>

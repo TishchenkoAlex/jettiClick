@@ -30,7 +30,7 @@ import { ApiService } from '../services/api.service';
 export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() type;
   @Input() id;
-  @Input() pageSize = 15;
+  @Input() pageSize = 18;
   @Input() settings: FormListSettings = new FormListSettings();
   @Output() Select = new EventEmitter();
   @ViewChild(Table) table: Table = null;

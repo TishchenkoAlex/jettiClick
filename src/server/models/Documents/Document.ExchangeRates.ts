@@ -16,7 +16,7 @@ export class DocumentExchangeRates extends DocumentBase {
 }
 
 class TableRates {
-  @Props({ type: 'Catalog.Currency', required: true, style: { width: '100px' } })
+  @Props({ type: 'Catalog.Currency', required: true, style: { width: '150px' } })
   Currency: Ref = null;
 
   @Props({ type: 'number', required: true })

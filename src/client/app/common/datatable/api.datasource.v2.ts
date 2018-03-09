@@ -39,29 +39,31 @@ export class ApiDataSource {
           case 'next': id = this.continuation.last.id as string; break;
           case 'refresh': case 'sort': case undefined:
             offset = this.renderedData.findIndex(r => r.id === id);
-            if (offset === -1) { offset = 0; } else { id = this.renderedData[offset].id; }
+            if (offset === -1) offset = 0; else id = this.renderedData[offset].id;
             stream.command = 'sort';
             break;
-          case 'goto': id = stream.data; break;
         }
 
         return this.api.getDocList(this.type, id, stream.command, this.pageSize, offset,
           this.formListSettings.value.order, this.formListSettings.value.filter).pipe(
-          tap(data => {
-            this.renderedData = data.data;
-            this.continuation = data.continuation;
-          }),
-          catchError(err => {
-            this.renderedData = this.EMPTY.data;
-            this.continuation = this.EMPTY.continuation;
-            return observableOf(this.EMPTY);
-          }));
+            tap(data => {
+              this.renderedData = data.data;
+              this.continuation = data.continuation;
+            }),
+            catchError(err => {
+              this.renderedData = this.EMPTY.data;
+              this.continuation = this.EMPTY.continuation;
+              return observableOf(this.EMPTY);
+            }));
       }),
       map(data => data.data), share());
   }
 
   refresh(id: string) { this.paginator.next({ command: 'refresh' }); }
-  goto(id: string) { this.id = id; this.paginator.next({ command: 'goto' }); }
+  goto(id: string) {
+    this.id = id;
+    this.paginator.next({ command: 'goto' });
+  }
   sort() { this.paginator.next({ command: 'sort' }); }
   first() { this.paginator.next({ command: 'first' }); }
   last() { this.paginator.next({ command: 'last' }); }

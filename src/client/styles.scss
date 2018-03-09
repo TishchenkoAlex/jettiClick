@@ -36,9 +36,10 @@ body {
 }
 }
 
-
 .ui-panel-titlebar {
   padding: 6px 12px 6px 12px !important;
+  justify-content: space-between !important;
+  display: flex;
 }
 
 .ui-panel .ui-panel-content {
@@ -50,7 +51,7 @@ body {
 }
 
 .ui-tabview .ui-tabview-panel {
-  padding: 0;
+  padding: 0 !important;
 }
 
 .ui-tabview-nav li a {
@@ -114,6 +115,20 @@ body {
 .ui-spinner-button {
   display: none !important; 
 }  
+
+.ui-dialog .ui-dialog-content {
+  padding: 8px !important;
+  height: 100% ;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+  padding: .5em .75em !important;
+}
+
+.ui-dialog {
+  display: flex !important;
+  flex-direction: column !important;
+} 
 
 j-control {
   width: 100% !important;

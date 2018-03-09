@@ -19,15 +19,15 @@ export class RegisterMovementComponent implements OnInit {
   movements$: Observable<AccountRegister[]>;
   @Input() doc: DocumentBase;
 
-  constructor(private apiService: ApiService, private docService: DocService) { }
+  constructor(private api: ApiService, private ds: DocService) { }
 
   ngOnInit() {
     this.movements$ = merge(...[
-      this.docService.save$,
-      this.docService.delete$,
-      this.docService.do$]
+      this.ds.save$,
+      this.ds.delete$,
+      this.ds.do$]
     ).pipe(startWith(this.doc),
       filter(doc => doc.id === this.doc.id),
-      switchMap(doc => this.apiService.getDocAccountMovementsView(this.doc.id)));
+      switchMap(doc => this.api.getDocAccountMovementsView(this.doc.id)));
   }
 }

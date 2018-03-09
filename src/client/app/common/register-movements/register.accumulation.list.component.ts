@@ -18,7 +18,7 @@ export class RegisterAccumulationListComponent implements OnInit {
   infoList$: Observable<any[]>;
   @Input() doc: DocumentBase;
 
-  constructor(private apiService: ApiService, private ds: DocService) { }
+  constructor(private api: ApiService, private ds: DocService) { }
 
   ngOnInit() {
 
@@ -29,7 +29,7 @@ export class RegisterAccumulationListComponent implements OnInit {
     ).pipe(
       startWith(this.doc),
       filter(doc => doc.id === this.doc.id),
-      switchMap(doc => this.apiService.getDocRegisterAccumulationList(this.doc.id)));
+      switchMap(doc => this.api.getDocRegisterAccumulationList(this.doc.id)));
 
     this.infoList$ = merge(...[
       this.ds.save$,
@@ -38,6 +38,6 @@ export class RegisterAccumulationListComponent implements OnInit {
     ).pipe(
       startWith(this.doc),
       filter(doc => doc.id === this.doc.id),
-      switchMap(doc => this.apiService.getDocRegisterInfoList(this.doc.id)));
+      switchMap(doc => this.api.getDocRegisterInfoList(this.doc.id)));
   }
 }
