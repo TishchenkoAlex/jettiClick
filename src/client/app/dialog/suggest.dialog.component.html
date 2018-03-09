@@ -1,20 +1,13 @@
-<div cdkTrapFocus [cdkTrapFocusAutoCapture]="true" fxFill>
+<div cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
 
   <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort()"
-    (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [resizableColumns]="true"
+    (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true"
     [filterDelay]="500" [metaKeySelection]="true" [columns]="columns">
-    
-    <ng-template pTemplate="colgroup" let-columns>
-      <colgroup>
-        <col>
-        <col *ngFor="let col of columns">
-      </colgroup>
-    </ng-template>
 
     <ng-template pTemplate="header" let-columns>
       <tr>
         <th [ngStyle]="{'width': '24px', 'text-align': 'center'}"></th>
-        <th pResizableColumn pReorderableColumn [pSortableColumn]="column.field" *ngFor="let column of columns" [ngStyle]="column.style">
+        <th pReorderableColumn [pSortableColumn]="column.field" *ngFor="let column of columns" [ngStyle]="column.style">
           {{column.label}}
           <p-sortIcon [field]="column.field"></p-sortIcon>
         </th>
@@ -72,13 +65,17 @@
     </ng-template>
 
   </p-table>
-  <div *ngIf="dataSource.renderedData.length === pageSize" style="bottom: 8px; left: 8px; right: 8px; position: absolute">
+
+  <div style="bottom: 8px; left: 8px; right: 8px; position: absolute">
     <p-toolbar>
+      <div class="ui-toolbar-group-left">
+        <button pButton type="button" icon="fa-check-square-o" label="Select&Close" class="ui-button-warning" [disabled]="table?.selection?.length !== 1" (click)="open()"></button>
+      </div>
       <div class="ui-toolbar-group-right">
-        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource.first()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.first"></button>
-        <button pButton type="button" icon="fa-step-backward" (click)="dataSource.prev()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.first"></button>
-        <button pButton type="button" icon="fa-step-forward" (click)="dataSource.next()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.last"></button>
-        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource.last()" [tabIndex]=-1 [disabled]="!dataSource.continuation?.last"></button>
+        <button pButton type="button" icon="fa-fast-backward" (click)="table.selection = []; dataSource.first()" [disabled]="!dataSource.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-backward" (click)="table.selection = []; dataSource.prev()" [disabled]="!dataSource.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-forward"  (click)="table.selection = []; dataSource.next()" [disabled]="!dataSource.continuation?.last"></button>
+        <button pButton type="button" icon="fa-fast-forward"  (click)="table.selection = []; dataSource.last()" [disabled]="!dataSource.continuation?.last"></button>
       </div>
     </p-toolbar>
   </div>

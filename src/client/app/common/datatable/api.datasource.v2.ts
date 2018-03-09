@@ -15,10 +15,7 @@ interface DatasourceCommand { command: string; data?: any; }
 export class ApiDataSource {
 
   private paginator = new Subject<DatasourceCommand>();
-
-  id = '';
-  formListSettings = new BehaviorSubject<FormListSettings>(new FormListSettings());
-
+  id = ''; formListSettings = new BehaviorSubject<FormListSettings>(new FormListSettings());
   result$: Observable<DocumentBase[]>;
   renderedData: DocumentBase[] = [];
 
@@ -60,10 +57,7 @@ export class ApiDataSource {
   }
 
   refresh(id: string) { this.paginator.next({ command: 'refresh' }); }
-  goto(id: string) {
-    this.id = id;
-    this.paginator.next({ command: 'goto' });
-  }
+  goto(id: string) { this.id = id; this.paginator.next({ command: 'goto' }); }
   sort() { this.paginator.next({ command: 'sort' }); }
   first() { this.paginator.next({ command: 'first' }); }
   last() { this.paginator.next({ command: 'last' }); }

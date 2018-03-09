@@ -1,10 +1,10 @@
+// tslint:disable:max-line-length
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { TreeNode } from 'primeng/components/common/treenode';
 
 import { BaseTreeListComponent } from '../../common/datatable/base.tree-list.component';
 
-// tslint:disable:max-line-length
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-tree-list-toolbar',

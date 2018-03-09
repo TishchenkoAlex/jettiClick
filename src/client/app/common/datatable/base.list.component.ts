@@ -1,5 +1,14 @@
 import { Location } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
@@ -30,7 +39,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   locale = calendarLocale; dateFormat = dateFormat;
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService, private tabStore: TabsStore,
-    public uss: UserSettingsService, public lds: LoadingService, private location: Location) { }
+    public uss: UserSettingsService, public lds: LoadingService, private location: Location, public cd: ChangeDetectorRef) { }
 
   private _docSubscription$: Subscription = Subscription.EMPTY;
   private _routeSubscruption$: Subscription = Subscription.EMPTY;
@@ -48,6 +57,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   set id(value: { id: string, posted: boolean }) {
     this.table.preventSelectionSetterPropagation = false;
     this.table.selection = [{ id: value.id, type: this.type, posted: value.posted }];
+    setTimeout(() => this.cd.detectChanges());
   }
 
   columns = (this.route.snapshot.data.detail.columnsDef as ColumnDef[] || [])
@@ -113,7 +123,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   private setFilters() {
     if (this.settings.filter.length) {
       this.settings.filter
-        .filter(f => f.right)
         .forEach(f => this.table.filters[f.left] = { matchMode: f.center, value: f.right });
     }
   }
@@ -216,8 +225,9 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   onContextMenuSelect(event) {
     let el = (event.originalEvent as MouseEvent).srcElement;
     while (!el.id && el.lastElementChild) { el = el.lastElementChild; }
-    const value = this.table.selection[0][el.id];
+    const value = event.data[el.id];
     this.ctxData = { column: el.id, value: value && value.id ? value : value };
+    this.id = { id: value.id, posted: value.posted };
   }
 
   private saveUserSettings() {

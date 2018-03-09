@@ -13,7 +13,7 @@ import { ApiService } from '../../services/api.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-tree-list',
   template: `
-    <div style="width: 250px" >
+    <div style="width: 220px" >
       <j-tree-list-toolbar [owner]="this" [selection]="selection"></j-tree-list-toolbar>
       <p-treeTable [value]="treeNodes$ | async"
         selectionMode="single" [(selection)]="selection" (selectionChange)="onSelectionChange($event)">

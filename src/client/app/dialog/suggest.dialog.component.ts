@@ -30,11 +30,10 @@ import { ApiService } from '../services/api.service';
 export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() type;
   @Input() id;
-  @Input() pageSize = 18;
+  @Input() pageSize = 17;
   @Input() settings: FormListSettings = new FormListSettings();
   @Output() Select = new EventEmitter();
   @ViewChild(Table) table: Table = null;
-  // tslint:disable:max-line-length
   columns: ColumnDef[] = [];
   doc: DocumentBase;
 

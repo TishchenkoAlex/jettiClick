@@ -158,4 +158,8 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
     return result;
   }
+
+  calcDialogWidth() {
+    return Math.max(Math.floor(window.innerWidth / 2.5), 400);
+  }
 }

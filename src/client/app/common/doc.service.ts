@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 import { ConfirmationService } from 'primeng/components/common/confirmationservice';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { Subject } from 'rxjs/Subject';
@@ -21,7 +21,7 @@ export class DocService {
   private readonly _delete$ = new Subject<DocumentBase>();
   delete$ = this._delete$.asObservable();
 
-  private readonly _close$ = new Subject<{url: string, skip?: boolean}>();
+  private readonly _close$ = new Subject<{ url: string, skip?: boolean }>();
   close$ = this._close$.asObservable();
 
   private readonly _saveClose$ = new Subject<DocumentBase>();
@@ -39,7 +39,7 @@ export class DocService {
     return this.api.postDoc(doc).toPromise()
       .then(savedDoc => {
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
-        const subject$ = close ?  this._saveClose$ : this._save$;
+        const subject$ = close ? this._saveClose$ : this._save$;
         subject$.next(savedDoc);
       });
   }
@@ -63,7 +63,7 @@ export class DocService {
   }
 
   close(url: string, skip = false) {
-    this._close$.next({url, skip});
+    this._close$.next({ url, skip });
   }
 
   openSnackBar(severity: string, message: string, detail: string) {

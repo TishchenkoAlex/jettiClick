@@ -38,8 +38,6 @@ body {
 
 .ui-panel-titlebar {
   padding: 6px 12px 6px 12px !important;
-  justify-content: space-between !important;
-  display: flex;
 }
 
 .ui-panel .ui-panel-content {
@@ -167,3 +165,11 @@ j-control {
   }
 }
 
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
