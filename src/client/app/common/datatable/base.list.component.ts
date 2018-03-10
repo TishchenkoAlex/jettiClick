@@ -9,7 +9,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterEvent } from '@angular/router';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
 import { merge } from 'rxjs/observable/merge';
@@ -86,14 +86,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.id = { id: doc.id, posted: doc.posted };
         }
       });
-  }
-
-  ngAfterViewInit() {
-    this.setSortOrder();
-    this.setFilters();
-    this.setContextMenu();
-    this.dataSource.formListSettings.next(this.settings);
-    this.dataSource.first();
 
     // обработка команды найти в списке
     this._routeSubscruption$ = this.route.queryParams.pipe(
@@ -116,8 +108,15 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
 
-    this.debonce$.pipe(debounceTime(500))
-      .subscribe(event => this._update(event.col, event.event, event.center));
+    this.debonce$.pipe(debounceTime(500)).subscribe(event => this._update(event.col, event.event, event.center));
+  }
+
+  ngAfterViewInit() {
+    this.setSortOrder();
+    this.setFilters();
+    this.setContextMenu();
+    this.dataSource.formListSettings.next(this.settings);
+    this.dataSource.first();
   }
 
   private setFilters() {
@@ -148,14 +147,14 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   private _update(col: ColumnDef, event, center) {
     if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
     this.table.filters[col.field] = { matchMode: center || col.filter.center, value: event };
-    this.sort();
+    this.sort(event);
   }
   update(col: ColumnDef, event, center = 'like') {
     if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) { event = null; }
     this.debonce$.next({ col, event, center });
   }
 
-  sort() {
+  sort(event) {
     this.prepareDataSource();
     this.dataSource.sort();
   }
@@ -219,7 +218,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   parentChange(event) {
     this.table.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null };
-    this.sort();
+    this.sort(event);
   }
 
   onContextMenuSelect(event) {

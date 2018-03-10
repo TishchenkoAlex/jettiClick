@@ -1,12 +1,4 @@
-import { IDatabase, IMain, ITask } from 'pg-promise';
-import * as pgPromise from 'pg-promise';
-
-import { IO } from '.';
 import { MSSQL } from './mssql';
-
-const pgp: IMain = pgPromise({});
-pgp.pg.types.setTypeParser(1700, parseFloat);
-pgp.pg.types.setTypeParser(20, parseInt);
 
 /* export const db: IDatabase<any> = pgp(connString);
 export const ADB: IDatabase<any> = pgp(accountDB);

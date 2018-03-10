@@ -177,8 +177,8 @@ export class DynamicFormService {
     return this.api.getView(type);
   }
 
-  getFormView$(type: FormTypes) {
-    const form = createForm(type);
+  getFormView$(type: string) {
+    const form = createForm(type as FormTypes);
     const view = form.Props();
     const result = getFormGroup(view, {}, false);
     result['metadata'] = form.Prop();

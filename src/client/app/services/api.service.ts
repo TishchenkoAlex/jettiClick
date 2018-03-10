@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Params } from '@angular/router';
 import { JobOptions } from 'bull';
 import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
@@ -15,7 +17,6 @@ import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings }
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapDocToNoSQLFormat } from '../common/mapping/document.mapping';
-import { of } from 'rxjs/observable/of';
 
 @Injectable()
 export class ApiService {
@@ -38,17 +39,20 @@ export class ApiService {
     return (this.http.post(query, body) as Observable<DocListResponse>);
   }
 
-  getView(type: string): Observable<{ schema: { [x: string]: any }, columnsDef: ColumnDef[], metadata: { [x: string]: any } }> {
+  getView(type: string) {
     const query = `${environment.api}view`;
-    return this.http.post(query, {type}).pipe(
-      map(o => ({ schema: o['view'], columnsDef: o['columnDef'], metadata: o['prop'], settings: o['settings'] })));
+    return this.http.post(query, { type }).pipe(
+      map(o => ({
+        schema: o['view'] as Params, columnsDef: o['columnDef'] as ColumnDef,
+        metadata: o['prop'] as Params, settings: o['settings'] as FormListSettings
+      })));
   }
 
-  getViewModel(type: string, id = '', queryParams: {[key: string]: any} = {}):
-    Observable<{ schema: any, columnsDef: ColumnDef[], metadata: { [x: string]: any }, DTO: any, settings: FormListSettings  }> {
+  getViewModel(type: string, id = '', queryParams: { [key: string]: any } = {}):
+    Observable<{ schema: any, columnsDef: ColumnDef[], metadata: { [x: string]: any }, DTO: any, settings: FormListSettings }> {
     const query = `${environment.api}view`;
-    return this.http.post(query, {type, id, ...queryParams}).pipe(
-      map(o => ({ schema: o['view'], columnsDef: o['columnDef'], metadata: o['prop'], DTO: o['model'], settings: o['settings']   })));
+    return this.http.post(query, { type, id, ...queryParams }).pipe(
+      map(o => ({ schema: o['view'], columnsDef: o['columnDef'], metadata: o['prop'], DTO: o['model'], settings: o['settings'] })));
   }
 
   getSuggests(docType: string, filter = '', isfolder = false) {

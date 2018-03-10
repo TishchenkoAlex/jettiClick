@@ -8,21 +8,21 @@
     <ng-content></ng-content>
     <p-toolbar>
       <div class="ui-toolbar-group-left">
-        <button pButton type="button" id="add" icon="fa-plus" class="ui-button-success" (click)="add()"></button>
+        <button pButton type="button" id="add" icon="fa-plus" class="ui-button-success" (click)="add()" [disabled]="(lds.loading$ | async)"></button>
         <button pButton type="button" id="open" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
-          (click)="open()"></button>
+          (click)="open()" [disabled]="(lds.loading$ | async)"></button>
         <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
-          (click)="copy()"></button>
+          (click)="copy()" [disabled]="(lds.loading$ | async)"></button>
         <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && !table?.selection[0].posted && isDoc"
-          (click)="post()"></button>
+          (click)="post()" [disabled]="(lds.loading$ | async)"></button>
         <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && table?.selection[0].posted && isDoc"
-          (click)="post('unpost')"></button>
-        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()"></button>
-        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree"></button>
+          (click)="post('unpost')" [disabled]="(lds.loading$ | async)"></button>
+        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()" [disabled]="(lds.loading$ | async)"></button>
+        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree" [disabled]="(lds.loading$ | async)"></button>
       </div>
     </p-toolbar>
 
-    <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort()" (onFilter)="sort()"
+    <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort($event)" (onFilter)="sort($event)"
       sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)"
       [contextMenu]="cm" [metaKeySelection]="true" [columns]="columns" class="noselect">
 
@@ -93,11 +93,11 @@
 
     <p-toolbar>
       <div class="ui-toolbar-group-right">
-        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id.id)"></button>
-        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first"></button>
-        <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first"></button>
-        <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last"></button>
-        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last"></button>
+        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id.id)" [disabled]="(lds.loading$ | async)"></button>
+        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first || (lds.loading$ | async)"></button>
+        <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first || (lds.loading$ | async)"></button>
+        <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last || (lds.loading$ | async)"></button>
+        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last || (lds.loading$ | async)"></button>
       </div>
     </p-toolbar>
 

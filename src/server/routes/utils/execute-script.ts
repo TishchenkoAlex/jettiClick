@@ -1,5 +1,3 @@
-import { ITask } from 'pg-promise';
-
 import { PostResult } from '../../models/post.interfaces';
 import { DocumentBaseServer, INoSqlDocument } from './../../models/ServerDocument';
 import { lib } from './../../std.lib';

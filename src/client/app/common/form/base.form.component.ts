@@ -12,6 +12,7 @@ import { calculateDescription } from '../../../../server/models/api';
 import { DocumentBase } from '../../../../server/models/document';
 import { DocService } from '../../common/doc.service';
 import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
+import { LoadingService } from '../loading.service';
 import { TabsStore } from '../tabcontroller/tabs.store';
 
 @Component({
@@ -49,7 +50,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
   private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
 
-  constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
+  constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia, public lds: LoadingService,
     public cd: ChangeDetectorRef, public ds: DocService, public location: Location, public tabStore: TabsStore) { }
 
   ngOnInit() {

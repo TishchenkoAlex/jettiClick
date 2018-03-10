@@ -37,11 +37,13 @@ import { PaginatorModule } from 'primeng/components/paginator/paginator';
 export class TableService {
 
   private sortSource = new Subject<SortMeta | SortMeta[]>();
+  private filterSource = new Subject<{ [f: string]: FilterMetadata }>();
   private selectionSource = new Subject();
   private contextMenuSource = new Subject<any>();
   private valueSource = new Subject<any>();
 
   sortSource$ = this.sortSource.asObservable();
+  filterSource$ = this.filterSource.asObservable();
   selectionSource$ = this.selectionSource.asObservable();
   contextMenuSource$ = this.contextMenuSource.asObservable();
   valueSource$ = this.valueSource.asObservable();
@@ -60,6 +62,10 @@ export class TableService {
 
   onValueChange(value: any) {
     this.valueSource.next(value);
+  }
+
+  onFilter(filterMetadata: { [s: string]: FilterMetadata }) {
+    this.filterSource.next(filterMetadata);
   }
 }
 
@@ -1088,6 +1094,7 @@ export class Table implements OnInit, AfterContentInit {
       filters: this.filters,
       filteredValue: this.filteredValue || this.value
     });
+    this.tableService.onFilter(this.filters);
   }
 
   hasFilter() {

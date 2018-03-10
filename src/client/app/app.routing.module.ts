@@ -40,7 +40,6 @@ export class TabResolver implements Resolve<any> {
   }
 }
 
-
 // tslint:disable:max-line-length
 export const routes: Routes = [
   { path: ':type/:id', component: TabControllerComponent, resolve: { detail: TabResolver }, canActivate: [AuthGuardService] },

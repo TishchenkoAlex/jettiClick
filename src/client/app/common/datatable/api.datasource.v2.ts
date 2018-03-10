@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { of as observableOf } from 'rxjs/observable/of';
-import { catchError, filter, map, share, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, share, switchMap, tap, startWith } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { Continuation, DocListResponse } from '../../../../server/models/api';
@@ -22,7 +22,7 @@ export class ApiDataSource {
   continuation: Continuation = { first: { id: 'first', type: this.type }, last: { id: 'last', type: this.type } };
   private EMPTY: DocListResponse = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first } };
 
-  constructor(public api: ApiService, public type: DocTypes = null, public pageSize = 10) {
+  constructor(public api: ApiService, public type: DocTypes, public pageSize = 10) {
 
     this.result$ = this.paginator.pipe(
       filter(stream => !(
