@@ -23,18 +23,21 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
 
   update = async (value) => {
     const operation = value.id ?
-      (await this.super.ds.api.getRawDoc(value.id).toPromise()) : { doc: { Parameters: [] } };
+      await this.super.ds.api.getRawDoc(value.id).toPromise() :
+      { doc: { Parameters: [] } };
     const view = this.super.schema;
+    Object.keys(view).filter(k => view[k].order > 100).forEach(k => delete view[k]);
     const Parameters = operation.doc['Parameters'];
     Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
       label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
       [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
     });
     this.form = getFormGroup(view, this.super.model, true);
-    this.super.form = this.form;
     this.ngAfterViewInit();
     this.super.cd.detectChanges();
   }
+
+  Close = () => this.super.Close();
 
   ngOnDestroy = () => this._subscription$.unsubscribe();
 }

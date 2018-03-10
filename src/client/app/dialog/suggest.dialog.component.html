@@ -69,7 +69,7 @@
   <div style="bottom: 8px; left: 8px; right: 8px; position: absolute">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
-        <button pButton type="button" icon="fa-check-square-o" label="Select&Close" class="ui-button-warning" [disabled]="table?.selection?.length !== 1" (click)="open()"></button>
+        <button pButton type="button" icon="fa-check-square-o" label="Select&Close" class="ui-button-warning" [disabled]="table?.selection?.length !== 1" (click)="open(table.selection[0])"></button>
       </div>
       <div class="ui-toolbar-group-right">
         <button pButton type="button" icon="fa-fast-backward" (click)="table.selection = []; dataSource.first()" [disabled]="!dataSource.continuation?.first"></button>

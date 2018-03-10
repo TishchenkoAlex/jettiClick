@@ -1,29 +1,38 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { SelectItem } from 'primeng/components/common/selectitem';
-import { filter, take } from 'rxjs/operators';
+import { Observable } from 'rxjs/Observable';
+import { map } from 'rxjs/operators';
 
 import { BaseDocListComponent } from './../../common/datatable/base.list.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <p-dropdown [style]="{'width' : '100%', 'background': 'beige'}" [scrollHeight]="500"
-      [options]="operationsGroups" [ngModel]="super.table?.filters['Group']?.value" [autofocus]="true"
-      (onChange)="this.super.table?.filters['Group'] =
-        { matchMode: '=', value: $event.value }; this.super.sort()"></p-dropdown>
+    <p-dropdown (onChange)="onChange($event)"
+      [style]="{'width' : '100%'}"
+      [scrollHeight]="500"
+      [options]="operationsGroups$ | async"
+      [ngModel]="super.table?.filters['Group']?.value" [autofocus]="true">
+    </p-dropdown>
     <j-list></j-list>`
 })
 export class OperationListComponent implements OnInit {
   @ViewChild(BaseDocListComponent) super: BaseDocListComponent;
 
-  operationsGroups: SelectItem[] = [];
+  operationsGroups$: Observable<SelectItem[]>;
 
   ngOnInit() {
     this.super.pageSize = Math.floor((window.innerHeight - 305) / 24);
-    this.super.ds.api.getOperationsGroups().pipe(take(1), filter(data => data.length >= 0)).subscribe(data => {
-      this.operationsGroups = data.map(el => <SelectItem>({label: el.value, value: el}));
-      this.operationsGroups.unshift({label: '(All)', value: null});
-    });
+    this.operationsGroups$ = this.super.ds.api.getOperationsGroups().pipe(
+      map(data => [
+        { label: '(All)', value: null },
+        ...data.map(el => <SelectItem>({ label: el.value, value: el })) || []
+      ]));
+  }
+
+  onChange(event) {
+    this.super.table.filters.Group = { matchMode: '=', value: event.value };
+    this.super.sort();
   }
 
 }
