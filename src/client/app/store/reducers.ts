@@ -1,5 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { ActionReducerMap } from '@ngrx/store/src/models';
+import { ActionReducerMap } from '@ngrx/store';
 
 import * as fromAuth from '../auth/store/reducers';
 import * as fromUI from '../UI/store/reducers';

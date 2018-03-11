@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { map } from 'rxjs/operators';
+import { zip } from 'rxjs/observable/zip';
+import { merge } from 'rxjs/observable/merge';
+import { combineLatest } from 'rxjs/observable/combineLatest';
 
 @Injectable()
 export class LoadingService {
@@ -18,5 +22,7 @@ export class LoadingService {
   color$ = this._color.asObservable();
   set color(value) { if (value !== this._color.value) this._color.next(value); }
   get color() { return this._color.value; }
+
+  busy$ = combineLatest(this.loading$, this.color$).pipe(map(r => r[0] === true && r[1] === 'accent'));
 
 }

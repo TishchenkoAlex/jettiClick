@@ -34,4 +34,3 @@ export function reducer(state = initialState, action: AuthActions): State {
 
 export const getLoggedIn = (state: State) => state.loggedIn;
 export const getAccount = (state: State) => state.account;
-

@@ -8,17 +8,17 @@
     <ng-content></ng-content>
     <p-toolbar>
       <div class="ui-toolbar-group-left">
-        <button pButton type="button" id="add" icon="fa-plus" class="ui-button-success" (click)="add()" [disabled]="(lds.loading$ | async)"></button>
+        <button pButton type="button" id="add" icon="fa-plus" class="ui-button-success" (click)="add()" [disabled]="(lds.busy$ | async)"></button>
         <button pButton type="button" id="open" icon="fa-pencil-square-o" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
-          (click)="open()" [disabled]="(lds.loading$ | async)"></button>
+          (click)="open()" [disabled]="(lds.busy$ | async)"></button>
         <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
-          (click)="copy()" [disabled]="(lds.loading$ | async)"></button>
+          (click)="copy()" [disabled]="(lds.busy$ | async)"></button>
         <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && !table?.selection[0].posted && isDoc"
-          (click)="post()" [disabled]="(lds.loading$ | async)"></button>
+          (click)="post()" [disabled]="(lds.busy$ | async)"></button>
         <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && table?.selection[0].posted && isDoc"
-          (click)="post('unpost')" [disabled]="(lds.loading$ | async)"></button>
-        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()" [disabled]="(lds.loading$ | async)"></button>
-        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree" [disabled]="(lds.loading$ | async)"></button>
+          (click)="post('unpost')" [disabled]="(lds.busy$ | async)"></button>
+        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()" [disabled]="(lds.busy$ | async)"></button>
+        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree" [disabled]="(lds.busy$ | async)"></button>
       </div>
     </p-toolbar>
 
@@ -93,11 +93,11 @@
 
     <p-toolbar>
       <div class="ui-toolbar-group-right">
-        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id.id)" [disabled]="(lds.loading$ | async)"></button>
-        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first || (lds.loading$ | async)"></button>
-        <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first || (lds.loading$ | async)"></button>
-        <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last || (lds.loading$ | async)"></button>
-        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last || (lds.loading$ | async)"></button>
+        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id.id)" [disabled]="(lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa-fast-backward" (click)="dataSource?.first()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa-step-backward" (click)="dataSource?.prev()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa-step-forward" (click)="dataSource?.next()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa-fast-forward" (click)="dataSource?.last()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
       </div>
     </p-toolbar>
 

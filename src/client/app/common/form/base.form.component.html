@@ -6,8 +6,8 @@
       </div>
       <div class="ui-toolbar-group-right">
         <!--  <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
-        <button *ngIf="!isNew" pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()" [disabled]="(lds.loading$ | async)"></button>
-        <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="getPrice()" [disabled]="(lds.loading$ | async)"></button>
+        <button *ngIf="!isNew" pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()" [disabled]="(lds.busy$ | async)"></button>
+        <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="getPrice()" [disabled]="(lds.busy$ | async)"></button>
       </div>
     </p-toolbar>
 
@@ -72,16 +72,16 @@
 
 <ng-template #actionTepmlateDefault let-form="form">
   <button pButton type="button" id="PostClose " icon="fa-check-square-o" [label]="(media.asObservable() | async)?.mqAlias === 'xs' ? 'P&C' : 'Post&Close'"
-    class="ui-button-warning" [disabled]="!form.valid || (lds.loading$ | async)" (click)="PostClose()" *ngIf="!isDeleted"></button>
-  <button pButton type="button" id="Post" icon="fa-check" class="ui-button-secondary" [disabled]="!form.valid || (lds.loading$ | async)"
+    class="ui-button-warning" [disabled]="!form.valid || (lds.busy$ | async)" (click)="PostClose()" *ngIf="!isDeleted"></button>
+  <button pButton type="button" id="Post" icon="fa-check" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
     (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
-  <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.loading$ | async)"
+  <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
     (click)="unPost()" *ngIf="!isDeleted && isPosted && isDoc"></button>
-  <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.loading$ | async)"
+  <button pButton type="button" id="Save" icon="fa-floppy-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
     (click)="Save()" *ngIf="!isPosted || !isDoc"></button>
-  <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!form.valid || (lds.loading$ | async)"
+  <button pButton type="button" id="Copy" icon="fa-copy" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
     (click)="Copy()" *ngIf="!isDeleted && !isNew"></button>
-  <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!isNew" (click)="Delete()" [disabled]="(lds.loading$ | async)"></button>
+  <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!isNew" (click)="Delete()" [disabled]="(lds.busy$ | async)"></button>
 </ng-template>
 
 <p-confirmDialog [key]="this.id" appendTo="body"></p-confirmDialog>
