@@ -59,7 +59,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     this._subscription$ = merge(...[
       this.ds.save$,
       this.ds.delete$]).pipe(
-        filter(doc => (doc.id === this.id) && (doc.isfolder !== true)))
+        filter(doc => doc.id === this.id))
       .subscribe(doc => {
         this.form.patchValue(doc, patchOptionsNoEvents);
         if (this.isDoc) { this.showDescription(); }
@@ -130,13 +130,13 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   Print = () => { };
 
   async onCommand(event) {
-/*     const result = await this.ds.api.onCommand(this.model, 'company', { Tax: -11 });
-    this.form.patchValue(result); */
+    /*     const result = await this.ds.api.onCommand(this.model, 'company', { Tax: -11 });
+        this.form.patchValue(result); */
   }
 
   async getPrice() {
-/*     const result = await this.ds.api.docMethodOnServer(this.model, 'GetPrice', {}).toPromise();
-    this.form.patchValue(result.doc); */
+    /*     const result = await this.ds.api.docMethodOnServer(this.model, 'GetPrice', {}).toPromise();
+        this.form.patchValue(result.doc); */
   }
 
   ngOnDestroy() {

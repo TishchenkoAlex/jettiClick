@@ -135,14 +135,22 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private setContextMenu() {
-    this.contexCommands = [{
-      label: 'Quick filter', icon: 'fa-search',
-      command: (event) => this._update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
-    },
-    ...(this.metadata.copyTo || []).map(el => {
-      const copyToDoc = createDocument(el).Prop() as DocumentOptions;
-      return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.copyTo(el) };
-    })];
+    this.contexCommands = [
+      {
+        label: 'Quick filter', icon: 'fa-search',
+        command: (event) => this._update(this.columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
+      },
+      {
+        label: 'Select (All)', icon: 'fa-search',
+        command: (event) => {
+          this.table.preventSelectionSetterPropagation = false;
+          this.table.selection = [...this.dataSource.renderedData];
+        }
+      },
+      ...(this.metadata.copyTo || []).map(el => {
+        const copyToDoc = createDocument(el).Prop() as DocumentOptions;
+        return <MenuItem>{ label: copyToDoc.description, icon: copyToDoc.icon, command: (event) => this.copyTo(el) };
+      })];
   }
 
   private _update(col: ColumnDef, event, center) {

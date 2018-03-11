@@ -20,6 +20,7 @@ import { cloneFormGroup, patchOptionsNoEvents } from '../../common/dynamic-form/
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
 import { EditableColumn, Table } from './table';
+import { filter } from 'rxjs/operators';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,10 +52,11 @@ export class TablePartsComponent implements OnInit, OnDestroy {
     this.showTotals = this.control.controls.findIndex(v => v.totals > 0) !== -1;
     this.dataSource = this.formGroup.getRawValue();
 
-    this._subscription$ = merge(...[this.ds.save$, this.ds.delete$]).subscribe(data => {
-      this.dataSource = data[this.control.key];
-      this.cd.detectChanges();
-    });
+    this._subscription$ = merge(...[this.ds.save$, this.ds.delete$]).pipe(
+      filter(doc => doc.id === this.formGroup.root.value.id)).subscribe(doc => {
+        this.dataSource = doc[this.control.key];
+        this.cd.detectChanges();
+      });
   }
 
   getControl(i: number) {
