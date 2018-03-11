@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, QueryList, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { merge } from 'rxjs/observable/merge';
 import { filter } from 'rxjs/operators';
 
 import { INoSqlDocument } from '../../../../server/models/ServerDocument';
+import { DocService } from '../doc.service';
 import { DynamicComponent } from '../dynamic-component/dynamic-component';
 import { TabDef, TabsStore } from './tabs.store';
 
@@ -15,7 +17,9 @@ import { TabDef, TabsStore } from './tabs.store';
 export class TabControllerComponent {
   @ViewChildren(DynamicComponent) components: QueryList<DynamicComponent>;
 
-  constructor(private router: Router, private route: ActivatedRoute, public tabStore: TabsStore, private cd: ChangeDetectorRef) {
+  constructor(
+    private router: Router, private route: ActivatedRoute, private ds: DocService,
+    public tabStore: TabsStore, private cd: ChangeDetectorRef) {
 
     this.route.params
       .subscribe(params => {
@@ -31,27 +35,39 @@ export class TabControllerComponent {
         }
       });
 
-    this.route.data.pipe(filter(data => data.detail))
-      .subscribe(data => {
-        if (data.detail instanceof FormGroup) {
-          const doc = data.detail.getRawValue() as INoSqlDocument;
-          const tab = tabStore.state.tabs.find(i => (i.docType === doc.type && i.docID === doc.id));
-          if (tab) {
-            tab.header = doc.description || tab.docType;
-            tab.icon = data.detail['metadata'].icon;
-            tabStore.replace(tab);
-          }
-        } else {
-          if (data.detail.metadata) {
-            const tab = tabStore.state.tabs.find(i => (i.docType === data.detail.metadata.type) && !i.docID);
-            if (tab) {
-              tab.header = data.detail.metadata.menu;
-              tab.icon = data.detail.metadata.icon;
-              tabStore.replace(tab);
-            }
-          }
+    this.route.data.pipe(filter(data => data.detail)).subscribe(this.updateTabTitle(tabStore));
+
+    merge(...[this.ds.save$, this.ds.delete$]).pipe(filter(doc => doc.id === this.route.snapshot.params.id))
+      .subscribe(doc => {
+        const tab = tabStore.state.tabs.find(i => (i.docType === doc.type && i.docID === doc.id));
+        if (tab) {
+          tab.header = doc.description;
+          tabStore.replace(tab);
         }
       });
+  }
+
+  private updateTabTitle(tabStore: TabsStore) {
+    return data => {
+      if (data.detail instanceof FormGroup) {
+        const doc = data.detail.getRawValue() as INoSqlDocument;
+        const tab = tabStore.state.tabs.find(i => (i.docType === doc.type && i.docID === doc.id));
+        if (tab) {
+          tab.header = doc.description || tab.docType;
+          tab.icon = data.detail['metadata'].icon;
+          tabStore.replace(tab);
+        }
+      } else {
+        if (data.detail.metadata) {
+          const tab = tabStore.state.tabs.find(i => (i.docType === data.detail.metadata.type) && !i.docID);
+          if (tab) {
+            tab.header = data.detail.metadata.menu;
+            tab.icon = data.detail.metadata.icon;
+            tabStore.replace(tab);
+          }
+        }
+      }
+    };
   }
 
   selectedIndexChange(event) {

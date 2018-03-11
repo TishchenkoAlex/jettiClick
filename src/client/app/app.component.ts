@@ -1,10 +1,10 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
-import { Store } from '@ngrx/store';
+// import { Store } from '@ngrx/store';
 
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
 import { ApiService } from './services/api.service';
-import * as fromRoot from './store/reducers';
+// import * as fromRoot from './store/reducers';
 
 enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
 
@@ -37,8 +37,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ElementRef;
 
   constructor(
-    public auth: AuthService, public apiService: ApiService, private store: Store<fromRoot.State>,
-    public lds: LoadingService) {
+    public auth: AuthService, public apiService: ApiService, public lds: LoadingService) {
 
     const lm = localStorage.getItem('layoutMode');
     const a = this.layoutMode.toString();

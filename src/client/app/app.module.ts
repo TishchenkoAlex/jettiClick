@@ -55,8 +55,8 @@ export function getJwtToken(): string {
     NgDragDropModule.forRoot(),
     MonacoEditorModule.forRoot(),
     RoutingModule,
-    StoreModule.forRoot(reducers),
-    EffectsModule.forRoot([AuthEffects]),
+    // StoreModule.forRoot(reducers),
+    // EffectsModule.forRoot([AuthEffects]),
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },

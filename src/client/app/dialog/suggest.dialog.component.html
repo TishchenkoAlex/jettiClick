@@ -2,7 +2,7 @@
 
   <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort()"
     (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true"
-    [filterDelay]="500" [metaKeySelection]="true" [columns]="columns">
+    [filterDelay]="500" [metaKeySelection]="true" [columns]="columns" class="noselect">
 
     <ng-template pTemplate="header" let-columns>
       <tr>
