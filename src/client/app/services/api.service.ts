@@ -48,10 +48,10 @@ export class ApiService {
       })));
   }
 
-  getViewModel(type: string, id = '', queryParams: { [key: string]: any } = {}):
+  getViewModel(type: string, id = '', params: { [key: string]: any } = {}):
     Observable<{ schema: any, columnsDef: ColumnDef[], metadata: { [x: string]: any }, DTO: any, settings: FormListSettings }> {
     const query = `${environment.api}view`;
-    return this.http.post(query, { type, id, ...queryParams }).pipe(
+    return this.http.post(query, { type, id, ...params }, {params}).pipe(
       map(o => ({ schema: o['view'], columnsDef: o['columnDef'], metadata: o['prop'], DTO: o['model'], settings: o['settings'] })));
   }
 

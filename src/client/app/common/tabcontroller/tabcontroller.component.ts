@@ -39,7 +39,7 @@ export class TabControllerComponent {
 
     merge(...[this.ds.save$, this.ds.delete$]).pipe(filter(doc => doc.id === this.route.snapshot.params.id))
       .subscribe(doc => {
-        const tab = tabStore.state.tabs.find(i => (i.docType === doc.type && i.docID === doc.id));
+        const tab = tabStore.state.tabs.find(i => i.docID === doc.id);
         if (tab) {
           tab.header = doc.description;
           tabStore.replace(tab);

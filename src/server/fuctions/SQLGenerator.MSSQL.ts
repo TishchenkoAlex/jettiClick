@@ -12,7 +12,7 @@ export class SQLGenegator {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS BIT), 0) "${prop}"\n`; }
-      if (type === 'number') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS NUMERIC), 0) "${prop}"\n`; }
+      if (type === 'number') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS NUMERIC(15, 4)), 0) "${prop}"\n`; }
       return `, JSON_VALUE(d.doc, '$."${prop}"') "${prop}"\n`;
     };
 
@@ -50,7 +50,7 @@ export class SQLGenegator {
 
       function xTableLine(prop: string, type: string) {
         switch (type) {
-          case 'number': return `, "${prop}" NUMERIC\n`;
+          case 'number': return `, "${prop}" NUMERIC(15, 4)\n`;
           case 'boolean': return `, "${prop}" BIT\n`;
           case 'date': return `, "${prop}" DATE\n`;
           case 'datetime': return `, "${prop}" DATETIME\n`;

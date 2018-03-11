@@ -191,7 +191,7 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
 export async function postById(id: string, posted: boolean, tx: TX = sdb) {
   return tx.tx<any>(async subtx => {
     const doc = await lib.doc.byId(id, subtx);
-    let serverDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+    let serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
     if (serverDoc.isDoc) {
       await subtx.none(`
         DELETE FROM "Register.Account" WHERE document = @p1;

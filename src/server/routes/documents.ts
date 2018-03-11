@@ -7,7 +7,6 @@ import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
 import { ColumnDef } from './../models/column';
 import { configSchema } from './../models/config';
-
 import { DocumentBaseServer, INoSqlDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
@@ -31,10 +30,10 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 });
 
 async function buildOperationViewAndSQL(id: string, view: any, config_schema: any) {
-  const Parameters = await sdb.oneOrNone<any>(`
+  const Parameters = await sdb.oneOrNone<{ Parameters: any[] }>(`
     select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents"
     where id = (select JSON_VALUE(doc, '$.Operation') from "Documents" where id = @p1)`, [id]);
-  Parameters.Parameters.sort((a, b) => a.order > b.order).forEach(c => view[c.parameter] = {
+  Parameters.Parameters.sort((a, b) => a.order - b.order).forEach(c => view[c.parameter] = {
     label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
     [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
   });
@@ -61,39 +60,41 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
 
     let model; const id = params.id as string;
     if (id) {
-      switch (params.command) {
+      const command = req.query.new ? 'new' : req.query.copy ? 'copy' : req.query.base ? 'base' : '';
+      switch (command) {
         case 'new':
           model = config_schema.queryNewObject ? await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`) : {};
           Object.keys(view).filter(p => view[p].value !== undefined).forEach(p => model[p] = view[p].value);
           for (const k in params) {
-            if (k === 'command' || k === 'type' || k === 'id') {  continue; }
-            model[k] = await lib.doc.formControlRef(params[k]);
+            if (k === 'type' || k === 'id' || k === 'new' || k === 'base' || k === 'copy') { continue; }
+            if (typeof params[k] !== 'boolean') model[k] = await lib.doc.formControlRef(params[k]);
+            else model[k] = params[k];
           }
-          const newDoc = createDocumentServer(params.type, model) as DocumentBaseServer;
+          const newDoc = await createDocumentServer(params.type, model) as DocumentBaseServer;
           if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
+          Object.keys(newDoc).filter(k => newDoc[k] instanceof Array).forEach(k => newDoc[k].length = 0);
           model = newDoc;
+          if (req.query.isfolder) {
+            model.isfolder = true;
+          }
           break;
         case 'copy':
-          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
-          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id]);
+          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(req.query['copy'], view, config_schema); }
+          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [req.query['copy']]);
           const copyDoc = await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`);
           model.id = copyDoc.id; model.date = copyDoc.date; model.code = copyDoc.code;
           model.posted = false; model.deleted = false; model.timestamp = null;
           model.parent = { ...model.parent, id: null, code: null, value: null };
           model.description = 'Copy: ' + model.description;
+          for (const k in params) {
+            if (k === 'type' || k === 'id' || k === 'new' || k === 'base' || k === 'copy') { continue; }
+            if (typeof params[k] !== 'boolean') model[k] = await lib.doc.formControlRef(params[k]);
+            else model[k] = params[k];
+          }
           break;
         case 'base':
-          const baseDoc = createDocumentServer<DocumentBaseServer>(params.type);
-          model = await baseDoc.baseOn(id, sdb);
-          break;
-        case 'folder':
-          model = config_schema.queryNewObject ? await sdb.oneOrNone(`${config_schema.queryNewObject}`) : {};
-          const parentId = id;
-          const parentDoc = id === 'null' ? {} :
-            await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [parentId]) || {};
-          const parent = { ...model.parent, id: parentDoc.id || null, code: parentDoc.code || null, value: parentDoc.description || null };
-          model.parent = parent;
-          model.isfolder = true;
+          const baseDoc = await createDocumentServer<DocumentBaseServer>(params.type);
+          model = await baseDoc.baseOn(req.query['base'], sdb);
           break;
         default:
           if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
@@ -102,7 +103,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
       }
     }
     const columnDef = buildColumnDef(view, config_schema.settings);
-    const result = { view, model, columnDef, prop: config_schema.prop || {}, settings: config_schema.settings};
+    const result = { view, model, columnDef, prop: config_schema.prop || {}, settings: config_schema.settings };
     res.json(result);
   } catch (err) { next(err); }
 };
@@ -114,7 +115,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
     await sdb.tx(async tx => {
       const id = req.params.id;
       let doc = await lib.doc.byId(id, tx);
-      const serverDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await doSubscriptions(doc, 'before detele', tx);
       if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx); }
       doc = await tx.none<INoSqlDocument>(`
@@ -124,7 +125,8 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
         UPDATE "Documents" SET deleted = @p2, posted = 0 OUTPUT deleted.*  WHERE id = @p1;`, [id, !!!doc.deleted]);
       if (serverDoc && serverDoc.afterDelete) { await serverDoc.afterDelete(tx); }
       await doSubscriptions(doc, 'after detele', tx);
-      const model = await tx.oneOrNone(`${configSchema.get(serverDoc.type as any).QueryObject} AND d.id = @p1`, [id]);
+      const model = await tx.oneOrNone(`
+        ${serverDoc['QueryObject'] || configSchema.get(serverDoc.type as any).QueryObject} AND d.id = @p1`, [id]);
       res.json(model);
     });
   } catch (err) { next(err); }
@@ -215,17 +217,17 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     await sdb.tx(async tx => {
       const doc: INoSqlDocument = req.body;
       doc.posted = true;
-      const JDoc = createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
-      await addAdditionalToOperation(doc, JDoc.Props());
-      await post(doc, JDoc, tx);
-      const query = `${configSchema.get(doc.type as any).QueryObject} AND d.id = @p1`;
+      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+      await addAdditionalToOperation(doc);
+      await post(doc, serverDoc, tx);
+      const query = `${serverDoc['QueryObject'] || configSchema.get(doc.type as any).QueryObject} AND d.id = @p1`;
       const docServer = await tx.oneOrNone<DocumentBaseServer>(query, [doc.id]);
       res.json(docServer);
     });
   } catch (err) { next(err); }
 });
 
-async function addAdditionalToOperation(doc: INoSqlDocument, schema: { [x: string]: PropOptions }) {
+async function addAdditionalToOperation(doc: INoSqlDocument) {
   if (doc.type === 'Document.Operation') {
     const Parameters = await sdb.oneOrNone<any>(`
       select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents" where id = @p1`, [doc.doc.Operation]);
@@ -233,7 +235,7 @@ async function addAdditionalToOperation(doc: INoSqlDocument, schema: { [x: strin
       let i = 1; Parameters.Parameters
         .sort((a, b) => a.order - b.order)
         .filter(p => p.type.startsWith('Catalog.'))
-        .forEach(p => doc.doc[`p${i++}`] = doc.doc[p.parameter]);
+        .forEach(p => doc.doc[`f${i++}`] = doc.doc[p.parameter]);
     }
   }
 }
@@ -275,7 +277,7 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const value = req.body.value as RefValue;
     const property = req.params.property as string;
     const type = req.params.type as DocTypes;
-    const serverDoc = createDocumentServer<DocumentBaseServer>(type, doc);
+    const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc);
 
     let result: PatchValue = {};
     if (serverDoc && serverDoc.onValueChanged && typeof serverDoc.onValueChanged === 'function') {
@@ -289,7 +291,7 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
   try {
     let result: any = {};
     await sdb.tx(async tx => {
-      const doc = createDocumentServer<DocumentBaseServer>(req.params.type, req.body.doc);
+      const doc = await createDocumentServer<DocumentBaseServer>(req.params.type, req.body.doc);
       if (doc && doc.onCommand && typeof doc.onCommand === 'function') {
         result = await doc.onCommand(req.params.command, req.body.args, tx);
       }

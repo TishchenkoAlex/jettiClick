@@ -150,7 +150,7 @@ async function sliceLast(type, date = new Date(), company, resource, analytics, 
 async function postById(id, posted, tx = mssql_1.sdb) {
     return tx.tx(async (subtx) => {
         const doc = await exports.lib.doc.byId(id, subtx);
-        let serverDoc = documents_factory_server_1.createDocumentServer(doc.type, doc);
+        let serverDoc = await documents_factory_server_1.createDocumentServer(doc.type, doc);
         if (serverDoc.isDoc) {
             await subtx.none(`
         DELETE FROM "Register.Account" WHERE document = @p1;

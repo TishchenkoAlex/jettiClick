@@ -16,6 +16,7 @@ import { merge } from 'rxjs/observable/merge';
 import { debounceTime, filter as filter$ } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
+import { v1 } from 'uuid';
 
 import { ColumnDef } from '../../../../server/models/column';
 import { DocTypes } from '../../../../server/models/documents.types';
@@ -180,24 +181,23 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     Object.keys(this.table.filters)
       .filter(f => this.table.filters[f].value && this.table.filters[f].value.id)
       .forEach(f => filters[f] = this.table.filters[f].value.id);
-
-    this.router.navigate([this.table.selection[0] ?
-      this.table.selection[0].type : this.dataSource.type, 'new'],
-      { queryParams: { command: 'new', ...filters } });
+    const id = v1();
+    this.router.navigate([this.type, id],
+      { queryParams: { new: id, ...filters } });
   }
 
   copy() {
-    this.router.navigate([this.table.selection[0].type, this.table.selection[0].id],
-      { queryParams: { command: 'copy' } });
+    this.router.navigate([this.table.selection[0].type, v1()],
+      { queryParams: { copy: this.table.selection[0].id } });
   }
 
   copyTo(type: DocTypes) {
-    this.router.navigate([type, this.table.selection[0].id],
-      { queryParams: { command: 'base' } });
+    this.router.navigate([type, v1()],
+      { queryParams: { base: this.table.selection[0].id } });
   }
 
   open() {
-    this.router.navigate([this.table.selection[0].type, this.table.selection[0].id], { queryParams: {} });
+    this.router.navigate([this.table.selection[0].type, this.table.selection[0].id]);
   }
 
   delete() {

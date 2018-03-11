@@ -7,6 +7,7 @@ import { merge } from 'rxjs/observable/merge';
 import { of as observableOf } from 'rxjs/observable/of';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
+import { v1 } from 'uuid';
 
 import { calculateDescription } from '../../../../server/models/api';
 import { DocumentBase } from '../../../../server/models/document';
@@ -91,7 +92,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   Save(doc = this.model, close = false) { this.showDescription(); this.ds.save(doc, close); }
   Delete() { this.ds.delete(this.model.id); }
-  Copy() { return this.router.navigate([this.model.type, this.model.id], { queryParams: { command: 'copy' } }); }
+  Copy() { return this.router.navigate([this.model.type, v1()], { queryParams: { copy: this.id } }); }
   Post() { const doc = this.model; doc.posted = true; this.Save(doc); }
   unPost() { const doc = this.model; doc.posted = false; this.Save(doc); }
   PostClose() { const doc = this.model; doc.posted = true; this.Save(doc, true); }
@@ -129,13 +130,13 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   Print = () => { };
 
   async onCommand(event) {
-    const result = await this.ds.api.onCommand(this.model, 'company', { Tax: -11 });
-    this.form.patchValue(result);
+/*     const result = await this.ds.api.onCommand(this.model, 'company', { Tax: -11 });
+    this.form.patchValue(result); */
   }
 
   async getPrice() {
-    const result = await this.ds.api.docMethodOnServer(this.model, 'GetPrice', {}).toPromise();
-    this.form.patchValue(result.doc);
+/*     const result = await this.ds.api.docMethodOnServer(this.model, 'GetPrice', {}).toPromise();
+    this.form.patchValue(result.doc); */
   }
 
   ngOnDestroy() {

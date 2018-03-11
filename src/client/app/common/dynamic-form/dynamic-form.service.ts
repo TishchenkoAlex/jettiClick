@@ -152,7 +152,7 @@ export function getFormGroup(schema: { [x: string]: any }, model: { [x: string]:
     ...controls.filter(el => el.order > 0 && el.type === 'table'),
     ...controls.filter(el => el.order <= 0)
   ];
-  controls.forEach(el => { if (el.key === 'p1' || el.key === 'p2') { el.hidden = true; } });
+  controls.forEach(el => { if (el.key === 'f1' || el.key === 'f2' || el.key === 'f3') { el.hidden = true; } });
   formGroup['orderedControls'] = controls;
   formGroup['byKeyControls'] = byKeyControls;
   return formGroup;

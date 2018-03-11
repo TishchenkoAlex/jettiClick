@@ -34,9 +34,12 @@ export class DocumentOperation extends DocumentBase {
   currency: Ref = null;
 
   @Props({ type: 'Types.Catalog', label: 'additional filed #1', style: { width: '270px' }, hiddenInForm: true })
-  p1: Ref = null;
+  f1: Ref = null;
 
   @Props({ type: 'Types.Catalog', label: 'additional filed #2', style: { width: '270px' }, hiddenInForm: true })
-  p2: Ref = null;
+  f2: Ref = null;
+
+  @Props({ type: 'Types.Catalog', label: 'additional filed #3', style: { width: '270px' }, hiddenInForm: true })
+  f3: Ref = null;
 
 }

@@ -8,6 +8,7 @@ import { ITree } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { DocService } from '../../common/doc.service';
 import { ApiService } from '../../services/api.service';
+import { v1 } from 'uuid';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,11 +65,24 @@ export class BaseTreeListComponent implements OnInit {
     });
   }
 
-  add = () => this.router.navigate([this.docType, this.selection.data.id], { queryParams: { commamd: 'folder' } });
-  copy = () => this.router.navigate([this.docType, this.selection.data.id], { queryParams: { commamd: 'copy' } });
+  add() {
+    const id = v1();
+    this.router.navigate([this.docType, id],
+      { queryParams: { new: id, isfolder: true, parent: this.selection.data.id } });
+  }
+
+  copy() {
+    const id = v1();
+    this.router.navigate([this.docType, id],
+      { queryParams: { copy: this.selection.data.id, isfolder: true, parent: this.selection.data.id } });
+  }
+
   open = () => this.router.navigate([this.docType, this.selection.data.id], { queryParams: {} });
   delete = () => this.ds.delete(this.selection.data.id);
-  onSelectionChange = (event) => this.selectionChange.emit(event);
+
+  onSelectionChange(event) {
+    this.selectionChange.emit(event);
+  }
 
   onDragEnd(event) {
     // console.log('drop', event);
