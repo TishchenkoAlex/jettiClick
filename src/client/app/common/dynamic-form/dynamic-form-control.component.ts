@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
 import { FormControlInfo } from './dynamic-form-base';
+import { patchOptionsNoEvents } from './dynamic-form.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,32 +26,24 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.floatLabel = this.control.showLabel ? 'auto' : 'never';
     this.description = this.form['metadata'] ? this.form['metadata'].description : '';
-    this.valueChanges$ = this.form.get(this.control.key).valueChanges
-      .subscribe(data => this.onChange(null));
+    const formControl = this.form.get(this.control.key);
+    if (formControl) this.valueChanges$ = formControl.valueChanges.subscribe(() => {
+
+      if (this.control.onChange) {
+        const func = (new Function('return ' + this.control.onChange.toString())() as Function);
+        const patch = func(this.form.getRawValue(), formControl.value);
+        this.form.patchValue(patch || {}, patchOptionsNoEvents);
+      }
+
+      if (this.control.onChangeServer) {
+        this.api.valueChanges(this.form.getRawValue(), this.control.key, formControl.value)
+          .then(patch => this.form.patchValue(patch || {}, patchOptionsNoEvents));
+      }
+    });
   }
 
   ngOnDestroy() {
     this.valueChanges$.unsubscribe();
   }
 
-  onChange(event: Event) {
-    if (this.control.onChange) {
-      const func = (new Function('return ' + this.control.onChange.toString())() as Function);
-      const patch = func(
-        this.form.getRawValue(),
-        this.form.controls[this.control.key].value
-      );
-      if (patch) { this.form.patchValue(patch, { emitEvent: false }); }
-    }
-
-    if (this.control.onChangeServer) {
-      this.api.valueChanges(
-        this.form.getRawValue(),
-        this.control.key,
-        this.form.controls[this.control.key].value)
-        .then(patch => {
-          if (patch) { this.form.patchValue(patch, { emitEvent: false }); }
-        });
-    }
-  }
 }

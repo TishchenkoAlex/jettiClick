@@ -1,6 +1,7 @@
 // tslint:disable:no-output-on-prefix
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   OnDestroy,
@@ -10,6 +11,7 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
+import { merge } from 'rxjs/observable/merge';
 import { Subscription } from 'rxjs/Subscription';
 
 import { ColumnDef } from '../../../../server/models/column';
@@ -38,19 +40,21 @@ export class TablePartsComponent implements OnInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
   private _valueChanges$: Subscription = Subscription.EMPTY;
 
-  constructor(private api: ApiService, private ds: DocService) { }
+  constructor(private api: ApiService, private ds: DocService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.columns = this.control.controls.map((el) => {
-      return <ColumnDef>{
-        field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, onChange: el.onChange, onChangeServer: el.onChangeServer,
-        order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, data: el
-      };
+    this.columns = this.control.controls.map((el) => <ColumnDef>{
+      field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, onChange: el.onChange, onChangeServer: el.onChangeServer,
+      order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, data: el
     });
     this.control.controls.forEach(v => v.showLabel = false);
     this.showTotals = this.control.controls.findIndex(v => v.totals > 0) !== -1;
     this.dataSource = this.formGroup.getRawValue();
-    this._subscription$ = this.ds.save$.subscribe(data => this.dataSource = this.formGroup.getRawValue());
+
+    this._subscription$ = merge(...[this.ds.save$, this.ds.delete$]).subscribe(data => {
+      this.dataSource = data[this.control.key];
+      this.cd.detectChanges();
+    });
   }
 
   getControl(i: number) {
@@ -78,9 +82,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
       const rows = this.editableColumns.toArray();
       const firsFiled = rows[0].field;
       for (let i = rows.length - 1; i >= 0; i--) {
-        if (rows[i].field === firsFiled) {
-          return rows[i].openCell();
-        }
+        if (rows[i].field === firsFiled) return rows[i].openCell();
       }
     });
     // (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
@@ -97,11 +99,17 @@ export class TablePartsComponent implements OnInit, OnDestroy {
       const rowIndex = this.formGroup.controls.findIndex((el: FormGroup) => el.controls['index'].value === element.index);
       this.formGroup.removeAt(rowIndex);
     }
-    for (let i = 0; i < this.formGroup.length; i++) { this.formGroup.get([i]).get('index').patchValue(i, { emitEvent: false }); }
+    this.renum();
     this.dataSource = this.formGroup.getRawValue();
     const index = this.selection[0].index;
     const selectRow = this.dataSource[index] || this.dataSource[index - 1];
     this.selection = selectRow ? [selectRow] : [];
+  }
+
+  private renum() {
+    for (let i = 0; i < this.formGroup.length; i++) {
+      this.formGroup.at(i).get('index').patchValue(i, { emitEvent: false });
+    }
   }
 
   onEditComplete(event) { }
@@ -109,10 +117,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
   onEditCancel(event) { }
 
   calcTotals(field: string): number {
-    let result = 0;
-    const data = this.formGroup.value as any[];
-    (this.formGroup.value as any[]).forEach(r => result += r[field]);
-    return result;
+    return (this.formGroup.value as any[]).map(v => v[field]).reduce((a, b) => a + b, 0);
   }
 
   ngOnDestroy() {

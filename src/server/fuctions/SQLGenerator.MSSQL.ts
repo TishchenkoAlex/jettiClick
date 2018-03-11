@@ -73,7 +73,7 @@ export class SQLGenegator {
       query = query.slice(2); xTable = xTable.slice(2);
 
       return `,
-      ISNULL((SELECT
+      ISNULL((SELECT ROW_NUMBER() OVER(ORDER BY (SELECT 1)) - 1 AS "index",
         ${query}
       FROM OPENJSON(d.doc, '$.${prop}') WITH (
         ${xTable}

@@ -103,7 +103,7 @@ async function registerBalance(type, date = new Date(), resource, analytics, tx 
     const result = await mssql_1.sdb.oneOrNone(queryText, [date]);
     return (result ? result : {});
 }
-async function avgCost(date = new Date(), analytics, tx = mssql_1.sdb) {
+async function avgCost(date, analytics, tx = mssql_1.sdb) {
     const queryText = `
   SELECT
     SUM("Cost") / NULLIF(SUM("Qty"), 0) result
@@ -112,24 +112,22 @@ async function avgCost(date = new Date(), analytics, tx = mssql_1.sdb) {
     AND date <= @p1
     AND company = @p2
     AND "SKU" = @p3
-    AND "Storehouse" = @p4
-  `;
+    AND "Storehouse" = @p4`;
     const result = await tx.oneOrNone(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
     return result ? result.result : null;
 }
-async function inventoryBalance(date = new Date(), analytics, tx = mssql_1.sdb) {
+async function inventoryBalance(date, analytics, tx = mssql_1.sdb) {
     const queryText = `
   SELECT
-    SUM("Qty") result
-  FROM "Register.Accumulation.Inventory"
-  WHERE (1=1)
-    AND date <= @p1
-    AND company = @p2
-    AND "SKU" = @p3
-    AND "Storehouse" = @p4
-  `;
+    SUM("Cost") "Cost", SUM("Qty") "Qty"
+    FROM "Register.Accumulation.Inventory"
+    WHERE (1=1)
+      AND date <= @p1
+      AND company = @p2
+      AND "SKU" = @p3
+      AND "Storehouse" = @p4`;
     const result = await tx.oneOrNone(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
-    return result ? result.result : null;
+    return result ? { Cost: result.Cost, Qty: result.Qty } : null;
 }
 async function sliceLast(type, date = new Date(), company, resource, analytics, tx = mssql_1.sdb) {
     const addWhere = (key) => `NEAR((${key}, ${analytics[key]}),1) AND `;

@@ -18,10 +18,9 @@ exports.sqlConfig = {
     server: process.env.DB_HOST || 'jetti.database.windows.net',
     user: process.env.DB_USER || 'yuralex',
     password: process.env.DB_PASSWORD || 'MyNew01Password',
-    requestTimeout: 1000 * 60 * 2,
     pool: {
         min: 2,
-        max: 500,
+        max: 20,
     },
     options: {
         encrypt: true,

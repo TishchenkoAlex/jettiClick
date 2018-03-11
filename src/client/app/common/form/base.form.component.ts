@@ -12,6 +12,7 @@ import { calculateDescription } from '../../../../server/models/api';
 import { DocumentBase } from '../../../../server/models/document';
 import { DocService } from '../../common/doc.service';
 import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
+import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
 import { LoadingService } from '../loading.service';
 import { TabsStore } from '../tabcontroller/tabs.store';
 
@@ -59,10 +60,9 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       this.ds.delete$]).pipe(
         filter(doc => (doc.id === this.id) && (doc.isfolder !== true)))
       .subscribe(doc => {
-        this.form.patchValue(doc, { emitEvent: false });
+        this.form.patchValue(doc, patchOptionsNoEvents);
         if (this.isDoc) { this.showDescription(); }
         this.form.markAsPristine();
-        this.cd.detectChanges();
       });
 
     this._saveCloseSubscription$ = this.ds.saveClose$.pipe(
@@ -75,10 +75,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     this._descriptionSubscription$ = merge(...[
       this.form.get('date').valueChanges,
       this.form.get('code').valueChanges,
-      this.form.get('Group') ?
-        this.form.get('Group').valueChanges : observableOf('')]).pipe(
-          filter(() => this.isDoc))
-      .subscribe(data => this.showDescription());
+      this.form.get('Group') ? this.form.get('Group').valueChanges : observableOf('')])
+      .pipe(filter(_ => this.isDoc)).subscribe(_ => this.showDescription());
   }
 
   showDescription() {
@@ -87,7 +85,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       const code = this.form.get('code').value;
       const group = this.form.get('Group') && this.form.get('Group').value ? this.form.get('Group').value.value : '';
       const value = calculateDescription(this.docDescription, date, code, group);
-      this.description.patchValue(value, { emitEvent: false, onlySelf: true });
+      this.description.patchValue(value, patchOptionsNoEvents);
     }
   }
 
@@ -99,7 +97,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   PostClose() { const doc = this.model; doc.posted = true; this.Save(doc, true); }
 
   Goto() {
-    return this.router.navigate([this.model.type], { queryParams: { goto: this  .id }, replaceUrl: true });
+    return this.router.navigate([this.model.type], { queryParams: { goto: this.id }, replaceUrl: true });
   }
 
   private _close() {

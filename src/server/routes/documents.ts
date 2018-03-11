@@ -121,7 +121,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
         DELETE FROM "Register.Account" WHERE document = @p1;
         DELETE FROM "Register.Info" WHERE document = @p1;
         DELETE FROM "Accumulation" WHERE document = @p1;
-        UPDATE "Documents" SET deleted = @p2, posted = 0 OUTPUT inserted.*  WHERE id = @p1;`, [id, !!!doc.deleted]);
+        UPDATE "Documents" SET deleted = @p2, posted = 0 OUTPUT deleted.*  WHERE id = @p1;`, [id, !!!doc.deleted]);
       if (serverDoc && serverDoc.afterDelete) { await serverDoc.afterDelete(tx); }
       await doSubscriptions(doc, 'after detele', tx);
       const model = await tx.oneOrNone(`${configSchema.get(serverDoc.type as any).QueryObject} AND d.id = @p1`, [id]);

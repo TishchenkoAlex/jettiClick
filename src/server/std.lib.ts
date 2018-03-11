@@ -21,7 +21,7 @@ export interface JTL {
     balance: (type: RegisterAccumulationTypes, date: Date, resource: string[],
       analytics: { [key: string]: Ref }, tx?: TX) => Promise<{ [x: string]: number }>,
     avgCost: (date: Date, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
-    inventoryBalance: (date: Date, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
+    inventoryBalance: (date: Date, analytics: { [key: string]: Ref }, tx?: TX) => Promise<{ Cost: number, Qty: number }>,
   };
   doc: {
     byCode: (type: DocTypes, code: string, tx?: TX) => Promise<string>;
@@ -142,7 +142,7 @@ async function registerBalance(type: RegisterAccumulationTypes, date = new Date(
   return (result ? result : {});
 }
 
-async function avgCost(date = new Date(), analytics: { [key: string]: Ref }, tx = sdb): Promise<number> {
+async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<number> {
   const queryText = `
   SELECT
     SUM("Cost") / NULLIF(SUM("Qty"), 0) result
@@ -151,25 +151,23 @@ async function avgCost(date = new Date(), analytics: { [key: string]: Ref }, tx 
     AND date <= @p1
     AND company = @p2
     AND "SKU" = @p3
-    AND "Storehouse" = @p4
-  `;
+    AND "Storehouse" = @p4`;
   const result = await tx.oneOrNone<any>(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
   return result ? result.result : null;
 }
 
-async function inventoryBalance(date = new Date(), analytics: { [key: string]: Ref }, tx = sdb): Promise<number> {
+async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<{ Cost: number, Qty: number }> {
   const queryText = `
   SELECT
-    SUM("Qty") result
-  FROM "Register.Accumulation.Inventory"
-  WHERE (1=1)
-    AND date <= @p1
-    AND company = @p2
-    AND "SKU" = @p3
-    AND "Storehouse" = @p4
-  `;
+    SUM("Cost") "Cost", SUM("Qty") "Qty"
+    FROM "Register.Accumulation.Inventory"
+    WHERE (1=1)
+      AND date <= @p1
+      AND company = @p2
+      AND "SKU" = @p3
+      AND "Storehouse" = @p4`;
   const result = await tx.oneOrNone<any>(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
-  return result ? result.result : null;
+  return result ? { Cost: result.Cost, Qty: result.Qty } : null;
 }
 
 async function sliceLast(type: string, date = new Date(), company: Ref,
@@ -199,7 +197,7 @@ export async function postById(id: string, posted: boolean, tx: TX = sdb) {
         DELETE FROM "Register.Account" WHERE document = @p1;
         DELETE FROM "Register.Info" WHERE document = @p1;
         DELETE FROM "Accumulation" WHERE document = @p1;
-        UPDATE "Documents" SET posted = @p2 WHERE id = @p1`, [id, posted ? 1 : 0 ]);
+        UPDATE "Documents" SET posted = @p2 WHERE id = @p1`, [id, posted ? 1 : 0]);
     }
     if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
     serverDoc = undefined;
