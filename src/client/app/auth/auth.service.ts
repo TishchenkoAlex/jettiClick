@@ -22,7 +22,7 @@ export class AuthService {
   isLoggedOut$ = this.isLoggedIn$.pipe(map(isLoggedIn => !isLoggedIn));
   isAdmin$ = this._userProfile$.asObservable().pipe(
     filter(u => u.account.roles.findIndex(r => r === 'Admin') >= 0), map(u => true));
-  url$ = this.userProfile$.pipe(map(u => this.sanitizer.bypassSecurityTrustResourceUrl(u.account.env.reportsUrl as string)));
+  url$ = this.userProfile$.pipe(map(u => this.sanitizer.bypassSecurityTrustResourceUrl(u.account.env.reportsUrl)));
 
   userRoles: RoleType[] = [];
   userRoleObjects: RoleObject[] = [];

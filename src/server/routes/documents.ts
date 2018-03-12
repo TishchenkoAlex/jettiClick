@@ -73,10 +73,9 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           const newDoc = await createDocumentServer(params.type, model) as DocumentBaseServer;
           if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
           Object.keys(newDoc).filter(k => newDoc[k] instanceof Array).forEach(k => newDoc[k].length = 0);
+          view = newDoc.Props();
           model = newDoc;
-          if (req.query.isfolder) {
-            model.isfolder = true;
-          }
+          if (req.query.isfolder) model.isfolder = true;
           break;
         case 'copy':
           if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(req.query['copy'], view, config_schema); }
