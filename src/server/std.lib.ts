@@ -1,13 +1,13 @@
+import { TX } from './db';
 import { RefValue } from './models/api';
-import { Ref, DocumentBase } from './models/document';
+import { configSchema } from './models/config';
+import { DocumentBase, Ref } from './models/document';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
 import { DocumentBaseServer, INoSqlDocument } from './models/ServerDocument';
-import { InsertRegisterstoDB } from './routes/utils/execute-script';
-import { configSchema } from './models/config';
 import { sdb } from './mssql';
-import { TX } from './db';
+import { InsertRegisterstoDB } from './routes/utils/execute-script';
 
 export interface JTL {
   db: TX;

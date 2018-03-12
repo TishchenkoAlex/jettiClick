@@ -30,15 +30,18 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   }
   if (type === 'Document.Operation') {
     const Props = result.Props();
+    const Prop = result.Prop() as DocumentOptions;
+    const id = typeof result['Operation'] === 'object' ? result['Operation'].id : result['Operation'];
     const Parameters = await sdb.oneOrNone<{ Parameters: any[] }>(`
-    select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents" where id = @p1`, [result['Operation'].id]);
+    select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents" where id = @p1`, [id]);
     (Parameters && Parameters.Parameters || []).sort((a, b) => a.order - b.order).forEach(c => Props[c.parameter] = {
       label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
       [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
     });
-    const QueryObject = SQLGenegator.QueryObject(Props, result.Prop() as DocumentOptions);
+    result['QueryObject'] = SQLGenegator.QueryObject(Props, Prop);
+    // result['QueryNew'] = SQLGenegator.QueryNew(Props, Prop);
+    // result['QueryList'] = SQLGenegator.QueryList(Props, Prop);
     result.Props = () => Props;
-    result['QueryObject'] = QueryObject;
   }
   return result;
 }

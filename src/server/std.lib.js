@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const documents_factory_server_1 = require("./models/documents.factory.server");
-const execute_script_1 = require("./routes/utils/execute-script");
 const config_1 = require("./models/config");
+const documents_factory_server_1 = require("./models/documents.factory.server");
 const mssql_1 = require("./mssql");
+const documents_1 = require("./routes/documents");
+const execute_script_1 = require("./routes/utils/execute-script");
 exports.lib = {
     db: mssql_1.sdb,
     account: {
@@ -158,6 +159,7 @@ async function postById(id, posted, tx = mssql_1.sdb) {
         DELETE FROM "Accumulation" WHERE document = @p1;
         UPDATE "Documents" SET posted = @p2 WHERE id = @p1`, [id, posted ? 1 : 0]);
         }
+        await documents_1.addAdditionalToOperation(doc);
         if (posted && serverDoc.onPost) {
             await execute_script_1.InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx);
         }
