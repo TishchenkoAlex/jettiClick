@@ -13,9 +13,9 @@
           (click)="open()" [disabled]="(lds.busy$ | async)"></button>
         <button pButton type="button" id="copy" icon="fa-copy" class="ui-button-secondary" *ngIf="table?.selection?.length == 1"
           (click)="copy()" [disabled]="(lds.busy$ | async)"></button>
-        <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && !table?.selection[0].posted && isDoc"
+        <button pButton type="button" id="post" icon="fa-check" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && isDoc"
           (click)="post()" [disabled]="(lds.busy$ | async)"></button>
-        <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && table?.selection[0].posted && isDoc"
+        <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && isDoc"
           (click)="post('unpost')" [disabled]="(lds.busy$ | async)"></button>
         <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()"
           [disabled]="(lds.busy$ | async)"></button>

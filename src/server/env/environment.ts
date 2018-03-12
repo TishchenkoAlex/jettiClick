@@ -21,8 +21,8 @@ export const sqlConfig: config = {
   user: process.env.DB_USER || 'yuralex',
   password: process.env.DB_PASSWORD || 'MyNew01Password',
   pool: {
-    min: 2,
-    max: 20,
+    min: 20,
+    max: 100,
   },
   options: {
     encrypt: true,
