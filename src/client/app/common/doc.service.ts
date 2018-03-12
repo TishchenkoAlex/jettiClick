@@ -35,12 +35,13 @@ export class DocService {
 
   constructor(public api: ApiService, private messageService: MessageService, public confirmationService: ConfirmationService) { }
 
-  save(doc: DocumentBase, close: boolean = false) {
-    return this.api.postDoc(doc).toPromise()
+  save(doc: DocumentBase, close: boolean = false, mode: 'post' | 'save' = 'save') {
+    return this.api.postDoc(doc, mode).toPromise()
       .then(savedDoc => {
         this.openSnackBar('success', savedDoc.description, savedDoc.posted ? 'posted' : 'unposted');
         const subject$ = close ? this._saveClose$ : this._save$;
         subject$.next(savedDoc);
+        return true;
       });
   }
 
@@ -49,21 +50,24 @@ export class DocService {
       .then(deletedDoc => {
         this._delete$.next(deletedDoc);
         this.openSnackBar('success', deletedDoc.description, deletedDoc.deleted ? 'deleted' : 'undeleted');
+        return true;
       });
   }
 
   post(id: string) {
     return this.api.postDocById(id).toPromise()
-      .then(result => this._post$.next(result));
+      .then(result => {
+        this._post$.next(result);
+        return true;
+      });
   }
 
   unpost(id: string) {
     return this.api.unpostDocById(id).toPromise()
-      .then(result => this._unpost$.next(result));
-  }
-
-  close(url: string, skip = false) {
-    this._close$.next({ url, skip });
+      .then(result => {
+        this._unpost$.next(result);
+        return true;
+      });
   }
 
   openSnackBar(severity: string, message: string, detail: string) {

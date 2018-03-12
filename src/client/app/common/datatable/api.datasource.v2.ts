@@ -56,7 +56,7 @@ export class ApiDataSource {
       map(data => data.data), share());
   }
 
-  refresh(id: string) { this.paginator.next({ command: 'refresh' }); }
+  refresh(id: string) { this.id = id; this.paginator.next({ command: 'refresh' }); }
   goto(id: string) { this.id = id; this.paginator.next({ command: 'goto' }); }
   sort() { this.paginator.next({ command: 'sort' }); }
   first() { this.paginator.next({ command: 'first' }); }

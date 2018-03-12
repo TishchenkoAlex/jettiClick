@@ -213,10 +213,11 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQ
 
 // Upsert document
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+  const mode: 'post' | 'save' = req.query.mode || 'save';
   try {
     await sdb.tx(async tx => {
       const doc: INoSqlDocument = req.body;
-      doc.posted = true;
+      if (mode === 'post') doc.posted = true;
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await addAdditionalToOperation(doc);
       await post(doc, serverDoc, tx);

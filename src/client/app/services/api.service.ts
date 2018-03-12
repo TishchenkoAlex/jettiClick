@@ -66,10 +66,10 @@ export class ApiService {
     return (this.http.get(query));
   }
 
-  postDoc(doc: DocumentBase) {
+  postDoc(doc: DocumentBase, mode: 'post' | 'save' = 'save') {
     const apiDoc = mapDocToNoSQLFormat(doc);
     const query = `${environment.api}`;
-    return (this.http.post<DocumentBase>(query, apiDoc));
+    return (this.http.post<DocumentBase>(query, apiDoc, {params: {mode}}));
   }
 
   postDocById(id: string): Observable<boolean> {

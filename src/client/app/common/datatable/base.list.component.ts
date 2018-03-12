@@ -216,7 +216,12 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     const tasksCount = this.table.selection.length; let i = tasksCount;
     for (const s of this.table.selection) {
       this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
-      if (mode === 'post') await this.ds.post(s.id); else await this.ds.unpost(s.id);
+      if (mode === 'post') {
+        await this.ds.post(s.id);
+        s.posted = (await this.ds.post(s.id));
+      } else {
+        s.posted = !(await this.ds.unpost(s.id));
+      }
       this.table.preventSelectionSetterPropagation = false;
       this.table.selection = [s];
     }
