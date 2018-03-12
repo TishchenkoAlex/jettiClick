@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, QueryList, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge } from 'rxjs/observable/merge';
@@ -18,8 +18,7 @@ export class TabControllerComponent {
   @ViewChildren(DynamicComponent) components: QueryList<DynamicComponent>;
 
   constructor(
-    private router: Router, private route: ActivatedRoute, private ds: DocService,
-    public tabStore: TabsStore, private cd: ChangeDetectorRef) {
+    private router: Router, private route: ActivatedRoute, private ds: DocService, public tabStore: TabsStore) {
 
     this.route.params
       .subscribe(params => {
@@ -71,13 +70,13 @@ export class TabControllerComponent {
   }
 
   selectedIndexChange(event) {
-    event.originalEvent.stopPropagation();
+    (event.originalEvent as Event).stopImmediatePropagation();
     const tab = this.tabStore.state.tabs[event.index];
     this.router.navigate([tab.docType, tab.docID]);
   }
 
   handleClose(event) {
-    event.originalEvent.stopPropagation();
+    (event.originalEvent as Event).stopImmediatePropagation();
     const tab = this.tabStore.state.tabs[event.index];
     const component = this.components.find(e => e.id === tab.docID);
     if (component && component.componentRef.instance.Close) {
@@ -85,8 +84,8 @@ export class TabControllerComponent {
     } else {
       this.tabStore.close(tab);
       const returnTab = this.tabStore.state.tabs[this.tabStore.state.selectedIndex];
-      this.router.navigate([returnTab.docType, returnTab.docID])
-        .then(() => setTimeout(() => this.tabStore.selectedIndex = this.tabStore.selectedIndex));
+      this.router.navigate([returnTab.docType, returnTab.docID]);
     }
+    setTimeout(() => this.tabStore.selectedIndex = this.tabStore.selectedIndex);
   }
 }

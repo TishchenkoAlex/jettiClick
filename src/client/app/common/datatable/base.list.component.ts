@@ -249,6 +249,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
     this._routeSubscruption$.unsubscribe();
+    this.debonce$.complete();
     this.debonce$.unsubscribe();
     if (!this.route.snapshot.queryParams.goto) { this.saveUserSettings(); }
   }

@@ -120,6 +120,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnDestroy() {
+    this.debonce$.complete();
     this.debonce$.unsubscribe();
   }
 }

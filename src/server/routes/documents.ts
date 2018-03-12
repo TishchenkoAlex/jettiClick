@@ -72,8 +72,8 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           }
           const newDoc = await createDocumentServer(params.type, model) as DocumentBaseServer;
           if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
-          Object.keys(newDoc).filter(k => newDoc[k] instanceof Array).forEach(k => newDoc[k].length = 0);
           view = newDoc.Props();
+          Object.keys(newDoc).filter(k => newDoc[k] instanceof Array).forEach(k => newDoc[k].length = 0);
           model = newDoc;
           if (req.query.isfolder) model.isfolder = true;
           break;
