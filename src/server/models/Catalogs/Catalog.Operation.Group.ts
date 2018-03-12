@@ -5,7 +5,10 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   description: 'Группа операции',
   icon: 'fa fa-money',
   menu: 'Группы операций',
-  prefix: 'OPG-'
+  prefix: 'OPG-',
+  relations: [
+    { name: 'Operations', type: 'Catalog.Operation', field: 'Group' }
+  ]
 })
 export class CatalogOperationGroup extends DocumentBase {
 

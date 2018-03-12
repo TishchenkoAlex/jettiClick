@@ -17,19 +17,20 @@
           (click)="post()" [disabled]="(lds.busy$ | async)"></button>
         <button pButton type="button" id="unpost" icon="fa-square-o" class="ui-button-warning" *ngIf="table?.selection?.length >=1 && table?.selection[0].posted && isDoc"
           (click)="post('unpost')" [disabled]="(lds.busy$ | async)"></button>
-        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()" [disabled]="(lds.busy$ | async)"></button>
-        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree" [disabled]="(lds.busy$ | async)"></button>
+        <button pButton type="button" id="delete" icon="fa-trash" class="ui-button-danger" *ngIf="table?.selection?.length" (click)="delete()"
+          [disabled]="(lds.busy$ | async)"></button>
+        <button pButton type="button" id="showTree" icon="fa-sitemap" class="ui-button-secondary" *ngIf="isCatalog" (click)="showTree = !showTree"
+          [disabled]="(lds.busy$ | async)"></button>
       </div>
     </p-toolbar>
+    <p-table #tbl [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort($event)"
+      (onFilter)="sort($event)" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)"
+      [contextMenu]="cm" [metaKeySelection]="true" [columns]="columns$ | async" class="noselect" [(selection)]="selection">
 
-    <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort($event)" (onFilter)="sort($event)"
-      sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)"
-      [contextMenu]="cm" [metaKeySelection]="true" [columns]="columns" class="noselect">
-
-      <ng-template pTemplate="header" let-columns>
+      <ng-template pTemplate="header">
         <tr>
           <th [ngStyle]="{'width': '24px', 'text-align': 'center'}"></th>
-          <th pReorderableColumn [pSortableColumn]="column.field" *ngFor="let column of columns" [ngStyle]="column.style">
+          <th pReorderableColumn [pSortableColumn]="column.field" *ngFor="let column of tbl.columns" [ngStyle]="column.style">
             {{column.label}}
             <p-sortIcon [field]="column.field"></p-sortIcon>
           </th>
@@ -37,7 +38,7 @@
         </tr>
         <tr>
           <th [ngStyle]="{'width': '24px', 'text-align': 'center'}"></th>
-          <th *ngFor="let column of columns" [ngStyle]="column.style" [ngSwitch]="column.type" class="ui-fluid ui-column-filter">
+          <th *ngFor="let column of tbl.columns" [ngStyle]="column.style" [ngSwitch]="column.type" class="ui-fluid ui-column-filter">
             <div *ngSwitchCase="'boolean'">
               <p-triStateCheckbox [ngModel]="table?.filters[column.field]?.value" (ngModelChange)="update(column, $event, '=')"></p-triStateCheckbox>
             </div>
@@ -65,14 +66,14 @@
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <ng-template pTemplate="body" let-rowData>
         <tr [pSelectableRow]="rowData" [pContextMenuRow]="rowData" (dblclick)="open()">
           <td class="ui-resizable-column" [ngStyle]="{'width': '24px', 'text-align': 'center'}">
             <i *ngIf="rowData['posted'] && !rowData['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
             <i *ngIf="rowData['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>
             <i *ngIf="!rowData['posted'] && !rowData['deleted']" class="fa fa-square-o" style="color: #f0ad4e"></i>
           </td>
-          <td *ngFor="let column of columns" [ngStyle]="column.style">
+          <td *ngFor="let column of tbl.columns" [ngStyle]="column.style">
             <span [ngSwitch]="column.type" [id]="column.field">
               <span *ngSwitchCase="'date'" [id]="column.field">{{rowData[column.field] | date:'dd.MM.yyyy'}}</span>
               <span *ngSwitchCase="'datetime'" [id]="column.field">{{rowData[column.field] | date:'dd.MM.yyyy HH:mm:ss'}}</span>
@@ -104,5 +105,4 @@
   </div>
 
 </div>
-
 <p-contextMenu #cm [model]="contexCommands"></p-contextMenu>

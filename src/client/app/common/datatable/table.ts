@@ -37,13 +37,11 @@ import { PaginatorModule } from 'primeng/components/paginator/paginator';
 export class TableService {
 
   private sortSource = new Subject<SortMeta | SortMeta[]>();
-  private filterSource = new Subject<{ [f: string]: FilterMetadata }>();
   private selectionSource = new Subject();
   private contextMenuSource = new Subject<any>();
   private valueSource = new Subject<any>();
 
   sortSource$ = this.sortSource.asObservable();
-  filterSource$ = this.filterSource.asObservable();
   selectionSource$ = this.selectionSource.asObservable();
   contextMenuSource$ = this.contextMenuSource.asObservable();
   valueSource$ = this.valueSource.asObservable();
@@ -62,10 +60,6 @@ export class TableService {
 
   onValueChange(value: any) {
     this.valueSource.next(value);
-  }
-
-  onFilter(filterMetadata: { [s: string]: FilterMetadata }) {
-    this.filterSource.next(filterMetadata);
   }
 }
 
@@ -425,10 +419,8 @@ export class Table implements OnInit, AfterContentInit {
     this.updateTotalRecords();
 
     if (!this.lazy) {
-      // tslint:disable-next-line:curly
       if (this.sortMode == 'single')
         this.sortSingle();
-
       else if (this.sortMode == 'multiple')
         this.sortMultiple();
     }
@@ -524,6 +516,8 @@ export class Table implements OnInit, AfterContentInit {
       first: this.first,
       rows: this.rows
     });
+
+    this.tableService.onValueChange(this.value);
   }
 
   sort(event) {
@@ -558,53 +552,55 @@ export class Table implements OnInit, AfterContentInit {
   }
 
   sortSingle() {
-    this.first = 0;
+    if (this.sortField && this.sortOrder) {
+      this.first = 0;
 
-    if (this.lazy) {
-      this.onLazyLoad.emit(this.createLazyLoadMetadata());
+      if (this.lazy) {
+        this.onLazyLoad.emit(this.createLazyLoadMetadata());
+      }
+      else if (this.value) {
+        if (this.customSort) {
+          this.sortFunction.emit({
+            data: this.value,
+            mode: this.sortMode,
+            field: this.sortField,
+            order: this.sortOrder
+          });
+        }
+        else {
+          this.value.sort((data1, data2) => {
+            let value1 = this.objectUtils.resolveFieldData(data1, this.sortField);
+            let value2 = this.objectUtils.resolveFieldData(data2, this.sortField);
+            let result = null;
+
+            if (value1 == null && value2 != null)
+              result = -1;
+            else if (value1 != null && value2 == null)
+              result = 1;
+            else if (value1 == null && value2 == null)
+              result = 0;
+            else if (typeof value1 === 'string' && typeof value2 === 'string')
+              result = value1.localeCompare(value2);
+            else
+              result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
+
+            return (this.sortOrder * result);
+          });
+        }
+
+        if (this.hasFilter()) {
+          this._filter();
+        }
+      }
+
+      let sortMeta: SortMeta = {
+        field: this.sortField,
+        order: this.sortOrder
+      };
+
+      this.onSort.emit(sortMeta);
+      this.tableService.onSort(sortMeta);
     }
-    else if (this.value) {
-      if (this.customSort) {
-        this.sortFunction.emit({
-          data: this.value,
-          mode: this.sortMode,
-          field: this.sortField,
-          order: this.sortOrder
-        });
-      }
-      else {
-        this.value.sort((data1, data2) => {
-          let value1 = this.objectUtils.resolveFieldData(data1, this.sortField);
-          let value2 = this.objectUtils.resolveFieldData(data2, this.sortField);
-          let result = null;
-
-          if (value1 == null && value2 != null)
-            result = -1;
-          else if (value1 != null && value2 == null)
-            result = 1;
-          else if (value1 == null && value2 == null)
-            result = 0;
-          else if (typeof value1 === 'string' && typeof value2 === 'string')
-            result = value1.localeCompare(value2);
-          else
-            result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
-
-          return (this.sortOrder * result);
-        });
-      }
-
-      if (this.hasFilter()) {
-        this._filter();
-      }
-    }
-
-    let sortMeta: SortMeta = {
-      field: this.sortField,
-      order: this.sortOrder
-    };
-
-    this.onSort.emit(sortMeta);
-    this.tableService.onSort(sortMeta);
   }
 
   sortMultiple() {
@@ -1094,7 +1090,8 @@ export class Table implements OnInit, AfterContentInit {
       filters: this.filters,
       filteredValue: this.filteredValue || this.value
     });
-    this.tableService.onFilter(this.filters);
+
+    this.tableService.onValueChange(this.value);
   }
 
   hasFilter() {
@@ -2052,23 +2049,6 @@ export class SelectableRow implements OnInit, OnDestroy {
     }
   }
 
-  // Tishchenko
-  @HostListener('window:keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent) {
-    if (!(event.key === 'ArrowUp' || event.key === 'ArrowDown') ||
-      !(this.dt.selection && this.dt.selection[0] && this.dt.dataKey)) return;
-    if (this.dt.selection[0][this.dt.dataKey] === this.data[this.dt.dataKey]) {
-      event.stopImmediatePropagation();
-      const index = this.dt.value.findIndex(r => r[this.dt.dataKey] === this.data[this.dt.dataKey]);
-      let data;
-      if (event.key === 'ArrowDown') data = this.dt.value[index + 1]; else data = this.dt.value[index - 1];
-      if (data) {
-        this.dt.preventSelectionSetterPropagation = false;
-        this.dt.selection = [data];
-      }
-    }
-  }
-
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: Event) {
     if (this.isEnabled()) {
@@ -2181,7 +2161,7 @@ export class ContextMenuRow {
   }
 
   isEnabled() {
-    return this.pContextMenuRowDisabled !== false;
+    return this.pContextMenuRowDisabled !== true;
   }
 
   ngOnDestroy() {
@@ -2426,8 +2406,8 @@ export class EditableColumn implements AfterViewInit {
     }
   }
 
-  isValid() { // Tishchenko Fix
-    return true; //return (this.dt.editingCell && this.domHandler.find(this.dt.editingCell, '.ng-invalid.ng-dirty').length === 0);
+  isValid() {
+    return true; // (this.dt.editingCell && this.domHandler.find(this.dt.editingCell, '.ng-invalid.ng-dirty').length === 0);
   }
 
   @HostListener('click', ['$event'])
@@ -2622,15 +2602,15 @@ export class CellEditor implements AfterContentInit {
 @Component({
   selector: 'p-tableRadioButton',
   template: `
-    <div class="ui-radiobutton ui-widget" (click)="onClick($event)">
-        <div class="ui-helper-hidden-accessible">
-            <input type="radio" [checked]="checked" (focus)="onFocus()" (blur)="onBlur()">
+        <div class="ui-radiobutton ui-widget" (click)="onClick($event)">
+            <div class="ui-helper-hidden-accessible">
+                <input type="radio" [checked]="checked" (focus)="onFocus()" (blur)="onBlur()">
+            </div>
+            <div #box [ngClass]="{'ui-radiobutton-box ui-widget ui-state-default':true,
+                'ui-state-active':checked, 'ui-state-disabled':disabled}">
+                <span class="ui-radiobutton-icon ui-clickable" [ngClass]="{'fa fa-circle':checked}"></span>
+            </div>
         </div>
-        <div #box [ngClass]="{'ui-radiobutton-box ui-widget ui-state-default':true,
-            'ui-state-active':checked, 'ui-state-disabled':disabled}">
-            <span class="ui-radiobutton-icon ui-clickable" [ngClass]="{'fa fa-circle':checked}"></span>
-        </div>
-    </div>
     `
 })
 export class TableRadioButton {

@@ -1,0 +1,15 @@
+{
+  "env": {
+    "host": "https://cl.jetti-app.com",
+    "path": "",
+    "reportsUrl": "https://app.powerbi.com/view?r=eyJrIjoiMWRkYzM0OTMtYTFkNS00MzNjLTllZTMtM2UyNzhjZjg4NzFlIiwidCI6IjU5YzU3MmZkLTI5MjgtNDZmMS05MTMyLTkxMWMxZjJiYTdmOSIsImMiOjl9"
+  },
+  "email": "nat@nat.com",
+  "roles": [
+    "Admin"
+  ],
+  "created": "2018-01-06T15:18:15.662Z",
+  "isAdmin": true,
+  "password": "$2a$10$8ZYRdUuHMRGOpOjvapIyuuWGt0QUWLLiRHoZNyQXdyqew/pHMbGae",
+  "description": "db admin account"
+}

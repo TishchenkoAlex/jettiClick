@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
 import { AccountRegister } from '../../../server/models/account.register';
 import { DocListRequestBody, DocListResponse, IJob, IJobs, ISuggest, ITree, PatchValue } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
-import { DocumentBase } from '../../../server/models/document';
+import { DocumentBase, DocumentOptions } from '../../../server/models/document';
 import { DocTypes } from '../../../server/models/documents.types';
 import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 import { INoSqlDocument } from '../../../server/models/ServerDocument';
@@ -43,8 +43,8 @@ export class ApiService {
     const query = `${environment.api}view`;
     return this.http.post(query, { type }).pipe(
       map(o => ({
-        schema: o['view'] as Params, columnsDef: o['columnDef'] as ColumnDef,
-        metadata: o['prop'] as Params, settings: o['settings'] as FormListSettings
+        schema: o['view'] as Params, columnsDef: o['columnDef'] as ColumnDef[],
+        metadata: o['prop'] as DocumentOptions, settings: o['settings'] as FormListSettings
       })));
   }
 

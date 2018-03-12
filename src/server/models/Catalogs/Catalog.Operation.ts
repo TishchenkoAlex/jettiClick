@@ -19,7 +19,10 @@ const defaultScript = `
   dimensions: [
     { Group: 'Catalog.Operation.Group' }
   ],
-  prefix: 'RULE-'
+  prefix: 'RULE-',
+  relations: [
+    { name: 'Operations', type: 'Document.Operation', field: 'Operation' }
+  ]
 })
 export class CatalogOperation extends DocumentBase {
 

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, isDevMode } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
@@ -23,6 +24,9 @@ export class AuthService {
     filter(u => u.account.roles.findIndex(r => r === 'Admin') >= 0),
     map(u => true)
   );
+  url$ = this.userProfile$.pipe(
+    map(u => this.sanitizer.bypassSecurityTrustResourceUrl(u.account.env.reportsUrl as string))
+  );
 
   userRoles: RoleType[] = [];
   userRoleObjects: RoleObject[] = [];
@@ -32,7 +36,7 @@ export class AuthService {
   set token(value) { localStorage.setItem('jetti_token', value); }
   get tokenPayload() { return jwt_decode(this.token); }
 
-  constructor(private router: Router, private http: HttpClient) {
+  constructor(private router: Router, private http: HttpClient, public sanitizer: DomSanitizer) {
     if (this.token) { this.setEnv(); }
   }
 

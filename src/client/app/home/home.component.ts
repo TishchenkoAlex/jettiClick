@@ -12,7 +12,7 @@ import { EventsService } from './../services/events.service';
 })
 export class HomeComponent  {
 
-  constructor(public ts: EventsService, public auth: AuthService) {}
+  constructor(public ts: EventsService, public auth: AuthService) { }
 
   login(email: string, password: string) {
     this.auth.login(email, password).pipe(take(1)).subscribe(
