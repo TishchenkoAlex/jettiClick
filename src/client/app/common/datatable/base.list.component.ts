@@ -4,7 +4,7 @@ import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
 import { Observable } from 'rxjs/Observable';
 import { merge } from 'rxjs/observable/merge';
-import { debounceTime, filter as filter$, map, share, take } from 'rxjs/operators';
+import { debounceTime, filter as filter$, map, take } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import { v1 } from 'uuid';
@@ -62,9 +62,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit() {
     this.columns$ = this.columnsAndMetadata$.pipe(
-      map(d => d.columns.filter(c => (!c.hidden && !(c.field === 'description' && this.isDoc)) || c.field === 'Group')),
-      share(),
-    );
+      map(d => d.columns.filter(c => (!c.hidden && !(c.field === 'description' && this.isDoc)) || c.field === 'Group')));
 
     this.dataSource = new ApiDataSource(this.ds.api, this.type, this.pageSize);
 
