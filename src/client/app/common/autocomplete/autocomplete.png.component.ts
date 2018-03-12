@@ -137,7 +137,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   }
 
   handleReset = (event: Event) => this.value = this.EMPTY;
-  handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id], { queryParams: {} });
+  handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id]);
   handleSearch = (event: Event) => this.showDialog = true;
   select = () => this.input.inputEL.nativeElement.select();
   onBlur = (event: Event) => {
@@ -153,7 +153,9 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   calcFilters() {
     const result = new FormListSettings();
     if (this.owner && this.owner.owner && this.owner.owner.filterBy) {
-      result.filter.push({ left: this.owner.owner.filterBy, center: '=', right: this.owner.value });
+      if ((typeof this.owner.value === 'object' && this.owner.value.id)) {
+        result.filter.push({ left: this.owner.owner.filterBy, center: '=', right: this.owner.value });
+      }
     }
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
     return result;
