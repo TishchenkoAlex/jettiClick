@@ -205,7 +205,7 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQ
         ) i
         WHERE Documents.id = i.id;`, [jsonDoc]);
   }
-  if (!!doc.posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx); }
+  if (!!doc.posted && serverDoc.onPost && !doc.deleted) { await InsertRegisterstoDB(doc, await serverDoc.onPost(tx), tx); }
   await doSubscriptions(doc, isNew ? 'after insert' : 'after update', tx);
   return doc;
 }

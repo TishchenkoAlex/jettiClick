@@ -80,7 +80,7 @@ export class TabControllerComponent {
     const tab = this.tabStore.state.tabs[event.index];
     const component = this.components.find(e => e.id === tab.docID);
     if (component && component.componentRef.instance.Close) {
-      return component.componentRef.instance.Close();
+      component.componentRef.instance.Close();
     } else {
       this.tabStore.close(tab);
       const returnTab = this.tabStore.state.tabs[this.tabStore.state.selectedIndex];

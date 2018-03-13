@@ -199,7 +199,7 @@ export async function postById(id: string, posted: boolean, tx: TX = sdb) {
         DELETE FROM "Accumulation" WHERE document = @p1;
         UPDATE "Documents" SET posted = @p2 WHERE id = @p1`, [id, posted ? 1 : 0]);
     }
-    if (posted && serverDoc.onPost) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
+    if (posted && serverDoc.onPost && !doc.deleted) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
     serverDoc = undefined;
   });
 }

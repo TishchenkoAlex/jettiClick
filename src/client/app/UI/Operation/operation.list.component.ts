@@ -14,7 +14,7 @@ import { BaseDocListComponent } from './../../common/datatable/base.list.compone
       [filter]="true"
       [showClear]="true"
       [options]="operationsGroups$ | async"
-      [ngModel]="super.table?.filters['Group']?.value" [autofocus]="true">
+      [ngModel]="super?.filters['Group']?.value" [autofocus]="true">
     </p-dropdown>
     <j-list></j-list>`
 })
@@ -33,8 +33,9 @@ export class OperationListComponent implements OnInit {
   }
 
   onChange(event) {
-    this.super.table.filters.Group = { matchMode: '=', value: event.value };
-    this.super.sort(event);
+    this.super.filters.Group = { matchMode: '=', value: event.value };
+    this.super.prepareDataSource();
+    this.super.dataSource.sort();
   }
 
 }

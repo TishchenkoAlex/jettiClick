@@ -158,7 +158,7 @@ async function postById(id, posted, tx = mssql_1.sdb) {
         DELETE FROM "Accumulation" WHERE document = @p1;
         UPDATE "Documents" SET posted = @p2 WHERE id = @p1`, [id, posted ? 1 : 0]);
         }
-        if (posted && serverDoc.onPost) {
+        if (posted && serverDoc.onPost && !doc.deleted) {
             await execute_script_1.InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx);
         }
         serverDoc = undefined;

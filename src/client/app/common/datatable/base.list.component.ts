@@ -1,10 +1,12 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { merge } from 'rxjs/observable/merge';
-import { debounceTime, filter as filter$, map, take } from 'rxjs/operators';
+import { debounceTime, filter as filter$, map, take, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import { v1 } from 'uuid';
@@ -19,14 +21,13 @@ import { UserSettingsService } from './../../auth/settings/user.settings.service
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
-import { Table } from './table';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-list',
   templateUrl: 'base.list.component.html',
 })
-export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
+export class BaseDocListComponent implements OnInit, OnDestroy {
   locale = calendarLocale; dateFormat = dateFormat;
 
   constructor(public route: ActivatedRoute, public router: Router, public ds: DocService,
@@ -47,24 +48,42 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   set id(value: { id: string, posted: boolean }) {
     this.selection = [{ id: value.id, type: this.type, posted: value.posted }];
   }
-  _columnsAndMetadata$ = new Subject<{ columns: ColumnDef[], metadata: DocumentOptions }>();
+
+  private readonly _columnsAndMetadata$ = new BehaviorSubject<{ columns: ColumnDef[], metadata: DocumentOptions }>({
+    columns: this.route.snapshot.data.detail.columnsDef || [],
+    metadata: this.route.snapshot.data.detail.metadata || {}
+  });
   columnsAndMetadata$ = this._columnsAndMetadata$.asObservable();
 
   columns$: Observable<ColumnDef[]>;
   selection = [];
+  filters: { [s: string]: FilterMetadata } = {};
+  multiSortMeta: SortMeta[] = [];
 
   contexCommands: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
   showTree = false;
 
   dataSource: ApiDataSource | null = null;
-  @ViewChild(Table) table: Table = null;
 
   ngOnInit() {
-    this.columns$ = this.columnsAndMetadata$.pipe(
-      map(d => d.columns.filter(c => (!c.hidden && !(c.field === 'description' && this.isDoc)) || c.field === 'Group')));
-
     this.dataSource = new ApiDataSource(this.ds.api, this.type, this.pageSize);
+
+    if (!this._columnsAndMetadata$.value.columns.length) {
+      this.ds.api.getView(this.type).pipe(take(1)).subscribe(r => {
+        this._columnsAndMetadata$.next({ columns: r.columnsDef, metadata: r.metadata });
+      });
+    }
+
+    this.columns$ = this.columnsAndMetadata$.pipe(
+      tap(d => {
+        this.setSortOrder();
+        this.setFilters();
+        this.setContextMenu(d.columns, d.metadata);
+      }),
+      map(d =>
+        d.columns.filter(c => (!c.hidden && !(c.field === 'description' && this.isDoc)) || c.field === 'Group')
+      ));
 
     this._docSubscription$ = merge(...[this.ds.save$, this.ds.delete$, this.ds.saveClose$, this.ds.goto$]).pipe(
       filter$(doc => doc && doc.type === this.type))
@@ -89,7 +108,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
           this.router.navigate([this.type], { replaceUrl: true })
             .then(() => this.id = { id: exist.id, posted: exist.posted });
         } else {
-          this.table.filters = {};
+          this.filters = {};
           this.router.navigate([this.type], { replaceUrl: true })
             .then(() => {
               this.prepareDataSource();
@@ -102,38 +121,14 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.debonce$.pipe(debounceTime(500)).subscribe(event => this._update(event.col, event.event, event.center));
   }
 
-  ngAfterViewInit() {
-    this.columnsAndMetadata$.pipe(take(1)).subscribe(d => {
-      this.setSortOrder(d.columns);
-      this.setFilters();
-      this.setContextMenu(d.columns, d.metadata);
-      this.dataSource.formListSettings.next(this.settings);
-      this.dataSource.first();
-    });
-
-    const metadata = this.route.snapshot.data.detail.metadata || {};
-    const columns = this.route.snapshot.data.detail.columnsDef || [];
-
-    if (columns.length) {
-      this._columnsAndMetadata$.next({ columns, metadata });
-    } else {
-      this.ds.api.getView(this.type).pipe(take(1)).subscribe(r => {
-        this._columnsAndMetadata$.next({ columns: r.columnsDef, metadata: r.metadata });
-      });
-    }
-
-  }
-
   private setFilters() {
-    if (this.settings.filter.length) {
-      this.settings.filter
-        .forEach(f => this.table.filters[f.left] = { matchMode: f.center, value: f.right });
-    }
+    this.settings.filter
+      .filter(c => !!c.right)
+      .forEach(f => this.filters[f.left] = { matchMode: f.center, value: f.right });
   }
 
-  private setSortOrder(columns: ColumnDef[]) {
-    this.table.multiSortMeta = columns
-      .map(c => c.sort)
+  private setSortOrder() {
+    this.multiSortMeta = this.settings.order
       .filter(e => !!e.order)
       .map(e => <SortMeta>{ field: e.field, order: e.order === 'asc' ? 1 : -1 });
   }
@@ -156,34 +151,36 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private _update(col: ColumnDef, event, center) {
     if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
-    this.table.filters[col.field] = { matchMode: center || col.filter.center, value: event };
-    this.sort(event);
+    this.filters[col.field] = { matchMode: center || col.filter.center, value: event };
+    this.prepareDataSource();
+    this.dataSource.sort();
   }
   update(col: ColumnDef, event, center = 'like') {
     if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) { event = null; }
     this.debonce$.next({ col, event, center });
   }
 
-  sort(event) {
+  onLazyLoad(event) {
+    console.log('onLazyLoad', event);
+    this.multiSortMeta = event.multiSortMeta || [];
     this.prepareDataSource();
     this.dataSource.sort();
   }
 
-  private prepareDataSource() {
+  prepareDataSource() {
     this.dataSource.id = this.id.id;
-    const order = (this.table.multiSortMeta || [])
+    const order = this.multiSortMeta
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-    const filter = Object.keys(this.table.filters)
-      .map(f => <FormListFilter>{ left: f, center: this.table.filters[f].matchMode, right: this.table.filters[f].value });
-    const state: FormListSettings = { filter, order };
-    this.dataSource.formListSettings.next(state);
+    const filter = Object.keys(this.filters)
+      .map(f => <FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value });
+    this.dataSource.formListSettings.next({ filter, order });
   }
 
   add() {
     const filters = {};
-    Object.keys(this.table.filters)
-      .filter(f => this.table.filters[f].value && this.table.filters[f].value.id)
-      .forEach(f => filters[f] = this.table.filters[f].value.id);
+    Object.keys(this.filters)
+      .filter(f => this.filters[f].value && this.filters[f].value.id)
+      .forEach(f => filters[f] = this.filters[f].value.id);
     const id = v1();
     this.router.navigate([this.type, id],
       { queryParams: { new: id, ...filters } });
@@ -224,8 +221,9 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   parentChange(event) {
-    this.table.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null };
-    this.sort(event);
+    this.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null };
+    this.prepareDataSource();
+    this.dataSource.sort();
   }
 
   onContextMenuSelect(event) {
@@ -238,9 +236,9 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private saveUserSettings() {
     const formListSettings: FormListSettings = {
-      filter: (Object.keys(this.table.filters) || [])
-        .map(f => (<FormListFilter>{ left: f, center: this.table.filters[f].matchMode, right: this.table.filters[f].value })),
-      order: ((<SortMeta[]>this.table.multiSortMeta) || [])
+      filter: (Object.keys(this.filters) || [])
+        .map(f => (<FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value })),
+      order: ((<SortMeta[]>this.multiSortMeta) || [])
         .map(o => <FormListOrder>{ field: o.field, order: o.order === 1 ? 'asc' : 'desc' })
     };
     this.uss.setFormListSettings(this.type, formListSettings);
@@ -249,6 +247,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this._docSubscription$.unsubscribe();
     this._routeSubscruption$.unsubscribe();
+    this._columnsAndMetadata$.complete();
     this.debonce$.complete();
     this.debonce$.unsubscribe();
     if (!this.route.snapshot.queryParams.goto) { this.saveUserSettings(); }
