@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, isDevMode } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { MenuItem } from 'primeng/components/common/menuitem';
@@ -161,7 +161,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   }
 
   onLazyLoad(event) {
-    console.log('onLazyLoad', event);
+    if (isDevMode()) console.log('onLazyLoad', event);
     this.multiSortMeta = event.multiSortMeta || [];
     this.prepareDataSource();
     this.dataSource.sort();
