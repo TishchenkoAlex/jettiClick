@@ -136,7 +136,7 @@ export async function List(req: Request, res: Response) {
             const first = Math.max(continuationIndex - params.offset - (pageSize - result.length), 0);
             const last = Math.max(continuationIndex - params.offset + result.length, pageSize);
             continuation.first = data[first - 1];
-            continuation.last = data[last];
+            continuation.last = data[last + 1] || data[last];
             result = data.slice(first, last);
           }
         } else {
