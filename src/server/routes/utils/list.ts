@@ -118,16 +118,18 @@ export async function List(req: Request, res: Response) {
   const calculateContinuation = () => {
     const continuationIndex = data.findIndex(d => d.id === params.id);
     const pageSize = Math.min(data.length, params.count);
-    if (params.command === 'first') {
-      continuation.first = null;
-      continuation.last = data[pageSize];
-      result = data.slice(0, pageSize);
-    } else {
-      if (params.command === 'last') {
+    switch (params.command) {
+      case 'first':
+        continuation.first = null;
+        continuation.last = data[pageSize];
+        result = data.slice(0, pageSize);
+        break;
+      case 'last':
         continuation.first = data[data.length - 1 - params.count];
         continuation.last = null;
         result = data.slice(-pageSize);
-      } else {
+        break;
+      default:
         if (direction) {
           continuation.first = data[continuationIndex - params.offset - 1];
           continuation.last = data[continuationIndex + pageSize - params.offset];
@@ -150,7 +152,6 @@ export async function List(req: Request, res: Response) {
             result = data.slice(0, pageSize);
           }
         }
-      }
     }
   };
   calculateContinuation();
