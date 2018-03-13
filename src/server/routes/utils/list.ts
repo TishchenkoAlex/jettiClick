@@ -134,9 +134,9 @@ export async function List(req: Request, res: Response) {
           result = data.slice(continuation.first ? continuationIndex - params.offset : 0, continuationIndex + pageSize - params.offset);
           if (result.length < pageSize) {
             const first = Math.max(continuationIndex - params.offset - (pageSize - result.length), 0);
-            const last = Math.max(continuationIndex - params.offset + result.length, pageSize - 1);
+            const last = Math.max(continuationIndex - params.offset + result.length, pageSize);
             continuation.first = data[first - 1];
-            continuation.last = data[last + 1];
+            continuation.last = data[last];
             result = data.slice(first, last);
           }
         } else {
