@@ -36,6 +36,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
   @ViewChild(Table) table: Table = null;
   columns: ColumnDef[] = [];
   doc: DocumentBase;
+  selection = [];
 
   get isDoc() { return this.type.startsWith('Document.'); }
   get isCatalog() { return this.type.startsWith('Catalog.'); }
@@ -68,8 +69,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
     this.setFilters();
     this.dataSource.formListSettings.next(this.settings);
     this.dataSource.goto(this.id);
-    this.table.preventSelectionSetterPropagation = false;
-    this.table.selection = [{ id: this.id, type: this.type }];
+    this.selection = [{ id: this.id, type: this.type }];
 
     this.debonce$.pipe(debounceTime(500))
       .subscribe(event => this._update(event.col, event.event, event.center));
@@ -106,7 +106,7 @@ export class SuggestDialogComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private prepareDataSource() {
-    this.dataSource.id = this.table.selection && this.table.selection.length ? this.table.selection[0].id : '';
+    this.dataSource.id = this.selection && this.selection.length ? this.selection[0].id : '';
     const order = (this.table.multiSortMeta || [])
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
     const filter = Object.keys(this.table.filters)

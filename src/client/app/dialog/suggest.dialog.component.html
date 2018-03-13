@@ -1,7 +1,7 @@
 <div cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
 
   <p-table [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" (onSort)="sort()"
-    (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true"
+    (onFilter)="sort()" sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [(selection)]="selection"
     [filterDelay]="500" [metaKeySelection]="true" [columns]="columns" class="noselect">
 
     <ng-template pTemplate="header" let-columns>
@@ -72,10 +72,10 @@
         <button pButton type="button" icon="fa-check-square-o" label="Select&Close" class="ui-button-warning" [disabled]="table?.selection?.length !== 1" (click)="open(table.selection[0])"></button>
       </div>
       <div class="ui-toolbar-group-right">
-        <button pButton type="button" icon="fa-fast-backward" (click)="table.selection = []; dataSource.first()" [disabled]="!dataSource.continuation?.first"></button>
-        <button pButton type="button" icon="fa-step-backward" (click)="table.selection = []; dataSource.prev()" [disabled]="!dataSource.continuation?.first"></button>
-        <button pButton type="button" icon="fa-step-forward"  (click)="table.selection = []; dataSource.next()" [disabled]="!dataSource.continuation?.last"></button>
-        <button pButton type="button" icon="fa-fast-forward"  (click)="table.selection = []; dataSource.last()" [disabled]="!dataSource.continuation?.last"></button>
+        <button pButton type="button" icon="fa-fast-backward" (click)="selection = []; dataSource.first()" [disabled]="!dataSource.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-backward" (click)="selection = []; dataSource.prev()" [disabled]="!dataSource.continuation?.first"></button>
+        <button pButton type="button" icon="fa-step-forward"  (click)="selection = []; dataSource.next()" [disabled]="!dataSource.continuation?.last"></button>
+        <button pButton type="button" icon="fa-fast-forward"  (click)="selection = []; dataSource.last()" [disabled]="!dataSource.continuation?.last"></button>
       </div>
     </p-toolbar>
   </div>
