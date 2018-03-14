@@ -25,6 +25,9 @@ spec:
         image: eu.gcr.io/jetti-pg/mssql
         ports:
         - containerPort: 1433
+        resources:
+          requests:
+            cpu: 2
         env:
         - name: ACCEPT_EULA
           value: "Y"

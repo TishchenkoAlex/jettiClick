@@ -24,7 +24,6 @@ export class OperationListComponent implements OnInit {
   operationsGroups$: Observable<SelectItem[]>;
 
   ngOnInit() {
-    this.super.pageSize = Math.floor((window.innerHeight - 305) / 24);
     this.operationsGroups$ = this.super.ds.api.getOperationsGroups().pipe(
       map(data => [
         { label: '(All)', value: null },

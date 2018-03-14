@@ -133,7 +133,8 @@ export async function List(req: Request, res: Response) {
         if (direction) {
           continuation.first = data[continuationIndex - params.offset - 1];
           continuation.last = data[continuationIndex + pageSize - params.offset];
-          result = data.slice(continuation.first ? continuationIndex - params.offset : 0, continuationIndex + pageSize - params.offset);
+          result = data.slice(continuation.first ? continuationIndex - params.offset : 0,
+            continuationIndex + pageSize - params.offset);
           if (result.length < pageSize) {
             const first = Math.max(continuationIndex - params.offset - (pageSize - result.length), 0);
             const last = Math.max(continuationIndex - params.offset + result.length, pageSize);

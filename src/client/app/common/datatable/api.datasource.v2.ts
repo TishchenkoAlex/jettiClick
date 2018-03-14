@@ -22,7 +22,7 @@ export class ApiDataSource {
   continuation: Continuation = { first: { id: 'first', type: this.type }, last: { id: 'last', type: this.type } };
   private EMPTY: DocListResponse = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first } };
 
-  constructor(public api: ApiService, public type: DocTypes, public pageSize = 10) {
+  constructor(public api: ApiService, public type: DocTypes, public pageSize = 10, scroll = false) {
 
     this.result$ = this.paginator.pipe(
       filter(stream => !(
@@ -46,6 +46,14 @@ export class ApiDataSource {
             tap(data => {
               this.renderedData = data.data;
               this.continuation = data.continuation;
+              setTimeout(() => {
+                const highlight = document.getElementsByClassName(`scrollTo-${type} ng-star-inserted ui-state-highlight`);
+                if (highlight.length) highlight[highlight.length - 1].scrollIntoView(scroll);
+                else {
+                  const items = document.getElementsByClassName(`scrollTo-${type}`);
+                  if (items.length) items[0].scrollIntoView();
+                }
+              });
             }),
             catchError(err => {
               this.renderedData = this.EMPTY.data;

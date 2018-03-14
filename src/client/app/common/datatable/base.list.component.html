@@ -25,7 +25,7 @@
     </p-toolbar>
     <p-table #tbl [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" [rows]="pageSize"
       sortMode="multiple" [scrollable]="true" [reorderableColumns]="true" [filterDelay]="500" (onContextMenuSelect)="onContextMenuSelect($event)"
-      [contextMenu]="cm" [metaKeySelection]="true" [columns]="columns$ | async" class="noselect"
+      [contextMenu]="cm" [metaKeySelection]="true" [columns]="columns$ | async" class="noselect" [scrollHeight]="scrollHeight"
       [(selection)]="selection" (onLazyLoad)="onLazyLoad($event)" [multiSortMeta]="multiSortMeta">
 
       <ng-template pTemplate="header">
@@ -68,7 +68,7 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-rowData>
-        <tr [pSelectableRow]="rowData" [pContextMenuRow]="rowData" (dblclick)="open()">
+        <tr [pSelectableRow]="rowData" [pContextMenuRow]="rowData" (dblclick)="open()" [class]="'scrollTo-' + type">
           <td class="ui-resizable-column" [ngStyle]="{'width': '25px', 'text-align': 'center'}">
             <i *ngIf="!rowData.isfolder && rowData['posted'] && !rowData['deleted']" class="fa fa-check-square" style="color: #5cb85c"></i>
             <i *ngIf="!rowData.isfolder && rowData['deleted']" class="fa fa-minus-square" style="color: #d9534f"></i>

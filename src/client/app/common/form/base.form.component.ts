@@ -92,7 +92,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   Save(doc = this.model, mode: 'save' | 'post' = 'save', close = false, ) { this.showDescription(); this.ds.save(doc, close, mode); }
   Delete() { this.ds.delete(this.model.id); }
-  Copy() { return this.router.navigate([this.model.type, v1()], { queryParams: { copy: this.id } }); }
+  Copy() { return this.router.navigate([this.model.type, v1().toUpperCase()], { queryParams: { copy: this.id } }); }
   Post() { const doc = this.model; doc.posted = true; this.Save(doc, 'post'); }
   unPost() { this.ds.unpost(this.id).then(() => this.form.get('posted').patchValue(false, patchOptionsNoEvents)); }
   PostClose() { const doc = this.model; doc.posted = true; this.Save(doc, 'post', true); }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, isDevMode } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, isDevMode, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { MenuItem } from 'primeng/components/common/menuitem';
@@ -38,7 +38,8 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
 
   private debonce$ = new Subject<{ col: any, event: any, center: string }>();
 
-  @Input() pageSize = Math.floor((window.innerHeight - 275) / 24);
+  @Input() pageSize = 250;
+  get scrollHeight() { return `${(window.innerHeight - 275)}px`; }
   @Input() type: DocTypes = this.route.snapshot.params.type;
   @Input() settings: FormListSettings = this.route.snapshot.data.detail.settings;
 
@@ -133,6 +134,32 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
       .map(e => <SortMeta>{ field: e.field, order: e.order === 'asc' ? 1 : -1 });
   }
 
+  private _update(col: ColumnDef, event, center) {
+    if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
+    this.filters[col.field] = { matchMode: center || col.filter.center, value: event };
+    this.prepareDataSource(this.multiSortMeta);
+    this.dataSource.sort();
+  }
+  update(col: ColumnDef, event, center = 'like') {
+    if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) { event = null; }
+    this.debonce$.next({ col, event, center });
+  }
+
+  onLazyLoad(event) {
+    if (isDevMode()) console.log('onLazyLoad', event);
+    this.prepareDataSource(event.multiSortMeta);
+    this.dataSource.sort();
+  }
+
+  prepareDataSource(multiSortMeta: SortMeta[] = []) {
+    this.dataSource.id = this.id.id;
+    const order = multiSortMeta
+      .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
+    const filter = Object.keys(this.filters)
+      .map(f => <FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value });
+    this.dataSource.formListSettings.next({ filter, order });
+  }
+
   private setContextMenu(columns: ColumnDef[], metadata: DocumentOptions) {
     this.contexCommands = [
       {
@@ -149,50 +176,23 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
       })];
   }
 
-  private _update(col: ColumnDef, event, center) {
-    if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
-    this.filters[col.field] = { matchMode: center || col.filter.center, value: event };
-    this.prepareDataSource();
-    this.dataSource.sort();
-  }
-  update(col: ColumnDef, event, center = 'like') {
-    if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) { event = null; }
-    this.debonce$.next({ col, event, center });
-  }
-
-  onLazyLoad(event) {
-    if (isDevMode()) console.log('onLazyLoad', event);
-    this.multiSortMeta = event.multiSortMeta || [];
-    this.prepareDataSource();
-    this.dataSource.sort();
-  }
-
-  prepareDataSource() {
-    this.dataSource.id = this.id.id;
-    const order = this.multiSortMeta
-      .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-    const filter = Object.keys(this.filters)
-      .map(f => <FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value });
-    this.dataSource.formListSettings.next({ filter, order });
-  }
-
   add() {
     const filters = {};
     Object.keys(this.filters)
       .filter(f => this.filters[f].value && this.filters[f].value.id)
       .forEach(f => filters[f] = this.filters[f].value.id);
-    const id = v1();
+    const id = v1().toUpperCase();
     this.router.navigate([this.type, id],
       { queryParams: { new: id, ...filters } });
   }
 
   copy() {
-    this.router.navigate([this.selection[0].type, v1()],
+    this.router.navigate([this.selection[0].type, v1().toUpperCase()],
       { queryParams: { copy: this.selection[0].id } });
   }
 
   copyTo(type: DocTypes) {
-    this.router.navigate([type, v1()],
+    this.router.navigate([type, v1().toUpperCase()],
       { queryParams: { base: this.selection[0].id } });
   }
 

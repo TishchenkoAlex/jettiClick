@@ -74,14 +74,14 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
           view = newDoc.Props();
           Object.keys(newDoc).filter(k => newDoc[k] instanceof Array).forEach(k => newDoc[k].length = 0);
-          model = newDoc;
+          model = newDoc; model.id = id;
           if (req.query.isfolder) model.isfolder = true;
           break;
         case 'copy':
           if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(req.query['copy'], view, config_schema); }
           model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [req.query['copy']]);
           const copyDoc = await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`);
-          model.id = copyDoc.id; model.date = copyDoc.date; model.code = copyDoc.code;
+          model.id = id; model.date = copyDoc.date; model.code = copyDoc.code;
           model.posted = false; model.deleted = false; model.timestamp = null;
           model.parent = { ...model.parent, id: null, code: null, value: null };
           model.description = 'Copy: ' + model.description;
@@ -94,6 +94,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
         case 'base':
           const baseDoc = await createDocumentServer<DocumentBaseServer>(params.type);
           model = await baseDoc.baseOn(req.query['base'], sdb);
+          model.id = id;
           break;
         default:
           if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }

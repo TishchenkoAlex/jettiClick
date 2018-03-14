@@ -136,12 +136,12 @@ export class SQLGenegator {
         `, ISNULL("${prop}".description, '') "${prop}.value", "${prop}".type "${prop}.type", CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}.id"\n`;
 
     const addLeftJoin = (prop: string, type: string) =>
-        `LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
+        `  LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
 
     let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.timestamp
-      , ISNULL("parent".description, '') "parent.value", d."parent" "parent.id", "parent".type "parent.type"
-      , ISNULL("company".description, '') "company.value", d."company" "company.id", "company".type "company.type"
-      , ISNULL("user".description, '') "user.value", d."user" "user.id", "user".type "user.type"\n`;
+, ISNULL("parent".description, '') "parent.value", d."parent" "parent.id", "parent".type "parent.type"
+, ISNULL("company".description, '') "company.value", d."company" "company.id", "company".type "company.type"
+, ISNULL("user".description, '') "user.value", d."user" "user.id", "user".type "user.type"\n`;
 
     let LeftJoin = '';
 
@@ -156,11 +156,11 @@ export class SQLGenegator {
     }
 
     query += `
-    FROM dbo."Documents" d
-      LEFT JOIN dbo."Documents" "parent" ON "parent".id = d."parent"
-      LEFT JOIN dbo."Documents" "user" ON "user".id = d."user"
-      LEFT JOIN dbo."Documents" "company" ON "company".id = d.company
-      ${LeftJoin}
+FROM dbo."Documents" d
+  LEFT JOIN dbo."Documents" "parent" ON "parent".id = d."parent"
+  LEFT JOIN dbo."Documents" "user" ON "user".id = d."user"
+  LEFT JOIN dbo."Documents" "company" ON "company".id = d.company
+  ${LeftJoin}
     WHERE d.type = '${options.type}'  `;
 
     return query;
