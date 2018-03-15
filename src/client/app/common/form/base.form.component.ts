@@ -98,7 +98,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   PostClose() { const doc = this.model; doc.posted = true; this.Save(doc, 'post', true); }
 
   Goto() {
-    return this.router.navigate([this.model.type], { queryParams: { goto: this.id }, replaceUrl: true });
+    return this.router.navigate([this.model.type],
+      { queryParams: { goto: this.id, posted: this.model.posted }, replaceUrl: true });
   }
 
   private _close() {
@@ -118,8 +119,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   Close() {
     if (this.form.pristine) { this._close(); return; }
     this.ds.confirmationService.confirm({
-      message: 'Discard changes and close?',
-      header: 'Confirmation',
+      header: 'Discard changes and close?',
+      message: this.description.value,
       icon: 'fa fa-question-circle',
       accept: this._close.bind(this),
       key: this.id

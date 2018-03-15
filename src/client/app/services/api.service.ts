@@ -1,15 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Params } from '@angular/router';
 import { JobOptions } from 'bull';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
 import { map } from 'rxjs/operators';
 
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, IJob, IJobs, ISuggest, ITree, PatchValue } from '../../../server/models/api';
+import {
+  DocListRequestBody,
+  DocListResponse,
+  IJob,
+  IJobs,
+  IViewModel,
+  ISuggest,
+  ITree,
+  PatchValue,
+} from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
-import { DocumentBase, DocumentOptions } from '../../../server/models/document';
+import { DocumentBase } from '../../../server/models/document';
 import { DocTypes } from '../../../server/models/documents.types';
 import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 import { INoSqlDocument } from '../../../server/models/ServerDocument';
@@ -28,31 +36,21 @@ export class ApiService {
     return (this.http.get<INoSqlDocument>(query));
   }
 
-  getDocList(type: string, id: string, command: string, count = 10, offset = 0,
-    order: FormListOrder[] = [], filter: FormListFilter[] = []): Observable<DocListResponse> {
+  getDocList(type: string, id: string, command: string,
+    count = 10, offset = 0, order: FormListOrder[] = [], filter: FormListFilter[] = []) {
     const query = `${environment.api}list`;
-    const body: DocListRequestBody = {
-      id: id, type: type, command: command, count: count, offset: offset,
-      order: order,
-      filter: filter
-    };
-    return (this.http.post(query, body) as Observable<DocListResponse>);
+    const body: DocListRequestBody = { id, type, command, count, offset, order, filter };
+    return this.http.post<DocListResponse>(query, body);
   }
 
   getView(type: string) {
     const query = `${environment.api}view`;
-    return this.http.post(query, { type }).pipe(
-      map(o => ({
-        schema: o['view'] as Params, columnsDef: o['columnDef'] as ColumnDef[],
-        metadata: o['prop'] as DocumentOptions, settings: o['settings'] as FormListSettings
-      })));
+    return this.http.post<IViewModel>(query, { type });
   }
 
-  getViewModel(type: string, id = '', params: { [key: string]: any } = {}):
-    Observable<{ schema: any, columnsDef: ColumnDef[], metadata: { [x: string]: any }, DTO: any, settings: FormListSettings }> {
+  getViewModel(type: string, id = '', params: { [key: string]: any } = {}) {
     const query = `${environment.api}view`;
-    return this.http.post(query, { type, id, ...params }, {params}).pipe(
-      map(o => ({ schema: o['view'], columnsDef: o['columnDef'], metadata: o['prop'], DTO: o['model'], settings: o['settings'] })));
+    return this.http.post<IViewModel>(query, { type, id, ...params }, { params });
   }
 
   getSuggests(docType: string, filter = '', isfolder = false) {
@@ -69,7 +67,7 @@ export class ApiService {
   postDoc(doc: DocumentBase, mode: 'post' | 'save' = 'save') {
     const apiDoc = mapDocToNoSQLFormat(doc);
     const query = `${environment.api}`;
-    return (this.http.post<DocumentBase>(query, apiDoc, {params: {mode}}));
+    return (this.http.post<DocumentBase>(query, apiDoc, { params: { mode } }));
   }
 
   postDocById(id: string): Observable<boolean> {

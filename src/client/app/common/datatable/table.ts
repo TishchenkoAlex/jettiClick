@@ -340,7 +340,7 @@ export class Table implements OnInit, AfterContentInit {
 
   ngOnInit() {
     if (this.lazy) {
-      this.onLazyLoad.emit(this.createLazyLoadMetadata());
+      this.onLazyLoad.emit({...this.createLazyLoadMetadata()});
     }
     this.initialized = true;
   }
@@ -1220,7 +1220,8 @@ export class Table implements OnInit, AfterContentInit {
       sortOrder: this.sortOrder,
       filters: this.filters,
       globalFilter: this.filters && this.filters['global'] ? this.filters['global'].value : null,
-      multiSortMeta: this.multiSortMeta
+      multiSortMeta: this.multiSortMeta,
+      initialized: !!this.initialized // tishchenko
     };
   }
 
@@ -2126,9 +2127,9 @@ export class SelectableRowDblClick implements OnInit, OnDestroy {
 
 @Directive({
   selector: '[pContextMenuRow]',
-  host: {
+/* Tishchenko  host: {
     '[class.ui-contextmenu-selected]': 'selected'
-  }
+  } */
 })
 export class ContextMenuRow {
 

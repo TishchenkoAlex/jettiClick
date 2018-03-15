@@ -2,7 +2,7 @@ import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 
 import { DocumentBase, DocumentOptions, PropOptions } from '../../server/models/document';
-import { PatchValue, RefValue, calculateDescription } from '../models/api';
+import { PatchValue, RefValue, calculateDescription, IViewModel } from '../models/api';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
 import { ColumnDef } from './../models/column';
@@ -43,18 +43,18 @@ async function buildOperationViewAndSQL(id: string, view: any, config_schema: an
 const viewAction = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = req.body as { [key: string]: any };
-    let config_schema; let view;
+    let config_schema; let schema;
     const user = User(req);
     const serverDoc = configSchema.get(params.type);
 
-    view = Object.assign({}, serverDoc.Props);
+    schema = Object.assign({}, serverDoc.Props);
     config_schema = {
       queryObject: serverDoc.QueryObject,
       queryNewObject: serverDoc.QueryNew,
       settings: (await sdb.oneOrNone<{ settings: FormListSettings }>(`
         SELECT JSON_QUERY(settings, '$."${params.type}"') settings
         FROM users where email = @p1`, [user])).settings as FormListSettings || new FormListSettings(),
-      schemaFull: view,
+      schemaFull: schema,
       prop: serverDoc.Prop
     };
 
@@ -64,7 +64,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
       switch (command) {
         case 'new':
           model = config_schema.queryNewObject ? await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`) : {};
-          Object.keys(view).filter(p => view[p].value !== undefined).forEach(p => model[p] = view[p].value);
+          Object.keys(schema).filter(p => schema[p].value !== undefined).forEach(p => model[p] = schema[p].value);
           for (const k in params) {
             if (k === 'type' || k === 'id' || k === 'new' || k === 'base' || k === 'copy') { continue; }
             if (typeof params[k] !== 'boolean') model[k] = await lib.doc.formControlRef(params[k]);
@@ -72,13 +72,13 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           }
           const newDoc = await createDocumentServer(params.type, model) as DocumentBaseServer;
           if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
-          view = newDoc.Props();
+          schema = newDoc.Props();
           Object.keys(newDoc).filter(k => newDoc[k] instanceof Array).forEach(k => newDoc[k].length = 0);
           model = newDoc; model.id = id;
           if (req.query.isfolder) model.isfolder = true;
           break;
         case 'copy':
-          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(req.query['copy'], view, config_schema); }
+          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(req.query['copy'], schema, config_schema); }
           model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [req.query['copy']]);
           const copyDoc = await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`);
           model.id = id; model.date = copyDoc.date; model.code = copyDoc.code;
@@ -93,17 +93,17 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           break;
         case 'base':
           const baseDoc = await createDocumentServer<DocumentBaseServer>(params.type);
-          model = await baseDoc.baseOn(req.query['base'], sdb);
+          model = await baseDoc.baseOn(req.query.base, sdb);
           model.id = id;
           break;
         default:
-          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, view, config_schema); }
+          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, schema, config_schema); }
           model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id]);
           break;
       }
     }
-    const columnDef = buildColumnDef(view, config_schema.settings);
-    const result = { view, model, columnDef, prop: config_schema.prop || {}, settings: config_schema.settings };
+    const columnsDef = buildColumnDef(schema, config_schema.settings);
+    const result: IViewModel = { schema, model, columnsDef, metadata: config_schema.prop || {}, settings: config_schema.settings };
     res.json(result);
   } catch (err) { next(err); }
 };

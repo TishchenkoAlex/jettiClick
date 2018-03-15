@@ -1,17 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  isDevMode,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { SortMeta } from 'primeng/components/common/sortmeta';
 import { Observable } from 'rxjs/Observable';
-import { debounceTime, map, startWith, tap } from 'rxjs/operators';
+import { of } from 'rxjs/observable/of';
+import { debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { ColumnDef } from '../../../server/models/column';
@@ -21,6 +13,7 @@ import { FormListFilter, FormListOrder, FormListSettings } from '../../../server
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { calendarLocale, dateFormat } from '../primeNG.module';
 import { ApiService } from '../services/api.service';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,15 +21,14 @@ import { ApiService } from '../services/api.service';
   templateUrl: './suggest.dialog.component.html'
 })
 export class SuggestDialogComponent implements OnInit, OnDestroy {
+  locale = calendarLocale; dateFormat = dateFormat;
+
   @Input() type;
-  @Input() id;
+  @Input() id: string;
   @Input() pageSize = 250;
   @Input() settings: FormListSettings = new FormListSettings();
   @Output() Select = new EventEmitter();
   doc: DocumentBase;
-
-  private readonly _columnsAndMetadata$ = new Subject<{ columns: ColumnDef[], metadata: DocumentOptions }>();
-  columnsAndMetadata$ = this._columnsAndMetadata$.asObservable();
 
   columns$: Observable<ColumnDef[]>;
   selection = [];
@@ -46,41 +38,40 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   get isDoc() { return this.type.startsWith('Document.'); }
   get isCatalog() { return this.type.startsWith('Catalog.'); }
 
-  locale = calendarLocale; dateFormat = dateFormat;
   dataSource: ApiDataSource | null = null;
+
+  private _debonceSubscription$: Subscription = Subscription.EMPTY;
   private debonce$ = new Subject<{ col: any, event: any, center: string }>();
 
   constructor(private api: ApiService) { }
 
   ngOnInit() {
-    this.columns$ = this.columnsAndMetadata$.pipe(
-      startWith({}),
-      tap(d => {
-        this.setSortOrder();
-        this.setFilters();
-        this.selection[0] = { id: this.id, type: this.type };
-      }),
-      map(() => {
-        const columns: ColumnDef[] = [];
-        const data = [{ description: 'string' }, { code: 'string' }, { id: 'string' }];
-        this.doc = createDocument(this.type as any);
-        const schema = this.doc ? this.doc.Props() : {};
-        const dimensions = this.doc ? (this.doc.Prop() as DocumentOptions).dimensions || [] : [];
-        [...data, ...dimensions].forEach(el => {
-          const field = Object.keys(el)[0]; const type = el[field];
-          columns.push({
-            field, type: schema[field] && schema[field].type || type, label: schema[field] && schema[field].label || field,
-            hidden: !!(schema[field] && schema[field].hidden), required: true, readOnly: false, sort: new FormListOrder(field),
-            order: schema[field] && schema[field].order || 0, style: schema[field] && schema[field].style || { width: '150px' },
-          });
-        });
-        return columns.filter(c => !c.hidden);
-      }));
-
-    this.debonce$.pipe(debounceTime(500))
-      .subscribe(event => this._update(event.col, event.event, event.center));
+    const columns: ColumnDef[] = [];
+    const data = [{ description: 'string' }, { code: 'string' }, { id: 'string' }];
+    this.doc = createDocument(this.type as any);
+    const schema = this.doc ? this.doc.Props() : {};
+    const dimensions = this.doc ? (this.doc.Prop() as DocumentOptions).dimensions || [] : [];
+    [...data, ...dimensions].forEach(el => {
+      const field = Object.keys(el)[0]; const type = el[field];
+      columns.push({
+        field, type: schema[field] && schema[field].type || type, label: schema[field] && schema[field].label || field,
+        hidden: !!(schema[field] && schema[field].hidden), required: true, readOnly: false, sort: new FormListOrder(field),
+        order: schema[field] && schema[field].order || 0, style: schema[field] && schema[field].style || { width: '150px' },
+      });
+    });
+    this.columns$ = of(columns.filter(c => !c.hidden));
 
     this.dataSource = new ApiDataSource(this.api, this.type, this.pageSize, true);
+    this.setSortOrder();
+    this.setFilters();
+    this.selection[0] = { id: this.id, type: this.type };
+    setTimeout(() => {
+      this.prepareDataSource();
+      this.dataSource.sort();
+    });
+
+    this._debonceSubscription$ = this.debonce$.pipe(debounceTime(500))
+      .subscribe(event => this._update(event.col, event.event, event.center));
   }
 
   private setFilters() {
@@ -93,6 +84,10 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     this.multiSortMeta = this.settings.order
       .filter(e => !!e.order)
       .map(e => <SortMeta>{ field: e.field, order: e.order === 'asc' ? 1 : -1 });
+    if (this.multiSortMeta.length === 0) {
+      if (this.isCatalog) this.multiSortMeta.push({ field: 'description', order: 1 });
+      if (this.isDoc) this.multiSortMeta.push({ field: 'date', order: 1 });
+    }
   }
 
   private _update(col: ColumnDef, event, center) {
@@ -107,18 +102,19 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   }
 
   onLazyLoad(event) {
-    if (isDevMode()) console.log('onLazyLoad', event);
-    this.prepareDataSource(event.multiSortMeta);
-    this.dataSource.sort();
+    if (event.initialized) {
+      this.prepareDataSource();
+      this.dataSource.sort();
+    }
   }
 
-  prepareDataSource(multiSortMeta: SortMeta[] = []) {
-    this.dataSource.id = this.id.id;
+  prepareDataSource(multiSortMeta: SortMeta[] = this.multiSortMeta) {
+    this.dataSource.id = this.id;
     const order = multiSortMeta
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
     const filter = Object.keys(this.filters)
       .map(f => <FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value });
-    this.dataSource.formListSettings.next({ filter, order });
+    this.dataSource.formListSettings = { filter, order };
   }
 
   open(event) {
@@ -126,7 +122,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this._debonceSubscription$.unsubscribe();
     this.debonce$.complete();
-    this.debonce$.unsubscribe();
   }
 }

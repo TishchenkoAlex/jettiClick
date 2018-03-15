@@ -1,9 +1,10 @@
 import * as Queue from 'bull';
 
 import { AllTypes } from '../models/documents.types';
-import { Ref } from './../models/document';
+import { Ref, DocumentOptions, DocumentBase } from './../models/document';
 import { RoleType } from './Roles/Base';
-import { FormListFilter, FormListOrder } from './user.settings';
+import { FormListFilter, FormListOrder, FormListSettings } from './user.settings';
+import { ColumnDef } from './column';
 
 export interface DocListRequestBody {
   id: string; type: string; command: string; count: number; offset: number;
@@ -102,4 +103,12 @@ export function calculateDescription(description: string, date: Date, code: stri
   const Group = group ? '(' + group + ')' : '';
   const value = `${description} ${Group} #${code}, ${date.toISOString()}`;
   return value;
+}
+
+export interface IViewModel {
+  schema: { [x: string]: any };
+  columnsDef: ColumnDef[];
+  metadata: DocumentOptions;
+  settings: FormListSettings;
+  model: DocumentBase;
 }

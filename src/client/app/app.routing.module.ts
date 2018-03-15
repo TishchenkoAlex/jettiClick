@@ -1,4 +1,5 @@
 import { Injectable, NgModule } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import {
   ActivatedRouteSnapshot,
   DetachedRouteHandle,
@@ -9,6 +10,7 @@ import {
   Routes,
 } from '@angular/router';
 
+import { IViewModel } from '../../server/models/api';
 import { AuthGuardService } from './auth/auth.guard.service';
 import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';
 import { TabControllerComponent } from './common/tabcontroller/tabcontroller.component';
@@ -24,7 +26,7 @@ export class AppRouteReuseStrategy extends RouteReuseStrategy {
 }
 
 @Injectable()
-export class TabResolver implements Resolve<any> {
+export class TabResolver implements Resolve<FormGroup | IViewModel> {
   constructor(private dfs: DynamicFormService, private api: ApiService, private tabStore: TabsStore) { }
 
   public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {

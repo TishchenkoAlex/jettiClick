@@ -1,8 +1,8 @@
 import { DocTypes } from '../documents.types';
+import { FormTypes } from '../Forms/form.types';
 import { AdminObjects } from './Admin';
 import { FinanceRoleObject } from './Finance';
 import { SalesRoleObjects } from './Sales';
-import { FormTypes } from '../Forms/form.types';
 
 export interface RoleObject { type: DocTypes | FormTypes; read: boolean; write: boolean; }
 
@@ -24,3 +24,4 @@ export const Roles: Role[] = [
   { type: 'Sales', Objects: SalesRoleObjects },
   { type: 'Finance', Objects: FinanceRoleObject },
 ];
+

@@ -1,4 +1,5 @@
-import { RoleObject } from './Base';
+import { RoleObject, Roles, RoleType } from './Base';
+import { AllDocTypes, DocTypes } from '../documents.types';
 
 export const FinanceRoleObject: RoleObject[] = [
   { type: 'Catalog.Account', read: true, write: true },
@@ -20,3 +21,16 @@ export const FinanceRoleObject: RoleObject[] = [
   { type: 'Form.Post', read: true, write: true },
   { type: 'Document.ExchangeRates', read: true, write: true },
 ];
+
+export interface Permissions { read: boolean; write: boolean; }
+
+export const RoleObjects = new Map<RoleType, Map<AllDocTypes, Permissions>>([
+  ['Finance', new Map<AllDocTypes, Permissions>([
+    ['Catalog.Account', { read: true, write: true }],
+    ['Catalog.Account', { read: true, write: true }],
+    ['Catalog.Account', { read: true, write: true }],
+  ])],
+  ['Finance', new Map<AllDocTypes, Permissions>([
+    ['Catalog.Account', { read: true, write: true }]
+  ])]
+]);

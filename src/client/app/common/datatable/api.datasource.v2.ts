@@ -14,15 +14,20 @@ interface DatasourceCommand { command: string; data?: any; }
 
 export class ApiDataSource {
 
+  id: string = null;
   private paginator = new Subject<DatasourceCommand>();
-  id = ''; formListSettings = new BehaviorSubject<FormListSettings>(new FormListSettings());
+
+  private readonly _formListSettings$ = new BehaviorSubject<FormListSettings>(new FormListSettings());
+  set formListSettings(value) { this._formListSettings$.next(value); }
+  get formListSettings() { return this._formListSettings$.value; }
+
   result$: Observable<DocumentBase[]>;
   renderedData: DocumentBase[] = [];
 
   continuation: Continuation = { first: { id: 'first', type: this.type }, last: { id: 'last', type: this.type } };
   private EMPTY: DocListResponse = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first } };
 
-  constructor(public api: ApiService, public type: DocTypes, public pageSize = 10, scroll = false) {
+  constructor(public api: ApiService, public type: DocTypes, public pageSize = 10, direction = false) {
 
     this.result$ = this.paginator.pipe(
       filter(stream => !(
@@ -42,16 +47,16 @@ export class ApiDataSource {
         }
 
         return this.api.getDocList(this.type, id, stream.command, this.pageSize, offset,
-          this.formListSettings.value.order, this.formListSettings.value.filter).pipe(
+          this.formListSettings.order, this.formListSettings.filter).pipe(
             tap(data => {
               this.renderedData = data.data;
               this.continuation = data.continuation;
               setTimeout(() => {
                 const highlight = document.getElementsByClassName(`scrollTo-${type} ng-star-inserted ui-state-highlight`);
-                if (highlight.length) highlight[highlight.length - 1].scrollIntoView(scroll);
+                if (highlight.length) scrollIntoViewIfNeeded(highlight[highlight.length - 1], direction);
                 else {
                   const items = document.getElementsByClassName(`scrollTo-${type}`);
-                  if (items.length) items[0].scrollIntoView();
+                  if (items.length) scrollIntoViewIfNeeded(items[0], direction);
                 }
               });
             }),
@@ -72,4 +77,14 @@ export class ApiDataSource {
   next() { this.paginator.next({ command: 'next' }); }
   prev() { this.paginator.next({ command: 'prev' }); }
 
+}
+
+function scrollIntoViewIfNeeded(target, direction = false) {
+  const rect = target.getBoundingClientRect();
+  if (rect.bottom > window.innerHeight) {
+    target.scrollIntoView(direction ? true : false);
+  }
+  if (rect.top < 0) {
+    target.scrollIntoView(direction ? false : true);
+  }
 }

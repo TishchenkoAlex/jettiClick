@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { of } from 'rxjs/observable/of';
 import { map } from 'rxjs/operators';
 
 import { createForm } from '../../../../server/models/Forms/form.factory';
@@ -167,7 +168,7 @@ export class DynamicFormService {
   getViewModel$(docType: string, docID = '', queryParams: { [key: string]: any } = {}) {
     return this.api.getViewModel(docType, docID, queryParams).pipe(
       map(response => {
-        const form = getFormGroup(response.schema, response.DTO, docID !== 'new');
+        const form = getFormGroup(response.schema, response.model, docID !== 'new');
         form['metadata'] = response.metadata;
         return form;
       }));
@@ -182,6 +183,6 @@ export class DynamicFormService {
     const view = form.Props();
     const result = getFormGroup(view, {}, false);
     result['metadata'] = form.Prop();
-    return result;
+    return of(result);
   }
 }
