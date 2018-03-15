@@ -14,7 +14,7 @@ exports.connString_MSSQL = {
     }
 };
 exports.sqlConfig = {
-    database: process.env.DB_NAME || 'big',
+    database: process.env.DB_NAME || 'bcg',
     server: process.env.DB_HOST || 'jetti.database.windows.net',
     user: process.env.DB_USER || 'yuralex',
     password: process.env.DB_PASSWORD || 'MyNew01Password',

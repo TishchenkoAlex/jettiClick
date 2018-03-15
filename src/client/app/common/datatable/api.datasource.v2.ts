@@ -14,7 +14,7 @@ interface DatasourceCommand { command: string; data?: any; }
 
 export class ApiDataSource {
 
-  id: string = null;
+  id = '';
   private paginator = new Subject<DatasourceCommand>();
 
   private readonly _formListSettings$ = new BehaviorSubject<FormListSettings>(new FormListSettings());

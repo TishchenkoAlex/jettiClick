@@ -24,7 +24,7 @@ export class SQLGenegator {
         `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
 
     const addLeftJoin = (prop: string, type: string) =>
-      ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, '$."${prop}"')\n`;
+      ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, N'$."${prop}"')\n`;
 
     const tableProperty = (prop: string, value: any) => {
 
