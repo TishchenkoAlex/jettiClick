@@ -12,7 +12,7 @@ import { DialogModule } from 'primeng/components/dialog/dialog';
 import { FieldsetModule } from 'primeng/components/fieldset/fieldset';
 import { GrowlModule } from 'primeng/components/growl/growl';
 import { InputTextModule } from 'primeng/components/inputtext/inputtext';
-// import { CheckboxModule } from 'primeng/components/checkbox/checkbox';
+import { CheckboxModule } from 'primeng/components/checkbox/checkbox';
 import { InputTextareaModule } from 'primeng/components/inputtextarea/inputtextarea';
 import { PaginatorModule } from 'primeng/components/paginator/paginator';
 import { PanelModule } from 'primeng/components/panel/panel';
@@ -57,6 +57,7 @@ import { TableModule } from './common/datatable/table';
     // InputMaskModule,
     // PasswordModule,
     // ToggleButtonModule,
+    CheckboxModule,
     TriStateCheckboxModule,
     // RadioButtonModule,
     PaginatorModule,

@@ -16,7 +16,7 @@ export class FilterInterval {
 
 export type FilterList = number[] | string[];
 
-export type matchOperator = '=' | '>=' | '<=' | '<' | '>' | 'like' | 'in' | 'beetwen';
+export type matchOperator = '=' | '>=' | '<=' | '<' | '>' | 'like' | 'in' | 'beetwen' | 'is null';
 
 export class FormListFilter {
   left: string;

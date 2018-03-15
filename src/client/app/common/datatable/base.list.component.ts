@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, isDevMode, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { MenuItem } from 'primeng/components/common/menuitem';
@@ -128,7 +128,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
 
   private setFilters() {
     this.settings.filter
-      .filter(c => !!c.right)
+      .filter(c => !(c.right == null || c.right === undefined))
       .forEach(f => this.filters[f.left] = { matchMode: f.center, value: f.right });
   }
 
@@ -149,13 +149,14 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
     this.dataSource.sort();
   }
   update(col: ColumnDef, event, center = 'like') {
-    if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) { event = null; }
+    if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) {
+      if (typeof event !== 'boolean') event = null;
+    }
     this.debonce$.next({ col, event, center });
   }
 
   onLazyLoad(event) {
     if (event.initialized) {
-      if (isDevMode()) console.log('onLazyLoad', event);
       this.multiSortMeta = event.multiSortMeta;
       this.prepareDataSource();
       this.dataSource.sort();
@@ -169,6 +170,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
     const filter = Object.keys(this.filters)
       .map(f => <FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value });
     this.dataSource.formListSettings = { filter, order };
+    console.log(filter);
   }
 
   private setContextMenu(columns: ColumnDef[]) {

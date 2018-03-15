@@ -41,8 +41,8 @@
   </div>
 
   <div *ngIf="value?.type === 'boolean'">
-    <p-triStateCheckbox [label]="showLabel ? placeholder : ''" [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}"
-      (ngModelChange)="value={id: 'boolean', code: '', type: 'boolean', value: $event}"></p-triStateCheckbox>
+    <p-checkbox binary="true" [label]="showLabel ? placeholder : ''" [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}"
+      (ngModelChange)="value={id: 'boolean', code: '', type: 'boolean', value: $event}"></p-checkbox>
     <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)"></button>
   </div>
 

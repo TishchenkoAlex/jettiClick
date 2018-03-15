@@ -133,7 +133,7 @@ export class SQLGenegator {
     };
 
     const complexProperty = (prop: string, type: string) =>
-        `, ISNULL("${prop}".description, '') "${prop}.value", "${prop}".type "${prop}.type", CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}.id"\n`;
+        `, ISNULL("${prop}".description, N'') "${prop}.value", ISNULL("${prop}".type, N'${type}') "${prop}.type", CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}.id"\n`;
 
     const addLeftJoin = (prop: string, type: string) =>
         `  LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER)\n`;

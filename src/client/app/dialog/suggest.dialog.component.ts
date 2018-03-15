@@ -64,7 +64,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     this.dataSource = new ApiDataSource(this.api, this.type, this.pageSize, true);
     this.setSortOrder();
     this.setFilters();
-    this.selection[0] = { id: this.id, type: this.type };
+    this.selection = [{ id: this.id, type: this.type }];
     setTimeout(() => {
       this.prepareDataSource();
       this.dataSource.sort();
@@ -102,8 +102,12 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   }
 
   onLazyLoad(event) {
+    if (event.initialized) {
+      this.multiSortMeta = event.multiSortMeta;
+      console.log('onLazyLoad');
       this.prepareDataSource();
       this.dataSource.sort();
+    }
   }
 
   prepareDataSource(multiSortMeta: SortMeta[] = this.multiSortMeta) {

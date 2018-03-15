@@ -42,7 +42,7 @@
   </div>
 
   <div *ngSwitchCase="'boolean'" style="margin-top: 27px">
-    <p-triStateCheckbox #pc *ngSwitchCase="'boolean'" [label]="control.showLabel ? control.label: ''" [formControlName]="control.key"></p-triStateCheckbox>
+    <p-checkbox #pc *ngSwitchCase="'boolean'"  binary="true" [label]="control.showLabel ? control.label: ''" [formControlName]="control.key"></p-checkbox>
   </div>
 
   <div *ngSwitchCase="'table'">

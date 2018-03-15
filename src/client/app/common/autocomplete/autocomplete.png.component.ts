@@ -29,7 +29,6 @@ import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base'
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
 
-// tslint:disable:no-non-null-assertion
 function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
   return (c: AbstractControl): { [key: string]: any } => {
     if (!component.required || (c.value && c.value.value)) { return null; }
@@ -79,12 +78,12 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   private NO_EVENT = false;
   showDialog = false;
 
-  get isComplexValue() { return this.value!.type!.includes('.'); }
-  get isTypeControl() { return this.type!.startsWith('Types.'); }
-  get isComplexControl() { return this.type!.includes('.'); }
-  get isTypeValue() { return this.value!.type!.startsWith('Types.'); }
+  get isComplexValue() { return this.value &&  this.value.type && this.value.type.includes('.'); }
+  get isTypeControl() { return this.type && this.type.startsWith('Types.'); }
+  get isComplexControl() { return this.type && this.type.includes('.'); }
+  get isTypeValue() { return this.value &&  this.value.type && this.value.type.startsWith('Types.'); }
   get EMPTY() { return { id: null, code: null, type: this.type, value: null }; }
-  get isEMPTY() { return this.isComplexControl && !this.value!.value; }
+  get isEMPTY() { return this.isComplexControl && !(this.value && this.value.value); }
   get isCatalogParent() { return this.type.startsWith('Catalog.') && this.id === 'parent'; }
 
   private _value: JettiComplexObject;

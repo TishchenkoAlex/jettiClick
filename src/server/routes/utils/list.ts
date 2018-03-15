@@ -33,7 +33,7 @@ export async function List(req: Request, res: Response) {
 
   const filterBuilder = (filter: FormListFilter[]) => {
     let where = ' (1=1) ';
-    filter.filter(f => f.right).forEach(f => {
+    filter.filter(f => !(f.right === null || f.right === undefined)).forEach(f => {
       switch (f.center) {
         case '=': case '>=': case '<=': case '>': case '<':
           if (f.right instanceof Array) { // time interval
@@ -41,13 +41,12 @@ export async function List(req: Request, res: Response) {
             if (f.right[1]) { where += ` AND d."${f.left}" <= '${f.right[1]}'`; }
             break;
           }
-          if (typeof f.right === 'string') { f.right = f.right.toString().replace('\'', '\'\''); }
-          if (typeof f.right === 'object') { f.right = f.right.id; }
-          if (f.right === null) {
-            where += ` AND d."${f.left}" IS NULL `;
-          } else {
-            where += ` AND d."${f.left}" ${f.center} '${f.right}'`;
+          if (typeof f.right === 'object') {
+            if (!f.right.id) where += ` AND d."${f.left}" IS NULL `; else where += ` AND d."${f.left}" ${f.center} '${f.right.id}'`;
+            break;
           }
+          if (typeof f.right === 'string') { f.right = f.right.toString().replace('\'', '\'\''); }
+          if (!f.right) where += ` AND d."${f.left}" IS NULL `; else where += ` AND d."${f.left}" ${f.center} '${f.right}'`;
           break;
         case 'like':
           where += ` AND d."${f.left}" LIKE N'%${(f.right['value'] || f.right).toString().replace('\'', '\'\'')}%' `;
@@ -55,6 +54,9 @@ export async function List(req: Request, res: Response) {
         case 'beetwen':
           const interval = f.right as FilterInterval;
           if (interval.start) { where += ` AND d."${f.left}" BEETWEN '${interval.start}' AND '${interval.end}' `; }
+          break;
+        case 'is null':
+          where += ` AND d."${f.left}" IS NULL `;
           break;
       }
     });

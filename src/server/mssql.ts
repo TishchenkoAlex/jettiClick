@@ -7,17 +7,20 @@ export class MSSQL {
   private pool: sql.ConnectionPool | sql.Transaction;
 
   constructor(private config, private transaction?: sql.Transaction) {
-    if (transaction) {
-      this.pool = transaction;
-    } else {
-      new sql.ConnectionPool(config)
-        .connect()
-        .then(p => {
-          this.pool = p;
-          console.log('config', config);
-        })
-        .catch(err => console.log('Connection error', err));
-    }
+    if (transaction) this.pool = transaction;
+  }
+
+  connect() {
+    return new sql.ConnectionPool(this.config).connect()
+      .then(p => {
+        this.pool = p;
+        console.log('config', this.config);
+        return this;
+      })
+      .catch(err => {
+        console.log('Connection error', err);
+        return this;
+      });
   }
 
   async manyOrNone<T>(text: string, params: any[] = []): Promise<T[]> {
@@ -70,6 +73,9 @@ export class MSSQL {
 
 }
 
-export const sdb = new MSSQL(sqlConfig);
-export const sdba = new MSSQL(sqlConfigAccounts);
+export let sdb: MSSQL = null;
+new MSSQL(sqlConfig).connect().then(db => sdb = db);
+
+export let sdba: MSSQL = null;
+new MSSQL(sqlConfigAccounts).connect().then(db => sdba = db);
 
