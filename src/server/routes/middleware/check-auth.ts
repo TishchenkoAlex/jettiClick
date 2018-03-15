@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import * as socketIO from 'socket.io';
+import * as SocketIO from 'socket.io';
 
 import { JTW_KEY } from '../../env/environment';
 import { IJWTPayload } from '../auth';
