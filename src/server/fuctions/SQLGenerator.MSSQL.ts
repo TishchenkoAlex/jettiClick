@@ -11,14 +11,14 @@ export class SQLGenegator {
   static QueryObject(doc: { [x: string]: any }, options: DocumentOptions) {
 
     const simleProperty = (prop: string, type: string) => {
-      if (type === 'boolean') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS BIT), 0) "${prop}"\n`; }
-      if (type === 'number') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS NUMERIC(15, 4)), 0) "${prop}"\n`; }
-      return `, JSON_VALUE(d.doc, '$."${prop}"') "${prop}"\n`;
+      if (type === 'boolean') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS BIT), 0) "${prop}"\n`; }
+      if (type === 'number') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS NUMERIC(15, 4)), 0) "${prop}"\n`; }
+      return `, JSON_VALUE(d.doc, N'$."${prop}"') "${prop}"\n`;
     };
 
     const complexProperty = (prop: string, type: string) =>
       type.startsWith('Types.') ?
-        `,  JSON_QUERY(CASE WHEN "${prop}".id IS NULL THEN JSON_QUERY(d.doc, '$.${prop}')
+        `,  JSON_QUERY(CASE WHEN "${prop}".id IS NULL THEN JSON_QUERY(d.doc, N'$.${prop}')
               ELSE (SELECT "${prop}".id "id", "${prop}".description "value",
                 ISNULL("${prop}".type, '${type}') "type", "${prop}".code "code" FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) END, '$') "${prop}"\n` :
         `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
@@ -38,7 +38,7 @@ export class SQLGenegator {
         type.startsWith('Catalog.Subcount') ?
           `, x."${prop}" "${prop}.id", x."${prop}" "${prop}.value", '${type}' "${prop}.type", x."${prop}" "${prop}.code"\n` :
           type.startsWith('Types.') ?
-            `,  JSON_QUERY(CASE WHEN "${prop}".id IS NULL THEN JSON_QUERY(d.doc, '$.${prop}')
+            `,  JSON_QUERY(CASE WHEN "${prop}".id IS NULL THEN JSON_QUERY(d.doc, N'$.${prop}')
               ELSE (SELECT "${prop}".id "id", "${prop}".description "value",
                 ISNULL("${prop}".type, '${type}') "type", "${prop}".code "code" FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) END, '$') "${prop}"\n` :
             `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
@@ -75,7 +75,7 @@ export class SQLGenegator {
       return `,
       ISNULL((SELECT ROW_NUMBER() OVER(ORDER BY (SELECT 1)) - 1 AS "index",
         ${query}
-      FROM OPENJSON(d.doc, '$.${prop}') WITH (
+      FROM OPENJSON(d.doc, N'$."${prop}"') WITH (
         ${xTable}
       ) AS x
       ${LeftJoin}
@@ -127,16 +127,16 @@ export class SQLGenegator {
   static QueryList(doc: { [x: string]: any }, options: DocumentOptions) {
 
     const simleProperty = (prop: string, type: string) => {
-      if (type === 'boolean') { return `, ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS BIT), 0) "${prop}"\n`; }
-      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(d.doc, '$."${prop}"') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
-      return `, ISNULL(JSON_VALUE(d.doc, '$."${prop}"'), '') "${prop}"\n`;
+      if (type === 'boolean') { return `, ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS BIT), 0) "${prop}"\n`; }
+      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
+      return `, ISNULL(JSON_VALUE(d.doc, N'$."${prop}"'), '') "${prop}"\n`;
     };
 
     const complexProperty = (prop: string, type: string) =>
-        `, ISNULL("${prop}".description, N'') "${prop}.value", ISNULL("${prop}".type, N'${type}') "${prop}.type", CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}.id"\n`;
+        `, ISNULL("${prop}".description, N'') "${prop}.value", ISNULL("${prop}".type, N'${type}') "${prop}.type", CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}.id"\n`;
 
     const addLeftJoin = (prop: string, type: string) =>
-        `  LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, '$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
+        `  LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
 
     let query = `SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.timestamp
 , ISNULL("parent".description, '') "parent.value", d."parent" "parent.id", "parent".type "parent.type"
@@ -214,9 +214,9 @@ FROM dbo."Documents" d
   static QueryRegisterAccumulatioList(doc: { [x: string]: any }, type: string) {
 
     const simleProperty = (prop: string, type: string) => {
-      if (type === 'boolean') { return `, ISNULL(JSON_VALUE(r.data, '$.${prop}'), 0) "${prop}"\n`; }
-      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, '$.${prop}') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
-      return `, JSON_VALUE(r.data, '$.${prop}') "${prop}"\n`;
+      if (type === 'boolean') { return `, ISNULL(JSON_VALUE(r.data, N'$.${prop}'), 0) "${prop}"\n`; }
+      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, N'$.${prop}') AS NUMERIC(15,4)), 0) "${prop}"\n`; }
+      return `, JSON_VALUE(r.data, N'$.${prop}') "${prop}"\n`;
     };
 
     const complexProperty = (prop: string, type: string) =>
@@ -224,8 +224,8 @@ FROM dbo."Documents" d
 
     const addLeftJoin = (prop: string, type: string) =>
       type.startsWith('Types.') ?
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, '$.${prop}')\n` :
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, '$.${prop}') AND "${prop}".type = '${type}'\n`;
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, N'$.${prop}')\n` :
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, N'$.${prop}') AND "${prop}".type = '${type}'\n`;
 
     let LeftJoin = ''; let select = '';
     for (const prop in excludeRegisterAccumulatioProps(doc)) {
@@ -252,9 +252,9 @@ FROM dbo."Documents" d
   static QueryRegisterInfoList(doc: { [x: string]: any }, type: string) {
 
     const simleProperty = (prop: string, type: string) => {
-      if (type === 'boolean') { return `, ISNULL(JSON_VALUE(r.data, '$.${prop}'), 0) "${prop}"\n`; }
-      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, '$.${prop}') AS NUMERIC(15,2)), 0) "${prop}"\n`; }
-      return `, JSON_VALUE(r.data, '$.${prop}') "${prop}"\n`;
+      if (type === 'boolean') { return `, ISNULL(JSON_VALUE(r.data, N'$.${prop}'), 0) "${prop}"\n`; }
+      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, N'$.${prop}') AS NUMERIC(15,4)), 0) "${prop}"\n`; }
+      return `, JSON_VALUE(r.data, N'$.${prop}') "${prop}"\n`;
     };
 
     const complexProperty = (prop: string, type: string) =>
@@ -262,8 +262,8 @@ FROM dbo."Documents" d
 
     const addLeftJoin = (prop: string, type: string) =>
       type.startsWith('Types.') ?
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, '$.${prop}')\n` :
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, '$.${prop}') AND "${prop}".type = '${type}'\n`;
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, N'$.${prop}')\n` :
+        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, N'$.${prop}') AND "${prop}".type = '${type}'\n`;
 
     let LeftJoin = ''; let select = '';
     for (const prop in excludeRegisterInfoProps(doc)) {
