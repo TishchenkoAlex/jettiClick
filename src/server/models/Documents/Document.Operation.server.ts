@@ -37,9 +37,11 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
 
     const query = `SELECT JSON_VALUE(doc, '$.script') script FROM "Documents" WHERE id = @p1`;
-    const Operation = await tx.oneOrNone<{script: string}>(query, [this.Operation]);
-    const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', {currency: this.currency}, tx) || 1;
-    const script = Operation.script.replace(/\$\./g, 'doc.').replace(/\lib\./g, 'await lib.');
+    const Operation = await tx.oneOrNone<{ script: string }>(query, [this.Operation]);
+    const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
+    const script = `
+      const AmountInBalance = $.Amount / exchangeRate;
+      ${ Operation.script.replace(/\$\./g, 'doc.').replace(/\lib\./g, 'await lib.')}`;
     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
     const func = new AsyncFunction('doc, Registers, tx, lib, exchangeRate', script);
     await func(this, Registers, tx, lib, exchangeRate);

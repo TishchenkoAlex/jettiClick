@@ -65,9 +65,12 @@ export async function List(req: Request, res: Response) {
 
   const filterBuilderForDoc = (filter: FormListFilter[]) => {
     let where = ' ';
-    filter.filter(f => (f.left !== 'parent' && f.left !== 'user' && f.left !== 'company' && f.right && f.right.id)).forEach(f => {
-      where += `\nAND CONTAINS(d.doc, 'NEAR((${f.left.split('.')[0]}, ${f.right.id}),1)') `;
-      return;
+    filter.forEach(f => {
+      const field = f.left.split('.')[0];
+      if (field !== 'parent' && field !== 'user' && field !== 'company' && f.right && f.right.id) {
+        where += `\nAND CONTAINS(d.doc, 'NEAR((${field}, ${f.right.id}),1)') `;
+        return;
+      }
     });
     return where;
   };

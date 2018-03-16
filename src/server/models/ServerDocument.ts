@@ -23,7 +23,7 @@ export interface INoSqlDocument {
 
 export abstract class DocumentBaseServer extends DocumentBase implements ServerDocument {
 
-  onCreate(tx: TX): Promise<void> {
+  onCreate(tx: TX): Promise<DocumentBase> {
     throw new Error('Method not implemented.');
   }
   beforePost(tx: TX): Promise<void> {
@@ -54,7 +54,7 @@ export abstract class DocumentBaseServer extends DocumentBase implements ServerD
 }
 
 export interface ServerDocument {
-  onCreate?(tx: TX): Promise<void>;
+  onCreate?(tx: TX): Promise<DocumentBase>;
   beforePost?(tx: TX): Promise<void>;
   onPost?(tx: TX): Promise<PostResult>;
   afterPost?(tx: TX): Promise<void>;

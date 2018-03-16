@@ -35,7 +35,7 @@ export class CatalogOperation extends DocumentBase {
   @Props({ type: 'string', order: 3, required: true, style: { width: '50%' }})
   description = null;
 
-  @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '400px' }, value: defaultScript })
+  @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '800px', overflow: 'auto' }, value: defaultScript })
   script: string = null;
 
   @Props({ type: 'table' })
