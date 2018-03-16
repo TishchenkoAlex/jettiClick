@@ -132,7 +132,7 @@ async function inventoryBalance(date, analytics, tx = mssql_1.sdb) {
 async function sliceLast(type, date = new Date(), company, resource, analytics, tx = mssql_1.sdb) {
     const addWhere = (key) => `NEAR((${key}, ${analytics[key]}),1) AND `;
     let where = '';
-    for (const el of resource) {
+    for (const el of Object.keys(analytics)) {
         where += addWhere(el);
     }
     where = where.slice(0, -4);
@@ -140,7 +140,7 @@ async function sliceLast(type, date = new Date(), company, resource, analytics, 
     SELECT TOP 1 JSON_VALUE(data, '$.${resource}') result FROM "Register.Info"
     WHERE (1=1)
       AND date <= @p1
-      AND type = '${type}'
+      AND type = 'Register.Info.${type}'
       AND company = '${company}'
       AND CONTAINS(data, '${where}')
     ORDER BY date DESC`;

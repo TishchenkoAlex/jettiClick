@@ -174,13 +174,13 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
   resource: string, analytics: { [key: string]: any }, tx = sdb): Promise<number> {
 
   const addWhere = (key) => `NEAR((${key}, ${analytics[key]}),1) AND `;
-  let where = ''; for (const el of resource) { where += addWhere(el); } where = where.slice(0, -4);
+  let where = ''; for (const el of Object.keys(analytics)) { where += addWhere(el); } where = where.slice(0, -4);
 
   const queryText = `
     SELECT TOP 1 JSON_VALUE(data, '$.${resource}') result FROM "Register.Info"
     WHERE (1=1)
       AND date <= @p1
-      AND type = '${type}'
+      AND type = 'Register.Info.${type}'
       AND company = '${company}'
       AND CONTAINS(data, '${where}')
     ORDER BY date DESC`;
