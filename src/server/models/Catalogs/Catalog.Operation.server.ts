@@ -9,7 +9,7 @@ export class CatalogOperationServer extends CatalogOperation implements ServerDo
 
 // Account
 Registers.Account.push({
-    debit: { account: lib.account.byCode('50.01'), subcounts: [$.CashRegister, lib.doc.byCode('Catalog.CashFlow', 'IN.CUSTOMER')] },
+    debit: { account: lib.account.byCode('50.01'), subcounts: [$.CashRegister, lib.doc.byCode('Catalog.CashFlow', 'IN.CUSTOMER', tx)] },
     kredit: { account: lib.account.byCode('62.01'), subcounts: [$.Customer] },
     sum: AmountInBalance
 });
@@ -20,7 +20,7 @@ Registers.Accumulation.push({
     type: "Register.Accumulation.Balance",
     data: {
         Department: $.Department,
-        Balance: lib.doc.byCode('Catalog.Balance', 'AR'),
+        Balance: lib.doc.byCode('Catalog.Balance', 'AR', tx),
         Analytics: $.Customer,
         Amount: AmountInBalance
     }
@@ -31,7 +31,7 @@ Registers.Accumulation.push({
     type: "Register.Accumulation.Balance",
     data: {
         Department: $.Department,
-        Balance: lib.doc.byCode('Catalog.Balance', 'CASH'),
+        Balance: lib.doc.byCode('Catalog.Balance', 'CASH', tx),
         Analytics: $.CashRegister,
         Amount: AmountInBalance
     }
@@ -141,7 +141,7 @@ Registers.Accumulation.push({
     data: {
         Department: $.Department,
         Loan: $.Loan,
-        CashFlow: lib.doc.byCode('Catalog.CashFlow', 'IN.LOAN'),
+        CashFlow: lib.doc.byCode('Catalog.CashFlow', 'IN.LOAN', tx),
         Counterpartie: $.Counterpartie,
         Amount: $.Amount,
         AmountInBalance
@@ -149,7 +149,7 @@ Registers.Accumulation.push({
 });
 
 // GOODS
-// const avgSumma = lib.register.avgCost(doc.date, { company: doc.company, SKU: row.SKU, Storehouse: $.Storehouse }) * row.Qty;
+// const avgSumma = lib.register.avgCost(doc.date, { company: doc.company, SKU: row.SKU, Storehouse: $.Storehouse }, tx) * row.Qty;
 Registers.Accumulation.push({
     kind: false,
     type: "Register.Accumulation.Inventory",

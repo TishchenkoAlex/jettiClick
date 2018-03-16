@@ -1,10 +1,12 @@
 {
   "env": {
-    "host": "https://cl.jetti-app.com",
+    "host": "https://bcg.jetti-app.com",
     "path": "",
-    "reportsUrl": "https://app.powerbi.com/view?r=eyJrIjoiMWRkYzM0OTMtYTFkNS00MzNjLTllZTMtM2UyNzhjZjg4NzFlIiwidCI6IjU5YzU3MmZkLTI5MjgtNDZmMS05MTMyLTkxMWMxZjJiYTdmOSIsImMiOjl9"
+    "dbhost": "jetti.database.windows.net",
+    "dbname": "bcg",
+    "reportsUrl": "https://app.powerbi.com/view?r=eyJrIjoiNjk2ZWUyY2QtY2NkNi00MzE1LWEyZDUtZjIxZjgwODJlNDAyIiwidCI6IjU5YzU3MmZkLTI5MjgtNDZmMS05MTMyLTkxMWMxZjJiYTdmOSIsImMiOjl9"
   },
-  "email": "nat@nat.com",
+  "email": "bcg@bcg.com",
   "roles": [
     "Admin"
   ],
