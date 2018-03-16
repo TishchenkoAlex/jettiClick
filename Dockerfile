@@ -1,13 +1,12 @@
-FROM node
+FROM node:alpine
 
 # Create app directory
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 # Install app dependencies
-RUN curl -o- -L https://yarnpkg.com/install.sh | bash
 COPY package.json /usr/src/app/package.json
-RUN yarn
+RUN npm i
 
 #patch mssql driver
 COPY tedious.js node_modules/mssql/lib/tedious.js
