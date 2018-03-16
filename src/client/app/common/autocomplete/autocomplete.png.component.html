@@ -4,7 +4,7 @@
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
       <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" [readonly]="readOnly"
         autocomplete="off" spellcheck="false" (focus)="$event.target.select()" (ngModelChange)="value={id: 'string', code: '', type: 'string', value: $event}">
-      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
   </div>
@@ -13,7 +13,7 @@
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
       <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" type="number"
         [readonly]="readOnly" autocomplete="off" (focus)="$event.target.select()" (ngModelChange)="value={id: 'number', code: '', type: 'number', value: $event}">
-      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
   </div>
@@ -24,7 +24,7 @@
         showButtonBar="true" [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body"
         (ngModelChange)="value={id: 'datetime', code: '', type: 'datetime', value: $event}" [dateFormat]="dateFormat">
       </p-calendar>
-      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
   </div>
@@ -35,7 +35,7 @@
         [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body" (ngModelChange)="value={id: 'date', code: '', type: 'date', value: $event}"
         [locale]="locale" [dateFormat]="dateFormat">
       </p-calendar>
-      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabIndex]=-1></button>
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
     </div>
   </div>

@@ -1,4 +1,4 @@
-<div [ngStyle]="{'display': showTree ? 'flex': 'block'}">
+<div [ngStyle]="{'display': showTree ? 'flex': 'block'}" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" cdkFocusInitial>
 
   <div *ngIf="showTree" style="margin-right: 4px">
     <j-tree-list #tl [docType]="type" (selectionChange)="parentChange($event)"></j-tree-list>

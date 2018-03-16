@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, QueryList, ViewChildren, HostListener } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge } from 'rxjs/observable/merge';
@@ -15,7 +15,15 @@ import { TabDef, TabsStore } from './tabs.store';
   templateUrl: './tabcontroller.component.html',
 })
 export class TabControllerComponent {
+
   @ViewChildren(DynamicComponent) components: QueryList<DynamicComponent>;
+
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (event.keyCode === 27 && this.tabStore.selectedIndex) {
+      this.handleClose({ originalEvent: event, index: this.tabStore.selectedIndex });
+    }
+  }
 
   constructor(
     private router: Router, private route: ActivatedRoute, private ds: DocService, public tabStore: TabsStore) {
@@ -32,13 +40,17 @@ export class TabControllerComponent {
           tabStore.push(newLink);
           setTimeout(() => this.tabStore.selectedIndex = this.tabStore.selectedIndex);
         }
+        if (this.components) {
+          const component = this.components.find(e => e.id === (params.id || '') && e.type === params.type);
+          if (component && component.componentRef.instance.focus) component.componentRef.instance.focus();
+        }
       });
 
     this.route.data.pipe(filter(data => data.detail)).subscribe(this.updateTabTitle(tabStore));
 
     merge(...[this.ds.save$, this.ds.delete$]).pipe(filter(doc => doc.id === this.route.snapshot.params.id))
       .subscribe(doc => {
-        const tab = tabStore.state.tabs.find(i => i.docID === doc.id);
+        const tab = tabStore.state.tabs.find(i => i.docID === doc.id && i.docType === doc.type);
         if (tab) {
           tab.header = doc.description;
           tabStore.replace(tab);
@@ -78,7 +90,7 @@ export class TabControllerComponent {
   handleClose(event) {
     (event.originalEvent as Event).stopImmediatePropagation();
     const tab = this.tabStore.state.tabs[event.index];
-    const component = this.components.find(e => e.id === tab.docID);
+    const component = this.components.find(e => e.id === tab.docID && e.type === tab.docType);
     if (component && component.componentRef.instance.Close) {
       component.componentRef.instance.Close();
     } else {

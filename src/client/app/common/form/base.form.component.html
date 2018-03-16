@@ -85,4 +85,11 @@
   <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!isNew" (click)="Delete()" [disabled]="(lds.busy$ | async)"></button>
 </ng-template>
 
-<p-confirmDialog [key]="this.id" appendTo="body"></p-confirmDialog>
+<p-confirmDialog [key]="id" appendTo="body" [closeOnEscape]="true" [closable]="true" #cd>
+  <p-footer>
+    <div cdkTrapFocus>
+      <button type="button" pButton icon="fa-check" label="Yes" (click)="cd.accept()"></button>
+      <button type="button" pButton icon="fa-close" label="No" (click)="cd.reject()"></button>
+    </div>
+  </p-footer>
+</p-confirmDialog>

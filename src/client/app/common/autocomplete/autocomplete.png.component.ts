@@ -46,8 +46,7 @@ function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
   ]
 })
 export class AutocompleteComponent implements ControlValueAccessor, Validator {
-  locale = calendarLocale;
-  dateFormat = dateFormat;
+  locale = calendarLocale; dateFormat = dateFormat;
 
   @Input() readOnly = false;
   @Input() owner: { owner: { dependsOn: string, filterBy: string }, value: any };
@@ -114,7 +113,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
       obj = this.EMPTY;
     }
     this.value = obj;
-    this.suggest.markAsDirty();
+    this.suggest.markAsDirty({onlySelf: true});
     this.cd.markForCheck();
   }
   // end of implementation ControlValueAccessor interface

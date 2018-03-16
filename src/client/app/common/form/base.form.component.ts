@@ -1,5 +1,16 @@
+import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { Location } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  TemplateRef,
+  ViewChildren,
+} from '@angular/core';
 import { ObservableMedia } from '@angular/flex-layout';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -29,6 +40,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   @Input() id = this.route.snapshot.params.id as string;
   @Input() type = this.route.snapshot.params.type as string;
   @Input() form: FormGroup = this.route.snapshot.data.detail;
+  @ViewChildren(CdkTrapFocus) cdkTrapFocus: QueryList<CdkTrapFocus>;
 
   get model() { return this.form.getRawValue() as DocumentBase; }
 
@@ -123,9 +135,14 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       message: this.description.value,
       icon: 'fa fa-question-circle',
       accept: this._close.bind(this),
+      reject: this.focus.bind(this),
       key: this.id
     });
     this.cd.detectChanges();
+  }
+
+  focus() {
+    this.cdkTrapFocus.find(el => el.autoCapture).focusTrap.focusFirstTabbableElementWhenReady();
   }
 
   Print = () => { };

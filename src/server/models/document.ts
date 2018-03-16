@@ -72,7 +72,7 @@ export class DocumentBase {
   @Props({ type: 'string', order: 3, required: true, style: { width: '300px' } })
   description = '';
 
-  @Props({ type: 'Catalog.Company', order: 3, required: true, onChangeServer: true })
+  @Props({ type: 'Catalog.Company', order: 4, required: true, onChangeServer: true })
   company = null;
 
   @Props({ type: 'Catalog.User', hiddenInList: true, order: -1 })
@@ -117,7 +117,7 @@ export class DocumentBase {
   Props() {
     this.targetProp(this, 'description').hidden = this.isDoc;
     this.targetProp(this, 'date').hidden = this.isCatalog;
-    this.targetProp(this, 'company').hidden = this.isCatalog;
+    this.targetProp(this, 'company').hidden = this.isCatalog && !(this.targetProp(this, 'company').hiddenInForm === false);
 
     const result: { [x: string]: PropOptions } = {};
     for (const prop of Object.keys(this)) {

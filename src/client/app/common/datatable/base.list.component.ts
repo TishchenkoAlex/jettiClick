@@ -45,7 +45,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   @Input() pageSize = 250;
   @Input() type: DocTypes;
   @Input() settings: FormListSettings;
-
   get isDoc() { return this.type.startsWith('Document.'); }
   get isCatalog() { return this.type.startsWith('Catalog.'); }
   get id() { return { id: this.selection && this.selection.length ? this.selection[0].id : '', posted: true }; }
@@ -170,7 +169,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
     const filter = Object.keys(this.filters)
       .map(f => <FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value });
     this.dataSource.formListSettings = { filter, order };
-    console.log(filter);
   }
 
   private setContextMenu(columns: ColumnDef[]) {

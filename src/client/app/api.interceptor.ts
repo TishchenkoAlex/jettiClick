@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
-import { Injectable, isDevMode } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { Observable } from 'rxjs/Observable';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
@@ -18,22 +18,12 @@ export class ApiInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}` } });
 
-    if (req.url.includes('user/settings') || req.url.includes('/jobs')) { // exclude setting requests
-      console.log('API', req.url);
-      return next.handle(req);
-    }
+    if (req.url.includes('user/settings') || req.url.includes('/jobs')) return next.handle(req);
     this.lds.color = 'accent';
     this.lds.loading = true;
     return next.handle(req).pipe(
       map(data => data instanceof HttpResponse ? data.clone({ body: JSON.parse(JSON.stringify(data.body), dateReviver) }) : data),
-      tap(data => {
-        if (data instanceof HttpResponse) {
-          this.lds.loading = false;
-          if (isDevMode()) {
-            console.log('API', req.url);
-          }
-        }
-      }),
+      tap(data => { if (data instanceof HttpResponse) this.lds.loading = false; }),
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
           this.auth.logout();
