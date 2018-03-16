@@ -151,6 +151,25 @@ Registers.Accumulation.push({
 // GOODS
 // const avgSumma = lib.register.avgCost(doc.date, { company: doc.company, SKU: row.SKU, Storehouse: $.Storehouse }, tx) * row.Qty;
 Registers.Accumulation.push({
+  kind: true,
+  type: "Register.Accumulation.Sales",
+  data: {
+      AO: $.id,
+      Department: $.Department,
+      Customer: $.Customer,
+      Product: $.Product,
+      Manager: $.Manager,
+      Storehouse: $.Storehouse,
+      Qty: $.Qty,
+      Amount: $.Amount,
+      Cost: avgSumma,
+      Discount: 0,
+      Tax: $.Tax,
+      currency: $.currency
+  }
+});
+
+Registers.Accumulation.push({
     kind: false,
     type: "Register.Accumulation.Inventory",
     data: {
