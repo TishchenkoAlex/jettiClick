@@ -6,7 +6,6 @@ import * as compression from 'compression';
 import * as cors from 'cors';
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-import * as tediousExpress from 'express4-tedious';
 import * as httpServer from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
