@@ -78,10 +78,10 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   private NO_EVENT = false;
   showDialog = false;
 
-  get isComplexValue() { return this.value &&  this.value.type && this.value.type.includes('.'); }
+  get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.'); }
   get isTypeControl() { return this.type && this.type.startsWith('Types.'); }
   get isComplexControl() { return this.type && this.type.includes('.'); }
-  get isTypeValue() { return this.value &&  this.value.type && this.value.type.startsWith('Types.'); }
+  get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.'); }
   get EMPTY() { return { id: null, code: null, type: this.type, value: null }; }
   get isEMPTY() { return this.isComplexControl && !(this.value && this.value.value); }
   get isCatalogParent() { return this.type.startsWith('Catalog.') && this.id === 'parent'; }
@@ -114,7 +114,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
       obj = this.EMPTY;
     }
     this.value = obj;
-    this.suggest.markAsDirty({onlySelf: true});
+    this.suggest.markAsDirty({ onlySelf: true });
     this.cd.markForCheck();
   }
   // end of implementation ControlValueAccessor interface
@@ -157,9 +157,11 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
       }
     }
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
-    const doc = this.formControl && this.formControl.root.value;
-    if (doc && doc.type && doc.type.startsWith('Document.') && doc.company.id) {
-      result.filter.push({ left: 'company', center: '=', right: doc.company });
+    if (this.type.startsWith('Document.')) {
+      const doc = this.formControl && this.formControl.root.value;
+      if (doc && doc.company.id) {
+        result.filter.push({ left: 'company', center: '=', right: doc.company });
+      }
     }
     return result;
   }

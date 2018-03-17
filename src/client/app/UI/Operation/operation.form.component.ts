@@ -38,6 +38,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
   }
 
   Close = () => this.super.Close();
+  focus = () => this.super.focus();
 
   ngOnDestroy = () => this._subscription$.unsubscribe();
 }
