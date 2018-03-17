@@ -6,8 +6,13 @@ import { SQLGenegator } from '../../fuctions/SQLGenerator.MSSQL';
   type: 'Document.Operation',
   description: 'Operation',
   dimensions: [
-    { column1: 'string' },
-    { column2: 'string' }
+    { Operation: 'Catalog.Operation' },
+    { Amount: 'number'},
+    { currency: 'Catalog.Currency'},
+    { f1: 'string' },
+    { f2: 'string' },
+    { f3: 'string' },
+    { company: 'Catalog.Company' }
   ],
   icon: 'fa fa-file-text-o',
   menu: 'Operations',

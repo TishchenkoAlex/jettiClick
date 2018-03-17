@@ -67,6 +67,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   @Output() focus = new EventEmitter();
   @ViewChild('ac') input: AutoComplete;
   @Input() id: string;
+  @Input() formControl: FormControl;
 
   form: FormGroup = new FormGroup({
     suggest: new FormControl({ value: this.value, disabled: this.disabled }, AutocompleteValidator(this))
@@ -156,6 +157,10 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
       }
     }
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
+    const doc = this.formControl && this.formControl.root.value;
+    if (doc && doc.type && doc.type.startsWith('Document.') && doc.company.id) {
+      result.filter.push({ left: 'company', center: '=', right: doc.company });
+    }
     return result;
   }
 

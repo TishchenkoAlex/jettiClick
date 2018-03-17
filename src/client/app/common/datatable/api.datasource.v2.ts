@@ -82,9 +82,12 @@ export class ApiDataSource {
 function scrollIntoViewIfNeeded(target, direction = false) {
   const rect = target.getBoundingClientRect();
   if (rect.bottom > window.innerHeight) {
-    target.scrollIntoView(direction ? true : false);
+    return target.scrollIntoView(direction ? true : false);
   }
   if (rect.top < 0) {
-    target.scrollIntoView(direction ? false : true);
+    return target.scrollIntoView(direction ? false : true);
+  }
+  if (direction) {
+    target.scrollIntoView(false);
   }
 }
