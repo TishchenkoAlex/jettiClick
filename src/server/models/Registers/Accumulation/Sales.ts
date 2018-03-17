@@ -44,6 +44,12 @@ export class RegisterAccumulationSales extends RegisterAccumulation {
   @Props({ type: 'number' })
   Tax: number = null;
 
+  @Props({ type: 'number' })
+  AmountInDoc: number = null;
+
+  @Props({ type: 'number' })
+  AmountInAR: number = null;
+
   constructor(kind: boolean, public data: {
     currency: Ref,
     AO: Ref,
@@ -54,6 +60,8 @@ export class RegisterAccumulationSales extends RegisterAccumulation {
     Storehouse: Ref,
     Qty: number,
     Amount: number,
+    AmountAR: number,
+    AmountInDoc: number,
     Cost: number,
     Discount: number,
     Tax: number,

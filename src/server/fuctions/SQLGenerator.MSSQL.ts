@@ -223,9 +223,7 @@ FROM dbo."Documents" d
       `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
 
     const addLeftJoin = (prop: string, type: string) =>
-      type.startsWith('Types.') ?
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, N'$.${prop}')\n` :
-        ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, N'$.${prop}') AND "${prop}".type = '${type}'\n`;
+      ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(r.data, N'$.${prop}')\n`;
 
     let LeftJoin = ''; let select = '';
     for (const prop in excludeRegisterAccumulatioProps(doc)) {
@@ -290,17 +288,17 @@ FROM dbo."Documents" d
   static QueryTriggerRegisterAccumulation(doc: { [x: string]: any }, type: string) {
 
     const simleProperty = (prop: string, type: string) => {
-      if (type === 'boolean') { return `, ISNULL(JSON_VALUE(data, '$.${prop}'), 0) "${prop}"\n`; }
+      if (type === 'boolean') { return `, ISNULL(JSON_VALUE(data, N'$.${prop}'), 0) "${prop}"\n`; }
       if (type === 'number') { return `
-        , ISNULL(CAST(JSON_VALUE(data, '$.${prop}') AS MONEY), 0) * IIF(kind = 1, 1, -1) "${prop}"
-        , ISNULL(CAST(JSON_VALUE(data, '$.${prop}') AS MONEY), 0) * IIF(kind = 1, 1, 0) "${prop}.In"
-        , ISNULL(CAST(JSON_VALUE(data, '$.${prop}') AS MONEY), 0) * IIF(kind = 1, 0, 1) "${prop}.Out"\n`;
+, CAST(JSON_VALUE(data, N'$.${prop}') AS MONEY) * IIF(kind = 1, 1, -1) "${prop}"
+, CAST(JSON_VALUE(data, N'$.${prop}') AS MONEY) * IIF(kind = 1, 1, NULL) "${prop}.In"
+, CAST(JSON_VALUE(data, N'$.${prop}') AS MONEY) * IIF(kind = 1, NULL, 1) "${prop}.Out"\n`;
       }
       return `, JSON_VALUE(data, '$.${prop}') "${prop}"\n`;
     };
 
     const complexProperty = (prop: string, type: string) =>
-      `, CAST(JSON_VALUE(data, '$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}"\n`;
+      `, CAST(JSON_VALUE(data, N'$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}"\n`;
 
     let insert = ''; let select = '';
     for (const prop in excludeRegisterAccumulatioProps(doc)) {
@@ -318,15 +316,15 @@ FROM dbo."Documents" d
     }
 
     const query = `
-      INSERT INTO "${type}"
-      (date, document, company, kind ${insert})
-      SELECT
-        CAST(date AS DATE) date,
-        document,
-        company,
-        kind
-        ${select}
-      FROM INSERTED WHERE type = '${type}';\n`;
+INSERT INTO "${type}"
+(date, document, company, kind ${insert})
+SELECT
+  CAST(date AS DATE) date,
+  document,
+  company,
+  kind
+${select}
+FROM INSERTED WHERE type = N'${type}';\n`;
     return query;
   }
 
@@ -338,11 +336,11 @@ FROM dbo."Documents" d
     }
 
     query = `
-    ALTER TRIGGER "Accumulation.Insert" ON dbo."Accumulation"
-    FOR INSERT AS
-    BEGIN
-      ${query}
-    END;`;
+ALTER TRIGGER "Accumulation.Insert" ON dbo."Accumulation"
+FOR INSERT AS
+BEGIN
+  ${query}
+END;`;
     return query;
   }
 

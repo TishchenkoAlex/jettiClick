@@ -2464,6 +2464,7 @@ export class EditableColumn implements AfterViewInit {
           this.domHandler.removeClass(this.dt.editingCell, 'ui-editing-cell');
           this.dt.editingCell = null;
           this.dt.onEditCancel.emit({ field: this.field, data: this.data });
+          event.stopPropagation(); // Tishchenko
         }
 
         event.preventDefault();
