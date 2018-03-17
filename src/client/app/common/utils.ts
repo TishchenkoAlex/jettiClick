@@ -42,3 +42,19 @@ export function getPeriod(value: string): { startDate: Date, endDate: Date } {
     }
   }
 }
+
+
+export function scrollIntoViewIfNeeded(type, style, direction = false) {
+  let target;
+  const highlight = document.getElementsByClassName(`scrollTo-${type} ${style}`);
+  if (highlight.length) target = highlight[highlight.length - 1];
+  else {
+    const items = document.getElementsByClassName(`scrollTo-${type}`);
+    if (items.length) target = items[0];
+  }
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  if (rect.bottom > window.innerHeight) return target.scrollIntoView(direction ? true : false);
+  if (rect.top <= 0) return target.scrollIntoView(direction ? false : true);
+  if (direction) return target.scrollIntoView(false);
+}

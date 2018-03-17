@@ -1,13 +1,14 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { of as observableOf } from 'rxjs/observable/of';
-import { catchError, filter, map, share, switchMap, tap, startWith } from 'rxjs/operators';
+import { catchError, filter, map, share, switchMap, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { Continuation, DocListResponse } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
+import { scrollIntoViewIfNeeded } from '../utils';
 import { DocumentBase } from './../../../../server/models/document';
 
 interface DatasourceCommand { command: string; data?: any; }
@@ -51,14 +52,7 @@ export class ApiDataSource {
             tap(data => {
               this.renderedData = data.data;
               this.continuation = data.continuation;
-              setTimeout(() => {
-                const highlight = document.getElementsByClassName(`scrollTo-${type} ng-star-inserted ui-state-highlight`);
-                if (highlight.length) scrollIntoViewIfNeeded(highlight[highlight.length - 1], direction);
-                else {
-                  const items = document.getElementsByClassName(`scrollTo-${type}`);
-                  if (items.length) scrollIntoViewIfNeeded(items[0], direction);
-                }
-              });
+              setTimeout(() => scrollIntoViewIfNeeded(type, 'ui-state-highlight', direction));
             }),
             catchError(err => {
               this.renderedData = this.EMPTY.data;
@@ -77,17 +71,4 @@ export class ApiDataSource {
   next() { this.paginator.next({ command: 'next' }); }
   prev() { this.paginator.next({ command: 'prev' }); }
 
-}
-
-function scrollIntoViewIfNeeded(target, direction = false) {
-  const rect = target.getBoundingClientRect();
-  if (rect.bottom > window.innerHeight) {
-    return target.scrollIntoView(direction ? true : false);
-  }
-  if (rect.top < 0) {
-    return target.scrollIntoView(direction ? false : true);
-  }
-  if (direction) {
-    target.scrollIntoView(false);
-  }
 }

@@ -8,6 +8,7 @@ import { INoSqlDocument } from '../../../../server/models/ServerDocument';
 import { DocService } from '../doc.service';
 import { DynamicComponent } from '../dynamic-component/dynamic-component';
 import { TabDef, TabsStore } from './tabs.store';
+import { scrollIntoViewIfNeeded } from '../utils';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +45,7 @@ export class TabControllerComponent {
           const component = this.components.find(e => e.id === (params.id || '') && e.type === params.type);
           if (component && component.componentRef.instance.focus) component.componentRef.instance.focus();
         }
+        setTimeout(() => scrollIntoViewIfNeeded(params.type, 'ui-state-highlight'));
       });
 
     this.route.data.pipe(filter(data => data.detail)).subscribe(this.updateTabTitle(tabStore));

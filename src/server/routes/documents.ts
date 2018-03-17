@@ -144,12 +144,15 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQ
     DELETE FROM "Accumulation" WHERE document = @p1;`, [id]);
   }
   if (!!doc.posted && serverDoc.beforePost) { await serverDoc.beforePost(tx); }
+  doc['time'] = doc.date;
   const jsonDoc = JSON.stringify(doc);
   if (isNew) {
     doc = await tx.none<INoSqlDocument>(`
       INSERT INTO Documents(
          [id]
         ,[type]
+        ,[date]
+        ,[time]
         ,[code]
         ,[description]
         ,[posted]
@@ -165,6 +168,8 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQ
       FROM OPENJSON(@p1) WITH (
         [id] UNIQUEIDENTIFIER,
         [type] NVARCHAR(100),
+        [date] DATE,
+        [time] TIME,
         [code] NVARCHAR(36),
         [description] NVARCHAR(150),
         [posted] BIT,
@@ -181,7 +186,7 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQ
       UPDATE Documents
         SET
           type = i.type, parent = i.parent,
-          date = i.date, code = i.code, description = i.description,
+          date = i.date, time = i.time, code = i.code, description = i.description,
           posted = i.posted, deleted = i.deleted, isfolder = i.isfolder,
           "user" = i."user", company = i.company, info = i.info, timestamp = GETDATE(),
           doc = i.doc
@@ -192,6 +197,7 @@ async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQ
             [id] UNIQUEIDENTIFIER,
             [type] NVARCHAR(100),
             [date] DATE,
+            [time] TIME,
             [code] NVARCHAR(36),
             [description] NVARCHAR(150),
             [posted] BIT,
