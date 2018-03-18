@@ -56,7 +56,7 @@ export class FormControlInfo {
     this.onChangeServer = options.onChangeServer;
     this.change = options.change;
     if (this.change && !this.onChange) {
-      this.onChange = new Function('doc', 'value', options.change) as any;
+      this.onChange = new Function('doc', 'value', 'api', options.change) as any;
     }
   }
 }
@@ -85,7 +85,7 @@ export class TextareaFormControl extends FormControlInfo {
 export class ScriptFormControl extends FormControlInfo {
   value = '';
   controlType = 'script';
-  style = { 'width': '500px', 'min-width': '500px', 'max-width': '500px'};
+  style = { 'width': '600px', 'min-width': '600px', 'max-width': '600px'};
 
   constructor(options: IFormControlInfo = {}) {
     super(options);

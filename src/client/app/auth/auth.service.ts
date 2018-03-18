@@ -67,7 +67,11 @@ export class AuthService {
     }
   }
 
-  private init(loginResponse: ILoginResponse) {
+  refesh() {
+    this._userProfile$.next(this._userProfile$.value);
+  }
+
+  init(loginResponse: ILoginResponse) {
     this.token = loginResponse.token;
     this.setEnv();
     this.userRoles = loginResponse.account.roles as RoleType[];

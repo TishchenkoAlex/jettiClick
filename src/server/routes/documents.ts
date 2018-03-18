@@ -35,7 +35,7 @@ async function buildOperationViewAndSQL(id: string, view: any, config_schema: an
     where id = (select JSON_VALUE(doc, '$.Operation') from "Documents" where id = @p1)`, [id]);
   Parameters.Parameters.sort((a, b) => a.order - b.order).forEach(c => view[c.parameter] = {
     label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-    [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
+    [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
   });
   config_schema.queryObject = SQLGenegator.QueryObject(view, config_schema.prop);
 }
@@ -324,5 +324,12 @@ router.get('/tree/:type', async (req: Request, res: Response, next: NextFunction
   try {
     const query = `select id, description, parent from "Documents" where isfolder = 1 and type = @p1`;
     res.json(await sdb.manyOrNone(query, [req.params.type]));
+  } catch (err) { next(err); }
+});
+
+// Get formControlRef
+router.get('/formControlRef/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.json(await lib.doc.formControlRef(req.params.id));
   } catch (err) { next(err); }
 });

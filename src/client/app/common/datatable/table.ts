@@ -2448,7 +2448,7 @@ export class EditableColumn implements AfterViewInit {
   onKeyDown(event: KeyboardEvent) {
     if (this.isEnabled()) {
       //enter
-      if (event.keyCode == 13) {
+      if (event.keyCode == 13 && !event.ctrlKey && !event.shiftKey) { //Tishchenko
         if (this.isValid()) {
           this.domHandler.removeClass(this.dt.editingCell, 'ui-editing-cell');
           this.dt.editingCell = null;

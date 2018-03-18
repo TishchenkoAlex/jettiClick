@@ -74,6 +74,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
     this.formGroup.push(newFormGroup);
     this.dataSource.push(newFormGroup.getRawValue());
     this.selection = [newFormGroup.getRawValue()];
+    this.formGroup.markAsDirty();
   }
 
   add() {
@@ -100,6 +101,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
     for (const element of this.selection) {
       const rowIndex = this.formGroup.controls.findIndex((el: FormGroup) => el.controls['index'].value === element.index);
       this.formGroup.removeAt(rowIndex);
+      this.formGroup.markAsDirty();
     }
     this.renum();
     this.dataSource = this.formGroup.getRawValue();

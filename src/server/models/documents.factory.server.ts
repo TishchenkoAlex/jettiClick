@@ -36,7 +36,7 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
     select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents" where id = @p1`, [id]);
     (Parameters && Parameters.Parameters || []).sort((a, b) => a.order - b.order).forEach(c => Props[c.parameter] = {
       label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-      [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null
+      [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
     });
     result['QueryObject'] = SQLGenegator.QueryObject(Props, Prop);
     // result['QueryNew'] = SQLGenegator.QueryNew(Props, Prop);

@@ -20,29 +20,28 @@
   </div>
 
   <j-autocomplete-png #pc *ngSwitchCase="'autocomplete'" [required]="control.required" [formControl]="form.controls[control.key]"
-    [id]="control.key" [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type"
-    [owner]="{owner: control.owner, value: form.root.get(control.owner?.dependsOn)?.value}" 
+    [id]="control.key" [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type" [owner]="{owner: control.owner, value: form.root.get(control.owner?.dependsOn)?.value}"
     [showLabel]="control.showLabel" (focus)="pc.select()">
   </j-autocomplete-png>
 
   <div *ngSwitchCase="'date'" [ngClass]="{'ui-float-label' : control.showLabel}">
-    <p-calendar #pc [required]="control.required" [formControlName]="control.key" showButtonBar="true" autocomplete="off" 
-      [showIcon]="true" [showOnFocus]="false" [locale]="locale" [dateFormat]="dateFormat" [utc]="true" (onSelect)="pc.overlayVisible=false"
-      appendTo="body" (onFocus)="$event.target.select()">
+    <p-calendar #pc [required]="control.required" [formControlName]="control.key" showButtonBar="true" autocomplete="off" [showIcon]="true"
+      [showOnFocus]="false" [locale]="locale" [dateFormat]="dateFormat" [utc]="true" (onSelect)="pc.overlayVisible=false" appendTo="body"
+      (onFocus)="$event.target.select()">
     </p-calendar>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
   <div *ngSwitchCase="'datetime'" [ngClass]="{'ui-float-label' : control.showLabel}">
     <p-calendar #pc [required]="control.required" [formControlName]="control.key" showTime="true" showButtonBar="true" autocomplete="off"
-      [showIcon]="true" [dateFormat]="dateFormat" [utc]="true" [locale]="locale" (onSelect)="pc.overlayVisible=false"
-      [showOnFocus]="false" appendTo="body" (onFocus)="$event.target.select()">
+      [showIcon]="true" [dateFormat]="dateFormat" [utc]="true" [locale]="locale" (onSelect)="pc.overlayVisible=false" [showOnFocus]="false"
+      appendTo="body" (onFocus)="$event.target.select()">
     </p-calendar>
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
-  <div *ngSwitchCase="'boolean'" style="margin-top: 27px">
-    <p-checkbox #pc *ngSwitchCase="'boolean'"  binary="true" [label]="control.showLabel ? control.label: ''" [formControlName]="control.key"></p-checkbox>
+  <div *ngSwitchCase="'boolean'" [style.marginTop]="control.showLabel ? '27px': ''">
+    <p-checkbox #pc *ngSwitchCase="'boolean'" binary="true" [label]="control.showLabel ? control.label: ''" [formControlName]="control.key"></p-checkbox>
   </div>
 
   <div *ngSwitchCase="'table'">

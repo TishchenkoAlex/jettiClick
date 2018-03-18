@@ -19,7 +19,7 @@ exports.sqlConfig = {
     user: process.env.DB_USER || 'yuralex',
     password: process.env.DB_PASSWORD || 'MyNew01Password',
     pool: {
-        min: 20,
+        min: 5,
         max: 100,
     },
     options: {

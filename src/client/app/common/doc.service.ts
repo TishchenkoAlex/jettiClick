@@ -71,7 +71,7 @@ export class DocService {
   }
 
   openSnackBar(severity: string, message: string, detail: string) {
-    this.messageService.add({ severity: severity, summary: message, detail: detail, id: Math.random() });
+    this.messageService.add({ severity: severity, summary: message, detail: detail, key: '1' });
   }
 
 }

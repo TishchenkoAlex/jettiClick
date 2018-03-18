@@ -44,25 +44,28 @@ export class CatalogOperation extends DocumentBase {
 }
 
 class Parameter {
-  @Props({ type: 'string', required: true, order: 1 })
+  @Props({ type: 'string', required: true })
   parameter: string = null;
 
-  @Props({ type: 'string', required: true, order: 2 })
+  @Props({ type: 'string', required: true })
   label: string = null;
 
-  @Props({ type: 'Catalog.Subcount', required: true, order: 3 })
+  @Props({ type: 'Catalog.Subcount', required: true })
   type: Ref = null;
 
-  @Props({ type: 'number', required: true, order: 4 })
+  @Props({ type: 'number', required: true })
   order: number = null;
 
-  @Props({ type: 'boolean', required: true, order: 5 })
+  @Props({ type: 'boolean', required: true })
   required: Ref = null;
 
-  @Props({ type: 'javascript', label: 'change script', hiddenInList: true, order: 101 })
+  @Props({ type: 'javascript', label: 'change script', hiddenInList: true })
   change: string = null;
 
-  @Props({ type: 'json', hiddenInList: true, order: 100 })
+  @Props({ type: 'json', hiddenInList: true })
   tableDef: string = null;
+
+  @Props({ type: 'json', hiddenInList: true })
+  Props: string = null;
 
 }

@@ -18,9 +18,13 @@ export class ApiInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}` } });
 
-    if (req.url.includes('user/settings') || req.url.includes('/jobs')) return next.handle(req);
-    this.lds.color = 'accent';
-    this.lds.loading = true;
+    const showLoading = !(
+      req.url.includes('user/settings') ||
+      req.url.includes('/jobs') ||
+      req.url.includes('/raw') ||
+      req.url.includes('/formControlRef'));
+
+    if (showLoading) { this.lds.color = 'accent'; this.lds.loading = true; }
     return next.handle(req).pipe(
       map(data => data instanceof HttpResponse ? data.clone({ body: JSON.parse(JSON.stringify(data.body), dateReviver) }) : data),
       tap(data => { if (data instanceof HttpResponse) this.lds.loading = false; }),
@@ -33,8 +37,8 @@ export class ApiInterceptor implements HttpInterceptor {
         this.lds.loading = true;
         this.lds.color = 'warn';
         this.messageService.add({
-          severity: 'error', summary: err.statusText,
-          detail: err.status === 500 ? err.error : err.message, id: Math.random()
+          severity: 'error', summary: err.statusText, key: '-1',
+          detail: err.status === 500 ? err.error : err.message
         });
         return ErrorObservable.create(err);
       }));

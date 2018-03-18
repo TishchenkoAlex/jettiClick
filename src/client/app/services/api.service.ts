@@ -11,12 +11,11 @@ import {
   DocListResponse,
   IJob,
   IJobs,
-  IViewModel,
   ISuggest,
   ITree,
+  IViewModel,
   PatchValue,
 } from '../../../server/models/api';
-import { ColumnDef } from '../../../server/models/column';
 import { DocumentBase } from '../../../server/models/document';
 import { DocTypes } from '../../../server/models/documents.types';
 import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
@@ -33,7 +32,12 @@ export class ApiService {
 
   getRawDoc(id: string) {
     const query = `${environment.api}raw/${id}`;
-    return (this.http.get<INoSqlDocument>(query));
+    return (this.http.get<INoSqlDocument>(query)).toPromise();
+  }
+
+  formControlRef(id: string) {
+    const query = `${environment.api}formControlRef/${id}`;
+    return (this.http.get<INoSqlDocument>(query)).toPromise();
   }
 
   getDocList(type: string, id: string, command: string,

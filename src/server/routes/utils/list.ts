@@ -115,7 +115,6 @@ export async function List(req: Request, res: Response) {
     }
   }
   query = `SELECT d.* FROM (${query}) d ${orderbyAfter} `;
-  // console.log(query);
   const data = await sdb.manyOrNone<any>(query);
   let result = [];
 

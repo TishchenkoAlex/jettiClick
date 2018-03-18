@@ -8,6 +8,7 @@ export const CatalogsSubSystem: ISubSystem = {
     'Catalog.Counterpartie',
     'Catalog.Currency',
     'Catalog.Manager',
-    'Catalog.Storehouse'
+    'Catalog.Storehouse',
+    'Catalog.Person'
   ]
 };

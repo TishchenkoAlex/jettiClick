@@ -48,6 +48,8 @@ spec:
                   key: password
             - name: REDIS_DB_HOST
               value: redis-master
+            - name: REDIS_DB_PREFIX
+              value: jetti
             - name: JTW_KEY
               valueFrom:
                 secretKeyRef:
