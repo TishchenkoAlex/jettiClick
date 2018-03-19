@@ -10,12 +10,17 @@ import { BaseDocFormComponent } from '../../common/form/base.form.component';
 })
 export class OperationFormComponent implements AfterViewInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
+  private view;
+  private metadata;
 
   get form() { return this.super.form; }
   set form(value) { this.super.form = value; }
   @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
 
   ngAfterViewInit() {
+    if (!this.view) this.view = { ...this.form['schema'] };
+    if (!this.metadata) this.metadata = { ...this.form['metadata'] };
+
     this._subscription$.unsubscribe();
     this._subscription$ = this.form.get('Operation').valueChanges
       .subscribe(v => this.update(v).then(() => this.super.cd.detectChanges()));
@@ -25,14 +30,14 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
     const operation = value.id ?
       await this.super.ds.api.getRawDoc(value.id) :
       { doc: { Parameters: [] } };
-    const view = this.super.schema;
-    Object.keys(view).filter(k => view[k].order > 100).forEach(k => delete view[k]);
+    const view = {};
     const Parameters = operation.doc['Parameters'] || [];
     Parameters.sort((a, b) => a.order - b.order).forEach(c => view[c.parameter] = {
       label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
       [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
     });
-    this.form = getFormGroup(view, this.super.model, true);
+    this.form = getFormGroup({ ...this.view, ...view }, this.super.model, true);
+    this.form['metadata'] = this.metadata;
     this.ngAfterViewInit();
     this.super.cd.detectChanges();
   }

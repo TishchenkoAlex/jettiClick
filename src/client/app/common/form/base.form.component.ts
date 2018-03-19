@@ -8,7 +8,6 @@ import {
   OnDestroy,
   OnInit,
   QueryList,
-  TemplateRef,
   ViewChildren,
 } from '@angular/core';
 import { ObservableMedia } from '@angular/flex-layout';
@@ -34,8 +33,6 @@ import { TabsStore } from '../tabcontroller/tabs.store';
   templateUrl: './base.form.component.html'
 })
 export class BaseDocFormComponent implements OnInit, OnDestroy {
-  @Input() formTepmlate: TemplateRef<any>;
-  @Input() actionTepmlate: TemplateRef<any>;
 
   @Input() id = this.route.snapshot.params.id as string;
   @Input() type = this.route.snapshot.params.type as string;
@@ -47,8 +44,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   isDoc = this.type.startsWith('Document.');
   isCopy = this.route.snapshot.queryParams.command === 'copy';
   docDescription = <string>this.form['metadata'].description;
-  relations = this.form['metadata'].relations || [];
-  schema = this.form['schema'] || {};
+  get relations() {return this.form['metadata'] && this.form['metadata'].relations || []; }
   get v() { return <FormControlInfo[]>this.form['orderedControls']; }
   get vk() { return <{ [key: string]: FormControlInfo }>this.form['byKeyControls']; }
   get viewModel() { return this.form.getRawValue(); }

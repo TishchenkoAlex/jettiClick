@@ -19,8 +19,9 @@
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
-  <j-autocomplete-png #pc *ngSwitchCase="'autocomplete'" [required]="control.required" [formControl]="form.controls[control.key]"
-    [id]="control.key" [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type" [owner]="{owner: control.owner, value: form.root.get(control.owner?.dependsOn)?.value}"
+  <j-autocomplete-png #pc *ngSwitchCase="'autocomplete'" [required]="control.required" [formControlName]="control.key" [disabled]="control.readOnly"
+    [formControl]="form.controls[control.key]" [id]="control.key" [placeholder]="control.label" [hidden]="control.hidden" [type]="control.type"
+    [owner]="{ owner: control.owner, value: form.get(control.owner?.dependsOn)?.value || form.root.get(control.owner?.dependsOn)?.value }"
     [showLabel]="control.showLabel" (focus)="pc.select()">
   </j-autocomplete-png>
 

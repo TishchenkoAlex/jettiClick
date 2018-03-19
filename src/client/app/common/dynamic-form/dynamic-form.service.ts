@@ -145,15 +145,15 @@ export function getFormGroup(schema: { [x: string]: any }, model: { [x: string]:
     });
   formGroup.patchValue(model, patchOptionsNoEvents);
   formGroup['schema'] = schema;
+
+  controls = [
+    ...controls.filter(el => el.order > 0 && el.type !== 'table' && !(el.key === 'f1' || el.key === 'f2' || el.key === 'f3')),
+    ...controls.filter(el => el.order > 0 && el.type === 'table' && !(el.key === 'f1' || el.key === 'f2' || el.key === 'f3')),
+    ...controls.filter(el => el.order <= 0 && !(el.key === 'f1' || el.key === 'f2' || el.key === 'f3'))
+  ];
   const byKeyControls: { [s: string]: FormControlInfo } = {};
   controls.forEach(c => { byKeyControls[c.key] = c; });
 
-  controls = [
-    ...controls.filter(el => el.order > 0 && el.type !== 'table'),
-    ...controls.filter(el => el.order > 0 && el.type === 'table'),
-    ...controls.filter(el => el.order <= 0)
-  ];
-  controls.forEach(el => { if (el.key === 'f1' || el.key === 'f2' || el.key === 'f3') { el.hidden = true; } });
   formGroup['orderedControls'] = controls;
   formGroup['byKeyControls'] = byKeyControls;
   return formGroup;

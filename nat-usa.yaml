@@ -55,6 +55,8 @@ spec:
                 secretKeyRef:
                   name: jwt-key
                   key: JTW_KEY
+            - name: REFRESH_ID
+              value: "1"
             - name: SUBSCRIPTION_ID
               value: 
 ---

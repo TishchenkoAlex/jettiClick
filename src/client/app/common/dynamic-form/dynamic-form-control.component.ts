@@ -10,7 +10,7 @@ import { patchOptionsNoEvents } from './dynamic-form.service';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-control',
-  templateUrl: './dynamic-form-control.component.html'
+  templateUrl: 'dynamic-form-control.component.html'
 })
 export class DynamicFormControlComponent implements OnInit, OnDestroy {
   @Input() control: FormControlInfo;
@@ -28,7 +28,6 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
     this.description = this.form['metadata'] ? this.form['metadata'].description : '';
     const formControl = this.form.get(this.control.key);
     if (formControl) this.valueChanges$ = formControl.valueChanges.subscribe(async value => {
-
       if (this.control.onChange) {
         const funcBody = this.control.onChange.toString()
           .match(/function[^{]+\{([\s\S]*)\}$/)[1]
