@@ -19,7 +19,7 @@ export class MSSQL {
       })
       .catch(err => {
         console.log('Connection error', err);
-        return this;
+        throw err;
       });
   }
 
@@ -74,8 +74,8 @@ export class MSSQL {
 }
 
 export let sdb: MSSQL = null;
-new MSSQL(sqlConfig).connect().then(db => sdb = db);
+new MSSQL(sqlConfig).connect().then(db => sdb = db).catch(err => process.exit(-100));
 
 export let sdba: MSSQL = null;
-new MSSQL(sqlConfigAccounts).connect().then(db => sdba = db);
+new MSSQL(sqlConfigAccounts).connect().then(db => sdba = db).catch(err => process.exit(-100));
 
