@@ -41,7 +41,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
     const script = `
       let AmountInBalance = doc.Amount / exchangeRate;
-      ${ Operation.script.replace(/\$\./g, 'doc.').replace(/\lib\./g, 'await lib.')}`;
+      ${ Operation.script.replace(/\$\./g, 'doc.').replace(/\lib\./g, 'await lib.').replace(/\'doc\./g, '\'$.')}`;
     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
     const func = new AsyncFunction('doc, Registers, tx, lib, exchangeRate', script);
     await func(this, Registers, tx, lib, exchangeRate);

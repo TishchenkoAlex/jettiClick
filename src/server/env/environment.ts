@@ -16,7 +16,7 @@ export const connString_MSSQL = {
 };
 
 export const sqlConfig: config = {
-  database: process.env.DB_NAME || 'bcg',
+  database: process.env.DB_NAME || 'jetti-app',
   server: process.env.DB_HOST || 'jetti.database.windows.net',
   user: process.env.DB_USER || 'yuralex',
   password: process.env.DB_PASSWORD || 'MyNew01Password',
