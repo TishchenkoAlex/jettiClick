@@ -43,8 +43,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   isDoc = this.type.startsWith('Document.');
   isCopy = this.route.snapshot.queryParams.command === 'copy';
-  docDescription = <string>this.form['metadata'].description;
-  get relations() {return this.form['metadata'] && this.form['metadata'].relations || []; }
+  get docDescription() { return <string>this.form['metadata'].description; }
+  get relations() { return this.form['metadata'].relations || []; }
   get v() { return <FormControlInfo[]>this.form['orderedControls']; }
   get vk() { return <{ [key: string]: FormControlInfo }>this.form['byKeyControls']; }
   get viewModel() { return this.form.getRawValue(); }
@@ -64,10 +64,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     public cd: ChangeDetectorRef, public ds: DocService, public location: Location, public tabStore: TabsStore) { }
 
   ngOnInit() {
-    this._subscription$ = merge(...[
-      this.ds.save$,
-      this.ds.delete$]).pipe(
-        filter(doc => doc.id === this.id))
+    this._subscription$ = merge(...[this.ds.save$, this.ds.delete$]).pipe(
+      filter(doc => doc.id === this.id))
       .subscribe(doc => {
         this.form.patchValue(doc, patchOptionsNoEvents);
         if (this.isDoc) { this.showDescription(); }
