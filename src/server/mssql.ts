@@ -13,9 +13,13 @@ export class MSSQL {
     } else {
       this.POOL = new sql.ConnectionPool(this.config);
       this.POOL.connect().catch(err => {
-        if (this.attemtToReconect-- > 0)  (<sql.ConnectionPool>this.POOL).close()
-          .then(() =>  (<sql.ConnectionPool>this.POOL).connect())
-          .catch(() =>  (<sql.ConnectionPool>this.POOL).connect());
+        if (this.attemtToReconect-- > 0) {
+          (<sql.ConnectionPool>this.POOL).close()
+          .then(() => (<sql.ConnectionPool>this.POOL).connect())
+          .catch(() => (<sql.ConnectionPool>this.POOL).connect());
+        } else {
+          process.abort();
+        }
       });
     }
   }
