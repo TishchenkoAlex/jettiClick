@@ -12,7 +12,7 @@ export class SQLGenegator {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS BIT), 0) "${prop}"\n`; }
-      if (type === 'number') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS NUMERIC(15, 4)), 0) "${prop}"\n`; }
+      if (type === 'number') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS MONEY), 0) "${prop}"\n`; }
       return `, JSON_VALUE(d.doc, N'$."${prop}"') "${prop}"\n`;
     };
 
@@ -50,7 +50,7 @@ export class SQLGenegator {
 
       function xTableLine(prop: string, type: string) {
         switch (type) {
-          case 'number': return `, "${prop}" NUMERIC(15, 4)\n`;
+          case 'number': return `, "${prop}" MONEY\n`;
           case 'boolean': return `, "${prop}" BIT\n`;
           case 'date': return `, "${prop}" DATE\n`;
           case 'datetime': return `, "${prop}" DATETIME\n`;
@@ -215,7 +215,7 @@ FROM dbo."Documents" d
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `, ISNULL(JSON_VALUE(r.data, N'$.${prop}'), 0) "${prop}"\n`; }
-      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, N'$.${prop}') AS NUMERIC(15,4)), 0) "${prop}"\n`; }
+      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, N'$.${prop}') AS MONEY), 0) "${prop}"\n`; }
       return `, JSON_VALUE(r.data, N'$.${prop}') "${prop}"\n`;
     };
 
@@ -251,7 +251,7 @@ FROM dbo."Documents" d
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `, ISNULL(JSON_VALUE(r.data, N'$.${prop}'), 0) "${prop}"\n`; }
-      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, N'$.${prop}') AS NUMERIC(15,4)), 0) "${prop}"\n`; }
+      if (type === 'number') { return `, ISNULL(CAST(JSON_VALUE(r.data, N'$.${prop}') AS MONEY), 0) "${prop}"\n`; }
       return `, JSON_VALUE(r.data, N'$.${prop}') "${prop}"\n`;
     };
 

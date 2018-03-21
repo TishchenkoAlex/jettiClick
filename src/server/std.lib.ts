@@ -232,18 +232,20 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: TX =
   const result: BatchRow[] = [];
   for (const row of grouped) {
     const queryText = `
-      SELECT s.batch, s.Qty, s.Cost, d.date FROM (
-        SELECT batch, SUM("Qty") Qty, SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) Cost
-        FROM "Register.Accumulation.Inventory" r
-        WHERE (1=1)
-          AND date <= @p1
-          AND company = @p2
-          AND "SKU" = @p3
-          AND "Storehouse" = @p4
-        GROUP BY batch HAVING SUM("Qty") > 0
-      ) s
-      LEFT JOIN "Documents" d ON d.id = s.batch
-      ORDER BY d.date, s.Qty`;
+      SELECT
+        batch,
+        MIN(date) date,
+        SUM("Qty") Qty,
+        SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) Cost
+      FROM "Register.Accumulation.Inventory" r
+      WHERE (1=1)
+        AND date <= @p1
+        AND company = @p2
+        AND "SKU" = @p3
+        AND "Storehouse" = @p4
+      GROUP BY batch
+      HAVING SUM("Qty") > 0
+      ORDER BY date, batch`;
     const queryResult = await tx.manyOrNone<{ batch: string, Qty: number, Cost: number }>
       (queryText, [date, company, row.SKU, row.Storehouse]);
     let total = row.Qty;
