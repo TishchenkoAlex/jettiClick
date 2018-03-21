@@ -32,7 +32,6 @@ export class BaseFormComponent implements OnInit {
     public cd: ChangeDetectorRef, public ds: DocService, private auth: AuthService, public tabStore: TabsStore) { }
 
   ngOnInit() {
-    this.auth.userProfile$.pipe(take(1)).subscribe();
   }
 
   private _close() {
@@ -52,11 +51,9 @@ export class BaseFormComponent implements OnInit {
   }
 
   async Execute(): Promise<any> {
-    const user = this.auth.userProfile;
     const data = this.form.value;
     return await this.ds.api.jobAdd({
-      job: { id: 'post', description: '(job) post Invoives' },
-      userId: user ? user.account.email : null,
+      job: { id: 'post', description: '(job) post Invoices' },
       type: data.type.id,
       company: data.company.id,
       StartDate: data.StartDate,

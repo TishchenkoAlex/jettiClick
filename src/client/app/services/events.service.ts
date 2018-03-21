@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { take, throttleTime } from 'rxjs/operators';
+import { take, throttleTime, map, share, startWith, shareReplay } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import * as socketIOClient from 'socket.io-client';
 
@@ -12,7 +12,10 @@ import { environment } from './../../environments/environment';
 export class EventsService implements OnDestroy {
 
   private _latestJobs$ = new Subject<IJobs>();
-  latestJobs$ = this._latestJobs$.asObservable();
+  latestJobs$ = this._latestJobs$.asObservable().pipe(map(j => {
+    return [...j.Active, ...j.Completed, ...j.Failed].sort((a, b) => b.timestamp - a.timestamp);
+  }), shareReplay());
+  latestJobsAll$ = this._latestJobs$.asObservable().pipe(map(j => j.Active.length), shareReplay());
   private debonce$ = new Subject<IJob>();
   private socket: SocketIOClient.Socket;
 
@@ -22,8 +25,8 @@ export class EventsService implements OnDestroy {
 
     this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
-        this.socket = socketIOClient(environment.host, {  query: 'token=' + u.token, path: environment.path + '/socket.io'});
-        this.socket.on('job', (job: IJob) =>  job.finishedOn ? this.update(job) : this.debonce$.next(job));
+        this.socket = socketIOClient(environment.host, { query: 'token=' + u.token, path: environment.path + '/socket.io' });
+        this.socket.on('job', (job: IJob) => job.finishedOn ? this.update(job) : this.debonce$.next(job));
         this.update();
       } else {
         if (this.socket) { this.socket.disconnect(); }

@@ -117,38 +117,24 @@
           </li>
         </ul>
       </li>
-      <li *ngIf="(ts.latestJobs$ | async) as latestJobs" #notifications [ngClass]="{'active-top-menu':app.activeTopbarItem === notifications}">
+      <li #notifications [ngClass]="{'active-top-menu':app.activeTopbarItem === notifications}">
         <a href="#" (click)="app.onTopbarItemClick($event,notifications)">
           <i class="topbar-icon fa fa-fw fa-bell-o">
-            <p-progressSpinner *ngIf="latestJobs.Active.length" styleClass="topbar-badge animated rubberBand" [strokeWidth]="8" [style]="{width: '17px', height: '18px'}"></p-progressSpinner>
+            <p-progressSpinner *ngIf="(ts.latestJobsAll$ | async)" styleClass="topbar-badge animated rubberBand" [strokeWidth]="8" [style]="{width: '17px', height: '18px'}"></p-progressSpinner>
           </i>
-          <span *ngIf="latestJobs.Active.length" class="topbar-badge animated rubberBand">{{ latestJobs.Active.length }}</span>
+          <span *ngIf="(ts.latestJobsAll$ | async)" class="topbar-badge animated rubberBand">{{(ts.latestJobsAll$ | async)}}</span>
           <span class="topbar-item-name">Notifications</span>
         </a>
         <ul class="layout-menu fadeInDown">
-          <li *ngFor="let event of latestJobs.Active" role="menuitem">
+          <li *ngFor="let event of (ts.latestJobs$ | async)" role="menuitem">
             <a href="#">
               <div style="display: flex; align-items: center; ">
-                <p-progressSpinner [strokeWidth]="6" [style]="{width: '20px', height: '20px', 'margin-right': '7px'}"></p-progressSpinner>
-                <span>{{event.data.job.description}}, {{(event.progress / 100) | percent }}</span>
+                <p-progressSpinner *ngIf="(!event.failedReason) && event.progress < 100" [strokeWidth]="6" [style]="{width: '20px', height: '20px', 'margin-right': '7px'}"></p-progressSpinner>
+                <i *ngIf="event.progress >= 100 && !event.failedReason" class="fa fa-fw fa-tasks"></i>
+                <i *ngIf="event.failedReason" class="fa fa-fw fa-exclamation-circle"></i>
+                <span>{{event.data['job'].description}}, {{event.failedReason }} {{(event.progress / 100) | percent }} , {{ event.finishedOn | date:'short' }}</span>
               </div>
               </a>
-          </li>
-          <li *ngFor="let event of latestJobs.Completed" role="menuitem">
-            <a href="#">
-              <div style="display: flex; align-items: center; justify-content: space-between">
-                <i class="fa fa-fw fa-tasks"></i>
-                <span>{{event.data.job.description}}, {{ event.finishedOn | date:'short' }}</span>
-              </div>
-            </a>
-          </li>
-          <li *ngFor="let event of latestJobs.Failed" role="menuitem">
-            <a href="#">
-              <div style="display: flex; align-items: center; justify-content: space-between">
-                <i class="fa fa-fw fa-exclamation-circle"></i>
-                <span>{{event.data.job.description}}, {{event.failedReason}}, {{ event.timestamp | date:'short' }}</span>
-              </div>
-            </a>
           </li>
         </ul>
       </li>

@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { of as observableOf } from 'rxjs/observable/of';
-import { catchError, filter, map, share, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 
 import { Continuation, DocListResponse } from '../../../../server/models/api';
@@ -60,7 +60,7 @@ export class ApiDataSource {
               return observableOf(this.EMPTY);
             }));
       }),
-      map(data => data.data), share());
+      map(data => data.data));
   }
 
   refresh(id: string) { this.id = id; this.paginator.next({ command: 'refresh' }); }

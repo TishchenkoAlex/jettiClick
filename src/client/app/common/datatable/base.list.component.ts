@@ -7,7 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { _if } from 'rxjs/observable/if';
 import { merge } from 'rxjs/observable/merge';
 import { of } from 'rxjs/observable/of';
-import { debounceTime, filter as filter$, map, share, tap } from 'rxjs/operators';
+import { debounceTime, filter as filter$, map, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import { v1 } from 'uuid';
@@ -71,8 +71,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
       of(columns),
       this.ds.api.getView(this.type).pipe(map(v => v.columnsDef))).pipe(
         tap(c => init(c)),
-        map(d => d.filter(c => (!c.hidden && !(c.field === 'description' && this.isDoc)) || c.field === 'Group')),
-        share());
+        map(d => d.filter(c => (!c.hidden && !(c.field === 'description' && this.isDoc)) || c.field === 'Group')));
 
     const init = (c: ColumnDef[]) => {
       this.setSortOrder();

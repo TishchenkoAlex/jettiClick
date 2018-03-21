@@ -6,13 +6,11 @@ import { userSocketsEmit } from '../../sockets';
 import { IJob } from '../api';
 import cost from './cost';
 import post from './post';
-import post2 from './post2';
 
 export const QueOpts: QueueOptions = { redis: { host: REDIS_DB_HOST }, prefix: REDIS_DB_PREFIX };
 
 export const Tasks = {
   post: post,
-  post2: post2,
   FormPostServer: post,
   cost: cost
 };

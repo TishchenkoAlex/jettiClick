@@ -2,13 +2,13 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output
 import { Router } from '@angular/router';
 import { TreeNode } from 'primeng/components/common/treenode';
 import { Observable } from 'rxjs/Observable';
-import { map, share, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
+import { v1 } from 'uuid';
 
 import { ITree } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { DocService } from '../../common/doc.service';
 import { ApiService } from '../../services/api.service';
-import { v1 } from 'uuid';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +38,7 @@ export class BaseTreeListComponent implements OnInit {
   constructor(private api: ApiService, public router: Router, public ds: DocService) { }
 
   ngOnInit() {
-    this.treeNodes$ = this.load$().pipe(tap(data => this.selection = data[0]), share());
+    this.treeNodes$ = this.load$().pipe(tap(data => this.selection = data[0]));
   }
 
   private load$() {
