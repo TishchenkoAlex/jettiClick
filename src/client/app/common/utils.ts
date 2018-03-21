@@ -53,8 +53,11 @@ export function scrollIntoViewIfNeeded(type, style, direction = false) {
     if (items.length) target = items[0];
   }
   if (!target) return;
+  let innerHeight = window.innerHeight;
   const rect = target.getBoundingClientRect();
-  if (rect.bottom > window.innerHeight) return target.scrollIntoView(direction ? true : false);
+  const table = document.getElementsByClassName('ui-table-scrollable-wrapper');
+  if (table && table.length) innerHeight = table[0].getBoundingClientRect().height;
+  if (rect.bottom > innerHeight) return target.scrollIntoView(direction ? true : false);
   if (rect.top <= 0) return target.scrollIntoView(direction ? false : true);
   if (direction) return target.scrollIntoView(false);
 }

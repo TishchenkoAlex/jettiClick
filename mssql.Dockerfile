@@ -19,7 +19,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 RUN apt-get install -y mssql-server
 
 # Install optional packages.  Comment out the ones you don't need
-RUN apt-get install -y mssql-server-agent
 RUN apt-get install -y mssql-server-ha
 RUN apt-get install -y mssql-server-fts
 

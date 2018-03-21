@@ -23,6 +23,7 @@ import { UserSettingsService } from './../../auth/settings/user.settings.service
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
+import { scrollIntoViewIfNeeded } from '../utils';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -229,6 +230,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
         s.posted = !(await this.ds.unpost(s.id));
       }
       this.selection = [s];
+      setTimeout(() => scrollIntoViewIfNeeded(this.type, 'ui-state-highlight'));
     }
     this.lds.counter = 0;
     this.dataSource.refresh(this.selection[0].id);
