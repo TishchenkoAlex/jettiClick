@@ -146,7 +146,7 @@
             <a href="#">
               <div style="display: flex; align-items: center; justify-content: space-between">
                 <i class="fa fa-fw fa-exclamation-circle"></i>
-                <span>{{event.data.job.description}}, {{ event.timestamp | date:'short' }}</span>
+                <span>{{event.data.job.description}}, {{event.failedReason}}, {{ event.timestamp | date:'short' }}</span>
               </div>
             </a>
           </li>

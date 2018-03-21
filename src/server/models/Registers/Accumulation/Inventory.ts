@@ -16,6 +16,9 @@ export class RegisterAccumulationInventory extends RegisterAccumulation {
   @Props({ type: 'Catalog.Product' })
   SKU: Ref = null;
 
+  @Props({ type: 'Types.Document' })
+  batch: Ref = null;
+
   @Props({ type: 'number' })
   Cost: number = null;
 
@@ -26,6 +29,7 @@ export class RegisterAccumulationInventory extends RegisterAccumulation {
     Expense: Ref,
     Storehouse: Ref,
     SKU: Ref,
+    batch: Ref,
     Cost: number,
     Qty: number,
   }) {

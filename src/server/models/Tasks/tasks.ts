@@ -4,6 +4,7 @@ import * as Queue from 'bull';
 import { REDIS_DB_HOST, REDIS_DB_PREFIX } from '../../env/environment';
 import { userSocketsEmit } from '../../sockets';
 import { IJob } from '../api';
+import cost from './cost';
 import post from './post';
 import post2 from './post2';
 
@@ -12,7 +13,8 @@ export const QueOpts: QueueOptions = { redis: { host: REDIS_DB_HOST }, prefix: R
 export const Tasks = {
   post: post,
   post2: post2,
-  FormPostServer: post
+  FormPostServer: post,
+  cost: cost
 };
 
 export const JQueue = new Queue('GLOBAL', QueOpts);

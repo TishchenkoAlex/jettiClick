@@ -20,6 +20,7 @@ export const sqlConfig: config = {
   server: process.env.DB_HOST || 'jetti.database.windows.net',
   user: process.env.DB_USER || 'yuralex',
   password: process.env.DB_PASSWORD || 'MyNew01Password',
+  requestTimeout: 1000 * 120,
   pool: {
     min: 10,
     max: 100,

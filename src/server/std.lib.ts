@@ -6,8 +6,13 @@ import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
 import { DocumentBaseServer, INoSqlDocument } from './models/ServerDocument';
-import { sdb } from './mssql';
+import { sdb, MSSQL } from './mssql';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
+
+export interface BatchRow {
+  SKU: Ref; Storehouse: Ref; Qty: number; batch: Ref; Cost: number;
+  res1: number; res2: number; res3: number; res4: number; res5: number;
+}
 
 export interface JTL {
   db: TX;
@@ -34,6 +39,9 @@ export interface JTL {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
       analytics: { [key: string]: any }, tx?: TX) => Promise<any>
   };
+  inventory: {
+    batch: (date: Date, company: Ref, rows: BatchRow[], tx?: TX) => Promise<BatchRow[]>
+  };
 }
 
 export const lib: JTL = {
@@ -58,6 +66,9 @@ export const lib: JTL = {
   },
   info: {
     sliceLast: sliceLast
+  },
+  inventory: {
+    batch: batch
   }
 };
 
@@ -145,9 +156,10 @@ async function registerBalance(type: RegisterAccumulationTypes, date = new Date(
 async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<number> {
   const queryText = `
   SELECT
-    SUM("Cost") / NULLIF(SUM("Qty"), 0) result
+    SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) result
   FROM "Register.Accumulation.Inventory"
   WHERE (1=1)
+    AND kind = 1
     AND date <= @p1
     AND company = @p2
     AND "SKU" = @p3
@@ -202,4 +214,53 @@ export async function postById(id: string, posted: boolean, tx: TX = sdb) {
     if (posted && serverDoc.onPost && !doc.deleted) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
     serverDoc = undefined;
   });
+}
+
+export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: TX = sdb) {
+  const rowsKeys = rows.map(r => (r.Storehouse as string) + (r.SKU as string));
+  const uniquerowsKeys = rowsKeys.filter((v, i, a) => a.indexOf(v) === i);
+  const grouped = uniquerowsKeys.map(r => {
+    const filter = rows.filter(f => (f.Storehouse as string) + (f.SKU as string) === r);
+    const Qty = filter.reduce((a, b) => a + b.Qty, 0);
+    const res1 = filter.reduce((a, b) => a + b.res1, 0);
+    const res2 = filter.reduce((a, b) => a + b.res2, 0);
+    const res3 = filter.reduce((a, b) => a + b.res3, 0);
+    const res4 = filter.reduce((a, b) => a + b.res4, 0);
+    const res5 = filter.reduce((a, b) => a + b.res5, 0);
+    return <BatchRow>({ SKU: filter[0].SKU, Storehouse: filter[0].Storehouse, Qty, Cost: 0, batch: null, res1, res2, res3 });
+  });
+  const result: BatchRow[] = [];
+  for (const row of grouped) {
+    const queryText = `
+      SELECT s.batch, s.Qty, s.Cost, d.date FROM (
+        SELECT batch, SUM("Qty") Qty, SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) Cost
+        FROM "Register.Accumulation.Inventory" r
+        WHERE (1=1)
+          AND date <= @p1
+          AND company = @p2
+          AND "SKU" = @p3
+          AND "Storehouse" = @p4
+        GROUP BY batch HAVING SUM("Qty") > 0
+      ) s
+      LEFT JOIN "Documents" d ON d.id = s.batch
+      ORDER BY d.date, s.Qty`;
+    const queryResult = await tx.manyOrNone<{ batch: string, Qty: number, Cost: number }>
+      (queryText, [date, company, row.SKU, row.Storehouse]);
+    let total = row.Qty;
+    for (const a of queryResult) {
+      if (total <= 0) break;
+      const q = Math.min(total, a.Qty);
+      const rate = q / row.Qty;
+      result.push({
+        batch: a.batch, Qty: q, Cost: a.Cost * q, Storehouse: row.Storehouse, SKU: row.SKU,
+        res1: row.res1 * rate, res2: row.res2 * rate, res3: row.res3 * rate, res4: row.res3 * rate, res5: row.res3 * rate
+      });
+      total = total - q;
+    }
+    if (total > 0) {
+      const SKU = await lib.doc.byId(row.SKU as string, tx);
+      throw new Error(`Не достаточно ${total} единиц ${SKU.description}`);
+    }
+  }
+  return result;
 }

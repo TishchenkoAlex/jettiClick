@@ -1,6 +1,9 @@
 import { TX } from '../../db';
+import { MSSQL } from '../../mssql';
 import { lib } from '../../std.lib';
+import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
 import { ServerDocument } from '../ServerDocument';
+import { JQueue } from '../Tasks/tasks';
 import { PostResult } from './../post.interfaces';
 import { DocumentOperation } from './Document.Operation';
 
@@ -33,7 +36,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     }
   }
 
-  async onPost(tx: TX) {
+  async onPost(tx: MSSQL) {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
 
     const query = `SELECT JSON_VALUE(doc, '$.script') script FROM "Documents" WHERE id = @p1`;
@@ -45,6 +48,16 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
     const func = new AsyncFunction('doc, Registers, tx, lib, exchangeRate', script);
     await func(this, Registers, tx, lib, exchangeRate);
+
+    const Inventory = Registers.Accumulation
+      .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true) as RegisterAccumulationInventory[];
+    if (!Inventory.length) return Registers;
+
+    JQueue.add({
+      job: { id: 'cost', description: `${this.description}` },
+      doc: this,
+      Inventory,
+    });
     return Registers;
   }
 

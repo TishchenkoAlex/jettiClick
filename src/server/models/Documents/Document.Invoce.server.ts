@@ -2,8 +2,8 @@ import { TX } from '../../db';
 import { RefValue } from '../../models/api';
 import { CatalogCounterpartie } from '../../models/Catalogs/Catalog.Counterpartie';
 import { configSchema } from '../../models/config';
-import { DocumentBase } from '../../models/document';
-import { lib } from '../../std.lib';
+import { DocumentBase, Ref } from '../../models/document';
+import { lib, BatchRow } from '../../std.lib';
 import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
 import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
@@ -14,7 +14,7 @@ import { DocumentInvoice } from './Document.Invoice';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
-  async GetPrice(args: any, tx: TX): Promise<{doc: DocumentBase, result: any}> {
+  async GetPrice(args: any, tx: TX): Promise<{ doc: DocumentBase, result: any }> {
     this.Amount = 0;
     for (const row of this.Items) {
       row.Price = 100;
@@ -24,7 +24,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     return { doc: this, result: {} };
   }
 
-  async onValueChanged(prop: string, value: any, tx: TX): Promise<{[x: string]: any}> {
+  async onValueChanged(prop: string, value: any, tx: TX): Promise<{ [x: string]: any }> {
     switch (prop) {
       case 'company':
         if (!value) { return {}; }
@@ -54,8 +54,8 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       case 'Catalog.Counterpartie':
         const Counterpartie = await lib.doc.viewModelById<CatalogCounterpartie>(docID);
         const { id, code, date, type, description, user } = documentInvoice;
-        documentInvoice = Object.assign(documentInvoice, Counterpartie, { id, code, date, type, description, user } );
-        documentInvoice.Customer = <RefValue>{id: docID, code: ISource.code, type: ISource.type, value: ISource.description};
+        documentInvoice = Object.assign(documentInvoice, Counterpartie, { id, code, date, type, description, user });
+        documentInvoice.Customer = <RefValue>{ id: docID, code: ISource.code, type: ISource.type, value: ISource.description };
         const company = await lib.doc.byId(documentInvoice.company.id, tx);
         documentInvoice.currency = await lib.doc.formControlRef(company.doc.currency, tx);
         return documentInvoice;
@@ -96,40 +96,45 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     });
 
     let totalCost = 0;
-    for (const row of this.Items) {
-      const avgSumma = await lib.register.avgCost(
-        this.date, { company: this.company, SKU: row.SKU, Storehouse: this.Storehouse }, tx) * row.Qty;
-      totalCost += avgSumma;
+
+    let batchRows: BatchRow[] = this.Items.map(r => <BatchRow>({
+      SKU: r.SKU, Storehouse: this.Storehouse, Qty: r.Qty, Cost: 0, batch: null,
+      res1: r.Amount, res2: r.Tax, res3: 0, res4: 0, res5: 0
+    }));
+    batchRows = await lib.inventory.batch(this.date, this.company, batchRows, tx);
+    for (const batchRow of batchRows) {
+      Registers.Accumulation.push(new RegisterAccumulationInventory(false, {
+        Expense: ExpenseCOST,
+        Storehouse: this.Storehouse,
+        batch: batchRow.batch,
+        SKU: batchRow.SKU,
+        Cost: batchRow.Cost,
+        Qty: batchRow.Qty
+      }));
+
+      totalCost += batchRow.Cost;
 
       // Account
       Registers.Account.push({
         debit: { account: acc90, subcounts: [] },
-        kredit: { account: acc41, subcounts: [this.Storehouse, row.SKU], qty: row.Qty },
-        sum: avgSumma,
+        kredit: { account: acc41, subcounts: [this.Storehouse, batchRow.SKU], qty: batchRow.Qty },
+        sum: batchRow.Cost,
       });
-
-      Registers.Accumulation.push(new RegisterAccumulationInventory(false, {
-        Expense: ExpenseCOST,
-        Storehouse: this.Storehouse,
-        SKU: row.SKU,
-        Cost: avgSumma,
-        Qty: row.Qty
-      }));
 
       Registers.Accumulation.push(new RegisterAccumulationSales(true, {
         AO: this.id,
         Department: this.Department,
         Customer: this.Customer,
-        Product: row.SKU,
+        Product: batchRow.SKU,
         Manager: this.Manager,
         Storehouse: this.Storehouse,
-        Qty: row.Qty,
-        Amount: row.Amount / exchangeRate,
-        AmountAR: row.Amount,
-        AmountInDoc: row.Amount,
-        Cost: avgSumma,
+        Qty: batchRow.Qty,
+        Amount: batchRow.res1 / exchangeRate,
+        AmountAR: batchRow.res1,
+        AmountInDoc: batchRow.res1,
+        Cost: batchRow.Cost,
         Discount: 0,
-        Tax: row.Tax,
+        Tax: batchRow.res2,
         currency: this.currency
       }));
     }
@@ -201,7 +206,7 @@ async function onPostJS(document: INoSqlDocument, Registers = { Account: [], Acc
   let totalCost = 0;
   for (const row of doc.Items) {
     const avgSumma = await lib.register.avgCost(
-      doc.date, {company: doc.company, SKU: row.SKU, Storehouse: doc.Storehouse }, tx) * row.Qty;
+      doc.date, { company: doc.company, SKU: row.SKU, Storehouse: doc.Storehouse }, tx) * row.Qty;
     totalCost += avgSumma;
 
     // Account

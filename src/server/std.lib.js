@@ -26,6 +26,9 @@ exports.lib = {
     },
     info: {
         sliceLast: sliceLast
+    },
+    inventory: {
+        batch: batch
     }
 };
 async function accountByCode(code, tx = mssql_1.sdb) {
@@ -106,9 +109,10 @@ async function registerBalance(type, date = new Date(), resource, analytics, tx 
 async function avgCost(date, analytics, tx = mssql_1.sdb) {
     const queryText = `
   SELECT
-    SUM("Cost") / NULLIF(SUM("Qty"), 0) result
+    SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) result
   FROM "Register.Accumulation.Inventory"
   WHERE (1=1)
+    AND kind = 1
     AND date <= @p1
     AND company = @p2
     AND "SKU" = @p3
@@ -165,4 +169,53 @@ async function postById(id, posted, tx = mssql_1.sdb) {
     });
 }
 exports.postById = postById;
+async function batch(date, company, rows, tx = mssql_1.sdb) {
+    const rowsKeys = rows.map(r => r.Storehouse + r.SKU);
+    const uniquerowsKeys = rowsKeys.filter((v, i, a) => a.indexOf(v) === i);
+    const grouped = uniquerowsKeys.map(r => {
+        const filter = rows.filter(f => f.Storehouse + f.SKU === r);
+        const Qty = filter.reduce((a, b) => a + b.Qty, 0);
+        const res1 = filter.reduce((a, b) => a + b.res1, 0);
+        const res2 = filter.reduce((a, b) => a + b.res2, 0);
+        const res3 = filter.reduce((a, b) => a + b.res3, 0);
+        const res4 = filter.reduce((a, b) => a + b.res4, 0);
+        const res5 = filter.reduce((a, b) => a + b.res5, 0);
+        return ({ SKU: filter[0].SKU, Storehouse: filter[0].Storehouse, Qty, Cost: 0, batch: null, res1, res2, res3 });
+    });
+    const result = [];
+    for (const row of grouped) {
+        const queryText = `
+      SELECT s.batch, s.Qty, s.Cost, d.date FROM (
+        SELECT batch, SUM("Qty") Qty, SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) Cost
+        FROM "Register.Accumulation.Inventory" r
+        WHERE (1=1)
+          AND date <= @p1
+          AND company = @p2
+          AND "SKU" = @p3
+          AND "Storehouse" = @p4
+        GROUP BY batch HAVING SUM("Qty") > 0
+      ) s
+      LEFT JOIN "Documents" d ON d.id = s.batch
+      ORDER BY d.date, s.Qty`;
+        const queryResult = await tx.manyOrNone(queryText, [date, company, row.SKU, row.Storehouse]);
+        let total = row.Qty;
+        for (const a of queryResult) {
+            if (total <= 0)
+                break;
+            const q = Math.min(total, a.Qty);
+            const rate = q / row.Qty;
+            result.push({
+                batch: a.batch, Qty: q, Cost: a.Cost * q, Storehouse: row.Storehouse, SKU: row.SKU,
+                res1: row.res1 * rate, res2: row.res2 * rate, res3: row.res3 * rate, res4: row.res3 * rate, res5: row.res3 * rate
+            });
+            total = total - q;
+        }
+        if (total > 0) {
+            const SKU = await exports.lib.doc.byId(row.SKU, tx);
+            throw new Error(`Не достаточно ${total} единиц ${SKU.description}`);
+        }
+    }
+    return result;
+}
+exports.batch = batch;
 //# sourceMappingURL=std.lib.js.map
