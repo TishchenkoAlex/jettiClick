@@ -48,12 +48,10 @@ export default class FormPostServer extends FormPost {
         try {
           await lib.doc.postById(row.id, true, sdb);
         } catch (err) {
-          console.log(err);
         }
       }
       userSocketsEmit(this.CallRequest.user, 'Form.Post', 100);
     } catch (err) {
-      console.log(err);
       userSocketsEmit(this.CallRequest.user, 'Form.Post', -1);
     }
   }
