@@ -19,7 +19,7 @@ spec:
             - containerPort: 8080
           env:
             - name: DB_HOST
-              value: jetti.database.windows.net
+              value: bcg-jetti
             - name: DB_NAME
               value: jetti-app
             - name: DB_USER
@@ -56,7 +56,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "5"
+              value: "7"
             - name: SUBSCRIPTION_ID
               value: 
 ---

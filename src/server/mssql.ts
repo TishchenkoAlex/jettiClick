@@ -4,27 +4,28 @@ import * as driver from 'tedious';
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
 
 export class MSSQL {
-  private pool: sql.ConnectionPool | sql.Transaction;
+  private POOL: sql.ConnectionPool;
+  attemtToReconect = 3;
 
   constructor(private config, private transaction?: sql.Transaction) {
-    if (transaction) this.pool = transaction;
+    this.POOL = new sql.ConnectionPool(this.config);
+    this.POOL.connect().catch(err => {
+      if (this.attemtToReconect-- > 0) this.POOL.close()
+        .then(() => this.POOL.connect())
+        .catch(() => this.POOL.connect());
+    });
   }
 
   connect() {
-    return new sql.ConnectionPool(this.config).connect()
-      .then(p => {
-        this.pool = p;
-        console.log('config', this.config);
-        return this;
-      })
-      .catch(err => {
-        console.log('Connection error', err);
-        throw err;
-      });
+    return this.POOL.connect();
+  }
+
+  close() {
+    return this.POOL.close();
   }
 
   async manyOrNone<T>(text: string, params: any[] = []): Promise<T[]> {
-    const request = new sql.Request(<any>(this.pool));
+    const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) {
       request.input(`p${i + 1}`, params[i]);
     }
@@ -35,7 +36,7 @@ export class MSSQL {
   }
 
   async oneOrNone<T>(text: string, params: any[] = []): Promise<T> {
-    const request = new sql.Request(<any>(this.pool));
+    const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) {
       request.input(`p${i + 1}`, params[i]);
     }
@@ -46,7 +47,7 @@ export class MSSQL {
   }
 
   async none<T>(text: string, params: any[] = []): Promise<T> {
-    const request = new sql.Request(<any>(this.pool));
+    const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) {
       request.input(`p${i + 1}`, params[i]);
     }
@@ -56,29 +57,25 @@ export class MSSQL {
   }
 
   async tx<T>(func: (tx: MSSQL) => Promise<T>) {
-    const transaction = new sql.Transaction(<any>this.pool);
+    const transaction = new sql.Transaction(<any>this.POOL);
     await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
     try {
-      await func(new MSSQL(null, transaction));
+      await func(this);
       await transaction.commit();
     } catch (err) {
+      console.log('SQL: COMMIT error', err);
       try {
-        console.log('rollback transaction');
         await transaction.rollback();
-      } catch { }
-      console.log(err);
+      } catch {
+        console.log('SQL: ROLLBACK error', err);
+      }
       throw new Error(err);
     }
   }
 
 }
 
-export let sdb: MSSQL = null;
-new MSSQL(sqlConfig).connect().then(db => sdb = db).catch(err => process.exit(-100));
-
-export let sdbq: MSSQL = null;
-new MSSQL({...sqlConfig, requestTimeout: 1000 * 60 * 60}).connect().then(db => sdbq = db).catch(err => process.exit(-100));
-
-export let sdba: MSSQL = null;
-new MSSQL(sqlConfigAccounts).connect().then(db => sdba = db).catch(err => process.exit(-100));
+export const sdb = new MSSQL(sqlConfig);
+export const sdbq = new MSSQL({ ...sqlConfig, requestTimeout: 1000 * 60 * 60 });
+export const sdba = new MSSQL(sqlConfigAccounts);
 
