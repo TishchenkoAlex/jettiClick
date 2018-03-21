@@ -4,24 +4,28 @@ import * as driver from 'tedious';
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
 
 export class MSSQL {
-  private POOL: sql.ConnectionPool;
+  private POOL: sql.ConnectionPool | sql.Transaction;
   attemtToReconect = 3;
 
   constructor(private config, private transaction?: sql.Transaction) {
-    this.POOL = new sql.ConnectionPool(this.config);
-    this.POOL.connect().catch(err => {
-      if (this.attemtToReconect-- > 0) this.POOL.close()
-        .then(() => this.POOL.connect())
-        .catch(() => this.POOL.connect());
-    });
+    if (transaction) {
+      this.POOL = transaction;
+    } else {
+      this.POOL = new sql.ConnectionPool(this.config);
+      this.POOL.connect().catch(err => {
+        if (this.attemtToReconect-- > 0)  (<sql.ConnectionPool>this.POOL).close()
+          .then(() =>  (<sql.ConnectionPool>this.POOL).connect())
+          .catch(() =>  (<sql.ConnectionPool>this.POOL).connect());
+      });
+    }
   }
 
   connect() {
-    return this.POOL.connect();
+    return (<sql.ConnectionPool>this.POOL).connect();
   }
 
   close() {
-    return this.POOL.close();
+    return (<sql.ConnectionPool>this.POOL).close();
   }
 
   async manyOrNone<T>(text: string, params: any[] = []): Promise<T[]> {
@@ -60,7 +64,7 @@ export class MSSQL {
     const transaction = new sql.Transaction(<any>this.POOL);
     await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
     try {
-      await func(this);
+      await func(new MSSQL(this.config, transaction));
       await transaction.commit();
     } catch (err) {
       console.log('SQL: COMMIT error', err);
