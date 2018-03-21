@@ -76,6 +76,9 @@ export class MSSQL {
 export let sdb: MSSQL = null;
 new MSSQL(sqlConfig).connect().then(db => sdb = db).catch(err => process.exit(-100));
 
+export let sdbq: MSSQL = null;
+new MSSQL({...sqlConfig, requestTimeout: 1000 * 60 * 60}).connect().then(db => sdbq = db).catch(err => process.exit(-100));
+
 export let sdba: MSSQL = null;
 new MSSQL(sqlConfigAccounts).connect().then(db => sdba = db).catch(err => process.exit(-100));
 

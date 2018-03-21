@@ -1,11 +1,9 @@
 import * as Queue from 'bull';
 
-import { sdb } from '../../mssql';
+import { sdbq } from '../../mssql';
 import { lib } from '../../std.lib';
 import { DocumentBase } from '../document';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
-import { userSocketsEmit } from '../../sockets';
-import { mapJob } from './tasks';
 
 export default async function (job: Queue.Job) {
   await job.progress(0);
@@ -16,6 +14,7 @@ export default async function (job: Queue.Job) {
   let list = [];
   for (const r of Inventory) {
     const query = `
+    SELECT s.date, s.document, d.description doc FROM (
     SELECT date, document from "Register.Accumulation.Inventory"
     WHERE [Qty.Out] <> 0
       AND date >= @p1
@@ -24,25 +23,26 @@ export default async function (job: Queue.Job) {
       AND SKU = @p4
       AND batch = @p5
       AND document <> @p6
-    GROUP BY date, document
+    GROUP BY date, document) s
+    LEFT JOIN "Documents" d ON d.id = s.document
+    ORDER BY s.date
     `;
-    list = [...list, ...(await sdb.manyOrNone<any>(query,
+    list = [...list, ...(await sdbq.manyOrNone<any>(query,
       [doc.date, doc.company, r.data.Storehouse, r.data.SKU, r.data.batch, doc.id]))];
-
-    const TaskList = [];
-    const count = list.length; let offset = 0;
-    while (offset < count) {
-      let i = 0;
-      for (i = 0; i < 10; i++) {
-        if (!list[i + offset]) { break; }
-        const q = lib.doc.postById(list[i + offset].document, true);
-        TaskList.push(q);
-      }
-      offset = offset + i;
-      await Promise.all(TaskList);
-      TaskList.length = 0;
-      await job.progress(Math.round(offset / count * 100));
+  }
+  const TaskList = [];
+  const count = list.length; let offset = 0;
+  while (offset < count) {
+    let i = 0;
+    for (i = 0; i < 50; i++) {
+      if (!list[i + offset]) { break; }
+      const q = lib.doc.postById(list[i + offset].document, true, sdbq);
+      TaskList.push(q);
     }
+    offset = offset + i;
+    await Promise.all(TaskList);
+    TaskList.length = 0;
+    await job.progress(Math.round(offset / count * 100));
   }
   await job.progress(100);
 }

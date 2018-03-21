@@ -20,8 +20,8 @@ exports.sqlConfig = {
     password: process.env.DB_PASSWORD || 'MyNew01Password',
     requestTimeout: 1000 * 120,
     pool: {
-        min: 10,
-        max: 100,
+        min: 20,
+        max: 500,
     },
     options: {
         encrypt: true,

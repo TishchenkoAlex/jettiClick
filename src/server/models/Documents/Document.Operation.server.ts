@@ -53,7 +53,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
       .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true) as RegisterAccumulationInventory[];
     if (!Inventory.length) return Registers;
 
-    JQueue.add({
+    await JQueue.add({
       job: { id: 'cost', description: `${this.description}` },
       doc: this,
       Inventory,
