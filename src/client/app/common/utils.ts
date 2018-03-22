@@ -46,17 +46,16 @@ export function getPeriod(value: string): { startDate: Date, endDate: Date } {
 
 export function scrollIntoViewIfNeeded(type, style, direction = false) {
   let target;
-  const highlight = document.getElementsByClassName(`scrollTo-${type} ${style}`);
+  let highlight = document.getElementsByClassName(`scrollTo-${type} ${style}`);
   if (highlight.length) target = highlight[highlight.length - 1];
   else {
-    const items = document.getElementsByClassName(`scrollTo-${type}`);
-    if (items.length) target = items[0];
+    highlight = document.getElementsByClassName(`scrollTo-${type}`);
+    if (highlight.length) target = highlight[0];
   }
   if (!target) return;
-  let innerHeight = window.innerHeight;
   const rect = target.getBoundingClientRect();
   const table = document.getElementsByClassName('scroll-${type} ui-table-scrollable-wrapper');
-  if (table && table.length) innerHeight = table[0].getBoundingClientRect().height;
+  const innerHeight = table.length ? table[0].getBoundingClientRect().height : window.innerHeight;
   if (rect.bottom > innerHeight) return target.scrollIntoView(direction ? true : false);
   if (rect.top <= 0) return target.scrollIntoView(direction ? false : true);
   if (direction) return target.scrollIntoView(false);
