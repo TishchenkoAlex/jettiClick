@@ -16,7 +16,7 @@ export const sqlConfig: config = {
     max: 500,
   },
   options: {
-    encrypt: true,
+    encrypt: false,
   }
 };
 
@@ -26,6 +26,6 @@ export const sqlConfigAccounts: config = {
   user: process.env.DB_ACCOUNTS_USER || 'yuralex',
   password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',
   options: {
-    encrypt: true,
+    encrypt: false,
   }
 };

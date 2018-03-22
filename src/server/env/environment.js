@@ -15,7 +15,7 @@ exports.sqlConfig = {
         max: 500,
     },
     options: {
-        encrypt: true,
+        encrypt: false,
     }
 };
 exports.sqlConfigAccounts = {
@@ -24,7 +24,7 @@ exports.sqlConfigAccounts = {
     user: process.env.DB_ACCOUNTS_USER || 'yuralex',
     password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',
     options: {
-        encrypt: true,
+        encrypt: false,
     }
 };
 //# sourceMappingURL=environment.js.map
