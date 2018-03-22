@@ -14,11 +14,14 @@ metadata:
   name: mssql
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
         app: mssql
     spec:
+      terminationGracePeriodSeconds: 10
       containers:
       - name: mssql
         image: eu.gcr.io/jetti-pg/mssql

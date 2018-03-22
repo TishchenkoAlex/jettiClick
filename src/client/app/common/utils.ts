@@ -55,7 +55,7 @@ export function scrollIntoViewIfNeeded(type, style, direction = false) {
   if (!target) return;
   let innerHeight = window.innerHeight;
   const rect = target.getBoundingClientRect();
-  const table = document.getElementsByClassName('ui-table-scrollable-wrapper');
+  const table = document.getElementsByClassName('scroll-${type} ui-table-scrollable-wrapper');
   if (table && table.length) innerHeight = table[0].getBoundingClientRect().height;
   if (rect.bottom > innerHeight) return target.scrollIntoView(direction ? true : false);
   if (rect.top <= 0) return target.scrollIntoView(direction ? false : true);
