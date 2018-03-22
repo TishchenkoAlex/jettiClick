@@ -49,11 +49,14 @@ export class TabsStore {
   close(value: TabDef) {
     const copy = [...this.state.tabs];
     const index = this.state.tabs.findIndex(el => el.docType === value.docType && el.docID === value.docID);
+    const currentTab = this.state.tabs[this.state.selectedIndex];
     copy.splice(index, 1);
+    let selectedIndex = copy.findIndex(el => el.docType === currentTab.docType && el.docID === currentTab.docID);
+    if (selectedIndex === -1) selectedIndex = Math.min(this.state.selectedIndex, copy.length - 1);
     this._state.next(({
       ...this.state,
       tabs: copy,
-      selectedIndex: Math.min(index, copy.length - 1)
+      selectedIndex: selectedIndex
     }));
   }
 
