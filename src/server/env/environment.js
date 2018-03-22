@@ -4,18 +4,9 @@ exports.SUBSCRIPTION_ID = process.env.SUBSCRIPTION_ID ? '/' + process.env.SUBSCR
 exports.REDIS_DB_HOST = process.env.REDIS_DB_HOST || '127.0.0.1';
 exports.REDIS_DB_PREFIX = process.env.REDIS_DB_PREFIX || 'bull';
 exports.JTW_KEY = process.env.JTW_KEY || 'Pa5315word';
-exports.connString_MSSQL = {
-    server: process.env.DB_HOST || 'jetti.database.windows.net',
-    userName: process.env.DB_USER || 'yuralex',
-    password: process.env.DB_PASSWORD || 'MyNew01Password',
-    options: {
-        encrypt: true,
-        database: process.env.DB_NAME || 'big',
-    }
-};
 exports.sqlConfig = {
     database: process.env.DB_NAME || 'jetti-app',
-    server: process.env.DB_HOST || 'jetti.database.windows.net',
+    server: process.env.DB_HOST || '35.198.154.104',
     user: process.env.DB_USER || 'yuralex',
     password: process.env.DB_PASSWORD || 'MyNew01Password',
     requestTimeout: 1000 * 120,
@@ -29,7 +20,7 @@ exports.sqlConfig = {
 };
 exports.sqlConfigAccounts = {
     database: process.env.DB_ACCOUNTS_NAME || 'accounts',
-    server: process.env.DB_ACCOUNTS_HOST || 'jetti.database.windows.net',
+    server: process.env.DB_ACCOUNTS_HOST || '35.198.154.104',
     user: process.env.DB_ACCOUNTS_USER || 'yuralex',
     password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',
     options: {

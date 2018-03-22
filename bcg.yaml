@@ -19,7 +19,7 @@ spec:
             - containerPort: 8080
           env:
             - name: DB_HOST
-              value: jetti.database.windows.net
+              value: mssql
             - name: DB_NAME
               value: bcg
             - name: DB_USER
@@ -33,7 +33,7 @@ spec:
                   name: mssql-db-credentials
                   key: password
             - name: DB_ACCOUNTS_HOST
-              value: jetti.database.windows.net
+              value: mssql
             - name: DB_ACCOUNTS_NAME
               value: accounts
             - name: DB_ACCOUNTS_USER
@@ -56,7 +56,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "3"
+              value: "6"
             - name: SUBSCRIPTION_ID
               value: 
 ---

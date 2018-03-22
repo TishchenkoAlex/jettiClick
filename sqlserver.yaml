@@ -1,27 +1,26 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: bcg-jetti
+  name: mssql
 spec:
   accessModes: [ReadWriteOnce]
   resources:
     requests:
-      storage: 10Gi
+      storage: 100Gi
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: bcg-jetti
+  name: mssql
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: bcg-jetti
+        app: mssql
     spec:
-      terminationGracePeriodSeconds: 10
       containers:
-      - name: bcg-jetti
+      - name: mssql
         image: eu.gcr.io/jetti-pg/mssql
         ports:
         - containerPort: 1433
@@ -32,7 +31,10 @@ spec:
         - name: ACCEPT_EULA
           value: "Y"
         - name: SA_PASSWORD
-          value: MyNew01Password 
+          valueFrom:
+            secretKeyRef:
+              name: mssql-db-credentials
+              key: password
         - name: MSSQL_PID
           value: Enterprise
         volumeMounts:
@@ -41,15 +43,15 @@ spec:
       volumes:
       - name: mssqldb
         persistentVolumeClaim:
-          claimName: bcg-jetti
+          claimName: mssql
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: bcg-jetti
+  name: mssql
 spec:
   selector:
-    app: bcg-jetti
+    app: mssql
   ports:
     - protocol: TCP
       port: 1433

@@ -18,7 +18,7 @@ export class MSSQL {
           .then(() => (<sql.ConnectionPool>this.POOL).connect())
           .catch(() => (<sql.ConnectionPool>this.POOL).connect());
         } else {
-          process.abort();
+          process.exit(-1);
         }
       });
     }
@@ -71,7 +71,7 @@ export class MSSQL {
       await func(new MSSQL(this.config, transaction));
       await transaction.commit();
     } catch (err) {
-      console.log('SQL: COMMIT error', err);
+      console.log('SQL: error', err);
       try {
         await transaction.rollback();
       } catch {
