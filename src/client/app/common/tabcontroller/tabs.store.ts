@@ -38,7 +38,7 @@ export class TabsStore {
 
   replace(value: TabDef) {
     const copy = [...this.state.tabs];
-    const index = this.state.tabs.findIndex(el => el.routerLink === value.routerLink);
+    const index = this.state.tabs.findIndex(el => el.docType === value.docType && el.docID === value.docID);
     copy[index] = value;
     this._state.next(({
       ...this.state,
@@ -48,7 +48,7 @@ export class TabsStore {
 
   close(value: TabDef) {
     const copy = [...this.state.tabs];
-    const index = this.state.tabs.findIndex(el => el.routerLink === value.routerLink);
+    const index = this.state.tabs.findIndex(el => el.docType === value.docType && el.docID === value.docID);
     copy.splice(index, 1);
     this._state.next(({
       ...this.state,
