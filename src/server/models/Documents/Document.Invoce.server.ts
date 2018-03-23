@@ -11,6 +11,7 @@ import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
 import { INoSqlDocument, ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
+import { RegisterAccumulationPL } from '../Registers/Accumulation/PL';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
@@ -76,6 +77,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     const PL = await lib.doc.byCode('Catalog.Balance', 'PL', tx);
     const AR = await lib.doc.byCode('Catalog.Balance', 'AR', tx);
     const INVENTORY = await lib.doc.byCode('Catalog.Balance', 'INVENTORY', tx);
+
     const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
 
     // AR
@@ -103,6 +105,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }));
     batchRows = await lib.inventory.batch(this.date, this.company, batchRows, tx);
     for (const batchRow of batchRows) {
+
       Registers.Accumulation.push(new RegisterAccumulationInventory(false, {
         Expense: ExpenseCOST,
         Storehouse: this.Storehouse,
@@ -136,6 +139,20 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
         Discount: 0,
         Tax: batchRow.res2,
         currency: this.currency
+      }));
+
+      Registers.Accumulation.push(new RegisterAccumulationPL(true, {
+        Department: this.Department,
+        PL: IncomeSALES,
+        Analytics: batchRow.SKU,
+        Amount: batchRow.res1 / exchangeRate,
+      }));
+
+      Registers.Accumulation.push(new RegisterAccumulationPL(false, {
+        Department: this.Department,
+        PL: ExpenseCOST,
+        Analytics: batchRow.SKU,
+        Amount: batchRow.Cost,
       }));
     }
 

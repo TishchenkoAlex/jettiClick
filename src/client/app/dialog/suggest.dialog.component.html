@@ -1,4 +1,4 @@
-<div cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
+<div cdkTrapFocus [cdkTrapFocusAutoCapture]="true" [id]="type">
 
   <p-table #tbl [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true" sortMode="multiple"
     [scrollable]="true" [reorderableColumns]="true" [(selection)]="selection" [filterDelay]="500" [metaKeySelection]="true"

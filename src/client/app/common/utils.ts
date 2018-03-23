@@ -52,11 +52,13 @@ export function scrollIntoViewIfNeeded(type, style, direction = false) {
     highlight = document.getElementsByClassName(`scrollTo-${type}`);
     if (highlight.length) target = highlight[0];
   }
-  if (!target) return;
-  const rect = target.getBoundingClientRect();
-  const table = document.getElementsByClassName('scroll-${type} ui-table-scrollable-wrapper');
-  const innerHeight = table.length ? table[0].getBoundingClientRect().height : window.innerHeight;
-  if (rect.bottom > innerHeight) return target.scrollIntoView(direction ? true : false);
-  if (rect.top <= 0) return target.scrollIntoView(direction ? false : true);
+  const table = document.getElementById(type);
+  const scrollEl = table ? table.getElementsByClassName('ui-table-scrollable-body') : null;
+  if (!(target && scrollEl.length)) return;
+
+  const targetRect = target.getBoundingClientRect();
+  const scrollRect = scrollEl[0].getBoundingClientRect();
+  if (targetRect.bottom > scrollRect.bottom) return target.scrollIntoView(direction ? true : false);
+  if (targetRect.top <= scrollRect.top) return target.scrollIntoView(direction ? false : true);
   if (direction) return target.scrollIntoView(false);
 }

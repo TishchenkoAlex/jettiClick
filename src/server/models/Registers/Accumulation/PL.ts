@@ -20,9 +20,9 @@ export class RegisterAccumulationPL extends RegisterAccumulation {
 
   constructor(kind: boolean, public data: {
     Department: Ref,
-    Balance: Ref,
     Analytics: Ref,
     Amount: number,
+    PL: Ref,
   }) {
     super(kind, data);
   }
