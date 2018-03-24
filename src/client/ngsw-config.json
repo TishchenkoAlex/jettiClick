@@ -26,5 +26,19 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "jetti-api",
+      "urls": [
+        "/api/jobs",
+        "/api/user/roles"
+      ],
+      "cacheConfig": {
+        "strategy": "perfomance",
+        "maxAge": "1d",
+        "maxSize": 1000
+      }
+    }
   ]
 }
