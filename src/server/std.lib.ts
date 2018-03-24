@@ -8,6 +8,7 @@ import { RegisterAccumulationTypes } from './models/Registers/Accumulation/facto
 import { DocumentBaseServer, INoSqlDocument } from './models/ServerDocument';
 import { sdb, MSSQL } from './mssql';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
+import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
 
 export interface BatchRow {
   SKU: Ref; Storehouse: Ref; Qty: number; batch: Ref; Cost: number;
@@ -23,6 +24,7 @@ export interface JTL {
     byCode: (code: string, tx?: TX) => Promise<string>
   };
   register: {
+    movementsByDoc: <T extends RegisterAccumulation>(type: RegisterAccumulationTypes, doc: Ref, tx?: TX) => Promise<T[]>,
     balance: (type: RegisterAccumulationTypes, date: Date, resource: string[],
       analytics: { [key: string]: Ref }, tx?: TX) => Promise<{ [x: string]: number }>,
     avgCost: (date: Date, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
@@ -54,8 +56,9 @@ export const lib: JTL = {
   },
   register: {
     balance: registerBalance,
-    inventoryBalance: inventoryBalance,
-    avgCost: avgCost,
+    inventoryBalance,
+    avgCost,
+    movementsByDoc,
   },
   doc: {
     byCode: byCode,
@@ -214,6 +217,13 @@ export async function postById(id: string, posted: boolean, tx: TX = sdb) {
     if (posted && serverDoc.onPost && !doc.deleted) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
     serverDoc = undefined;
   });
+}
+
+export async function movementsByDoc<T extends RegisterAccumulation>(type: RegisterAccumulationTypes, doc: Ref, tx: TX = sdb) {
+  const queryText = `
+  SELECT kind, date, type, company, document, JSON_QUERY(data) data
+  FROM Accumulation where type = '${type}' AND document = '${doc}'`;
+  return await tx.manyOrNone<T>(queryText);
 }
 
 export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: TX = sdb) {

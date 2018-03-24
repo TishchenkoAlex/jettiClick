@@ -14,8 +14,9 @@ exports.lib = {
     },
     register: {
         balance: registerBalance,
-        inventoryBalance: inventoryBalance,
-        avgCost: avgCost,
+        inventoryBalance,
+        avgCost,
+        movementsByDoc,
     },
     doc: {
         byCode: byCode,
@@ -169,6 +170,13 @@ async function postById(id, posted, tx = mssql_1.sdb) {
     });
 }
 exports.postById = postById;
+async function movementsByDoc(type, doc, tx = mssql_1.sdb) {
+    const queryText = `
+  SELECT kind, date, type, company, document, JSON_QUERY(data) data
+  FROM Accumulation where type = '${type}' AND document = '${doc}'`;
+    return await tx.manyOrNone(queryText);
+}
+exports.movementsByDoc = movementsByDoc;
 async function batch(date, company, rows, tx = mssql_1.sdb) {
     const rowsKeys = rows.map(r => r.Storehouse + r.SKU);
     const uniquerowsKeys = rowsKeys.filter((v, i, a) => a.indexOf(v) === i);
