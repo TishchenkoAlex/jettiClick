@@ -8,12 +8,12 @@ import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { EffectsModule } from '@ngrx/effects';
-import { StoreModule } from '@ngrx/store';
+import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgDragDropModule } from 'ng-drag-drop';
 import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { take } from 'rxjs/operators';
 
+import { environment } from '../environments/environment';
 import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
 import { AppMenuComponent, AppSubMenuComponent } from './app.menu.component';
@@ -22,13 +22,11 @@ import { AppTopBarComponent } from './app.topbar.component';
 import { AppProfileComponent } from './auth/app.profile.component';
 import { AuthService } from './auth/auth.service';
 import { UserSettingsService } from './auth/settings/user.settings.service';
-import { AuthEffects } from './auth/store/effects';
 import { LoadingService } from './common/loading.service';
 import { MaterialModule } from './material.module';
 import { PrimeNGModule } from './primeNG.module';
 import { ApiService } from './services/api.service';
 import { EventsService } from './services/events.service';
-import { reducers } from './store/reducers';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
 
 export function getJwtToken(): string {
@@ -57,6 +55,7 @@ export function getJwtToken(): string {
     RoutingModule,
     // StoreModule.forRoot(reducers),
     // EffectsModule.forRoot([AuthEffects]),
+    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },

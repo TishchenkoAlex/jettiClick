@@ -1,9 +1,11 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
-// import { Store } from '@ngrx/store';
+import { SwUpdate } from '@angular/service-worker';
 
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
 import { ApiService } from './services/api.service';
+
+// import { Store } from '@ngrx/store';
 // import * as fromRoot from './store/reducers';
 
 enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
@@ -37,10 +39,19 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ElementRef;
 
   constructor(
-    public auth: AuthService, public apiService: ApiService, public lds: LoadingService) {
+    public auth: AuthService, public apiService: ApiService, public lds: LoadingService, private swUpdate: SwUpdate) {
 
     const lm = localStorage.getItem('layoutMode');
     const a = this.layoutMode.toString();
+
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.available.subscribe(() => {
+        if (confirm('New version available. Load New Version?')) {
+          window.location.reload();
+        }
+      });
+
+    }
 
     // store.select(fromRoot.getAccount).subscribe(data => console.log('getAccount', data));
     // this.store.dispatch(new Auth.Login({email: 'tischenko.a@gmail.com', password: 'Pa$$word'}));

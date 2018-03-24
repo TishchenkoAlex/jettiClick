@@ -5,31 +5,38 @@ import { sqlConfig, sqlConfigAccounts } from './env/environment';
 
 export class MSSQL {
   private POOL: sql.ConnectionPool | sql.Transaction;
-  attemtToReconect = 3;
+  attemtToReconect = 10;
 
   constructor(private config, private transaction?: sql.Transaction) {
     if (transaction) {
       this.POOL = transaction;
     } else {
       this.POOL = new sql.ConnectionPool(this.config);
-      this.POOL.connect().catch(err => {
-        if (this.attemtToReconect-- > 0) {
-          (<sql.ConnectionPool>this.POOL).close()
-          .then(() => (<sql.ConnectionPool>this.POOL).connect())
-          .catch(() => (<sql.ConnectionPool>this.POOL).connect());
-        } else {
-          process.exit(-1);
-        }
+      this.POOL.on('error', async err => {
+        console.log('POOL error', err);
+        setTimeout(async () => {
+          if (this.attemtToReconect--) await this.connect(); else process.exit(-1);
+        }, 5000);
       });
+      this.connect()
+        .then(() => console.log('connected', this.config))
+        .catch(err => console.log('connection error', err));
     }
   }
 
-  connect() {
-    return (<sql.ConnectionPool>this.POOL).connect();
+  async connect() {
+    await this.close();
+    await (<sql.ConnectionPool>this.POOL).connect();
+    return this;
   }
 
-  close() {
-    return (<sql.ConnectionPool>this.POOL).close();
+  async close() {
+    try {
+      await (<sql.ConnectionPool>this.POOL).close();
+    } catch (err) {
+      return this;
+    }
+    return this;
   }
 
   async manyOrNone<T>(text: string, params: any[] = []): Promise<T[]> {
