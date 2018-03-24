@@ -6,7 +6,6 @@ export class UserSettings {
 export class UserDefaultsSettings {
   company: string = null;
   department: string = null;
-  rowsInList = 14;
 }
 
 export class FilterInterval {

@@ -22,7 +22,8 @@ export class AuthService {
   isLoggedOut$ = this.isLoggedIn$.pipe(map(isLoggedIn => !isLoggedIn));
   isAdmin$ = this._userProfile$.asObservable().pipe(
     filter(u => u.account.roles.findIndex(r => r === 'Admin') >= 0), map(u => true));
-  url$ = this.userProfile$.pipe(map(u => this.sanitizer.bypassSecurityTrustResourceUrl(u.account.env.reportsUrl)));
+  url$ = this.userProfile$.pipe(filter(u => !!(u.account && u.account.env)),
+    map(u => this.sanitizer.bypassSecurityTrustResourceUrl(u.account.env.reportsUrl)));
 
   userRoles: RoleType[] = [];
   userRoleObjects: RoleObject[] = [];
@@ -44,8 +45,8 @@ export class AuthService {
 
   public logout() {
     localStorage.removeItem('jetti_token');
-    this._userProfile$.next({...ANONYMOUS_USER});
-    return this.router.navigate(['/home'], {queryParams: {}});
+    this._userProfile$.next({ ...ANONYMOUS_USER });
+    return this.router.navigate([''], { queryParams: {} });
   }
 
   public getAccount() {

@@ -27,7 +27,7 @@ export class AppMenuComponent implements OnInit {
 
   private buildMenu(userRoleObjects) {
     return [...[
-      { label: 'Dashboard', icon: 'fa fa-fw fa-home', routerLink: ['/'] },
+      { label: 'Dashboard', icon: 'fa fa-fw fa-home', routerLink: [''] },
       {
         label: 'Customization', icon: 'fa fa-fw fa-bars', badge: '8',
         items: [

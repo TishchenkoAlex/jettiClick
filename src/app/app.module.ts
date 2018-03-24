@@ -72,6 +72,7 @@ export function getJwtToken(): string {
 export class AppModule {
 
   constructor(private auth: AuthService) {
+    console.log('mode', environment.production);
     registerLocaleData(localeRU, localeRUExtra);
     auth.getAccount().pipe(take(1)).subscribe();
   }

@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "node src/server/index.js",
-    "start2": "node_modules/typescript/bin/tsc -p ./src/server/ && node src/server/index.js",
+    "start": "node server/index.js",
+    "start2": "node_modules/typescript/bin/tsc -p server/ && node server/index.js",
     "start-ng": "ng serve",
     "build": "ng build",
     "lint": "ng lint"

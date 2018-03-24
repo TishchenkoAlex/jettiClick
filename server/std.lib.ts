@@ -242,9 +242,9 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: TX =
   const result: BatchRow[] = [];
   for (const row of grouped) {
     const queryText = `
+      SELECT batch, Qty, Cost, b.date FROM (
       SELECT
         batch,
-        MIN(date) date,
         SUM("Qty") Qty,
         SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) Cost
       FROM "Register.Accumulation.Inventory" r
@@ -254,8 +254,9 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: TX =
         AND "SKU" = @p3
         AND "Storehouse" = @p4
       GROUP BY batch
-      HAVING SUM("Qty") > 0
-      ORDER BY date, batch`;
+      HAVING SUM("Qty") > 0 ) s
+      LEFT JOIN Documents b ON b.id = s.batch
+      ORDER BY b.date, s.batch`;
     const queryResult = await tx.manyOrNone<{ batch: string, Qty: number, Cost: number }>
       (queryText, [date, company, row.SKU, row.Storehouse]);
     let total = row.Qty;

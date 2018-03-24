@@ -12,30 +12,26 @@ export class MSSQL {
       this.POOL = transaction;
     } else {
       this.POOL = new sql.ConnectionPool(this.config);
-      this.POOL.on('error', async err => {
-        console.log('POOL error', err);
-        setTimeout(async () => {
-          if (this.attemtToReconect--) await this.connect(); else process.exit(-1);
-        }, 5000);
-      });
       this.connect()
         .then(() => console.log('connected', this.config))
         .catch(err => console.log('connection error', err));
+      setInterval(async () => {
+        try {
+          await (<sql.ConnectionPool>this.POOL).connect();
+        } catch {}
+      }, 30000);
     }
   }
 
   async connect() {
-    await this.close();
+    try { await this.close(); } catch { }
     await (<sql.ConnectionPool>this.POOL).connect();
+    this.attemtToReconect = 10;
     return this;
   }
 
   async close() {
-    try {
-      await (<sql.ConnectionPool>this.POOL).close();
-    } catch (err) {
-      return this;
-    }
+    try { await (<sql.ConnectionPool>this.POOL).close(); } catch { }
     return this;
   }
 

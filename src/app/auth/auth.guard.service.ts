@@ -11,7 +11,7 @@ export class AuthGuardService implements CanActivate {
   constructor(private auth: AuthService, private api: ApiService) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    if (route.params['type'] === 'home') { return true; }
+    if (route.params.type === 'home') { return true; }
 
     const check = (roles: RoleType[], objects: RoleObject[]) =>
       roles.findIndex(r => r === 'Admin') >= 0 ||
