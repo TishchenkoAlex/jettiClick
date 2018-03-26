@@ -23,7 +23,7 @@ import { INoSqlDocument } from '../../../server/models/ServerDocument';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
 import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
-import { mapDocToNoSQLFormat } from '../common/mapping/document.mapping';
+import { mapToApi } from '../common/mapping/document.mapping';
 
 @Injectable()
 export class ApiService {
@@ -69,7 +69,7 @@ export class ApiService {
   }
 
   postDoc(doc: DocumentBase, mode: 'post' | 'save' = 'save') {
-    const apiDoc = mapDocToNoSQLFormat(doc);
+    const apiDoc = mapToApi(doc);
     const query = `${environment.api}`;
     return (this.http.post<DocumentBase>(query, apiDoc, { params: { mode } }));
   }
@@ -153,8 +153,9 @@ export class ApiService {
   }
 
   valueChanges(doc: DocumentBase, property: string, value: string) {
+    const apiDoc = mapToApi(doc);
     const query = `${environment.api}valueChanges/${doc.type}/${property}`;
-    const callConfig = { doc: doc, value: value };
+    const callConfig = { doc: apiDoc, value: value };
     return this.http.post<PatchValue>(query, callConfig).toPromise();
   }
 

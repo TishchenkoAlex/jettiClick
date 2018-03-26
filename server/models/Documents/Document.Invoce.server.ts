@@ -12,6 +12,7 @@ import { INoSqlDocument, ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
 import { RegisterAccumulationPL } from '../Registers/Accumulation/PL';
+import { createDocumentServer } from '../documents.factory.server';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
@@ -31,7 +32,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
         if (!value) { return {}; }
         const company = await lib.doc.byId(value.id, tx);
         if (!company) { return {}; }
-        const currency = await lib.doc.formControlRef(company.doc.currency, tx);
+        const currency = await lib.doc.formControlRef(company['currency'], tx);
         this.currency = currency;
         return { currency: currency };
       default:
@@ -50,18 +51,13 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
 
   async baseOn(docID: string, tx: TX): Promise<DocumentBase> {
     const ISource = await lib.doc.byId(docID, tx);
-    let documentInvoice = await tx.oneOrNone<DocumentInvoice>(`${configSchema.get(this.type).QueryNew}`);
     switch (ISource.type) {
       case 'Catalog.Counterpartie':
-        const Counterpartie = await lib.doc.viewModelById<CatalogCounterpartie>(docID);
-        const { id, code, date, type, description, user } = documentInvoice;
-        documentInvoice = Object.assign(documentInvoice, Counterpartie, { id, code, date, type, description, user });
-        documentInvoice.Customer = <RefValue>{ id: docID, code: ISource.code, type: ISource.type, value: ISource.description };
-        const company = await lib.doc.byId(documentInvoice.company.id, tx);
-        documentInvoice.currency = await lib.doc.formControlRef(company.doc.currency, tx);
-        return documentInvoice;
+        const catalogCounterpartie = await createDocumentServer<CatalogCounterpartie>(ISource.type, ISource, tx);
+        this.Customer = catalogCounterpartie.id;
+        return this;
       default:
-        return documentInvoice;
+        return this;
     }
   }
 

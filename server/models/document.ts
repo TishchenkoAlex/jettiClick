@@ -1,6 +1,6 @@
 import { v1 } from 'uuid';
 
-import { INoSqlDocument } from './../models/ServerDocument';
+import { INoSqlDocument, IFlatDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
 import { ICommand } from './commands';
 import { RefValue } from '../models/api';
@@ -62,6 +62,9 @@ export class DocumentBase {
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
   type: DocTypes = null;
+
+  @Props({ type: 'time', hidden: true, hiddenInList: true })
+  time = new Date();
 
   @Props({ type: 'datetime', order: 1 })
   date = new Date();
@@ -126,7 +129,7 @@ export class DocumentBase {
       for (const el in Prop) {
         if (typeof Prop[el] === 'function') { Prop[el] = Prop[el].toString(); }
       }
-      result[prop] = {...Prop};
+      result[prop] = { ...Prop };
       const value = (this as any)[prop];
       if (value instanceof Array && value.length) {
         const arrayProp: { [x: string]: any } = {};
@@ -136,7 +139,7 @@ export class DocumentBase {
           for (const el in PropArr) {
             if (typeof PropArr[el] === 'function') { PropArr[el] = PropArr[el].toString(); }
           }
-          arrayProp[arrProp] = {...PropArr};
+          arrayProp[arrProp] = { ...PropArr };
         }
         result[prop][prop] = arrayProp;
       }
@@ -144,14 +147,13 @@ export class DocumentBase {
     return result;
   }
 
-  map(document: INoSqlDocument) {
-    if (document) {
-      const props = this.Props();
-      const prop = this.Prop();
+  map(doc: IFlatDocument) {
+    if (doc) {
+      const props = Object.assign({}, this.Props());
+      const prop = Object.assign({}, this.Prop());
       this.Props = () => props;
-      this.Prop = () =>  prop;
-      const { doc, ...header } = document;
-      Object.assign(this, header, doc);
+      this.Prop = () => prop;
+      Object.assign(this, doc);
     }
   }
 

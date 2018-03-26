@@ -47,6 +47,7 @@ export type PrimitiveTypes =
   'number' |
   'date' |
   'datetime' |
+  'time' |
   'boolean' |
   'table' |
   'json' |

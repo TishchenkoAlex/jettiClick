@@ -1,4 +1,4 @@
-import { INoSqlDocument } from '../models/ServerDocument';
+import { INoSqlDocument, IFlatDocument } from '../models/ServerDocument';
 import { CatalogAccount } from './Catalogs/Catalog.Account';
 import { CatalogBalance } from './Catalogs/Catalog.Balance';
 import { CatalogBalanceAnalytics } from './Catalogs/Catalog.Balance.Analytics';
@@ -34,7 +34,8 @@ import { DocumentPriceList } from './Documents/Document.PriceList';
 
 export interface IRegisteredDocument<T extends DocumentBase> { type: DocTypes; Class: T; }
 
-export function createDocument<T extends DocumentBase>(type: DocTypes, document?: INoSqlDocument): T {
+export function createDocument<T extends DocumentBase>(type: DocTypes, document?: IFlatDocument
+): T {
   const doc = RegisteredDocument.find(el => el.type === type);
   if (doc) {
     const result = <T>new doc.Class;

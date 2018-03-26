@@ -1,10 +1,10 @@
 import { PostResult } from '../../models/post.interfaces';
-import { DocumentBaseServer, INoSqlDocument } from './../../models/ServerDocument';
+import { DocumentBaseServer, INoSqlDocument, IFlatDocument } from './../../models/ServerDocument';
 import { lib } from './../../std.lib';
 import { TX } from '../../db';
 import { sdb } from '../../mssql';
 
-export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostResult, tx: TX = sdb) {
+export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: PostResult, tx: TX = sdb) {
   let query = '';
   for (const rec of Registers.Account) {
     query += `
@@ -14,16 +14,16 @@ export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostRe
         kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur )
       VALUES (
         '${new Date(doc.date).toJSON()}', '${new Date(doc.date).toJSON()}',
-        '${doc.id}', '${rec.operation || doc.doc['Operation'] || '00000000-0000-0000-0000-000000000000'}'
+        '${doc.id}', '${rec.operation || doc['Operation'] || '00000000-0000-0000-0000-000000000000'}'
         ,${rec.sum || 0}, '${rec.company || doc.company}',
         '${rec.debit.account}',
         '${rec.debit.subcounts[0]}', '${rec.debit.subcounts[1]}',
         '${rec.debit.subcounts[2]}', '${rec.debit.subcounts[3]}',
-        ${rec.debit.qty || 0}, '${rec.debit.currency || doc.doc['currency']}',
+        ${rec.debit.qty || 0}, '${rec.debit.currency || doc['currency']}',
         '${rec.kredit.account}',
         '${rec.kredit.subcounts[0]}', '${rec.kredit.subcounts[1]}',
         '${rec.kredit.subcounts[2]}', '${rec.kredit.subcounts[3]}',
-        ${rec.kredit.qty || 0}, '${rec.kredit.currency || doc.doc['currency']}'
+        ${rec.kredit.qty || 0}, '${rec.kredit.currency || doc['currency']}'
       );`;
   }
 
@@ -45,7 +45,7 @@ export async function InsertRegisterstoDB(doc: INoSqlDocument, Registers: PostRe
   if (query) { await tx.none(query); }
 }
 
-export async function doSubscriptions(doc: INoSqlDocument, script: string, tx: TX) {
+export async function doSubscriptions(doc: DocumentBaseServer, script: string, tx: TX) {
 /*   const scripts = await tx.manyOrNone<any>(`
     SELECT "then" FROM "Subscriptions" WHERE "what" ? @p1 AND "when" = @p2 ORDER BY "order"`, [doc.type, script]);
   if (scripts.length) {

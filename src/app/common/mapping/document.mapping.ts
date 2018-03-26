@@ -1,11 +1,12 @@
 import { DocumentBase } from './../../../../server/models/document';
-import { INoSqlDocument } from './../../../../server/models/ServerDocument';
+import { INoSqlDocument, IFlatDocument } from './../../../../server/models/ServerDocument';
 
-export function mapDocToNoSQLFormat(model: DocumentBase): INoSqlDocument {
-  const newDoc: INoSqlDocument = {
+export function mapToApi(model: DocumentBase): IFlatDocument {
+  const newDoc: IFlatDocument = {
     id: model.id,
     type: model.type,
-    date: model.date,
+    date: model.date || new Date(),
+    time: model.time || new Date(),
     code: model.code,
     description: model.description,
     posted: model.posted,
@@ -16,7 +17,6 @@ export function mapDocToNoSQLFormat(model: DocumentBase): INoSqlDocument {
     user: model.user['id'],
     info: model.info,
     timestamp: model.timestamp,
-    doc: {}
   };
 
   const JETTI_DOC_PROP = Object.keys(newDoc);
@@ -40,15 +40,15 @@ export function mapDocToNoSQLFormat(model: DocumentBase): INoSqlDocument {
         }
         delete element.index;
       });
-      newDoc.doc[property] = copy;
+      newDoc[property] = copy;
     } else {
       let value = model[property];
       if (value && value['type'] &&
         ['string', 'number', 'boolean', 'datetime'].includes(value['type'])) {
-        value['id'] = null; newDoc.doc[property] = value; continue;
+        value['id'] = null; newDoc[property] = value; continue;
       }
       if (value && value['type'] && !value['value'] && ((value['id'] === '') || (value['id'] === null))) { value = null; }
-      newDoc.doc[property] = value ? value['id'] || value : value || null;
+      newDoc[property] = value ? value['id'] || value : value || null;
     }
   }
   return newDoc;

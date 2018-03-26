@@ -101,7 +101,9 @@ export interface ISuggest {
 
 export function calculateDescription(description: string, date: Date, code: string, group = '') {
   const Group = group ? '(' + group + ')' : '';
-  const value = `${description} ${Group} #${code}, ${date.toISOString()}`;
+  const value = `${description} ${Group} #${code}, ${date ?
+    date.toLocaleDateString() + ', ' + date.toTimeString() :
+    (new Date()).toLocaleDateString() + ', ' + (new Date()).toTimeString()}`;
   return value;
 }
 
@@ -110,5 +112,5 @@ export interface IViewModel {
   columnsDef: ColumnDef[];
   metadata: DocumentOptions;
   settings: FormListSettings;
-  model: DocumentBase;
+  model: { [x: string]: any };
 }

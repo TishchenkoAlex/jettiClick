@@ -141,6 +141,11 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
     }
   }
 
+  // tslint:disable-next-line:member-ordering
+  postedCol: ColumnDef = ({
+    field: 'posted', filter: {left: 'posted', center: '=', right: null}, type: 'boolean', label: 'posted',
+    style: {}, order: 0, readOnly: false, required: false, hidden: false,
+  });
   private _update(col: ColumnDef, event, center) {
     if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
     this.filters[col.field] = { matchMode: center || col.filter.center, value: event };

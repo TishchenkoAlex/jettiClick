@@ -31,13 +31,13 @@
     {
       "name": "jetti-api",
       "urls": [
-        "/api/user/roles",
-        "/api/user/settings/defaults"
+        "/api"
       ],
       "cacheConfig": {
-        "strategy": "performance",
-        "maxAge": "1d",
-        "maxSize": 100
+        "strategy": "freshness",
+        "timeout": 10000,
+        "maxAge": "20m",
+        "maxSize": 1000
       }
     }
   ]

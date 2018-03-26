@@ -7,6 +7,7 @@ import { DocTypes } from './documents.types';
 export interface INoSqlDocument {
   id: Ref;
   date: Date;
+  time: Date;
   type: DocTypes;
   code: string;
   description: string;
@@ -21,12 +22,29 @@ export interface INoSqlDocument {
   doc: { [x: string]: any };
 }
 
+export interface IFlatDocument {
+  id: Ref;
+  date: Date;
+  time: Date;
+  type: DocTypes;
+  code: string;
+  description: string;
+  company: Ref;
+  user: Ref;
+  posted: boolean;
+  deleted: boolean;
+  isfolder: boolean;
+  parent: Ref;
+  info: string;
+  timestamp: Date;
+}
+
 export abstract class DocumentBaseServer extends DocumentBase implements ServerDocument {
 
   onCreate(tx: TX): Promise<DocumentBase> {
     throw new Error('Method not implemented.');
   }
-  beforePost(tx: TX): Promise<void> {
+  beforePost(tx: TX): Promise<DocumentBase> {
     throw new Error('Method not implemented.');
   }
   onPost(tx: TX): Promise<PostResult> {
@@ -55,7 +73,7 @@ export abstract class DocumentBaseServer extends DocumentBase implements ServerD
 
 export interface ServerDocument {
   onCreate?(tx: TX): Promise<DocumentBase>;
-  beforePost?(tx: TX): Promise<void>;
+  beforePost?(tx: TX): Promise<DocumentBase>;
   onPost?(tx: TX): Promise<PostResult>;
   afterPost?(tx: TX): Promise<void>;
 

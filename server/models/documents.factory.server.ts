@@ -11,7 +11,7 @@ import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
 import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
-import { DocumentBaseServer, INoSqlDocument } from './ServerDocument';
+import { DocumentBaseServer, IFlatDocument } from './ServerDocument';
 
 const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Invoice', Class: DocumentInvoiceServer },
@@ -22,7 +22,7 @@ const RegisteredServerDocument: IRegisteredDocument<any>[] = [
 ];
 
 export async function createDocumentServer<T extends DocumentBaseServer | DocumentBase>
-  (type: DocTypes, document?: INoSqlDocument, tx = sdb, readFromDB = false) {
+  (type: DocTypes, document?: IFlatDocument, tx = sdb) {
   let result: T;
   const doc = RegisteredServerDocument.find(el => el.type === type);
   if (doc) {
@@ -32,43 +32,30 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   } else {
     result = createDocument<T>(type, document);
   }
-  const Props = result.Props();
-  const Prop =  result.Prop() as DocumentOptions;
-  const Operation = result['Operation'] && typeof result['Operation'] === 'object' ? result['Operation'].id : result['Operation'];
+  const Props = Object.assign({}, result.Props());
+  const Prop = Object.assign({}, result.Prop() as DocumentOptions);
   if (result instanceof DocumentOperation && document && document.id) {
-    let Parameters = { Parameters: []};
-    if (Operation) {
-      Parameters = await tx.oneOrNone<{ Parameters: any[] }>(`
-      SELECT JSON_QUERY(doc, '$.Parameters') "Parameters" FROM "Documents"
-      WHERE id = '${Operation}'`);
-    } else {
-      Parameters = await tx.oneOrNone<{ Parameters: any[] }>(`
-      SELECT JSON_QUERY(doc, '$.Parameters') "Parameters" FROM "Documents"
-      WHERE id = (SELECT JSON_VALUE(doc, '$.Operation') FROM "Documents" WHERE id = '${result.id}')`);
-    }
-    (Parameters && Parameters.Parameters || []).sort((a, b) => a.order - b.order).forEach(c => {
-      Props[c.parameter] = ({
-        label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-        [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
+    if (result.Operation) {
+      const Operation = await lib.doc.byId(result.Operation as string);
+      result.Group = Operation['Group'];
+      (Operation && Operation['Parameters'] || []).sort((a, b) => a.order - b.order).forEach(c => {
+        Props[c.parameter] = ({
+          label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
+          [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
+        });
       });
-    });
-    result.Props = () => Props;
-    result['QueryNew'] = () => SQLGenegator.QueryNew(Props, Prop);
-    result['QueryObject'] = () => SQLGenegator.QueryObject(Props, Prop);
+      result['QueryNew'] = () => SQLGenegator.QueryNew(Props, Prop);
+      result['QueryObject'] = () => SQLGenegator.QueryObject(Props, Prop);
+    }
   }
   const sc = configSchema.get(type);
   if (!result['QueryList']) result['QueryList'] = () => sc.QueryList;
   if (!result['QueryObject']) result['QueryObject'] = () => sc.QueryObject;
   if (!result['QueryNew']) result['QueryNew'] = () => sc.QueryNew;
-  if (readFromDB && document.id) {
-    let serverDoc = await tx.oneOrNone<T>(`${result['QueryObject']()} AND d.id = '${result.id}'`);
-    if (!serverDoc) serverDoc = await tx.oneOrNone<T>(`${result['QueryNew']()}`);
-    result.map(serverDoc as any);
-    result.id = document.id as string;
-  }
-  if (result instanceof DocumentOperation && Operation && readFromDB) {
-    result.Operation = await lib.doc.formControlRef(Operation as string, tx);
-  }
-
+  // protect against mutate
+  result.Props = () => Props;
+  result.Prop = () => Prop;
+  // Clear all document's table-parts
+  if (!document) Object.keys(result).filter(k => result[k] instanceof Array).forEach(a => result[a].length = 0);
   return result;
 }

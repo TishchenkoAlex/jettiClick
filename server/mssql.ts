@@ -13,12 +13,12 @@ export class MSSQL {
     } else {
       this.POOL = new sql.ConnectionPool(this.config);
       this.connect()
-        .then(() => console.log('connected', this.config))
-        .catch(err => console.log('connection error', err));
-/*       setInterval(async () => {
-        try {
-          await (<sql.ConnectionPool>this.POOL).connect();
-        } catch {}
+      .then(() => console.log('connected', this.config))
+      .catch(err => console.log('connection error', err));
+/*       setImmediate(() => {
+        this.connect()
+          .then(() => console.log('connected', this.config))
+          .catch(err => console.log('connection error', err));
       }, 30000); */
     }
   }
@@ -54,7 +54,7 @@ export class MSSQL {
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES ;`);
     let data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
     data = data ? JSON.parse(data) : null;
-    data =  data ? data[0] : data;
+    data = data ? data[0] : data;
     if (data && typeof data.doc === 'string') data.doc = JSON.parse(data.doc);
     return data;
   }

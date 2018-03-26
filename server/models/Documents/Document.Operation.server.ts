@@ -17,12 +17,12 @@ export class DocumentOperationServer extends DocumentOperation implements Server
       case 'company':
         const company = await lib.doc.byId(value.id, tx);
         if (!company) { return {}; }
-        const currency = await lib.doc.formControlRef(company.doc.currency, tx);
+        const currency = await lib.doc.formControlRef(company['currency'], tx);
         return { currency };
       case 'Operation':
         const Operation = await lib.doc.byId(value.id, tx);
         if (!Operation) { return {}; }
-        const Group = await lib.doc.formControlRef(Operation.doc.Group, tx);
+        const Group = await lib.doc.formControlRef(Operation['Group'], tx);
         return { Group };
       default:
         return {};
@@ -70,18 +70,17 @@ export class DocumentOperationServer extends DocumentOperation implements Server
 
   async baseOn(docId: string, tx: TX) {
     const rawDoc = await lib.doc.byId(docId, tx);
-    const sourceDoc = await createDocumentServer(rawDoc.type, rawDoc, tx, true);
+    const sourceDoc = await createDocumentServer(rawDoc.type, rawDoc, tx);
 
     if (sourceDoc instanceof DocumentOperation) {
-      const sourceOperationID = (sourceDoc.Operation as RefValue).id;
-      const OperationID = (this.Operation as RefValue).id;
+      const sourceOperationID = sourceDoc.Operation as string;
       const rawOperation = await lib.doc.byId(sourceOperationID, tx);
-      const Rule = rawOperation.doc.CopyTo.find(c => c.Operation === OperationID);
+      const Rule = rawOperation['CopyTo'].find(c => c.Operation === this.Operation);
       if (Rule) {
         const script = `
         this.company = doc.company;
         this.currency = doc.currency;
-        this.parent = {id: doc.id, type: doc.type, value: doc.description, code: doc.code};
+        this.parent = doc.id;
         ${ Rule.script
             .replace(/\$\./g, 'doc.')
             .replace(/tx\./g, 'await tx.')

@@ -5,7 +5,7 @@ import { DocumentBase, Ref } from './models/document';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
-import { DocumentBaseServer, INoSqlDocument } from './models/ServerDocument';
+import { DocumentBaseServer, INoSqlDocument, IFlatDocument } from './models/ServerDocument';
 import { sdb, MSSQL } from './mssql';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
 import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
@@ -32,18 +32,20 @@ export interface JTL {
   };
   doc: {
     byCode: (type: DocTypes, code: string, tx?: TX) => Promise<string>;
-    byId: (id: string, tx?: TX) => Promise<INoSqlDocument>;
-    viewModelById: <T extends DocumentBase>(id: string, tx?: TX) => Promise<T>;
+    byId: (id: string, tx?: TX) => Promise<IFlatDocument>;
     formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
     postById: (id: string, posted: boolean, tx?: TX) => Promise<void>;
-    noSqlDocument: (flatDoc: { [x: string]: any }) => INoSqlDocument
+    noSqlDocument: (flatDoc: IFlatDocument) => INoSqlDocument;
+    flatDocument: (noSqldoc: INoSqlDocument) => IFlatDocument;
+    docPrefix: (type: DocTypes, tx?: TX) => Promise<string>
   };
   info: {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
       analytics: { [key: string]: any }, tx?: TX) => Promise<any>
   };
   inventory: {
-    batch: (date: Date, company: Ref, rows: BatchRow[], tx?: TX) => Promise<BatchRow[]>
+    batch: (date: Date, company: Ref, rows: BatchRow[], tx?: TX) => Promise<BatchRow[]>,
+    batchReturn(retDoc: string, rows: BatchRow[], tx?: TX)
   };
 }
 
@@ -64,16 +66,18 @@ export const lib: JTL = {
   doc: {
     byCode: byCode,
     byId: byId,
-    viewModelById,
     formControlRef,
     postById,
-    noSqlDocument
+    noSqlDocument,
+    flatDocument,
+    docPrefix
   },
   info: {
-    sliceLast: sliceLast
+    sliceLast
   },
   inventory: {
-    batch: batch
+    batch,
+    batchReturn
   }
 };
 
@@ -88,23 +92,36 @@ async function byCode(type: string, code: string, tx: TX = sdb) {
   return result ? result.result as string : null;
 }
 
-async function byId(id: string, tx: TX = sdb): Promise<INoSqlDocument> {
+async function byId(id: string, tx: TX = sdb): Promise<IFlatDocument> {
   const result = await tx.oneOrNone<INoSqlDocument>(`
-  SELECT id, type, parent, date, code, description, posted, deleted, isfolder, company, [user], info, timestamp,
+  SELECT id, type, parent, DATEADD(ms, DATEDIFF(ms, '00:00:00', [time]), CONVERT(DATETIME, [date])) date, [time],
+  code, description, posted, deleted, isfolder, company, [user], info, timestamp,
   JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
-  const { doc, ...header } = result;
+  return flatDocument(result);
+}
+
+function noSqlDocument(flatDoc: INoSqlDocument | DocumentBaseServer): INoSqlDocument {
+  if (!flatDoc) return null;
+  const  { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, ...doc } = flatDoc;
+  return { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, doc };
+}
+
+function flatDocument(noSqldoc: INoSqlDocument): IFlatDocument {
+  if (!noSqldoc) return null;
+  const { doc, ...header } = noSqldoc;
   const flatDoc = { ...header, ...doc };
-  return result;
+  return flatDoc;
 }
 
-function noSqlDocument(flatDoc: { [x: string]: any }): INoSqlDocument {
-  const { id, date, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, ...doc } = flatDoc;
-  return { id, date, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, doc };
-}
-
-async function viewModelById<T extends DocumentBase>(id: string, tx: TX = sdb): Promise<T> {
-  const doc = await byId(id, tx);
-  return await tx.oneOrNone<T>(`${configSchema.get(doc.type).QueryObject} AND d.id = '${id}'`);
+async function docPrefix(type: DocTypes, tx: TX = sdb): Promise<string> {
+  const metadata = configSchema.get(type);
+  if (metadata.prefix) {
+    const prefix = metadata.prefix;
+    const queryText = `SELECT '${prefix}' + FORMAT((NEXT VALUE FOR "Sq.${type}"), '0000000000') result `;
+    const result = await tx.oneOrNone<any>(queryText);
+    return result ? result.result : '';
+  }
+  return '';
 }
 
 async function formControlRef(id: string, tx: TX = sdb): Promise<RefValue> {
@@ -215,7 +232,7 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
 export async function postById(id: string, posted: boolean, tx: TX = sdb) {
   return tx.tx<any>(async subtx => {
     const doc = await lib.doc.byId(id, subtx);
-    let serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+    const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
     if (serverDoc.isDoc) {
       await subtx.none(`
         DELETE FROM "Register.Account" WHERE document = '${id}';
@@ -223,8 +240,7 @@ export async function postById(id: string, posted: boolean, tx: TX = sdb) {
         DELETE FROM "Accumulation" WHERE document = '${id}';
         UPDATE "Documents" SET posted = ${posted ? 1 : 0} WHERE id = '${id}'`);
     }
-    if (posted && serverDoc.onPost && !doc.deleted) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
-    serverDoc = undefined;
+    if (posted && serverDoc.onPost && !doc.deleted) { await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx); }
   });
 }
 
@@ -268,6 +284,55 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: TX =
       ORDER BY b.date, s.batch`;
     const queryResult = await tx.manyOrNone<{ batch: string, Qty: number, Cost: number }>
       (queryText, [date, company, row.SKU, row.Storehouse]);
+    let total = row.Qty;
+    for (const a of queryResult) {
+      if (total <= 0) break;
+      const q = Math.min(total, a.Qty);
+      const rate = q / row.Qty;
+      result.push({
+        batch: a.batch, Qty: q, Cost: a.Cost * q, Storehouse: row.Storehouse, SKU: row.SKU,
+        res1: row.res1 * rate, res2: row.res2 * rate, res3: row.res3 * rate, res4: row.res3 * rate, res5: row.res3 * rate
+      });
+      total = total - q;
+    }
+    if (total > 0) {
+      const SKU = await lib.doc.byId(row.SKU as string, tx);
+      throw new Error(`Не достаточно ${total} единиц ${SKU.description}`);
+    }
+  }
+  return result;
+}
+
+export async function batchReturn(retDoc: string, rows: BatchRow[], tx: TX = sdb) {
+  const rowsKeys = rows.map(r => (r.Storehouse as string) + (r.SKU as string));
+  const uniquerowsKeys = rowsKeys.filter((v, i, a) => a.indexOf(v) === i);
+  const grouped = uniquerowsKeys.map(r => {
+    const filter = rows.filter(f => (f.Storehouse as string) + (f.SKU as string) === r);
+    const Qty = filter.reduce((a, b) => a + b.Qty, 0);
+    const res1 = filter.reduce((a, b) => a + b.res1, 0);
+    const res2 = filter.reduce((a, b) => a + b.res2, 0);
+    const res3 = filter.reduce((a, b) => a + b.res3, 0);
+    const res4 = filter.reduce((a, b) => a + b.res4, 0);
+    const res5 = filter.reduce((a, b) => a + b.res5, 0);
+    return <BatchRow>({ SKU: filter[0].SKU, Storehouse: filter[0].Storehouse, Qty, Cost: 0, batch: null, res1, res2, res3 });
+  });
+  const result: BatchRow[] = [];
+  for (const row of grouped) {
+    const queryText = `
+      SELECT batch, Qty, Cost, b.date FROM (
+      SELECT
+        batch,
+        -SUM("Qty") Qty,
+        SUM("Cost.Out") / NULLIF(SUM("Qty.Out"), -1) Cost
+      FROM "Register.Accumulation.Inventory" r
+      WHERE (1=1)
+        AND "document" = @p1
+      GROUP BY batch
+      HAVING -SUM("Qty") > 0 ) s
+      LEFT JOIN Documents b ON b.id = s.batch
+      ORDER BY b.date, s.batch`;
+    const queryResult = await tx.manyOrNone<{ batch: string, Qty: number, Cost: number }>
+      (queryText, [retDoc]);
     let total = row.Qty;
     for (const a of queryResult) {
       if (total <= 0) break;
