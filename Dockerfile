@@ -16,7 +16,7 @@ COPY patches/mssql/lib/ node_modules/mssql/lib/
 
 #build Angular app
 COPY .angular-cli.json ./.angular-cli.json
-COPY tsconfig.json /usr/src/app/tsconfig.json
+COPY tsconfig.json ./tsconfig.json
 COPY src/ ./src
 COPY server/ ./server
 RUN node_modules/typescript/bin/tsc -p ./server
