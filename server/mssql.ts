@@ -15,11 +15,11 @@ export class MSSQL {
       this.connect()
       .then(() => console.log('connected', this.config))
       .catch(err => console.log('connection error', err));
-/*       setImmediate(() => {
+      setImmediate(() => {
         this.connect()
           .then(() => console.log('connected', this.config))
-          .catch(err => console.log('connection error', err));
-      }, 30000); */
+          .catch(err => {});
+      }, 30000);
     }
   }
 
