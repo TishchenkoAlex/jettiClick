@@ -60,7 +60,7 @@ export class RegisterAccumulationSales extends RegisterAccumulation {
     Storehouse: Ref,
     Qty: number,
     Amount: number,
-    AmountAR: number,
+    AmountInAR: number,
     AmountInDoc: number,
     Cost: number,
     Discount: number,

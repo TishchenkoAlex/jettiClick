@@ -1,6 +1,7 @@
 import { createDocument, RegisteredDocument } from '../models/documents.factory';
 import { createRegisterAccumulation, RegisteredRegisterAccumulation } from '../models/Registers/Accumulation/factory';
 import { DocumentOptions } from './../models/document';
+import { INoSqlDocument } from '../models/ServerDocument';
 
 // tslint:disable:max-line-length
 // tslint:disable:no-shadowed-variable
@@ -121,6 +122,139 @@ export class SQLGenegator {
       LEFT JOIN "Documents" "company" ON "company".id = d.company
       ${LeftJoin}
       WHERE d.type = '${options.type}' `;
+    return query;
+  }
+
+  static QueryObjectFromJSON(schema: { [x: string]: any }, options: DocumentOptions, doc: INoSqlDocument) {
+
+    const simleProperty = (prop: string, type: string) => {
+      if (type === 'boolean') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS BIT), 0) "${prop}"\n`; }
+      if (type === 'number') { return `,  ISNULL(CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS MONEY), 0) "${prop}"\n`; }
+      return `, JSON_VALUE(d.doc, N'$."${prop}"') "${prop}"\n`;
+    };
+
+    const complexProperty = (prop: string, type: string) =>
+      type.startsWith('Types.') ?
+        `,  JSON_QUERY(CASE WHEN "${prop}".id IS NULL THEN JSON_QUERY(d.doc, N'$.${prop}')
+              ELSE (SELECT "${prop}".id "id", "${prop}".description "value",
+                ISNULL("${prop}".type, '${type}') "type", "${prop}".code "code" FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) END, '$') "${prop}"\n` :
+        `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
+
+    const addLeftJoin = (prop: string, type: string) =>
+      ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = JSON_VALUE(d.doc, N'$."${prop}"')\n`;
+
+    const tableProperty = (prop: string, value: any) => {
+
+      const simleProperty = (prop: string, type: string) => {
+        if (type === 'boolean') { return `, ISNULL(x."${prop}", 0) "${prop}" \n`; }
+        if (type === 'number') { return `, ISNULL(x."${prop}", 0)  "${prop}" \n`; }
+        return `, x."${prop}"\n`;
+      };
+
+      const complexProperty = (prop: string, type: string) =>
+        type.startsWith('Catalog.Subcount') ?
+          `, x."${prop}" "${prop}.id", x."${prop}" "${prop}.value", '${type}' "${prop}.type", x."${prop}" "${prop}.code"\n` :
+          type.startsWith('Types.') ?
+            `,  JSON_QUERY(CASE WHEN "${prop}".id IS NULL THEN JSON_QUERY(d.doc, N'$.${prop}')
+              ELSE (SELECT "${prop}".id "id", "${prop}".description "value",
+                ISNULL("${prop}".type, '${type}') "type", "${prop}".code "code" FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) END, '$') "${prop}"\n` :
+            `, "${prop}".id "${prop}.id", "${prop}".description "${prop}.value", '${type}' "${prop}.type", "${prop}".code "${prop}.code" \n`;
+
+      const addLeftJoin = (prop: string, type: string) =>
+        type.startsWith('Catalog.Subcount') ?
+          `\n` :
+          ` LEFT JOIN "Documents" "${prop}" ON "${prop}".id = x."${prop}"\n`;
+
+      function xTableLine(prop: string, type: string) {
+        switch (type) {
+          case 'number': return `, "${prop}" MONEY\n`;
+          case 'boolean': return `, "${prop}" BIT\n`;
+          case 'date': return `, "${prop}" DATE\n`;
+          case 'datetime': return `, "${prop}" DATETIME\n`;
+          default: return `, "${prop}" NVARCHAR(max)\n`;
+        }
+      }
+
+      let query = ''; let LeftJoin = ''; let xTable = '';
+      for (const prop in value) {
+        const type: string = value[prop].type || 'string';
+        if (type.includes('.')) {
+          query += complexProperty(prop, type);
+          LeftJoin += addLeftJoin(prop, type);
+          xTable += `, "${prop}" ${type.startsWith('Catalog.Subcount') ? 'VARCHAR(36)' : 'UNIQUEIDENTIFIER'}\n`;
+        } else {
+          query += simleProperty(prop, type);
+          xTable += xTableLine(prop, type);
+        }
+      }
+      query = query.slice(2); xTable = xTable.slice(2);
+
+      return `,
+      ISNULL((SELECT ROW_NUMBER() OVER(ORDER BY (SELECT 1)) - 1 AS "index",
+        ${query}
+      FROM OPENJSON(d.doc, N'$."${prop}"') WITH (
+        ${xTable}
+      ) AS x
+      ${LeftJoin}
+      FOR JSON PATH, INCLUDE_NULL_VALUES), '[]') "${prop}"\n`;
+    };
+
+    let query = `
+    SELECT d.id, d.type, d.date, d.time, d.code, d.description, d.posted, d.deleted, d.isfolder, d.info, d.timestamp,
+
+    "company".id "company.id",
+    "company".description "company.value",
+    "company".code "company.code",
+    'Catalog.Company' "company.type",
+
+    "user".id "user.id",
+    "user".description "user.value",
+    "user".code "user.code",
+    'Catalog.User' "user.type",
+
+    "parent".id "parent.id",
+    "parent".description "parent.value",
+    "parent".code "parent.code",
+    ISNULL("parent".type, 'Types.Document') "parent.type"\n`;
+
+    let LeftJoin = '';
+
+    for (const prop in excludeProps(schema)) {
+      const type: string = schema[prop].type || 'string';
+      if (type.includes('.')) {
+        query += complexProperty(prop, type);
+        LeftJoin += addLeftJoin(prop, type);
+      } else if (type === 'table') {
+        query += tableProperty(prop, (<any>schema[prop])[prop]);
+      } else {
+        query += simleProperty(prop, type);
+      }
+    }
+
+    query += `
+      FROM (SELECT * FROM OPENJSON(N'${JSON.stringify(doc)}')
+        WITH (
+          [id] UNIQUEIDENTIFIER,
+          [type] NVARCHAR(100),
+          [date] DATE,
+          [time] TIME,
+          [code] NVARCHAR(36),
+          [description] NVARCHAR(150),
+          [posted] BIT,
+          [timestamp] DATETIME,
+          [deleted] BIT,
+          [isfolder] BIT,
+          [company] UNIQUEIDENTIFIER,
+          [user] UNIQUEIDENTIFIER,
+          [info] NVARCHAR(4000),
+          [parent] UNIQUEIDENTIFIER,
+          [doc] NVARCHAR(max) N'$.doc'
+        )
+      ) d
+      LEFT JOIN "Documents" "parent" ON "parent".id = d."parent"
+      LEFT JOIN "Documents" "user" ON "user".id = d."user"
+      LEFT JOIN "Documents" "company" ON "company".id = d.company
+      ${LeftJoin} `;
     return query;
   }
 

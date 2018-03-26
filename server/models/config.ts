@@ -4,7 +4,7 @@ import { DocumentOperation } from './../models/Documents/Document.Operation';
 import { CatalogDocuments } from './Catalogs/Catalog.Documents';
 import { DocumentOptions, DocumentBase } from './document';
 import { createDocument, RegisteredDocument } from './documents.factory';
-import { AllDocTypes, AllTypes, ComplexTypes, DocumentTypes } from './documents.types';
+import { AllDocTypes, AllTypes, ComplexTypes, DocumentTypes, DocTypes } from './documents.types';
 import { createTypes, RegisteredTypes } from './Types/Types.factory';
 
 export interface IConfigSchema {
@@ -17,6 +17,7 @@ export interface IConfigSchema {
   QueryList: string;
   QueryNew?: string;
   dimensions?: { [x: string]: AllTypes }[];
+  copyTo?: DocTypes[];
   Props?: { [x: string]: any };
   Prop?: DocumentOptions;
   doc?: DocumentBase;
@@ -39,6 +40,7 @@ export const configSchema = new Map([
       QueryNew: SQLGenegator.QueryNew(Props, Prop),
       Props: Props,
       Prop: Prop,
+      copyTo: Prop.copyTo,
       doc: doc
     });
     if (el.type === 'Catalog.Subcount') { result.QueryList = (doc as CatalogSubcount).QueryList(); }

@@ -15,11 +15,11 @@ export class MSSQL {
       this.connect()
         .then(() => console.log('connected', this.config))
         .catch(err => console.log('connection error', err));
-      setInterval(async () => {
+/*       setInterval(async () => {
         try {
           await (<sql.ConnectionPool>this.POOL).connect();
         } catch {}
-      }, 30000);
+      }, 30000); */
     }
   }
 
@@ -54,7 +54,9 @@ export class MSSQL {
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES ;`);
     let data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
     data = data ? JSON.parse(data) : null;
-    return data ? data[0] : data;
+    data =  data ? data[0] : data;
+    if (data && typeof data.doc === 'string') data.doc = JSON.parse(data.doc);
+    return data;
   }
 
   async none<T>(text: string, params: any[] = []): Promise<T> {
@@ -64,6 +66,7 @@ export class MSSQL {
     }
     const response = await request.query(text);
     const data = response && response.recordset ? response.recordset[0] : null;
+    if (data && typeof data.doc === 'string') data.doc = JSON.parse(data.doc);
     return data;
   }
 

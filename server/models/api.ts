@@ -18,7 +18,7 @@ export interface DocListResponse { data: any[]; continuation: Continuation; }
 export interface MenuItem { type: string; description: string; icon: string; menu: string; }
 
 export interface RefValue {
-  id: Ref;
+  id: string;
   type: string;
   code: string;
   value: string | number | boolean;

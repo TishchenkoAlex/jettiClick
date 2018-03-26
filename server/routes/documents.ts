@@ -29,81 +29,64 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
   } catch (err) { next(err); }
 });
 
-async function buildOperationViewAndSQL(id: string, view: any, config_schema: any) {
-  const Parameters = await sdb.oneOrNone<{ Parameters: any[] }>(`
-    select JSON_QUERY(doc, '$.Parameters') "Parameters" from "Documents"
-    where id = (select JSON_VALUE(doc, '$.Operation') from "Documents" where id = @p1)`, [id]);
-  Parameters.Parameters.sort((a, b) => a.order - b.order).forEach(c => view[c.parameter] = {
-    label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
-    [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
-  });
-  config_schema.queryObject = SQLGenegator.QueryObject(view, config_schema.prop);
-}
-
 const viewAction = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = req.body as { [key: string]: any };
-    let config_schema; let schema;
     const user = User(req);
-    const serverDoc = configSchema.get(params.type);
 
-    schema = Object.assign({}, serverDoc.Props);
-    config_schema = {
-      queryObject: serverDoc.QueryObject,
-      queryNewObject: serverDoc.QueryNew,
-      settings: (await sdb.oneOrNone<{ settings: FormListSettings }>(`
+    let Operation = req.query.Operation;
+    if (params.type === 'Document.Operation' && req.query.copy) {
+      const sourceRaw = await lib.doc.byId(req.query.copy, sdb);
+      Operation = sourceRaw && sourceRaw.doc['Operation'];
+    }
+
+    let ServerDoc = params.id ?
+      await createDocumentServer<DocumentBaseServer>(params.type, <any>{ id: params.id, type: params.type, Operation }, sdb, true) :
+      await createDocumentServer<DocumentBaseServer>(params.type, undefined, sdb, false);
+
+    const schema = Object.assign({}, ServerDoc.Props()) as { [x: string]: PropOptions };
+    const metadata = ServerDoc.Prop() as DocumentOptions;
+    const settings = (await sdb.oneOrNone<{ settings: FormListSettings }>(`
         SELECT JSON_QUERY(settings, '$."${params.type}"') settings
-        FROM users where email = @p1`, [user])).settings as FormListSettings || new FormListSettings(),
-      schemaFull: schema,
-      prop: serverDoc.Prop
-    };
+        FROM users where email = @p1`, [user])).settings as FormListSettings || new FormListSettings();
 
-    let model; const id = params.id as string;
+    const id = params.id as string;
     if (id) {
+
+      const addformControlRefs = async (prm, doc) => {
+      for (const k in prm) {
+        if (k === 'type' || k === 'id' || k === 'new' || k === 'base' || k === 'copy') { continue; }
+        if (typeof params[k] !== 'boolean') doc[k] = await lib.doc.formControlRef(params[k]);
+        else doc[k] = params[k];
+      }};
+
       const command = req.query.new ? 'new' : req.query.copy ? 'copy' : req.query.base ? 'base' : '';
       switch (command) {
         case 'new':
-          model = config_schema.queryNewObject ? await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`) : {};
-          Object.keys(schema).filter(p => schema[p].value !== undefined).forEach(p => model[p] = schema[p].value);
-          for (const k in params) {
-            if (k === 'type' || k === 'id' || k === 'new' || k === 'base' || k === 'copy') { continue; }
-            if (typeof params[k] !== 'boolean') model[k] = await lib.doc.formControlRef(params[k]);
-            else model[k] = params[k];
-          }
-          const newDoc = await createDocumentServer(params.type, model) as DocumentBaseServer;
-          if (newDoc.onCreate) { await newDoc.onCreate(sdb); }
-          schema = newDoc.Props();
-          Object.keys(newDoc).filter(k => newDoc[k] instanceof Array).forEach(k => newDoc[k].length = 0);
-          model = newDoc; model.id = id;
-          if (req.query.isfolder) model.isfolder = true;
+          Object.keys(schema).filter(p => schema[p].value !== undefined).forEach(p => ServerDoc[p] = schema[p].value);
+          addformControlRefs(params, ServerDoc);
+          if (ServerDoc.onCreate) { await ServerDoc.onCreate(sdb); }
+          if (req.query.isfolder) ServerDoc.isfolder = true;
           break;
         case 'copy':
-          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(req.query['copy'], schema, config_schema); }
-          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [req.query['copy']]);
-          const copyDoc = await sdb.oneOrNone<any>(`${config_schema.queryNewObject}`);
-          model.id = id; model.date = copyDoc.date; model.code = copyDoc.code;
-          model.posted = false; model.deleted = false; model.timestamp = null;
-          model.parent = { ...model.parent, id: null, code: null, value: null };
-          model.description = 'Copy: ' + model.description;
-          for (const k in params) {
-            if (k === 'type' || k === 'id' || k === 'new' || k === 'base' || k === 'copy') { continue; }
-            if (typeof params[k] !== 'boolean') model[k] = await lib.doc.formControlRef(params[k]);
-            else model[k] = params[k];
-          }
+          const copyDoc = await createDocumentServer<DocumentBaseServer>
+            (params.type, <any>{ id: req.query.copy, type: params.type, Operation }, sdb, true);
+          copyDoc.id = id; copyDoc.date = ServerDoc.date; copyDoc.code = ServerDoc.code;
+          copyDoc.posted = false; copyDoc.deleted = false; copyDoc.timestamp = null;
+          copyDoc.parent = { ...copyDoc.parent, id: null, code: null, value: null };
+          copyDoc.description = 'Copy: ' + copyDoc.description;
+          ServerDoc = copyDoc;
+          addformControlRefs(params, ServerDoc);
           break;
         case 'base':
-          const baseDoc = await createDocumentServer<DocumentBaseServer>(params.type);
-          model = await baseDoc.baseOn(req.query.base, sdb);
-          model.id = id;
+          await ServerDoc.baseOn(req.query.base, sdb);
           break;
         default:
-          if (serverDoc.type === 'Document.Operation') { await buildOperationViewAndSQL(id, schema, config_schema); }
-          model = await sdb.oneOrNone<any>(`${config_schema.queryObject} AND d.id = @p1`, [id]);
           break;
       }
     }
-    const columnsDef = buildColumnDef(schema, config_schema.settings);
-    const result: IViewModel = { schema, model, columnsDef, metadata: config_schema.prop || {}, settings: config_schema.settings };
+    const columnsDef = buildColumnDef(schema, settings);
+    const result: IViewModel = { schema, model: ServerDoc, columnsDef, metadata, settings };
     res.json(result);
   } catch (err) { next(err); }
 };
@@ -119,14 +102,13 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       await doSubscriptions(doc, 'before detele', tx);
       if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx); }
       doc = await tx.none<INoSqlDocument>(`
-        DELETE FROM "Register.Account" WHERE document = @p1;
-        DELETE FROM "Register.Info" WHERE document = @p1;
-        DELETE FROM "Accumulation" WHERE document = @p1;
-        UPDATE "Documents" SET deleted = @p2, posted = 0 OUTPUT deleted.*  WHERE id = @p1;`, [id, !!!doc.deleted]);
+        DELETE FROM "Register.Account" WHERE document = '${id}';
+        DELETE FROM "Register.Info" WHERE document = '${id}';
+        DELETE FROM "Accumulation" WHERE document = '${id}';
+        UPDATE "Documents" SET deleted = @p1, posted = 0 OUTPUT deleted.*  WHERE id = '${id}';`, [!!!doc.deleted]);
       if (serverDoc && serverDoc.afterDelete) { await serverDoc.afterDelete(tx); }
       await doSubscriptions(doc, 'after detele', tx);
-      const model = await tx.oneOrNone(`
-        ${serverDoc['QueryObject'] || configSchema.get(serverDoc.type as any).QueryObject} AND d.id = @p1`, [id]);
+      const model = await tx.oneOrNone(`${serverDoc['QueryObject']()} AND d.id = '${id}'`);
       res.json(model);
     });
   } catch (err) { next(err); }
@@ -135,13 +117,13 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 // Upsert document
 async function post(doc: INoSqlDocument, serverDoc: DocumentBaseServer, tx: MSSQL) {
   const id = doc.id;
-  const isNew = (await tx.oneOrNone<any>('SELECT id FROM "Documents" WHERE id = @p1 AND type = @p2', [id, doc.type]) === null);
+  const isNew = (await tx.oneOrNone<any>(`SELECT id FROM "Documents" WHERE id = '${id}'`) === null);
   await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
   if (serverDoc.isDoc) {
     await tx.none(`
-    DELETE FROM "Register.Account" WHERE document = @p1;
-    DELETE FROM "Register.Info" WHERE document = @p1;
-    DELETE FROM "Accumulation" WHERE document = @p1;`, [id]);
+    DELETE FROM "Register.Account" WHERE document = '${id}';
+    DELETE FROM "Register.Info" WHERE document = '${id}';
+    DELETE FROM "Accumulation" WHERE document = '${id}';`);
   }
   if (!!doc.posted && serverDoc.beforePost) { await serverDoc.beforePost(tx); }
   doc['time'] = doc.date;
@@ -224,11 +206,11 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const mode: 'post' | 'save' = req.query.mode || 'save';
       const doc: INoSqlDocument = req.body;
       if (mode === 'post') doc.posted = true;
-      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await addAdditionalToOperation(doc);
+      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await post(doc, serverDoc, tx);
-      const query = `${serverDoc['QueryObject'] || configSchema.get(doc.type as any).QueryObject} AND d.id = @p1`;
-      const docServer = await tx.oneOrNone<DocumentBaseServer>(query, [doc.id]);
+      const query = `${serverDoc['QueryObject']()} AND d.id = '${doc.id}'`;
+      const docServer = await tx.oneOrNone<DocumentBaseServer>(query);
       res.json(docServer);
     });
   } catch (err) { next(err); }
@@ -270,14 +252,6 @@ router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) =
   } catch (err) { next(err); }
 });
 
-// Get document viewModel by id
-router.get(':type/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const serverDoc = configSchema.get(req.params.type);
-    res.json(await sdb.oneOrNone(`${serverDoc.QueryObject} AND d.id = @p1`, [req.params.id]));
-  } catch (err) { next(err); }
-});
-
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const doc = req.body.doc as INoSqlDocument;
@@ -298,9 +272,10 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
   try {
     let result: any = {};
     await sdb.tx(async tx => {
-      const doc = await createDocumentServer<DocumentBaseServer>(req.params.type, req.body.doc);
-      if (doc && doc.onCommand && typeof doc.onCommand === 'function') {
-        result = await doc.onCommand(req.params.command, req.body.args, tx);
+      const doc = req.body.doc as INoSqlDocument;
+      const serverDoc = await createDocumentServer<DocumentBaseServer>(req.params.type, doc);
+      if (serverDoc && serverDoc.onCommand && typeof serverDoc.onCommand === 'function') {
+        result = await serverDoc.onCommand(req.params.command, req.body.args, tx);
       }
       res.json(result);
     });
@@ -309,10 +284,11 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
 
 router.post('/server/:type/:func', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const doc = createDocumentServer(req.params.type, req.body.doc);
-    let result = { doc, result: {} };
+    const doc = req.body.doc as INoSqlDocument;
+    const serverDoc = createDocumentServer(req.params.type, doc);
+    let result = { serverDoc, result: {} };
     await sdb.tx(async tx => {
-      const func = (doc[req.params.func] as Function).bind(doc, req.body.params, tx);
+      const func = (serverDoc[req.params.func] as Function).bind(serverDoc, req.body.params, tx);
       if (func && typeof func === 'function') { result = await func(); }
       res.json(result);
     });

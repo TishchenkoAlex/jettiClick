@@ -32,7 +32,7 @@ export class CatalogOperation extends DocumentBase {
   @Props({ type: 'Catalog.Operation.Group', order: 2, label: 'Operation group', required: true, style: { width: '30%' } })
   Group: Ref = null;
 
-  @Props({ type: 'string', order: 3, required: true, style: { width: '50%' }})
+  @Props({ type: 'string', order: 3, required: true, style: { width: '50%' } })
   description = null;
 
   @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '800px', overflow: 'auto' }, value: defaultScript })
@@ -40,6 +40,9 @@ export class CatalogOperation extends DocumentBase {
 
   @Props({ type: 'table' })
   Parameters: Parameter[] = [new Parameter()];
+
+  @Props({ type: 'table', label: 'Copy to...' })
+  CopyTo: CopyTo[] = [new CopyTo()];
 
 }
 
@@ -67,5 +70,14 @@ class Parameter {
 
   @Props({ type: 'json', hiddenInList: true })
   Props: string = null;
+
+}
+
+class CopyTo {
+  @Props({ type: 'Catalog.Operation', required: true, style: { width: '50%' } })
+  Operation: Ref = null;
+
+  @Props({ type: 'javascript', label: 'script', hiddenInList: true })
+  script: string = null;
 
 }

@@ -1,6 +1,8 @@
 import { TX } from '../../db';
 import { MSSQL } from '../../mssql';
 import { lib } from '../../std.lib';
+import { RefValue } from '../api';
+import { createDocumentServer } from '../documents.factory.server';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
 import { ServerDocument } from '../ServerDocument';
 import { JQueue } from '../Tasks/tasks';
@@ -64,6 +66,41 @@ export class DocumentOperationServer extends DocumentOperation implements Server
       Inventory,
     });
     return Registers;
+  }
+
+  async baseOn(docId: string, tx: TX) {
+    const rawDoc = await lib.doc.byId(docId, tx);
+    const sourceDoc = await createDocumentServer(rawDoc.type, rawDoc, tx, true);
+
+    if (sourceDoc instanceof DocumentOperation) {
+      const sourceOperationID = (sourceDoc.Operation as RefValue).id;
+      const OperationID = (this.Operation as RefValue).id;
+      const rawOperation = await lib.doc.byId(sourceOperationID, tx);
+      const Rule = rawOperation.doc.CopyTo.find(c => c.Operation === OperationID);
+      if (Rule) {
+        const script = `
+        this.company = doc.company;
+        this.currency = doc.currency;
+        this.parent = {id: doc.id, type: doc.type, value: doc.description, code: doc.code};
+        ${ Rule.script
+            .replace(/\$\./g, 'doc.')
+            .replace(/tx\./g, 'await tx.')
+            .replace(/lib\./g, 'await lib.')
+            .replace(/\'doc\./g, '\'$.')}
+      `;
+        const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+        const func = new AsyncFunction('doc, tx, lib', script) as Function;
+        await func.bind(this, sourceDoc, tx, lib)();
+      }
+    } else {
+      switch (sourceDoc.type) {
+        case 'Catalog.Counterpartie':
+          break;
+        default:
+          break;
+      }
+    }
+    return this;
   }
 
 }

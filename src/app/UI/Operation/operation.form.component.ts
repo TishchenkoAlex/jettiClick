@@ -6,10 +6,15 @@ import { DocumentOperation } from '../../../../server/models/Documents/Document.
 import { FormControlInfo } from '../../common/dynamic-form/dynamic-form-base';
 import { getFormGroup } from '../../common/dynamic-form/dynamic-form.service';
 import { BaseDocFormComponent } from '../../common/form/base.form.component';
+import { v1 } from 'uuid';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<j-form></j-form>`
+  template: `
+    <j-form></j-form>
+    <button pButton type="button" id="PostClose " icon="fa-check-square-o" label="baseON"
+    class="ui-button-warning" (click)="baseOn()"></button>
+  `
 })
 export class OperationFormComponent implements AfterViewInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
@@ -24,8 +29,16 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
       .subscribe(v => this.update(v).then(() => this.super.cd.detectChanges()));
   }
 
+  baseOn() {
+    this.super.router.navigate([this.super.type, v1()],
+      {  queryParams: { base: this.super.id, Operation: '317642C0-2FFF-11E8-A63F-73C0F0A2F503'}});
+  }
+
   update = async (value) => {
+    const oldValue = Object.assign({}, this.super.model);
+
     const operation = value.id ? await this.super.ds.api.getRawDoc(value.id) : { doc: { Parameters: [] } };
+    console.log(operation);
     const view = {};
     const Parameters = operation.doc['Parameters'] || [];
     Parameters.sort((a, b) => a.order - b.order).forEach(c => view[c.parameter] = {
@@ -46,7 +59,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
     });
 
     // add dynamic formControls to Operation
-    const formOperation = getFormGroup(view, this.super.model, true);
+    const formOperation = getFormGroup(view, oldValue, true);
     const orderedControls = formOperation['orderedControls']  as FormControlInfo[];
     orderedControls.forEach(c => {
       this.form.addControl(c.key, formOperation.controls[c.key]);

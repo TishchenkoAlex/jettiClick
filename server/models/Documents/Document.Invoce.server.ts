@@ -104,55 +104,55 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       res1: r.Amount, res2: r.Tax, res3: 0, res4: 0, res5: 0
     }));
     batchRows = await lib.inventory.batch(this.date, this.company, batchRows, tx);
-    for (const batchRow of batchRows) {
+    for (const row of batchRows) {
 
       Registers.Accumulation.push(new RegisterAccumulationInventory(false, {
         Expense: ExpenseCOST,
         Storehouse: this.Storehouse,
-        batch: batchRow.batch,
-        SKU: batchRow.SKU,
-        Cost: batchRow.Cost,
-        Qty: batchRow.Qty
+        batch: row.batch,
+        SKU: row.SKU,
+        Cost: row.Cost,
+        Qty: row.Qty
       }));
 
-      totalCost += batchRow.Cost;
+      totalCost += row.Cost;
 
       // Account
       Registers.Account.push({
         debit: { account: acc90, subcounts: [] },
-        kredit: { account: acc41, subcounts: [this.Storehouse, batchRow.SKU], qty: batchRow.Qty },
-        sum: batchRow.Cost,
+        kredit: { account: acc41, subcounts: [this.Storehouse, row.SKU], qty: row.Qty },
+        sum: row.Cost,
       });
 
       Registers.Accumulation.push(new RegisterAccumulationSales(true, {
         AO: this.id,
         Department: this.Department,
         Customer: this.Customer,
-        Product: batchRow.SKU,
+        Product: row.SKU,
         Manager: this.Manager,
         Storehouse: this.Storehouse,
-        Qty: batchRow.Qty,
-        Amount: batchRow.res1 / exchangeRate,
-        AmountAR: batchRow.res1,
-        AmountInDoc: batchRow.res1,
-        Cost: batchRow.Cost,
+        Qty: row.Qty,
+        Amount: row.res1 / exchangeRate,
+        AmountInAR: row.res1,
+        AmountInDoc: row.res1,
+        Cost: row.Cost,
         Discount: 0,
-        Tax: batchRow.res2,
+        Tax: row.res2,
         currency: this.currency
       }));
 
       Registers.Accumulation.push(new RegisterAccumulationPL(true, {
         Department: this.Department,
         PL: IncomeSALES,
-        Analytics: batchRow.SKU,
-        Amount: batchRow.res1 / exchangeRate,
+        Analytics: row.SKU,
+        Amount: row.res1 / exchangeRate,
       }));
 
       Registers.Accumulation.push(new RegisterAccumulationPL(false, {
         Department: this.Department,
         PL: ExpenseCOST,
-        Analytics: batchRow.SKU,
-        Amount: batchRow.Cost,
+        Analytics: row.SKU,
+        Amount: row.Cost,
       }));
     }
 
@@ -205,13 +205,16 @@ async function onPostJS(document: INoSqlDocument, Registers = { Account: [], Acc
   // AR
   Registers.Accumulation.push({
     kind: true,
-    AO: header.id,
-    Department: doc.Department,
-    Customer: doc.Customer,
-    AR: doc.Amount,
-    AmountInBalance: doc.Amount / exchangeRate,
-    PayDay: doc.PayDay,
-    currency: doc.currency
+    type: 'Register.Accumulation.AR',
+    data: {
+      AO: header.id,
+      Department: doc.Department,
+      Customer: doc.Customer,
+      AR: doc.Amount,
+      AmountInBalance: doc.Amount / exchangeRate,
+      PayDay: doc.PayDay,
+      currency: doc.currency
+    }
   });
 
   Registers.Account.push({
@@ -220,75 +223,121 @@ async function onPostJS(document: INoSqlDocument, Registers = { Account: [], Acc
     sum: doc.Amount,
   });
 
+
   let totalCost = 0;
-  for (const row of doc.Items) {
-    const avgSumma = await lib.register.avgCost(
-      doc.date, { company: doc.company, SKU: row.SKU, Storehouse: doc.Storehouse }, tx) * row.Qty;
-    totalCost += avgSumma;
+  let batchRows: BatchRow[] = this.Items.map(r => <BatchRow>({
+    SKU: r.SKU, Storehouse: this.Storehouse, Qty: r.Qty, Cost: 0, batch: null,
+    res1: r.Amount, res2: r.Tax, res3: 0, res4: 0, res5: 0}));
+  batchRows = await lib.inventory.batch(this.date, this.company, batchRows, tx);
+  for (const row of batchRows) {
+
+    totalCost += row.Cost;
 
     // Account
     Registers.Account.push({
       debit: { account: acc90, subcounts: [] },
       kredit: { account: acc41, subcounts: [doc.Storehouse, row.SKU], qty: row.Qty },
-      sum: avgSumma,
+      sum: row.Cost,
     });
 
     Registers.Accumulation.push({
       kind: false,
-      Expense: ExpenseCOST,
-      Storehouse: doc.Storehouse,
-      SKU: row.SKU,
-      Cost: avgSumma,
-      Qty: row.Qty
+      type: 'Register.Accumulation.Inventory',
+      data: {
+        Expense: ExpenseCOST,
+        Storehouse: doc.Storehouse,
+        SKU: row.SKU,
+        Cost: row.Cost,
+        Qty: row.Qty
+      }
     });
 
     Registers.Accumulation.push({
       kind: true,
-      AO: header.id,
-      Department: doc.Department,
-      Customer: doc.Customer,
-      Product: row.SKU,
-      Manager: doc.Manager,
-      Storehouse: doc.Storehouse,
-      Qty: row.Qty,
-      Amount: row.Amount,
-      Cost: avgSumma,
-      Discount: 0,
-      Tax: row.Tax,
-      currency: doc.currency
+      type: 'Register.Accumulation.Sales',
+      data: {
+        AO: header.id,
+        Department: doc.Department,
+        Customer: doc.Customer,
+        Product: row.SKU,
+        Manager: doc.Manager,
+        Storehouse: doc.Storehouse,
+        Qty: row.Qty,
+        Amount: row.res1,
+        AmountAR: row.res1,
+        AmountInDoc: row.res1,
+        Cost: row.Cost,
+        Discount: 0,
+        Tax: row.res2,
+        currency: doc.currency
+      }
+    });
+
+    Registers.Accumulation.push({
+      kind: true,
+      type: 'Register.Accumulation.PL',
+      data: {
+        Department: this.Department,
+        PL: IncomeSALES,
+        Analytics: row.SKU,
+        Amount: row.res1 / exchangeRate,
+      }
+    });
+
+    Registers.Accumulation.push({
+      kind: false,
+      type: 'Register.Accumulation.PL',
+      data: {
+        Department: this.Department,
+        PL: ExpenseCOST,
+        Analytics: row.SKU,
+        Amount: row.Cost,
+      }
     });
   }
 
   Registers.Accumulation.push({
     kind: true,
-    Department: doc.Department,
-    Balance: AR,
-    Analytics: doc.Customer,
-    Amount: doc.Amount / exchangeRate
+    type: 'Register.Accumulation.Balance',
+    data: {
+      Department: doc.Department,
+      Balance: AR,
+      Analytics: doc.Customer,
+      Amount: doc.Amount / exchangeRate
+    }
   });
 
   Registers.Accumulation.push({
     kind: false,
-    Department: doc.Department,
-    Balance: INVENTORY,
-    Analytics: doc.Storehouse,
-    Amount: totalCost
+    type: 'Register.Accumulation.Balance',
+    data: {
+      Department: doc.Department,
+      Balance: INVENTORY,
+      Analytics: doc.Storehouse,
+      Amount: totalCost
+    }
   });
 
   Registers.Accumulation.push({
     kind: true,
-    Department: doc.Department,
-    Balance: PL,
-    Analytics: ExpenseCOST,
-    Amount: totalCost
+    type: 'Register.Accumulation.Balance',
+    data: {
+      Department: doc.Department,
+      Balance: PL,
+      Analytics: ExpenseCOST,
+      Amount: totalCost
+    }
   });
 
   Registers.Accumulation.push({
     kind: false,
-    Department: doc.Department,
-    Balance: PL,
-    Analytics: IncomeSALES,
-    Amount: doc.Amount / exchangeRate,
+    type: 'Register.Accumulation.Balance',
+    data: {
+      Department: doc.Department,
+      Balance: PL,
+      Analytics: IncomeSALES,
+      Amount: doc.Amount / exchangeRate,
+    }
   });
 
 }

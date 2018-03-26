@@ -146,8 +146,13 @@ export class DocumentBase {
 
   map(document: INoSqlDocument) {
     if (document) {
+      const props = this.Props();
+      const prop = this.Prop();
+      this.Props = () => props;
+      this.Prop = () =>  prop;
       const { doc, ...header } = document;
       Object.assign(this, header, doc);
     }
   }
+
 }

@@ -36,6 +36,7 @@ export interface JTL {
     viewModelById: <T extends DocumentBase>(id: string, tx?: TX) => Promise<T>;
     formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
     postById: (id: string, posted: boolean, tx?: TX) => Promise<void>;
+    noSqlDocument: (flatDoc: { [x: string]: any }) => INoSqlDocument
   };
   info: {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
@@ -49,9 +50,9 @@ export interface JTL {
 export const lib: JTL = {
   db: sdb,
   account: {
-    balance: balance,
-    debit: debit,
-    kredit: kredit,
+    balance,
+    debit,
+    kredit,
     byCode: accountByCode
   },
   register: {
@@ -63,9 +64,10 @@ export const lib: JTL = {
   doc: {
     byCode: byCode,
     byId: byId,
-    viewModelById: viewModelById,
-    formControlRef: formControlRef,
-    postById: postById
+    viewModelById,
+    formControlRef,
+    postById,
+    noSqlDocument
   },
   info: {
     sliceLast: sliceLast
@@ -89,18 +91,25 @@ async function byCode(type: string, code: string, tx: TX = sdb) {
 async function byId(id: string, tx: TX = sdb): Promise<INoSqlDocument> {
   const result = await tx.oneOrNone<INoSqlDocument>(`
   SELECT id, type, parent, date, code, description, posted, deleted, isfolder, company, [user], info, timestamp,
-  JSON_QUERY(doc) doc from Documents WHERE id = @p1`, [id]);
+  JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
+  const { doc, ...header } = result;
+  const flatDoc = { ...header, ...doc };
   return result;
+}
+
+function noSqlDocument(flatDoc: { [x: string]: any }): INoSqlDocument {
+  const { id, date, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, ...doc } = flatDoc;
+  return { id, date, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, doc };
 }
 
 async function viewModelById<T extends DocumentBase>(id: string, tx: TX = sdb): Promise<T> {
   const doc = await byId(id, tx);
-  return await tx.oneOrNone<T>(`${configSchema.get(doc.type).QueryObject} AND d.id = @p1`, [id]);
+  return await tx.oneOrNone<T>(`${configSchema.get(doc.type).QueryObject} AND d.id = '${id}'`);
 }
 
 async function formControlRef(id: string, tx: TX = sdb): Promise<RefValue> {
   const result = await tx.oneOrNone<RefValue>(`
-    SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = @p1`, [id]);
+    SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = '${id}'`);
   return result;
 }
 
@@ -209,10 +218,10 @@ export async function postById(id: string, posted: boolean, tx: TX = sdb) {
     let serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
     if (serverDoc.isDoc) {
       await subtx.none(`
-        DELETE FROM "Register.Account" WHERE document = @p1;
-        DELETE FROM "Register.Info" WHERE document = @p1;
-        DELETE FROM "Accumulation" WHERE document = @p1;
-        UPDATE "Documents" SET posted = @p2 WHERE id = @p1`, [id, posted ? 1 : 0]);
+        DELETE FROM "Register.Account" WHERE document = '${id}';
+        DELETE FROM "Register.Info" WHERE document = '${id}';
+        DELETE FROM "Accumulation" WHERE document = '${id}';
+        UPDATE "Documents" SET posted = ${posted ? 1 : 0} WHERE id = '${id}'`);
     }
     if (posted && serverDoc.onPost && !doc.deleted) { await InsertRegisterstoDB(doc, await serverDoc.onPost(subtx), subtx); }
     serverDoc = undefined;

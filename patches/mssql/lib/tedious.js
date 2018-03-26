@@ -211,32 +211,13 @@ class ConnectionPool extends base.ConnectionPool {
 
       const tedious = new tds.Connection(cfg)
 
-      // prevent calling resolve again on end event
-      let alreadyResolved = false
-      function safeResolve (err) {
-        if (!alreadyResolved) {
-          alreadyResolved = true
-          resolve(err)
-        }
-      }
-
-      function safeReject (err) {
-        if (!alreadyResolved) {
-          alreadyResolved = true
-          reject(err)
-        }
-      }
-
-      tedious.once('end', evt => {
-        safeReject(new base.ConnectionError('Connection ended unexpectedly during connecting'))
-      })
-
       tedious.once('connect', err => {
         if (err) {
           err = new base.ConnectionError(err)
-          return safeReject(err)
+          return reject(err)
         }
-        safeResolve(tedious)
+
+        resolve(tedious)
       })
 
       tedious.on('error', err => {
@@ -255,9 +236,7 @@ class ConnectionPool extends base.ConnectionPool {
   }
 
   _poolValidate (tedious) {
-    return new base.Promise((resolve, reject) => {
-      resolve(!tedious.closed && !tedious.hasError)
-    })
+    return !tedious.closed && !tedious.hasError
   }
 
   _poolDestroy (tedious) {

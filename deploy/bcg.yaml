@@ -1,14 +1,14 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: jetti
+  name: bcg
   labels:
-    app: jetti
+    app: bcg
 spec:
   template:
     metadata:
       labels:
-        app: jetti
+        app: bcg
         tier: web
     spec:
       containers:
@@ -21,7 +21,7 @@ spec:
             - name: DB_HOST
               value: mssql
             - name: DB_NAME
-              value: jetti-app
+              value: bcg
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -49,27 +49,27 @@ spec:
             - name: REDIS_DB_HOST
               value: redis-master
             - name: REDIS_DB_PREFIX
-              value: jetti
+              value: bcg
             - name: JTW_KEY
               valueFrom:
                 secretKeyRef:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "15"
+              value: "10"
             - name: SUBSCRIPTION_ID
               value: 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: jetti
+  name: bcg
   labels:
-    app: jetti
+    app: bcg
 spec:
   type: NodePort
   selector:
-    app: jetti
+    app: bcg
   ports:
   - port: 8080
     targetPort: 8080
@@ -77,18 +77,21 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: jetti
+  name: bcg
+  labels:
+    app: bcg
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: jetti-ip
+    kubernetes.io/ingress.global-static-ip-name: bcg
     kubernetes.io/ingress.allow-http: "false"
   labels:
-    app: jetti
+    app: bcg
 spec:
   tls:
   - secretName: jetti-ssl
   backend:
-    serviceName: jetti
+    serviceName: bcg
     servicePort: 8080
+
 #sed -ie "s/суббота, 13 января 2018 г. 21:31:39 (EET)/$(date)/g" add-account.yaml
 #kubectl create secret generic mssql-db-credentials --from-literal=username=yuralex --from-literal=password=MyNew01Password
-#kubectl apply -f nat-usa.yaml
+#kubectl apply -f bcg.yaml

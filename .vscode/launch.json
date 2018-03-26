@@ -16,7 +16,7 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Server",
-      "program": "${workspaceRoot}/src/server/index.js"
+      "program": "${workspaceRoot}/server/index.js"
     }
   ]
 }

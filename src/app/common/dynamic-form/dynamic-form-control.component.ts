@@ -38,12 +38,12 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
           return func(doc, value, api, body);
         `);
         const patch = await func(this.form.getRawValue(), value, this.api, funcBody);
-        this.form.patchValue(patch || {}, patchOptionsNoEvents);
+        this.form.patchValue(patch || {});
       }
 
       if (this.control.onChangeServer) {
         this.api.valueChanges(this.form.getRawValue(), this.control.key, value)
-          .then(patch => this.form.patchValue(patch || {}, patchOptionsNoEvents));
+          .then(patch => this.form.patchValue(patch || {}));
       }
     });
   }
