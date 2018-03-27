@@ -1,10 +1,8 @@
 import { PostResult } from '../../models/post.interfaces';
-import { DocumentBaseServer, INoSqlDocument, IFlatDocument } from './../../models/ServerDocument';
-import { lib } from './../../std.lib';
-import { TX } from '../../db';
-import { sdb } from '../../mssql';
+import { MSSQL, sdb } from '../../mssql';
+import { DocumentBaseServer } from './../../models/ServerDocument';
 
-export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: PostResult, tx: TX = sdb) {
+export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: PostResult, tx = sdb) {
   let query = '';
   for (const rec of Registers.Account) {
     query += `
@@ -45,7 +43,7 @@ export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: Po
   if (query) { await tx.none(query); }
 }
 
-export async function doSubscriptions(doc: DocumentBaseServer, script: string, tx: TX) {
+export async function doSubscriptions(doc: DocumentBaseServer, script: string, tx: MSSQL) {
 /*   const scripts = await tx.manyOrNone<any>(`
     SELECT "then" FROM "Subscriptions" WHERE "what" ? @p1 AND "when" = @p2 ORDER BY "order"`, [doc.type, script]);
   if (scripts.length) {

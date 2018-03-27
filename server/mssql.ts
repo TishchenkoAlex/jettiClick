@@ -1,11 +1,9 @@
 import * as sql from 'mssql';
-import * as driver from 'tedious';
 
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
 
 export class MSSQL {
   private POOL: sql.ConnectionPool | sql.Transaction;
-  attemtToReconect = 10;
 
   constructor(private config, private transaction?: sql.Transaction) {
     if (transaction) {
@@ -13,20 +11,21 @@ export class MSSQL {
     } else {
       this.POOL = new sql.ConnectionPool(this.config);
       this.connect()
-      .then(() => console.log('connected', this.config))
-      .catch(err => console.log('connection error', err));
-      setImmediate(() => {
-        this.connect()
-          .then(() => console.log('connected', this.config))
-          .catch(err => {});
-      }, 30000);
+        .then(() => console.log('connected', this.config.database))
+        .catch(err => console.log('connection error', err));
+
+      if (process.env.NODE_ENV === 'production')
+        setInterval(() => {
+          this.connect()
+            .then(() => console.log('reconnected', this.config.database))
+            .catch(err => { });
+        }, 60000);
     }
   }
 
   async connect() {
     try { await this.close(); } catch { }
     await (<sql.ConnectionPool>this.POOL).connect();
-    this.attemtToReconect = 10;
     return this;
   }
 
@@ -56,17 +55,26 @@ export class MSSQL {
     data = data ? JSON.parse(data) : null;
     data = data ? data[0] : data;
     if (data && typeof data.doc === 'string') data.doc = JSON.parse(data.doc);
+    if (data && typeof data.data === 'string') data.data = JSON.parse(data.data);
     return data;
   }
 
-  async none<T>(text: string, params: any[] = []): Promise<T> {
+  async none<T>(text: string, params: any[] = []): Promise<T | T[]> {
     const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) {
       request.input(`p${i + 1}`, params[i]);
     }
     const response = await request.query(text);
-    const data = response && response.recordset ? response.recordset[0] : null;
-    if (data && typeof data.doc === 'string') data.doc = JSON.parse(data.doc);
+    const data = response && response.recordset ? response.recordset : null;
+    if (data.length === 1) {
+      if (typeof data[0].doc === 'string') data[0].doc = JSON.parse(data[0].doc);
+      if (typeof data[0].data === 'string') data[0].data = JSON.parse(data[0].data);
+      return data[0];
+    }
+    data.forEach(el => {
+      if (typeof el.doc === 'string') el.doc = JSON.parse(el.doc);
+      if (typeof el.data === 'string') el.data = JSON.parse(el.data);
+    });
     return data;
   }
 

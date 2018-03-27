@@ -19,6 +19,7 @@ import { createDocument } from '../models/documents.factory';
 import { CatalogOperation } from '../models/Catalogs/Catalog.Operation';
 import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { sdb, MSSQL } from '../mssql';
+import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
 
 export const router = express.Router();
 
@@ -116,22 +117,32 @@ async function buildViewModel(ServerDoc: DocumentBaseServer) {
   return await sdb.oneOrNone<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
 }
 
-// Delete document
+// Delete or UnDelete document
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await sdb.tx(async tx => {
       const id = req.params.id;
-      let doc = await lib.doc.byId(id, tx);
+      const doc = await lib.doc.byId(id, tx);
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+
       await doSubscriptions(serverDoc, 'before detele', tx);
       if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx); }
-      doc = await tx.none<INoSqlDocument>(`
+
+      serverDoc.deleted = !!!serverDoc.deleted;
+      serverDoc.posted = false;
+
+      const deleted = await tx.none<INoSqlDocument>(`
+        SELECT * FROM "Accumulation" WHERE document = '${id}';
         DELETE FROM "Register.Account" WHERE document = '${id}';
         DELETE FROM "Register.Info" WHERE document = '${id}';
         DELETE FROM "Accumulation" WHERE document = '${id}';
-        UPDATE "Documents" SET deleted = @p1, posted = 0 OUTPUT deleted.*  WHERE id = '${id}';`, [!!!serverDoc.deleted]);
-      if (serverDoc && serverDoc.afterDelete) { await serverDoc.afterDelete(tx); }
+        UPDATE "Documents" SET deleted = @p1, posted = 0 OUTPUT deleted.*  WHERE id = '${id}';`, [serverDoc.deleted]);
+      serverDoc['deletedRegisterAccumulation'] = () => deleted;
+
+      if (serverDoc && serverDoc.afterDelete) await serverDoc.afterDelete(tx);
       await doSubscriptions(serverDoc, 'after detele', tx);
+      if (serverDoc && serverDoc.onPost) await serverDoc.onPost(tx);
+
       const view = await buildViewModel(serverDoc);
       res.json(view);
     });
@@ -139,24 +150,26 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 // Upsert document
-async function post(doc: DocumentBaseServer, tx: MSSQL) {
-  const id = doc.id;
+async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
+  const id = serverDoc.id;
   const isNew = (await tx.oneOrNone<any>(`SELECT id FROM "Documents" WHERE id = '${id}'`) === null);
-  await doSubscriptions(doc, isNew ? 'before insert' : 'before update', tx);
-  if (doc.isDoc) {
-    await tx.none(`
+  await doSubscriptions(serverDoc, isNew ? 'before insert' : 'before update', tx);
+  if (serverDoc.isDoc) {
+    const deleted = await tx.none<RegisterAccumulation[]>(`
+    SELECT * FROM "Accumulation" WHERE document = '${id}';
     DELETE FROM "Register.Account" WHERE document = '${id}';
     DELETE FROM "Register.Info" WHERE document = '${id}';
     DELETE FROM "Accumulation" WHERE document = '${id}';`);
+    serverDoc['deletedRegisterAccumulation'] = () => deleted;
   }
-  if (!!doc.posted && doc.beforePost) { await doc.beforePost(tx); }
-  if (!doc.code) doc.code = await lib.doc.docPrefix(doc.type, tx);
-  doc.timestamp = new Date();
-  const noSqlDocument = lib.doc.noSqlDocument(doc);
+  if (!!serverDoc.posted && serverDoc.beforePost) await serverDoc.beforePost(tx);
+  if (!serverDoc.code) serverDoc.code = await lib.doc.docPrefix(serverDoc.type, tx);
+  serverDoc.timestamp = new Date();
+  const noSqlDocument = lib.doc.noSqlDocument(serverDoc);
   const jsonDoc = JSON.stringify(noSqlDocument);
-  let response;
+  let response: INoSqlDocument;
   if (isNew) {
-    response = await tx.none<INoSqlDocument>(`
+    response = <INoSqlDocument>await tx.none<INoSqlDocument>(`
       INSERT INTO Documents(
          [id]
         ,[type]
@@ -191,7 +204,7 @@ async function post(doc: DocumentBaseServer, tx: MSSQL) {
         [doc] NVARCHAR(max) N'$.doc' AS JSON
       )`, [jsonDoc]);
   } else {
-    response = await tx.none<INoSqlDocument>(`
+    response = <INoSqlDocument>await tx.none<INoSqlDocument>(`
       UPDATE Documents
         SET
           type = i.type, parent = i.parent,
@@ -221,10 +234,10 @@ async function post(doc: DocumentBaseServer, tx: MSSQL) {
         ) i
         WHERE Documents.id = i.id;`, [jsonDoc]);
   }
-  doc.map(response);
-  if (!!doc.posted && doc.onPost && !doc.deleted) { await InsertRegisterstoDB(doc, await doc.onPost(tx), tx); }
-  await doSubscriptions(doc, isNew ? 'after insert' : 'after update', tx);
-  return doc;
+  serverDoc.map(response);
+  if (!!serverDoc.posted && serverDoc.onPost && !serverDoc.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(tx), tx);
+  await doSubscriptions(serverDoc, isNew ? 'after insert' : 'after update', tx);
+  return serverDoc;
 }
 
 // Upsert document
@@ -233,6 +246,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     await sdb.tx(async tx => {
       const mode: 'post' | 'save' = req.query.mode || 'save';
       const doc: IFlatDocument = req.body;
+      if (doc.deleted) throw new Error('cant POST deleted document');
       if (mode === 'post') doc.posted = true;
       await addAdditionalToOperation(doc, tx);
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);

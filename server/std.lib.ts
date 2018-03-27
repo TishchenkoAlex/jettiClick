@@ -1,14 +1,13 @@
-import { TX } from './db';
 import { RefValue } from './models/api';
 import { configSchema } from './models/config';
-import { DocumentBase, Ref } from './models/document';
+import { Ref } from './models/document';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
-import { DocumentBaseServer, INoSqlDocument, IFlatDocument } from './models/ServerDocument';
-import { sdb, MSSQL } from './mssql';
-import { InsertRegisterstoDB } from './routes/utils/execute-script';
 import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
+import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/ServerDocument';
+import { MSSQL, sdb } from './mssql';
+import { InsertRegisterstoDB } from './routes/utils/execute-script';
 
 export interface BatchRow {
   SKU: Ref; Storehouse: Ref; Qty: number; batch: Ref; Cost: number;
@@ -16,36 +15,36 @@ export interface BatchRow {
 }
 
 export interface JTL {
-  db: TX;
+  db: MSSQL;
   account: {
     balance: (account: Ref, date: string, company: Ref) => Promise<number>,
     debit: (account: Ref, date: string, company: Ref) => Promise<number>,
     kredit: (account: Ref, date: string, company: Ref) => Promise<number>,
-    byCode: (code: string, tx?: TX) => Promise<string>
+    byCode: (code: string, tx?: MSSQL) => Promise<string>
   };
   register: {
-    movementsByDoc: <T extends RegisterAccumulation>(type: RegisterAccumulationTypes, doc: Ref, tx?: TX) => Promise<T[]>,
+    movementsByDoc: <T extends RegisterAccumulation>(type: RegisterAccumulationTypes, doc: Ref, tx?: MSSQL) => Promise<T[]>,
     balance: (type: RegisterAccumulationTypes, date: Date, resource: string[],
-      analytics: { [key: string]: Ref }, tx?: TX) => Promise<{ [x: string]: number }>,
-    avgCost: (date: Date, analytics: { [key: string]: Ref }, tx?: TX) => Promise<number>,
-    inventoryBalance: (date: Date, analytics: { [key: string]: Ref }, tx?: TX) => Promise<{ Cost: number, Qty: number }>,
+      analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<{ [x: string]: number }>,
+    avgCost: (date: Date, analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<number>,
+    inventoryBalance: (date: Date, analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<{ Cost: number, Qty: number }>,
   };
   doc: {
-    byCode: (type: DocTypes, code: string, tx?: TX) => Promise<string>;
-    byId: (id: string, tx?: TX) => Promise<IFlatDocument>;
-    formControlRef: (id: string, tx?: TX) => Promise<RefValue>;
-    postById: (id: string, posted: boolean, tx?: TX) => Promise<void>;
+    byCode: (type: DocTypes, code: string, tx?: MSSQL) => Promise<string>;
+    byId: (id: string, tx?: MSSQL) => Promise<IFlatDocument>;
+    formControlRef: (id: string, tx?: MSSQL) => Promise<RefValue>;
+    postById: (id: string, posted: boolean, tx?: MSSQL) => Promise<void>;
     noSqlDocument: (flatDoc: IFlatDocument) => INoSqlDocument;
     flatDocument: (noSqldoc: INoSqlDocument) => IFlatDocument;
-    docPrefix: (type: DocTypes, tx?: TX) => Promise<string>
+    docPrefix: (type: DocTypes, tx?: MSSQL) => Promise<string>
   };
   info: {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
-      analytics: { [key: string]: any }, tx?: TX) => Promise<any>
+      analytics: { [key: string]: any }, tx?: MSSQL) => Promise<any>
   };
   inventory: {
-    batch: (date: Date, company: Ref, rows: BatchRow[], tx?: TX) => Promise<BatchRow[]>,
-    batchReturn(retDoc: string, rows: BatchRow[], tx?: TX)
+    batch: (date: Date, company: Ref, rows: BatchRow[], tx?: MSSQL) => Promise<BatchRow[]>,
+    batchReturn(retDoc: string, rows: BatchRow[], tx?: MSSQL)
   };
 }
 
@@ -81,18 +80,18 @@ export const lib: JTL = {
   }
 };
 
-async function accountByCode(code: string, tx: TX = sdb) {
+async function accountByCode(code: string, tx: MSSQL = sdb) {
   const result = await tx.oneOrNone<any>(`
     SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = @p1`, [code]);
   return result ? result.result as string : null;
 }
 
-async function byCode(type: string, code: string, tx: TX = sdb) {
+async function byCode(type: string, code: string, tx: MSSQL = sdb) {
   const result = await tx.oneOrNone<any>(`SELECT id result FROM "Documents" WHERE type = @p1 AND code = @p2`, [type, code]);
   return result ? result.result as string : null;
 }
 
-async function byId(id: string, tx: TX = sdb): Promise<IFlatDocument> {
+async function byId(id: string, tx: MSSQL = sdb): Promise<IFlatDocument> {
   const result = await tx.oneOrNone<INoSqlDocument>(`
   SELECT id, type, parent, DATEADD(ms, DATEDIFF(ms, '00:00:00', [time]), CONVERT(DATETIME, [date])) date, [time],
   code, description, posted, deleted, isfolder, company, [user], info, timestamp,
@@ -102,7 +101,7 @@ async function byId(id: string, tx: TX = sdb): Promise<IFlatDocument> {
 
 function noSqlDocument(flatDoc: INoSqlDocument | DocumentBaseServer): INoSqlDocument {
   if (!flatDoc) return null;
-  const  { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, ...doc } = flatDoc;
+  const { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, ...doc } = flatDoc;
   return { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, doc };
 }
 
@@ -113,7 +112,7 @@ function flatDocument(noSqldoc: INoSqlDocument): IFlatDocument {
   return flatDoc;
 }
 
-async function docPrefix(type: DocTypes, tx: TX = sdb): Promise<string> {
+async function docPrefix(type: DocTypes, tx: MSSQL = sdb): Promise<string> {
   const metadata = configSchema.get(type);
   if (metadata.prefix) {
     const prefix = metadata.prefix;
@@ -124,7 +123,7 @@ async function docPrefix(type: DocTypes, tx: TX = sdb): Promise<string> {
   return '';
 }
 
-async function formControlRef(id: string, tx: TX = sdb): Promise<RefValue> {
+async function formControlRef(id: string, tx: MSSQL = sdb): Promise<RefValue> {
   const result = await tx.oneOrNone<RefValue>(`
     SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = '${id}'`);
   return result;
@@ -229,29 +228,33 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
   return result ? result.result : null;
 }
 
-export async function postById(id: string, posted: boolean, tx: TX = sdb) {
+export async function postById(id: string, posted: boolean, tx: MSSQL = sdb) {
   return tx.tx<any>(async subtx => {
     const doc = await lib.doc.byId(id, subtx);
+    if (doc.deleted) throw new Error('cant POST deleted document');
     const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
-    if (serverDoc.isDoc) {
-      await subtx.none(`
-        DELETE FROM "Register.Account" WHERE document = '${id}';
-        DELETE FROM "Register.Info" WHERE document = '${id}';
-        DELETE FROM "Accumulation" WHERE document = '${id}';
-        UPDATE "Documents" SET posted = ${posted ? 1 : 0} WHERE id = '${id}'`);
-    }
-    if (posted && serverDoc.onPost && !doc.deleted) { await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx); }
+    serverDoc.posted = posted;
+
+    const deleted = await subtx.none(`
+      SELECT * FROM "Accumulation" WHERE document = '${id}';
+      DELETE FROM "Register.Account" WHERE document = '${id}';
+      DELETE FROM "Register.Info" WHERE document = '${id}';
+      DELETE FROM "Accumulation" WHERE document = '${id}';
+      UPDATE "Documents" SET posted = @p1 WHERE id = '${id}'`, [serverDoc.posted]);
+    doc['deletedRegisterAccumulation'] = () => deleted;
+
+    if (posted && serverDoc.onPost && !doc.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx);
   });
 }
 
-export async function movementsByDoc<T extends RegisterAccumulation>(type: RegisterAccumulationTypes, doc: Ref, tx: TX = sdb) {
+export async function movementsByDoc<T extends RegisterAccumulation>(type: RegisterAccumulationTypes, doc: Ref, tx: MSSQL = sdb) {
   const queryText = `
   SELECT kind, date, type, company, document, JSON_QUERY(data) data
   FROM Accumulation where type = '${type}' AND document = '${doc}'`;
   return await tx.manyOrNone<T>(queryText);
 }
 
-export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: TX = sdb) {
+export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: MSSQL = sdb) {
   const rowsKeys = rows.map(r => (r.Storehouse as string) + (r.SKU as string));
   const uniquerowsKeys = rowsKeys.filter((v, i, a) => a.indexOf(v) === i);
   const grouped = uniquerowsKeys.map(r => {
@@ -303,7 +306,7 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: TX =
   return result;
 }
 
-export async function batchReturn(retDoc: string, rows: BatchRow[], tx: TX = sdb) {
+export async function batchReturn(retDoc: string, rows: BatchRow[], tx: MSSQL = sdb) {
   const rowsKeys = rows.map(r => (r.Storehouse as string) + (r.SKU as string));
   const uniquerowsKeys = rowsKeys.filter((v, i, a) => a.indexOf(v) === i);
   const grouped = uniquerowsKeys.map(r => {

@@ -1,15 +1,15 @@
-import { TX } from '../../db';
+import { MSSQL } from '../../mssql';
 import { lib } from '../../std.lib';
 import { createDocumentServer } from '../documents.factory.server';
 import { RegisterInfoPriceList } from '../Registers/Info/PriceList';
 import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
-import { DocumentPriceList } from './Document.PriceList';
 import { DocumentInvoice } from './Document.Invoice';
+import { DocumentPriceList } from './Document.PriceList';
 
 export class DocumentPriceListServer extends DocumentPriceList implements ServerDocument {
 
-  async onValueChanged(prop: string, value: any, tx: TX) {
+  async onValueChanged(prop: string, value: any, tx: MSSQL) {
     switch (prop) {
       case 'company':
         return {};
@@ -21,7 +21,7 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
     }
   }
 
-  async onCommand(command: string, args: any, tx: TX) {
+  async onCommand(command: string, args: any, tx: MSSQL) {
     switch (command) {
       case 'company':
         return {};
@@ -30,7 +30,7 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
     }
   }
 
-  async baseOn(docId: string, tx: TX): Promise<this> {
+  async baseOn(docId: string, tx: MSSQL): Promise<this> {
     const ISource = await lib.doc.byId(docId, tx);
     switch (ISource.type) {
       case 'Document.Invoice':
@@ -48,7 +48,7 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
     }
   }
 
-  async onPost(tx: TX) {
+  async onPost(tx: MSSQL) {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
 
     const priceType = await lib.doc.byId(this.PriceType, tx);

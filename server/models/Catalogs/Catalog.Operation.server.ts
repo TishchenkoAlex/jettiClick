@@ -1,10 +1,10 @@
-import { TX } from '../../db';
+import { MSSQL } from '../../mssql';
 import { ServerDocument } from '../ServerDocument';
 import { CatalogOperation } from './Catalog.Operation';
 
 export class CatalogOperationServer extends CatalogOperation implements ServerDocument {
 
-  async onCreate(tx: TX) {
+  async onCreate(tx: MSSQL) {
     this.script = `/*
 
 // Account

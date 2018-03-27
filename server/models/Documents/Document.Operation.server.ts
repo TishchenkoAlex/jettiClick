@@ -1,7 +1,5 @@
-import { TX } from '../../db';
 import { MSSQL } from '../../mssql';
 import { lib } from '../../std.lib';
-import { RefValue } from '../api';
 import { createDocumentServer } from '../documents.factory.server';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
 import { ServerDocument } from '../ServerDocument';
@@ -11,7 +9,7 @@ import { DocumentOperation } from './Document.Operation';
 
 export class DocumentOperationServer extends DocumentOperation implements ServerDocument {
 
-  async onValueChanged(prop: string, value: any, tx: TX) {
+  async onValueChanged(prop: string, value: any, tx: MSSQL) {
     if (!value) { return {}; }
     switch (prop) {
       case 'company':
@@ -29,7 +27,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     }
   }
 
-  async onCommand(command: string, args: any, tx: TX) {
+  async onCommand(command: string, args: any, tx: MSSQL) {
     switch (command) {
       case 'company':
         return {};
@@ -56,19 +54,23 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     const func = new AsyncFunction('doc, Registers, tx, lib, exchangeRate', script);
     await func(this, Registers, tx, lib, exchangeRate);
 
-    const Inventory = Registers.Accumulation
-      .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true) as RegisterAccumulationInventory[];
-    if (!Inventory.length) return Registers;
+    const oldInventory = ((this['deletedRegisterAccumulation'] && <any[]>this['deletedRegisterAccumulation']()) || [])
+      .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true);
+
+    const newInventory = (Registers.Accumulation || [])
+      .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true);
+
+    if (!(oldInventory.length || newInventory.length)) return Registers;
 
     await JQueue.add({
       job: { id: 'cost', description: `${this.description}` },
       doc: this,
-      Inventory,
+      Inventory: [oldInventory, newInventory],
     });
     return Registers;
   }
 
-  async baseOn(docId: string, tx: TX) {
+  async baseOn(docId: string, tx: MSSQL) {
     const rawDoc = await lib.doc.byId(docId, tx);
     const sourceDoc = await createDocumentServer(rawDoc.type, rawDoc, tx);
 

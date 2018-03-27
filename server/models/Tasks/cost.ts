@@ -4,15 +4,26 @@ import { sdbq } from '../../mssql';
 import { lib } from '../../std.lib';
 import { DocumentBase } from '../document';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
+import { flow, groupBy, map, tap, chain } from 'lodash';
 
 export default async function (job: Queue.Job) {
   await job.progress(0);
   const params = job.data;
   const doc = params.doc as DocumentBase;
-  const Inventory = params.Inventory as RegisterAccumulationInventory[];
+  const oldInventory = params.Inventory[0];
+  const newInventory = params.Inventory[1] as RegisterAccumulationInventory[];
+  const Inventory: { batch: string, company: string, SKU: string, Storehouse: string }[] = [
+    ...oldInventory.map(el => ({ batch: el.data.batch, company: el.company, SKU: el.data.SKU, Storehouse: el.data.Storehouse })),
+    ...newInventory.map(el => ({ batch: el.data.batch, company: doc.company, SKU: el.data.SKU, Storehouse: el.data.Storehouse })),
+  ];
+
+  const grouped = Inventory
+    .map(r => r.Storehouse + r.SKU + r.company + r.batch)
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .map(r => Inventory.find(f => f.Storehouse + f.SKU + f.company + f.batch === r));
 
   let list = [];
-  for (const r of Inventory) {
+  for (const r of grouped) {
     const query = `
     SELECT s.date, s.document, d.description doc FROM (
     SELECT date, document from "Register.Accumulation.Inventory"
@@ -28,7 +39,7 @@ export default async function (job: Queue.Job) {
     ORDER BY s.date
     `;
     list = [...list, ...(await sdbq.manyOrNone<any>(query,
-      [doc.date, doc.company, r.data.Storehouse, r.data.SKU, r.data.batch, doc.id]))];
+      [doc.date, r.company, r.Storehouse, r.SKU, r.batch, doc.id]))];
   }
   const TaskList = [];
   const count = list.length; let offset = 0;

@@ -1,4 +1,3 @@
-import { TX } from '../../db';
 import { sdb, sdbq } from '../../mssql';
 import { ICallRequest } from '../../routes/utils/interfaces';
 import { lib } from '../../std.lib';
@@ -12,7 +11,7 @@ export default class FormPostServer extends FormPost {
     super(CallRequest.formView as FormPost);
   }
 
-  async Execute(tx: TX = sdbq, CR: ICallRequest) {
+  async Execute(tx = sdbq, CR: ICallRequest) {
     const endDate = new Date(this.CallRequest.formView.EndDate);
     endDate.setHours(23, 59, 59, 999);
 

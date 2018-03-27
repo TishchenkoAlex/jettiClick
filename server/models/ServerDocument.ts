@@ -1,8 +1,8 @@
-import { TX } from '../db';
+import { MSSQL } from '../mssql';
 import { PatchValue } from './api';
 import { DocumentBase, Ref } from './document';
-import { PostResult } from './post.interfaces';
 import { DocTypes } from './documents.types';
+import { PostResult } from './post.interfaces';
 
 export interface INoSqlDocument {
   id: Ref;
@@ -41,47 +41,47 @@ export interface IFlatDocument {
 
 export abstract class DocumentBaseServer extends DocumentBase implements ServerDocument {
 
-  onCreate(tx: TX): Promise<DocumentBase> {
+  onCreate(tx: MSSQL): Promise<DocumentBase> {
     throw new Error('Method not implemented.');
   }
-  beforePost(tx: TX): Promise<DocumentBase> {
+  beforePost(tx: MSSQL): Promise<DocumentBase> {
     throw new Error('Method not implemented.');
   }
-  onPost(tx: TX): Promise<PostResult> {
+  onPost(tx: MSSQL): Promise<PostResult> {
     throw new Error('Method not implemented.');
   }
-  afterPost(tx: TX): Promise<void> {
+  afterPost(tx: MSSQL): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  beforeDelete(tx: TX): Promise<void> {
+  beforeDelete(tx: MSSQL): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  afterDelete(tx: TX): Promise<void> {
+  afterDelete(tx: MSSQL): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  onValueChanged(prop: string, value: any, tx: TX): Promise<PatchValue> {
+  onValueChanged(prop: string, value: any, tx: MSSQL): Promise<PatchValue> {
     throw new Error('Method not implemented.');
   }
-  onCommand(command: string, args: any, tx: TX): Promise<any> {
+  onCommand(command: string, args: any, tx: MSSQL): Promise<any> {
     throw new Error('Method not implemented.');
   }
-  baseOn(id: Ref, tx: TX): Promise<DocumentBase> {
+  baseOn(id: Ref, tx: MSSQL): Promise<DocumentBase> {
     throw new Error('Method not implemented.');
   }
 
 }
 
 export interface ServerDocument {
-  onCreate?(tx: TX): Promise<DocumentBase>;
-  beforePost?(tx: TX): Promise<DocumentBase>;
-  onPost?(tx: TX): Promise<PostResult>;
-  afterPost?(tx: TX): Promise<void>;
+  onCreate?(tx: MSSQL): Promise<DocumentBase>;
+  beforePost?(tx: MSSQL): Promise<DocumentBase>;
+  onPost?(tx: MSSQL): Promise<PostResult>;
+  afterPost?(tx: MSSQL): Promise<void>;
 
-  beforeDelete?(tx: TX): Promise<void>;
-  afterDelete?(tx: TX): Promise<void>;
+  beforeDelete?(tx: MSSQL): Promise<void>;
+  afterDelete?(tx: MSSQL): Promise<void>;
 
-  onValueChanged?(prop: string, value: any, tx: TX): Promise<PatchValue>;
-  onCommand?(command: string, args: any, tx: TX): Promise<any>;
+  onValueChanged?(prop: string, value: any, tx: MSSQL): Promise<PatchValue>;
+  onCommand?(command: string, args: any, tx: MSSQL): Promise<any>;
 
-  baseOn?(id: Ref, tx: TX): Promise<DocumentBase>;
+  baseOn?(id: Ref, tx: MSSQL): Promise<DocumentBase>;
 }

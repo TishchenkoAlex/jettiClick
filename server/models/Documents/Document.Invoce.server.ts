@@ -1,22 +1,20 @@
-import { TX } from '../../db';
-import { RefValue } from '../../models/api';
 import { CatalogCounterpartie } from '../../models/Catalogs/Catalog.Counterpartie';
-import { configSchema } from '../../models/config';
-import { DocumentBase, Ref } from '../../models/document';
-import { lib, BatchRow } from '../../std.lib';
+import { DocumentBase } from '../../models/document';
+import { MSSQL } from '../../mssql';
+import { BatchRow, lib } from '../../std.lib';
+import { createDocumentServer } from '../documents.factory.server';
 import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
 import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
+import { RegisterAccumulationPL } from '../Registers/Accumulation/PL';
 import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
-import { INoSqlDocument, ServerDocument } from '../ServerDocument';
+import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
-import { RegisterAccumulationPL } from '../Registers/Accumulation/PL';
-import { createDocumentServer } from '../documents.factory.server';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
-  async GetPrice(args: any, tx: TX): Promise<{ doc: DocumentBase, result: any }> {
+  async GetPrice(args: any, tx: MSSQL): Promise<{ doc: DocumentBase, result: any }> {
     this.Amount = 0;
     for (const row of this.Items) {
       row.Price = 100;
@@ -26,7 +24,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     return { doc: this, result: {} };
   }
 
-  async onValueChanged(prop: string, value: any, tx: TX): Promise<{ [x: string]: any }> {
+  async onValueChanged(prop: string, value: any, tx: MSSQL): Promise<{ [x: string]: any }> {
     switch (prop) {
       case 'company':
         if (!value) { return {}; }
@@ -40,7 +38,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }
   }
 
-  async onCommand(command: string, args: any, tx: TX) {
+  async onCommand(command: string, args: any, tx: MSSQL) {
     switch (command) {
       case 'company':
         return args;
@@ -49,7 +47,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }
   }
 
-  async baseOn(docID: string, tx: TX): Promise<DocumentBase> {
+  async baseOn(docID: string, tx: MSSQL): Promise<DocumentBase> {
     const ISource = await lib.doc.byId(docID, tx);
     switch (ISource.type) {
       case 'Catalog.Counterpartie':
@@ -62,7 +60,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
   }
 
 
-  async onPost(tx: TX): Promise<PostResult> {
+  async onPost(tx: MSSQL): Promise<PostResult> {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
 
     const acc90 = await lib.account.byCode('90.01', tx);
@@ -182,158 +180,5 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
 
     return Registers;
   }
-
-}
-
-async function onPostJS(document: INoSqlDocument, Registers = { Account: [], Accumulation: [], Info: [] }, tx: TX) {
-  const { doc, ...header } = document;
-
-  const acc90 = await lib.account.byCode('90.01', tx);
-  const acc41 = await lib.account.byCode('41.01', tx);
-  const acc62 = await lib.account.byCode('62.01', tx);
-  const ExpenseCOST = await lib.doc.byCode('Catalog.Expense', 'OUT.COST', tx);
-  const IncomeSALES = await lib.doc.byCode('Catalog.Income', 'SALES', tx);
-  const PL = await lib.doc.byCode('Catalog.Balance', 'PL', tx);
-  const AR = await lib.doc.byCode('Catalog.Balance', 'AR', tx);
-  const INVENTORY = await lib.doc.byCode('Catalog.Balance', 'INVENTORY', tx);
-  const exchangeRate = await lib.info.sliceLast('ExchangeRates', header.date, header.company, 'Rate', { currency: doc.currency }, tx) || 1;
-
-  // AR
-  Registers.Accumulation.push({
-    kind: true,
-    type: 'Register.Accumulation.AR',
-    data: {
-      AO: header.id,
-      Department: doc.Department,
-      Customer: doc.Customer,
-      AR: doc.Amount,
-      AmountInBalance: doc.Amount / exchangeRate,
-      PayDay: doc.PayDay,
-      currency: doc.currency
-    }
-  });
-
-  Registers.Account.push({
-    debit: { account: acc62, subcounts: [doc.Customer] },
-    kredit: { account: acc90, subcounts: [] },
-    sum: doc.Amount,
-  });
-
-
-  let totalCost = 0;
-  let batchRows: BatchRow[] = this.Items.map(r => <BatchRow>({
-    SKU: r.SKU, Storehouse: this.Storehouse, Qty: r.Qty, Cost: 0, batch: null,
-    res1: r.Amount, res2: r.Tax, res3: 0, res4: 0, res5: 0}));
-  batchRows = await lib.inventory.batch(this.date, this.company, batchRows, tx);
-  for (const row of batchRows) {
-
-    totalCost += row.Cost;
-
-    // Account
-    Registers.Account.push({
-      debit: { account: acc90, subcounts: [] },
-      kredit: { account: acc41, subcounts: [doc.Storehouse, row.SKU], qty: row.Qty },
-      sum: row.Cost,
-    });
-
-    Registers.Accumulation.push({
-      kind: false,
-      type: 'Register.Accumulation.Inventory',
-      data: {
-        Expense: ExpenseCOST,
-        Storehouse: doc.Storehouse,
-        SKU: row.SKU,
-        Cost: row.Cost,
-        Qty: row.Qty
-      }
-    });
-
-    Registers.Accumulation.push({
-      kind: true,
-      type: 'Register.Accumulation.Sales',
-      data: {
-        AO: header.id,
-        Department: doc.Department,
-        Customer: doc.Customer,
-        Product: row.SKU,
-        Manager: doc.Manager,
-        Storehouse: doc.Storehouse,
-        Qty: row.Qty,
-        Amount: row.res1,
-        AmountAR: row.res1,
-        AmountInDoc: row.res1,
-        Cost: row.Cost,
-        Discount: 0,
-        Tax: row.res2,
-        currency: doc.currency
-      }
-    });
-
-    Registers.Accumulation.push({
-      kind: true,
-      type: 'Register.Accumulation.PL',
-      data: {
-        Department: this.Department,
-        PL: IncomeSALES,
-        Analytics: row.SKU,
-        Amount: row.res1 / exchangeRate,
-      }
-    });
-
-    Registers.Accumulation.push({
-      kind: false,
-      type: 'Register.Accumulation.PL',
-      data: {
-        Department: this.Department,
-        PL: ExpenseCOST,
-        Analytics: row.SKU,
-        Amount: row.Cost,
-      }
-    });
-  }
-
-  Registers.Accumulation.push({
-    kind: true,
-    type: 'Register.Accumulation.Balance',
-    data: {
-      Department: doc.Department,
-      Balance: AR,
-      Analytics: doc.Customer,
-      Amount: doc.Amount / exchangeRate
-    }
-  });
-
-  Registers.Accumulation.push({
-    kind: false,
-    type: 'Register.Accumulation.Balance',
-    data: {
-      Department: doc.Department,
-      Balance: INVENTORY,
-      Analytics: doc.Storehouse,
-      Amount: totalCost
-    }
-  });
-
-  Registers.Accumulation.push({
-    kind: true,
-    type: 'Register.Accumulation.Balance',
-    data: {
-      Department: doc.Department,
-      Balance: PL,
-      Analytics: ExpenseCOST,
-      Amount: totalCost
-    }
-  });
-
-  Registers.Accumulation.push({
-    kind: false,
-    type: 'Register.Accumulation.Balance',
-    data: {
-      Department: doc.Department,
-      Balance: PL,
-      Analytics: IncomeSALES,
-      Amount: doc.Amount / exchangeRate,
-    }
-  });
 
 }
