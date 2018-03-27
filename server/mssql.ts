@@ -97,7 +97,6 @@ export class MSSQL {
       throw new Error(err);
     }
   }
-
 }
 
 export const sdb = new MSSQL(sqlConfig);
