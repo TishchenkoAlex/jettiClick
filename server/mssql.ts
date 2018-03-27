@@ -81,26 +81,26 @@ export class MSSQL {
     return data;
   }
 
-    async tx<T>(func: (tx: MSSQL) => Promise<T>) {
-      const transaction = new sql.Transaction(<any>this.POOL);
-      await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
+  async tx<T>(func: (tx: MSSQL) => Promise<T>) {
+    const transaction = new sql.Transaction(<any>this.POOL);
+    await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
+    try {
+      await func(new MSSQL(this.config, transaction));
+      await transaction.commit();
+    } catch (err) {
+      console.log('SQL: error', err);
       try {
-        await func(new MSSQL(this.config, transaction));
-        await transaction.commit();
-      } catch(err) {
-        console.log('SQL: error', err);
-        try {
-          await transaction.rollback();
-        } catch {
-          console.log('SQL: ROLLBACK error', err);
-        }
-        throw new Error(err);
+        await transaction.rollback();
+      } catch {
+        console.log('SQL: ROLLBACK error', err);
       }
+      throw new Error(err);
     }
+  }
 
 }
 
-  export const sdb = new MSSQL(sqlConfig);
-  export const sdbq = new MSSQL({ ...sqlConfig, requestTimeout: 1000 * 60 * 60 });
-  export const sdba = new MSSQL(sqlConfigAccounts);
+export const sdb = new MSSQL(sqlConfig);
+export const sdbq = new MSSQL({ ...sqlConfig, requestTimeout: 1000 * 60 * 60 });
+export const sdba = new MSSQL(sqlConfigAccounts);
 
