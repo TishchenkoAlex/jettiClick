@@ -49,6 +49,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     } else {
       ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type);
     }
+    if (!ServerDoc) throw new Error(`worng type ${params.type}`);
 
     let model = {};
     const settings = (await sdb.oneOrNone<{ settings: FormListSettings }>(`
