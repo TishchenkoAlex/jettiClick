@@ -66,38 +66,41 @@ export class MSSQL {
     }
     const response = await request.query(text);
     const data = response && response.recordset ? response.recordset : null;
-    if (data.length === 1) {
+    if (data && data.length === 1) {
       if (typeof data[0].doc === 'string') data[0].doc = JSON.parse(data[0].doc);
       if (typeof data[0].data === 'string') data[0].data = JSON.parse(data[0].data);
       return data[0];
     }
-    data.forEach(el => {
-      if (typeof el.doc === 'string') el.doc = JSON.parse(el.doc);
-      if (typeof el.data === 'string') el.data = JSON.parse(el.data);
-    });
+    if (data && data.length > 1) {
+      data.forEach(el => {
+        if (typeof el.doc === 'string') el.doc = JSON.parse(el.doc);
+        if (typeof el.data === 'string') el.data = JSON.parse(el.data);
+      });
+      return data;
+    }
     return data;
   }
 
-  async tx<T>(func: (tx: MSSQL) => Promise<T>) {
-    const transaction = new sql.Transaction(<any>this.POOL);
-    await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
-    try {
-      await func(new MSSQL(this.config, transaction));
-      await transaction.commit();
-    } catch (err) {
-      console.log('SQL: error', err);
+    async tx<T>(func: (tx: MSSQL) => Promise<T>) {
+      const transaction = new sql.Transaction(<any>this.POOL);
+      await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
       try {
-        await transaction.rollback();
-      } catch {
-        console.log('SQL: ROLLBACK error', err);
+        await func(new MSSQL(this.config, transaction));
+        await transaction.commit();
+      } catch(err) {
+        console.log('SQL: error', err);
+        try {
+          await transaction.rollback();
+        } catch {
+          console.log('SQL: ROLLBACK error', err);
+        }
+        throw new Error(err);
       }
-      throw new Error(err);
     }
-  }
 
 }
 
-export const sdb = new MSSQL(sqlConfig);
-export const sdbq = new MSSQL({ ...sqlConfig, requestTimeout: 1000 * 60 * 60 });
-export const sdba = new MSSQL(sqlConfigAccounts);
+  export const sdb = new MSSQL(sqlConfig);
+  export const sdbq = new MSSQL({ ...sqlConfig, requestTimeout: 1000 * 60 * 60 });
+  export const sdba = new MSSQL(sqlConfigAccounts);
 
