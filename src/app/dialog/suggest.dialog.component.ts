@@ -48,7 +48,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const columns: ColumnDef[] = [];
     const data = [{ description: 'string' }, { code: 'string' }, { id: 'string' }];
-    this.doc = createDocument(this.type as any);
+    try { this.doc = createDocument(this.type as any); } catch { }
     const schema = this.doc ? this.doc.Props() : {};
     const dimensions = this.doc ? (this.doc.Prop() as DocumentOptions).dimensions || [] : [];
     [...data, ...dimensions].forEach(el => {

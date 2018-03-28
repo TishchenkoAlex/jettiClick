@@ -3,12 +3,12 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { AbstractControl, ControlValueAccessor, FormControl, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AutoComplete } from 'primeng/components/autocomplete/autocomplete';
-import { take } from 'rxjs/operators';
+import { Observable } from 'rxjs/Observable';
 import { ISuggest } from '../../../../server/models/api';
 import { FormListSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
-import { calendarLocale, dateFormat } from './../../primeNG.module';
 import { IComplexObject } from '../dynamic-form/dynamic-form-base';
+import { calendarLocale, dateFormat } from './../../primeNG.module';
 
 
 function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
@@ -55,7 +55,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     suggest: new FormControl({ value: this.value, disabled: this.disabled }, AutocompleteValidator(this))
   });
   suggest = this.form.controls['suggest'] as FormControl;
-  suggests$: ISuggest[] = [];
+  Suggests$: Observable<ISuggest[]>;
 
   private NO_EVENT = false;
   showDialog = false;
@@ -109,10 +109,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   constructor(private api: ApiService, private router: Router, private cd: ChangeDetectorRef) { }
 
   getSuggests(text) {
-    this.api.getSuggests(this.value.type || this.type, text, this.isCatalogParent).pipe(take(1)).subscribe(data => {
-      this.suggests$ = data;
-      this.cd.detectChanges();
-    });
+    this.Suggests$ = this.api.getSuggests(this.value.type || this.type, text, this.isCatalogParent);
   }
 
   handleReset = (event: Event) => this.value = this.EMPTY;
@@ -126,7 +123,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   searchComplete(row: ISuggest) {
     this.showDialog = false;
     if (!row) return;
-    this.value = { id: this.isTypeValue ? null : row.id, code: row.code, type: row.type, value: this.isTypeValue ? null : row.description };
+    this.value = { id: this.isTypeValue ? null : row.id, code: row.code, type: row.type, value: this.isTypeValue ? null : row.value };
   }
 
   calcFilters() {

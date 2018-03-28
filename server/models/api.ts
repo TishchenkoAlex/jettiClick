@@ -96,7 +96,7 @@ export interface ISuggest {
   id: string;
   type: AllTypes;
   code: string;
-  description: string;
+  value: string;
 }
 
 export function calculateDescription(description: string, date: Date, code: string, group = '') {

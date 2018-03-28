@@ -1,5 +1,6 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
+import { ISuggest } from '../models/api';
 import { sdb } from '../mssql';
 
 
@@ -38,7 +39,7 @@ router.get('/suggest/:type/*', async (req: Request, res: Response, next: NextFun
       FROM "Documents" WHERE type = '${req.params.type}'
       AND (description LIKE @p1 OR code LIKE @p1)
       ORDER BY type, description`;
-    const data = await sdb.manyOrNone<any>(query, ['%' + req.params[0] + '%']);
+    const data = await sdb.manyOrNone<ISuggest>(query, ['%' + req.params[0] + '%']);
     res.json(data);
   } catch (err) { next(err); }
 });

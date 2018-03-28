@@ -19,19 +19,17 @@
 // tslint:disable:no-trailing-whitespace
 // tslint:disable:semicolon
 // tslint:disable:no-string-throw
-
-import { NgModule, Component, HostListener, OnInit, AfterViewInit, Directive, AfterContentInit, Input, Output, EventEmitter, ElementRef, ContentChildren, TemplateRef, QueryList, ViewChild, NgZone, EmbeddedViewRef, ViewContainerRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { AfterContentInit, AfterViewInit, Component, ContentChildren, Directive, ElementRef, EventEmitter, HostListener, Injectable, Input, NgModule, NgZone, OnInit, Output, QueryList, TemplateRef, ViewChild } from '@angular/core';
+import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
+import { FilterMetadata } from 'primeng/components/common/filtermetadata';
+import { Column, PrimeTemplate, SharedModule } from 'primeng/components/common/shared';
 import { SortMeta } from 'primeng/components/common/sortmeta';
 import { DomHandler } from 'primeng/components/dom/domhandler';
-import { ObjectUtils } from 'primeng/components/utils/objectutils';
-import { FilterMetadata } from 'primeng/components/common/filtermetadata';
-import { PrimeTemplate, Column, SharedModule } from 'primeng/components/common/shared';
 import { PaginatorModule } from 'primeng/components/paginator/paginator';
+import { ObjectUtils } from 'primeng/components/utils/objectutils';
+import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
 
 @Injectable()
 export class TableService {
@@ -40,11 +38,13 @@ export class TableService {
   private selectionSource = new Subject();
   private contextMenuSource = new Subject<any>();
   private valueSource = new Subject<any>();
+  private totalRecordsSource = new Subject<any>();
 
   sortSource$ = this.sortSource.asObservable();
   selectionSource$ = this.selectionSource.asObservable();
   contextMenuSource$ = this.contextMenuSource.asObservable();
   valueSource$ = this.valueSource.asObservable();
+  totalRecordsSource$ = this.totalRecordsSource.asObservable();
 
   onSort(sortMeta: SortMeta | SortMeta[]) {
     this.sortSource.next(sortMeta);
@@ -60,6 +60,10 @@ export class TableService {
 
   onValueChange(value: any) {
     this.valueSource.next(value);
+  }
+
+  onTotalRecordsChange(value: number) {
+    this.totalRecordsSource.next(value);
   }
 }
 
@@ -131,8 +135,6 @@ export class Table implements OnInit, AfterContentInit {
   @Input() rows: number;
 
   @Input() first: number = 0;
-
-  @Input() totalRecords: number = 0;
 
   @Input() pageLinks: number = 5;
 
@@ -260,6 +262,8 @@ export class Table implements OnInit, AfterContentInit {
 
   _value: any[] = [];
 
+  _totalRecords: number = 0;
+
   filteredValue: any[] | null;
 
   headerTemplate: TemplateRef<any>;
@@ -312,7 +316,7 @@ export class Table implements OnInit, AfterContentInit {
 
   editingCell: Element | null;
 
-  _multiSortMeta: SortMeta[];
+  _multiSortMeta: SortMeta[] | null;
 
   _sortField: string | null;
 
@@ -340,7 +344,7 @@ export class Table implements OnInit, AfterContentInit {
 
   ngOnInit() {
     if (this.lazy) {
-      this.onLazyLoad.emit({...this.createLazyLoadMetadata()});
+      this.onLazyLoad.emit(this.createLazyLoadMetadata());
     }
     this.initialized = true;
   }
@@ -416,9 +420,10 @@ export class Table implements OnInit, AfterContentInit {
   }
   set value(val: any[]) {
     this._value = val;
-    this.updateTotalRecords();
 
     if (!this.lazy) {
+      this.totalRecords = (this._value ? this._value.length : 0);
+
       if (this.sortMode == 'single')
         this.sortSingle();
       else if (this.sortMode == 'multiple')
@@ -432,11 +437,19 @@ export class Table implements OnInit, AfterContentInit {
     this.tableService.onValueChange(val);
   }
 
-  @Input() get sortField() {
+  @Input() get totalRecords(): number {
+    return this._totalRecords;
+  }
+  set totalRecords(val: number) {
+    this._totalRecords = val;
+    this.tableService.onTotalRecordsChange(this._totalRecords);
+  }
+
+  @Input() get sortField(): string | null {
     return this._sortField;
   }
 
-  set sortField(val) {
+  set sortField(val: string | null) {
     this._sortField = val;
 
     //avoid triggering lazy load prior to lazy initialization at onInit
@@ -461,11 +474,11 @@ export class Table implements OnInit, AfterContentInit {
     }
   }
 
-  @Input() get multiSortMeta(): SortMeta[] {
+  @Input() get multiSortMeta(): SortMeta[] | null {
     return this._multiSortMeta;
   }
 
-  set multiSortMeta(val: SortMeta[]) {
+  set multiSortMeta(val: SortMeta[] | null) {
     this._multiSortMeta = val;
     if (this.sortMode === 'multiple') {
       this.sortMultiple();
@@ -498,10 +511,6 @@ export class Table implements OnInit, AfterContentInit {
         this.selectionKeys[String(this.objectUtils.resolveFieldData(this._selection, this.dataKey))] = 1;
       }
     }
-  }
-
-  updateTotalRecords() {
-    this.totalRecords = this.lazy ? this.totalRecords : (this._value ? this._value.length : 0);
   }
 
   onPageChange(event) {
@@ -544,8 +553,7 @@ export class Table implements OnInit, AfterContentInit {
         if (!metaKey || !this.multiSortMeta) {
           this._multiSortMeta = [];
         }
-        // tslint:disable-next-line:no-non-null-assertion
-        this.multiSortMeta.push({ field: event.field, order: this.defaultSortOrder });
+        this.multiSortMeta!.push({ field: event.field, order: this.defaultSortOrder });
       }
 
       this.sortMultiple();
@@ -570,8 +578,8 @@ export class Table implements OnInit, AfterContentInit {
         }
         else {
           this.value.sort((data1, data2) => {
-            let value1 = this.objectUtils.resolveFieldData(data1, this.sortField || '');
-            let value2 = this.objectUtils.resolveFieldData(data2, this.sortField || '');
+            let value1 = this.objectUtils.resolveFieldData(data1, this.sortField!);
+            let value2 = this.objectUtils.resolveFieldData(data2, this.sortField!);
             let result: number | null = null;
 
             if (value1 == null && value2 != null)
@@ -638,7 +646,7 @@ export class Table implements OnInit, AfterContentInit {
   multisortField(data1, data2, multiSortMeta, index) {
     let value1 = this.objectUtils.resolveFieldData(data1, multiSortMeta[index].field);
     let value2 = this.objectUtils.resolveFieldData(data2, multiSortMeta[index].field);
-    let result = 0;
+    let result: number | null = null;
 
     if (typeof value1 == 'string' || value1 instanceof String) {
       if (value1.localeCompare && (value1 != value2)) {
@@ -653,7 +661,7 @@ export class Table implements OnInit, AfterContentInit {
       return (multiSortMeta.length - 1) > (index) ? (this.multisortField(data1, data2, multiSortMeta, index + 1)) : 0;
     }
 
-    return (multiSortMeta[index].order * result);
+    return (multiSortMeta[index].order * result!);
   }
 
   getSortMeta(field: string) {
@@ -756,7 +764,7 @@ export class Table implements OnInit, AfterContentInit {
               }
             }
 
-            this.onRowSelect.emit({ originalEvent: event.originalEvent, data: rowData, type: 'row' });
+            this.onRowSelect.emit({ originalEvent: event.originalEvent, data: rowData, type: 'row', index: event.rowIndex });
           }
         }
         else {
@@ -770,7 +778,7 @@ export class Table implements OnInit, AfterContentInit {
             else {
               this._selection = rowData;
               this.selectionChange.emit(this.selection);
-              this.onRowSelect.emit({ originalEvent: event.originalEvent, data: rowData, type: 'row' });
+              this.onRowSelect.emit({ originalEvent: event.originalEvent, data: rowData, type: 'row', index: event.rowIndex });
               if (dataKeyValue) {
                 this.selectionKeys = {};
                 this.selectionKeys[dataKeyValue] = 1;
@@ -790,7 +798,7 @@ export class Table implements OnInit, AfterContentInit {
             else {
               this._selection = this.selection ? [...this.selection, rowData] : [rowData];
               this.selectionChange.emit(this.selection);
-              this.onRowSelect.emit({ originalEvent: event.originalEvent, data: rowData, type: 'row' });
+              this.onRowSelect.emit({ originalEvent: event.originalEvent, data: rowData, type: 'row', index: event.rowIndex });
               if (dataKeyValue) {
                 this.selectionKeys[dataKeyValue] = 1;
               }
@@ -839,7 +847,7 @@ export class Table implements OnInit, AfterContentInit {
       let rangeRowData = this.value[i];
       if (!this.isSelected(rangeRowData)) {
         this._selection = [...this.selection, rangeRowData];
-        let dataKeyValue = this.dataKey ? String(this.objectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
+        let dataKeyValue: string | null = this.dataKey ? String(this.objectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
         if (dataKeyValue) {
           this.selectionKeys[dataKeyValue] = 1;
         }
@@ -870,7 +878,7 @@ export class Table implements OnInit, AfterContentInit {
       let rangeRowData = this.value[i];
       let selectionIndex = this.findIndexInSelection(rangeRowData);
       this._selection = this.selection.filter((val, i) => i != selectionIndex);
-      let dataKeyValue = this.dataKey ? String(this.objectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
+      let dataKeyValue: string | null = this.dataKey ? String(this.objectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
       if (dataKeyValue) {
         delete this.selectionKeys[dataKeyValue];
       }
@@ -958,7 +966,7 @@ export class Table implements OnInit, AfterContentInit {
   }
 
   toggleRowsWithCheckbox(event: Event, check: boolean) {
-    this._selection = check ? this.value.slice() : [];
+    this._selection = check ? this.filteredValue ? this.filteredValue.slice() : this.value.slice() : [];
     this.preventSelectionSetterPropagation = true;
     this.updateSelectionKeys();
     this.selectionChange.emit(this._selection);
@@ -1056,8 +1064,7 @@ export class Table implements OnInit, AfterContentInit {
           if (this.filters['global'] && !globalMatch && globalFilterFieldsArray) {
             for (let j = 0; j < globalFilterFieldsArray.length; j++) {
               let globalFilterField = globalFilterFieldsArray[j].field || globalFilterFieldsArray[j];
-              const filterConstraints = this.filters['global'].matchMode || '';
-              globalMatch = this.filterConstraints[filterConstraints](this.objectUtils.resolveFieldData(this.value[i], globalFilterField), this.filters['global'].value);
+              globalMatch = this.filterConstraints[this.filters['global'].matchMode!](this.objectUtils.resolveFieldData(this.value[i], globalFilterField), this.filters['global'].value);
 
               if (globalMatch) {
                 break;
@@ -1230,16 +1237,18 @@ export class Table implements OnInit, AfterContentInit {
   public reset() {
     this._sortField = null;
     this._sortOrder = 1;
-    this._multiSortMeta = []; // tishchenko
+    this._multiSortMeta = null;
 
     this.filteredValue = null;
     this.filters = {};
 
     this.first = 0;
-    this.updateTotalRecords();
 
     if (this.lazy) {
       this.onLazyLoad.emit(this.createLazyLoadMetadata());
+    }
+    else {
+      this.totalRecords = (this._value ? this._value.length : 0);
     }
   }
 
@@ -1458,11 +1467,6 @@ export class Table implements OnInit, AfterContentInit {
   }
 
   onColumnDragStart(event, columnElement) {
-    if (this.domHandler.hasClass(event.target, 'ui-column-resizer')) {
-      event.preventDefault();
-      return;
-    }
-
     this.reorderIconWidth = this.domHandler.getHiddenElementOuterWidth(this.reorderIndicatorUpViewChild.nativeElement);
     this.reorderIconHeight = this.domHandler.getHiddenElementOuterHeight(this.reorderIndicatorDownViewChild.nativeElement);
     this.draggedColumn = columnElement;
@@ -1591,8 +1595,8 @@ export class Table implements OnInit, AfterContentInit {
 
   onRowDrop(event, rowElement) {
     if (this.droppedRowIndex != null) {
-      let dropIndex = ((this.draggedRowIndex || 0) > this.droppedRowIndex) ? this.droppedRowIndex : (this.droppedRowIndex === 0) ? 0 : this.droppedRowIndex - 1;
-      this.objectUtils.reorderArray(this.value, this.draggedRowIndex || 0, dropIndex);
+      let dropIndex = (this.draggedRowIndex! > this.droppedRowIndex) ? this.droppedRowIndex : (this.droppedRowIndex === 0) ? 0 : this.droppedRowIndex - 1;
+      this.objectUtils.reorderArray(this.value, this.draggedRowIndex!, dropIndex);
 
       this.onRowReorder.emit({
         dragIndex: this.draggedRowIndex,
@@ -1636,17 +1640,17 @@ export class Table implements OnInit, AfterContentInit {
   template: `
         <ng-container *ngIf="!dt.expandedRowTemplate">
             <ng-template ngFor let-rowData let-rowIndex="index" [ngForOf]="dt.paginator ? ((dt.filteredValue||dt.value) | slice:(dt.lazy ? 0 : dt.first):((dt.lazy ? 0 : dt.first) + dt.rows)) : (dt.filteredValue||dt.value)" [ngForTrackBy]="dt.rowTrackBy">
-                <ng-container *ngTemplateOutlet="template; context: {$implicit: rowData, rowIndex: rowIndex, columns: columns}"></ng-container>
+                <ng-container *ngTemplateOutlet="template; context: {$implicit: rowData, rowIndex: dt.paginator ? (dt.first + rowIndex) : rowIndex, columns: columns}"></ng-container>
             </ng-template>
         </ng-container>
         <ng-container *ngIf="dt.expandedRowTemplate">
             <ng-template ngFor let-rowData let-rowIndex="index" [ngForOf]="dt.paginator ? ((dt.filteredValue||dt.value) | slice:(dt.lazy ? 0 : dt.first):((dt.lazy ? 0 : dt.first) + dt.rows)) : (dt.filteredValue||dt.value)" [ngForTrackBy]="dt.rowTrackBy">
                 <ng-container *ngIf="dt.isRowExpanded(rowData); else collapsedrow">
-                    <ng-container *ngTemplateOutlet="template; context: {$implicit: rowData, rowIndex: rowIndex, columns: columns, expanded: true}"></ng-container>
-                    <ng-container *ngTemplateOutlet="dt.expandedRowTemplate; context: {$implicit: rowData, rowIndex: rowIndex, columns: columns}"></ng-container>
+                    <ng-container *ngTemplateOutlet="template; context: {$implicit: rowData, rowIndex: dt.paginator ? (dt.first + rowIndex) : rowIndex, columns: columns, expanded: true}"></ng-container>
+                    <ng-container *ngTemplateOutlet="dt.expandedRowTemplate; context: {$implicit: rowData, rowIndex: dt.paginator ? (dt.first + rowIndex) : rowIndex, columns: columns}"></ng-container>
                 </ng-container>
                 <ng-template #collapsedrow>
-                    <ng-container *ngTemplateOutlet="template; context: {$implicit: rowData, rowIndex: rowIndex, expanded: false, columns: columns}"></ng-container>
+                    <ng-container *ngTemplateOutlet="template; context: {$implicit: rowData, rowIndex: dt.paginator ? (dt.first + rowIndex) : rowIndex, expanded: false, columns: columns}"></ng-container>
                 </ng-template>
             </ng-template>
         </ng-container>
@@ -1733,6 +1737,8 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
 
   subscription: Subscription;
 
+  totalRecordsSubscription: Subscription;
+
   constructor(public dt: Table, public el: ElementRef, public domHandler: DomHandler, public zone: NgZone) {
     this.subscription = this.dt.tableService.valueSource$.subscribe(() => {
       this.zone.runOutsideAngular(() => {
@@ -1741,6 +1747,16 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
         }, 50);
       });
     });
+
+    if (this.dt.virtualScroll) {
+      this.totalRecordsSubscription = this.dt.tableService.totalRecordsSource$.subscribe(() => {
+        this.zone.runOutsideAngular(() => {
+          setTimeout(() => {
+            this.setVirtualScrollerHeight();
+          }, 50);
+        });
+      });
+    }
   }
 
   @Input() get scrollHeight(): string {
@@ -1776,7 +1792,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
     }
 
     if (this.dt.virtualScroll) {
-      this.virtualScrollerViewChild.nativeElement.style.height = this.dt.totalRecords * this.dt.virtualRowHeight + 'px';
+      this.setVirtualScrollerHeight();
     }
   }
 
@@ -1868,13 +1884,26 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
         let staticHeight = containerHeight - 100;   //total height of headers, footers, paginators
         let scrollBodyHeight = (relativeHeight - staticHeight);
 
+        if (this.frozen) {
+          scrollBodyHeight -= this.domHandler.calculateScrollbarWidth();
+        }
+
         this.scrollBodyViewChild.nativeElement.style.height = 'auto';
         this.scrollBodyViewChild.nativeElement.style.maxHeight = scrollBodyHeight + 'px';
         this.scrollBodyViewChild.nativeElement.style.visibility = 'visible';
       }
       else {
-        this.scrollBodyViewChild.nativeElement.style.maxHeight = this.scrollHeight;
+        if (this.frozen)
+          this.scrollBodyViewChild.nativeElement.style.maxHeight = (parseInt(this.scrollHeight) - this.domHandler.calculateScrollbarWidth()) + 'px';
+        else
+          this.scrollBodyViewChild.nativeElement.style.maxHeight = this.scrollHeight;
       }
+    }
+  }
+
+  setVirtualScrollerHeight() {
+    if (this.virtualScrollerViewChild.nativeElement) {
+      this.virtualScrollerViewChild.nativeElement.style.height = this.dt.totalRecords * this.dt.virtualRowHeight + 'px';
     }
   }
 
@@ -1886,6 +1915,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
     if (!this.frozen) {
       let scrollBarWidth = this.hasVerticalOverflow() ? this.domHandler.calculateScrollbarWidth() : 0;
       this.scrollHeaderBoxViewChild.nativeElement.style.marginRight = scrollBarWidth + 'px';
+
       if (this.scrollFooterBoxViewChild && this.scrollFooterBoxViewChild.nativeElement) {
         this.scrollFooterBoxViewChild.nativeElement.style.marginRight = scrollBarWidth + 'px';
       }
@@ -1899,6 +1929,10 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
 
     if (this.subscription) {
       this.subscription.unsubscribe();
+    }
+
+    if (this.totalRecordsSubscription) {
+      this.totalRecordsSubscription.unsubscribe();
     }
   }
 }
@@ -1917,7 +1951,7 @@ export class SortableColumn implements OnInit, OnDestroy {
 
   @Input() pSortableColumnDisabled: boolean;
 
-  sorted: boolean;
+  sorted: boolean | null | '' | undefined;
 
   subscription: Subscription;
 
@@ -1936,7 +1970,7 @@ export class SortableColumn implements OnInit, OnDestroy {
   }
 
   updateSortState() {
-    this.sorted = !!this.dt.isSorted(this.field);
+    this.sorted = this.dt.isSorted(this.field);
   }
 
   @HostListener('click', ['$event'])
@@ -2351,7 +2385,7 @@ export class ReorderableColumn implements AfterViewInit, OnDestroy {
   }
 
   onMouseDown(event) {
-    if (event.target.nodeName === 'INPUT')
+    if (event.target.nodeName === 'INPUT' || this.domHandler.hasClass(event.target, 'ui-column-resizer'))
       this.el.nativeElement.draggable = false;
     else
       this.el.nativeElement.draggable = true;
@@ -2412,6 +2446,7 @@ export class EditableColumn implements AfterViewInit {
   isValid() {
     return true; //  tishchenko (this.dt.editingCell && this.domHandler.find(this.dt.editingCell, '.ng-invalid.ng-dirty').length === 0);
   }
+
 
   @HostListener('click', ['$event'])
   onClick(event: MouseEvent) {
@@ -2522,7 +2557,7 @@ export class EditableColumn implements AfterViewInit {
     let prevCell = cell.previousElementSibling;
 
     if (!prevCell) {
-      let previousRow = cell.parentElement && cell.parentElement.previousElementSibling;
+      let previousRow = cell.parentElement!.previousElementSibling;
       if (previousRow) {
         prevCell = previousRow.lastElementChild;
       }
@@ -2543,7 +2578,7 @@ export class EditableColumn implements AfterViewInit {
     let nextCell = cell.nextElementSibling;
 
     if (!nextCell) {
-      let nextRow = cell.parentElement && cell.parentElement.nextElementSibling;
+      let nextRow = cell.parentElement!.nextElementSibling;
       if (nextRow) {
         nextCell = nextRow.firstElementChild;
       }

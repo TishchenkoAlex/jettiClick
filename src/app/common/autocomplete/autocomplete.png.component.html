@@ -22,7 +22,8 @@
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
       <p-calendar [required]="required" [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" showTime="true" [locale]="locale"
         showButtonBar="true" [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body"
-        (ngModelChange)="value={id: 'datetime', code: '', type: 'datetime', value: $event}" [dateFormat]="dateFormat">
+        (ngModelChange)="value={id: 'datetime', code: '', type: 'datetime', value: $event}" [dateFormat]="dateFormat"
+        [monthNavigator]="true" [yearNavigator]="true" yearRange="2010:2030">
       </p-calendar>
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
@@ -33,7 +34,7 @@
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
       <p-calendar [required]="required" [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" showButtonBar="true"
         [showOnFocus]="false" autocomplete="off" (change)="onChange($event)" [showIcon]="true" appendTo="body" (ngModelChange)="value={id: 'date', code: '', type: 'date', value: $event}"
-        [locale]="locale" [dateFormat]="dateFormat">
+        [locale]="locale" [dateFormat]="dateFormat" [monthNavigator]="true" [yearNavigator]="true" yearRange="2010:2030">
       </p-calendar>
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
@@ -48,7 +49,7 @@
 
   <span *ngIf="isComplexValue">
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
-      <p-autoComplete #ac [formControl]="suggest" [suggestions]="suggests$" [required]="required" [readonly]="readOnly" autocomplete="off"
+      <p-autoComplete #ac [formControl]="suggest" [suggestions]="Suggests$ | async" [required]="required" [readonly]="readOnly" autocomplete="off"
         appendTo="body" (completeMethod)="getSuggests($event.query)" field="value" (onSelect)="this.value = this.suggest.value"
         [inputStyle]="inputStyle" (onClear)="handleReset($event)" dataKey="id" (onFocus)="this.focus.emit($event)" (onBlur)="onBlur($event)"
         [autoHighlight]="true" spellcheck="false">

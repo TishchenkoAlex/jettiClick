@@ -57,10 +57,10 @@ export class ApiService {
     return this.http.post<IViewModel>(query, { type, id, ...params }, { params });
   }
 
-  getSuggests(docType: string, filter = '', isfolder = false) {
-    if (!filter) { return of([]); }
+  getSuggests(docType: string, filter = '', isfolder = false): Observable<ISuggest[]> {
+    if (!filter) return of([] as ISuggest[]);
     const query = `${environment.api}suggest/${docType}/${isfolder ? 'isfolder/' : ''}${filter}`;
-    return (this.http.get<ISuggest[]>(query));
+    return this.http.get<ISuggest[]>(query);
   }
 
   getSuggestsById(id: string): Observable<any> {
