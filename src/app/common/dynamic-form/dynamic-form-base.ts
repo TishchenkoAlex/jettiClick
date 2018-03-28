@@ -63,6 +63,10 @@ export class TextboxFormControl extends FormControlInfo {
   value = '';
   controlType = 'string';
   type = 'string';
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
 }
 
 export class TextareaFormControl extends FormControlInfo {
@@ -70,12 +74,21 @@ export class TextareaFormControl extends FormControlInfo {
   controlType = 'textarea';
   type = 'string';
   style = { 'min-width': '100%' };
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
 }
 
 export class ScriptFormControl extends FormControlInfo {
   value = '';
   controlType = 'script';
   style = { 'width': '600px', 'min-width': '600px', 'max-width': '600px' };
+
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
 }
 
 export class BooleanFormControl extends FormControlInfo {
@@ -83,6 +96,10 @@ export class BooleanFormControl extends FormControlInfo {
   controlType = 'boolean';
   type = 'boolean';
   style = { 'min-width': '24px', 'max-width': '24px', 'width': '90px', 'text-align': 'center', 'margin-top': '26px' };
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
 }
 
 export class DateJettiFormControl extends FormControlInfo {
@@ -90,6 +107,10 @@ export class DateJettiFormControl extends FormControlInfo {
   controlType = 'date';
   type = 'date';
   style = { 'min-width': '110px', 'max-width': '110px', 'width': '110px' };
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
 }
 
 export class DateTimeFormControl extends FormControlInfo {
@@ -97,6 +118,10 @@ export class DateTimeFormControl extends FormControlInfo {
   controlType = 'datetime';
   type = 'datetime';
   style = { 'min-width': '145px', 'max-width': '145px', 'width': '145px' };
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
 }
 
 export interface IJettiComplexObject {
@@ -108,6 +133,10 @@ export class AutocompleteFormControl extends FormControlInfo {
   controlType = 'autocomplete';
   style = { 'width': '250px', 'min-width': '250px', 'max-width': '250px' };
   value = JettiComplexObject;
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
 }
 
 export class NumberFormControl extends FormControlInfo {
@@ -115,6 +144,10 @@ export class NumberFormControl extends FormControlInfo {
   controlType = 'number';
   type = 'number';
   style = { 'min-width': '100px', 'max-width': '100px', 'width': '100px', 'text-align': 'right' };
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
 }
 
 export class TableDynamicControl extends FormControlInfo {
