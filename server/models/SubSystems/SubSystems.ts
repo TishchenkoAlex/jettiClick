@@ -1,13 +1,14 @@
 import { RoleObject } from '../../models/Roles/Base';
-import { DocumentOptions, DocumentBase } from '../document';
-import { FormOptions, FormBase } from '../Forms/form';
+import { FormOptions } from '../Forms/form';
 import { createForm } from '../Forms/form.factory';
 import { FormTypes } from '../Forms/form.types';
+import { DocumentBase, DocumentOptions } from '../document';
 import { createDocument } from './../../models/documents.factory';
 import { DocTypes } from './../../models/documents.types';
 import { CatalogsSubSystem } from './Catalogs';
 import { CommonSubSystem } from './Common';
 import { FinanceSubSystem } from './Finance';
+import { ManufacturingSubSystem } from './Manufacturing';
 import { OperationsSubSystem } from './Operations';
 import { SalesSubSystem } from './Sales';
 
@@ -16,7 +17,9 @@ export type SubSystem =
   'Sales' |
   'Finance' |
   'Catalogs' |
-  'Operations';
+  'Operations' |
+  'Manufacturing'
+;
 
 export interface ISubSystem {
   type: SubSystem;
@@ -31,6 +34,7 @@ export const SubSystems: ISubSystem[] = [
   SalesSubSystem,
   FinanceSubSystem,
   OperationsSubSystem,
+  ManufacturingSubSystem
 ];
 
 export interface MenuItem { type: string; icon: string; label: string; items?: MenuItem[]; routerLink?: string[]; }

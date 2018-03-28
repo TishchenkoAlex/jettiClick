@@ -1,4 +1,3 @@
 export type FormTypes =
-  'Form.Post' |
-  'Form.Form1'
+  'Form.Post'
 ;

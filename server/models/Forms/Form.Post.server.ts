@@ -1,14 +1,13 @@
-import { sdb, sdbq } from '../../mssql';
+import { sdbq } from '../../mssql';
 import { ICallRequest } from '../../routes/utils/interfaces';
-import { lib } from '../../std.lib';
 import { JQueue } from '../Tasks/tasks';
-import { userSocketsEmit } from './../../sockets';
 import { FormPost } from './Form.Post';
 
 export default class FormPostServer extends FormPost {
 
   constructor(private CallRequest: ICallRequest) {
-    super(CallRequest.formView as FormPost);
+    super();
+    Object.assign(this, CallRequest);
   }
 
   async Execute(tx = sdbq, CR: ICallRequest) {
@@ -25,35 +24,6 @@ export default class FormPostServer extends FormPost {
     }, { jobId: 'FormPostServer' }));
   }
 
-  async Execute2() {
-    userSocketsEmit(this.CallRequest.user, 'Form.Post', 0);
-    try {
-      const query = `
-      SELECT id, date, code FROM "Documents"
-      WHERE type = @p1 AND company = @p2 AND date between @p3 AND @p4
-      ORDER BY date, code`;
-      const endDate = new Date(this.CallRequest.formView.EndDate);
-      endDate.setHours(23, 59, 59, 999);
-      const list = await sdb.manyOrNone<any>(query, [
-        this.CallRequest.formView.type.id,
-        this.CallRequest.formView.company.id,
-        this.CallRequest.formView.StartDate,
-        endDate
-      ]);
-
-      let count = 0;
-      for (const row of list) {
-        userSocketsEmit(this.CallRequest.userID, 'Form.Post', ++count / list.length * 100);
-        try {
-          await lib.doc.postById(row.id, true, sdb);
-        } catch (err) {
-        }
-      }
-      userSocketsEmit(this.CallRequest.user, 'Form.Post', 100);
-    } catch (err) {
-      userSocketsEmit(this.CallRequest.user, 'Form.Post', -1);
-    }
-  }
 }
 
 

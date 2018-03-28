@@ -36,14 +36,14 @@ export abstract class FormBase {
   Props() {
     const result: { [x: string]: any } = {};
     for (const prop of Object.keys(this)) {
-      const Prop = this.targetProp(this, prop);
+      const Prop = Object.assign({}, this.targetProp(this, prop));
       if (!Prop) { continue; }
       result[prop] = Prop;
       const value = (this as any)[prop];
       if (value instanceof Array && value.length) {
         const arrayProp: { [x: string]: any } = {};
         for (const arrProp of Object.keys(value[0])) {
-          const PropArr = this.targetProp(value[0], arrProp);
+          const PropArr = Object.assign({}, this.targetProp(value[0], arrProp));
           if (!PropArr) { continue; }
           arrayProp[arrProp] = PropArr;
         }
@@ -52,5 +52,4 @@ export abstract class FormBase {
     }
     return result;
   }
-
 }

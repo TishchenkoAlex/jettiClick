@@ -22,7 +22,7 @@ import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 import { INoSqlDocument } from '../../../server/models/ServerDocument';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
-import { ComplexObject, IComplexObject } from '../common/dynamic-form/dynamic-form-base';
+import { IComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapToApi } from '../common/mapping/document.mapping';
 
 @Injectable()

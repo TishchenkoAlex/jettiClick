@@ -6,12 +6,13 @@ import { AutoComplete } from 'primeng/components/autocomplete/autocomplete';
 import { take } from 'rxjs/operators';
 import { ISuggest } from '../../../../server/models/api';
 import { FormListSettings } from '../../../../server/models/user.settings';
-import { IComplexObject, ComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
+import { IComplexObject } from '../dynamic-form/dynamic-form-base';
+
 
 function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
-  return (c: AbstractControl): { [key: string]: any } | null => {
+  return (c: AbstractControl) => {
     if (!component.required || (c.value && c.value.value)) return null;
     return { 'required': true };
   };
@@ -59,10 +60,11 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   private NO_EVENT = false;
   showDialog = false;
 
-  get isComplexValue() { return !!this.value && !!this.value.type && this.value.type.includes('.'); }
+  get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.'); }
   get isTypeControl() { return this.type && this.type.startsWith('Types.'); }
-  get isComplexControl() { return (!!this.type && this.type.includes('.')); }
-  get isTypeValue() { return !!this.value && !!this.value.type && this.value.type.startsWith('Types.'); }
+  get isComplexControl() { return this.type && this.type.includes('.'); }
+  get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.'); }
+  get EMPTY() { return { id: null, code: null, type: this.type, value: null }; }
   get isEMPTY() { return this.isComplexControl && !(this.value && this.value.value); }
   get isCatalogParent() { return this.type.startsWith('Catalog.') && this.id === 'parent'; }
 
@@ -87,10 +89,10 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   writeValue(obj: any): void {
     this.NO_EVENT = true;
-    if (!obj) obj = ComplexObject;
+    if (!obj) obj = this.EMPTY;
     if (!this.type) this.type = obj.type;
     if (this.isComplexControl && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
-      (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) obj = ComplexObject;
+      (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) obj = this.EMPTY;
     this.value = obj;
     this.suggest.markAsDirty({ onlySelf: true });
     this.cd.markForCheck();
@@ -113,7 +115,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     });
   }
 
-  handleReset = (event: Event) => this.value = ComplexObject;
+  handleReset = (event: Event) => this.value = this.EMPTY;
   handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id]);
   handleSearch = (event: Event) => this.showDialog = true;
   select = () => this.input.inputEL.nativeElement.select();
@@ -129,15 +131,17 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   calcFilters() {
     const result = new FormListSettings();
-    // tslint:disable-next-line:no-non-null-assertion
-    if (this.owner && this.owner.owner && this.owner.owner.filterBy)
-      if ((typeof this.owner.value === 'object' && this.owner.value.id))
+    if (this.owner && this.owner.owner && this.owner.owner.filterBy) {
+      if ((typeof this.owner.value === 'object' && this.owner.value.id)) {
         result.filter.push({ left: this.owner.owner.filterBy, center: '=', right: this.owner.value });
-
+      }
+    }
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
     if (this.type.startsWith('Document.')) {
       const doc = this.formControl && this.formControl.root.value;
-      if (doc && doc.company.id) result.filter.push({ left: 'company', center: '=', right: doc.company });
+      if (doc && doc.company.id) {
+        result.filter.push({ left: 'company', center: '=', right: doc.company });
+      }
     }
     return result;
   }

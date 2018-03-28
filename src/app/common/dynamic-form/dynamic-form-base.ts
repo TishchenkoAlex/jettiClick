@@ -126,12 +126,11 @@ export class NumberFormControl extends FormControlInfo {
 
 export interface IComplexObject {
   id: string | null; value: string | null; code: string | null; type: string | null; data?: any | null; }
-export const ComplexObject: IComplexObject = { id: null, code: null, type: this.type, value: null };
 
 export class AutocompleteFormControl extends FormControlInfo {
   controlType = 'autocomplete';
   style = { 'width': '250px', 'min-width': '250px', 'max-width': '250px' };
-  value = ComplexObject;
+  value: IComplexObject = { id: null, code: null, type: this.type, value: null };
   constructor(options: IFormControlInfo) {
     super(options);
     if (options.style) this.style = options.style;

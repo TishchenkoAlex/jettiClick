@@ -45,11 +45,11 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     let ServerDoc: DocumentBaseServer;
     if (id) {
       const doc = await lib.doc.byId(id);
-      ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, doc);
+      if (doc) ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, doc);
+      else throw new Error(`worng type ${params.type}`);
     } else {
       ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type);
     }
-    if (!ServerDoc) throw new Error(`worng type ${params.type}`);
 
     let model = {};
     const settings = (await sdb.oneOrNone<{ settings: FormListSettings }>(`
@@ -81,7 +81,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           break;
         case 'copy':
           const copy = await lib.doc.byId(req.query.copy);
-          const copyDoc = await createDocumentServer<DocumentBaseServer>(params.type, copy);
+          const copyDoc = await createDocumentServer<DocumentBaseServer>(params.type, copy!);
           copyDoc.id = id; copyDoc.date = ServerDoc.date; copyDoc.code = ServerDoc.code;
           copyDoc.posted = false; copyDoc.deleted = false; copyDoc.timestamp = null;
           copyDoc.parent = copyDoc.parent;
@@ -124,7 +124,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
     await sdb.tx(async tx => {
       const id = req.params.id;
       const doc = await lib.doc.byId(id, tx);
-      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc!.type as DocTypes, doc!);
 
       await doSubscriptions(serverDoc, 'before detele', tx);
       if (serverDoc && serverDoc.beforeDelete) { serverDoc.beforeDelete(tx); }
