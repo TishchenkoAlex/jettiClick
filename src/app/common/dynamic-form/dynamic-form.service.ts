@@ -9,7 +9,7 @@ import { ApiService } from '../../services/api.service';
 import {
   AutocompleteFormControl,
   BooleanFormControl,
-  DateJettiFormControl,
+  DateFormControl,
   DateTimeFormControl,
   FormControlInfo,
   IFormControlInfo,
@@ -94,7 +94,7 @@ export function getFormGroup(schema: { [x: string]: any }, model: { [x: string]:
           newControl = new BooleanFormControl(controlOptions);
           break;
         case 'date':
-          newControl = new DateJettiFormControl(controlOptions);
+          newControl = new DateFormControl(controlOptions);
           break;
         case 'datetime':
           newControl = new DateTimeFormControl(controlOptions);

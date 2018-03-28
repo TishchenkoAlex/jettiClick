@@ -6,7 +6,7 @@ import { AutoComplete } from 'primeng/components/autocomplete/autocomplete';
 import { take } from 'rxjs/operators';
 import { ISuggest } from '../../../../server/models/api';
 import { FormListSettings } from '../../../../server/models/user.settings';
-import { IJettiComplexObject, JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
+import { IComplexObject, ComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
 
@@ -66,7 +66,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   get isEMPTY() { return this.isComplexControl && !(this.value && this.value.value); }
   get isCatalogParent() { return this.type.startsWith('Catalog.') && this.id === 'parent'; }
 
-  private _value: IJettiComplexObject;
+  private _value: IComplexObject;
   @Input() set value(obj) {
     if (this.isTypeControl && this.placeholder) {
       this.placeholder = this.placeholder.split('[')[0] + '[' + (obj && obj.type ? obj.type : '') + ']';
@@ -87,10 +87,10 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   writeValue(obj: any): void {
     this.NO_EVENT = true;
-    if (!obj) obj = JettiComplexObject;
+    if (!obj) obj = ComplexObject;
     if (!this.type) this.type = obj.type;
     if (this.isComplexControl && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
-      (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) obj = JettiComplexObject;
+      (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) obj = ComplexObject;
     this.value = obj;
     this.suggest.markAsDirty({ onlySelf: true });
     this.cd.markForCheck();
@@ -113,7 +113,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     });
   }
 
-  handleReset = (event: Event) => this.value = JettiComplexObject;
+  handleReset = (event: Event) => this.value = ComplexObject;
   handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id]);
   handleSearch = (event: Event) => this.showDialog = true;
   select = () => this.input.inputEL.nativeElement.select();

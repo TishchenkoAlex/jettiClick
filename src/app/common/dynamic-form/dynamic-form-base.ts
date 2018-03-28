@@ -80,17 +80,6 @@ export class TextareaFormControl extends FormControlInfo {
   }
 }
 
-export class ScriptFormControl extends FormControlInfo {
-  value = '';
-  controlType = 'script';
-  style = { 'width': '600px', 'min-width': '600px', 'max-width': '600px' };
-
-  constructor(options: IFormControlInfo) {
-    super(options);
-    if (options.style) this.style = options.style;
-  }
-}
-
 export class BooleanFormControl extends FormControlInfo {
   value = false;
   controlType = 'boolean';
@@ -102,7 +91,7 @@ export class BooleanFormControl extends FormControlInfo {
   }
 }
 
-export class DateJettiFormControl extends FormControlInfo {
+export class DateFormControl extends FormControlInfo {
   value = new Date();
   controlType = 'date';
   type = 'date';
@@ -124,21 +113,6 @@ export class DateTimeFormControl extends FormControlInfo {
   }
 }
 
-export interface IJettiComplexObject {
-  id: string | null; value: string | null; code: string | null; type: string | null; data?: any | null;
-}
-export const JettiComplexObject: IJettiComplexObject = { id: null, code: null, type: this.type, value: null };
-
-export class AutocompleteFormControl extends FormControlInfo {
-  controlType = 'autocomplete';
-  style = { 'width': '250px', 'min-width': '250px', 'max-width': '250px' };
-  value = JettiComplexObject;
-  constructor(options: IFormControlInfo) {
-    super(options);
-    if (options.style) this.style = options.style;
-  }
-}
-
 export class NumberFormControl extends FormControlInfo {
   value = 0;
   controlType = 'number';
@@ -150,8 +124,34 @@ export class NumberFormControl extends FormControlInfo {
   }
 }
 
+export interface IComplexObject {
+  id: string | null; value: string | null; code: string | null; type: string | null; data?: any | null; }
+export const ComplexObject: IComplexObject = { id: null, code: null, type: this.type, value: null };
+
+export class AutocompleteFormControl extends FormControlInfo {
+  controlType = 'autocomplete';
+  style = { 'width': '250px', 'min-width': '250px', 'max-width': '250px' };
+  value = ComplexObject;
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
+}
+
 export class TableDynamicControl extends FormControlInfo {
   controlType = 'table';
   type = 'table';
   controls: FormControlInfo[] = [];
 }
+
+export class ScriptFormControl extends FormControlInfo {
+  value = '';
+  controlType = 'script';
+  style = { 'width': '600px', 'min-width': '600px', 'max-width': '600px' };
+
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+  }
+}
+
