@@ -184,6 +184,7 @@ export class DynamicFormService {
     const view = form.Props();
     const result = getFormGroup(view, {}, false);
     result['metadata'] = form.Prop();
+    console.log(result);
     return of(result);
   }
 }

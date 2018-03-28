@@ -64,10 +64,11 @@ export class TabControllerComponent {
     return data => {
       if (data.detail instanceof FormGroup) {
         const doc = data.detail.getRawValue() as INoSqlDocument;
-        const tab = tabStore.state.tabs.find(i => (i.docType === doc.type && i.docID === doc.id));
+        const metadata = data.detail['metadata'];
+        const tab = tabStore.state.tabs.find(i => (i.docType === metadata.type && i.docID === (doc.id || '')));
         if (tab) {
-          tab.header = doc.description || tab.docType;
-          tab.icon = data.detail['metadata'].icon;
+          tab.header = doc.description || metadata.description || tab.docType;
+          tab.icon = metadata.icon;
           tabStore.replace(tab);
         }
       } else {

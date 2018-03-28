@@ -38,6 +38,9 @@ export abstract class FormBase {
     for (const prop of Object.keys(this)) {
       const Prop = Object.assign({}, this.targetProp(this, prop));
       if (!Prop) { continue; }
+      for (const el in result[prop]) {
+        if (typeof result[prop][el] === 'function') result[prop][el] = result[prop][el].toString();
+      }
       result[prop] = Prop;
       const value = (this as any)[prop];
       if (value instanceof Array && value.length) {
