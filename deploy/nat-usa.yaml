@@ -56,7 +56,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "22"
+              value: "23"
             - name: SUBSCRIPTION_ID
               value: 
 ---
