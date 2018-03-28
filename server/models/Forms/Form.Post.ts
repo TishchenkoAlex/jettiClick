@@ -1,5 +1,5 @@
 import { FormBase, JForm } from './form';
-import { Props } from '../document';
+import { Props, Ref } from '../document';
 
 @JForm({
   type: 'Form.Post',
@@ -19,7 +19,7 @@ export class FormPost extends FormBase {
   type = '';
 
   @Props({ type: 'Catalog.Company', order: 1, required: true})
-  company = '';
+  company: Ref = null;
 
   constructor (data: FormPost = {} as any) {
     super();

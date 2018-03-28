@@ -22,7 +22,7 @@ import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
 import { INoSqlDocument } from '../../../server/models/ServerDocument';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
-import { JettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
+import { JettiComplexObject, IJettiComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { mapToApi } from '../common/mapping/document.mapping';
 
 @Injectable()
@@ -115,9 +115,9 @@ export class ApiService {
   }
 
 
-  getOperationsGroups(): Observable<JettiComplexObject[]> {
+  getOperationsGroups(): Observable<IJettiComplexObject[]> {
     const query = `${environment.api}operations/groups`;
-    return (this.http.get<JettiComplexObject[]>(query));
+    return (this.http.get<IJettiComplexObject[]>(query));
   }
 
   getUserFormListSettings(type: string): Observable<FormListSettings> {

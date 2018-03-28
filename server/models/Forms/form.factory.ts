@@ -14,7 +14,7 @@ export function createForm(type: FormTypes) {
     const createInstance = <T extends FormBase>(c: new () => T): T => new c();
     const result = createInstance(doc.class);
     return result;
-  }
+  } else throw new Error(`FORM type ${type} is not registered`);
 }
 
 export const RegisteredForms: IRegisteredForm<any>[] = [

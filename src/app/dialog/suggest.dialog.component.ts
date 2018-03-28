@@ -28,17 +28,17 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   @Input() pageSize = 250;
   @Input() settings: FormListSettings = new FormListSettings();
   @Output() Select = new EventEmitter();
-  doc: DocumentBase;
+  doc: DocumentBase | undefined;
 
   columns$: Observable<ColumnDef[]>;
-  selection = [];
+  selection: any[] = [];
   filters: { [s: string]: FilterMetadata } = {};
   multiSortMeta: SortMeta[] = [];
 
   get isDoc() { return this.type.startsWith('Document.'); }
   get isCatalog() { return this.type.startsWith('Catalog.'); }
 
-  dataSource: ApiDataSource | null = null;
+  dataSource: ApiDataSource;
 
   private _debonceSubscription$: Subscription = Subscription.EMPTY;
   private debonce$ = new Subject<{ col: any, event: any, center: string }>();
@@ -92,7 +92,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
 
   private _update(col: ColumnDef, event, center) {
     if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
-    this.filters[col.field] = { matchMode: center || col.filter.center, value: event };
+    this.filters[col.field] = { matchMode: center || (col.filter && col.filter.center), value: event };
     this.prepareDataSource(this.multiSortMeta);
     this.dataSource.sort();
   }

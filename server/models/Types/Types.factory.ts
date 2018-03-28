@@ -9,11 +9,11 @@ export interface IRegisteredTypes {
   Class: typeof TypesBase;
 }
 
-export function createTypes(type: ComplexTypes): TypesBase {
+export function createTypes(type: ComplexTypes): TypesBase  {
   const doc = RegisteredTypes.find(el => el.type === type);
   if (doc) {
     return new doc.Class;
-  }
+  } else throw new Error(`${type} is not defined`);
 }
 
 export const RegisteredTypes: IRegisteredTypes[] = [

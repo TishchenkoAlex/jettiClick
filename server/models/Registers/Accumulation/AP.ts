@@ -20,13 +20,13 @@ export class RegisterAccumulationAP extends RegisterAccumulation {
   Supplier: Ref = null;
 
   @Props({ type: 'datetime' })
-  PayDay: string = null;
+  PayDay = new Date();
 
   @Props({ type: 'number' })
-  Amount: number = null;
+  Amount = 0;
 
   @Props({ type: 'number' })
-  AmountInBalance: number = null;
+  AmountInBalance = null;
 
   constructor(kind: boolean, public data: {
     currency: Ref,

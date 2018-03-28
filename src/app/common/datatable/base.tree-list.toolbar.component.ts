@@ -21,7 +21,7 @@ import { BaseTreeListComponent } from '../../common/datatable/base.tree-list.com
 export class BaseTreeListToolbarComponent {
   @Input() owner: BaseTreeListComponent;
 
-  private _selection: TreeNode = null;
+  private _selection: TreeNode;
   get selection(): TreeNode { return this._selection; }
   @Input() set selection(value: TreeNode) {
     this._selection = value;
@@ -39,8 +39,8 @@ export class BaseTreeListToolbarComponent {
 
   private recalcButtonsState() {
     if (!this.buttons.length) { this.initState(); }
-    this.buttons.find(b => b.label === 'delete').visible = this.selection !== null;
-    this.buttons.find(b => b.label === 'open').visible = this.selection !== null && this.selection.data.id;
+    this.buttons.find(b => b.label === 'delete')!.visible = this.selection !== null;
+    this.buttons.find(b => b.label === 'open')!.visible = this.selection !== null && this.selection.data.id;
   }
 
 }

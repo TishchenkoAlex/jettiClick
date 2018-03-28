@@ -59,7 +59,7 @@ export class MSSQL {
     return data;
   }
 
-  async none<T>(text: string, params: any[] = []): Promise<T | T[]> {
+  async none<T>(text: string, params: any[] = []): Promise<T | T[] | null> {
     const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) {
       request.input(`p${i + 1}`, params[i]);
@@ -78,7 +78,7 @@ export class MSSQL {
       });
       return data;
     }
-    return data;
+    return data || null;
   }
 
   async tx<T>(func: (tx: MSSQL) => Promise<T>) {

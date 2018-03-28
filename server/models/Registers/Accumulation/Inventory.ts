@@ -20,10 +20,10 @@ export class RegisterAccumulationInventory extends RegisterAccumulation {
   batch: Ref = null;
 
   @Props({ type: 'number' })
-  Cost: number = null;
+  Cost = 0;
 
   @Props({ type: 'number' })
-  Qty: number = null;
+  Qty = 0;
 
   constructor(kind: boolean, public data: {
     Expense: Ref,

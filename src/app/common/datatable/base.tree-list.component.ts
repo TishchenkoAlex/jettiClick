@@ -33,7 +33,7 @@ export class BaseTreeListComponent implements OnInit {
   @Output() selectionChange = new EventEmitter();
   @Input() docType: DocTypes;
   treeNodes$: Observable<TreeNode[]>;
-  selection: TreeNode = null;
+  selection: TreeNode;
 
   constructor(private api: ApiService, public router: Router, public ds: DocService) { }
 
@@ -48,11 +48,11 @@ export class BaseTreeListComponent implements OnInit {
       expanded: true,
       expandedIcon: 'fa-folder-open',
       collapsedIcon: 'fa-folder',
-      children: this.buildTreeNodes(tree),
+      children: this.buildTreeNodes(tree, null),
     }]));
   }
 
-  private buildTreeNodes(tree: ITree[], parent = null): TreeNode[] {
+  private buildTreeNodes(tree: ITree[], parent: string | null): TreeNode[] {
     return tree.filter(el => el.parent === parent).map(el => {
       return <TreeNode>{
         label: el.description,

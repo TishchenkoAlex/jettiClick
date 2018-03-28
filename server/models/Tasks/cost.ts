@@ -22,7 +22,7 @@ export default async function (job: Queue.Job) {
     .filter((v, i, a) => a.indexOf(v) === i)
     .map(r => Inventory.find(f => f.Storehouse + f.SKU + f.company + f.batch === r));
 
-  let list = [];
+  let list: any[] = [];
   for (const r of grouped) {
     const query = `
     SELECT s.date, s.document, d.description doc FROM (
@@ -39,9 +39,9 @@ export default async function (job: Queue.Job) {
     ORDER BY s.date
     `;
     list = [...list, ...(await sdbq.manyOrNone<any>(query,
-      [doc.date, r.company, r.Storehouse, r.SKU, r.batch, doc.id]))];
+      [doc.date, r!.company, r!.Storehouse, r!.SKU, r!.batch, doc.id]))];
   }
-  const TaskList = [];
+  const TaskList: any[] = [];
   const count = list.length; let offset = 0;
   while (offset < count) {
     let i = 0;

@@ -31,7 +31,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this._subscription$.unsubscribe();
-    this._subscription$ = this.form.get('Operation').valueChanges
+    this._subscription$ = this.form.get('Operation')!.valueChanges
       .subscribe(v => this.update(v).then(() => this.super.cd.detectChanges()));
   }
 

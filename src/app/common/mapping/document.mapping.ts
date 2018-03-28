@@ -11,12 +11,12 @@ export function mapToApi(model: DocumentBase): IFlatDocument {
     description: model.description,
     posted: model.posted,
     deleted: model.deleted,
-    parent: model.parent['id'],
+    parent: model.parent && model.parent['id'],
     isfolder: model.isfolder,
-    company: model.company['id'],
-    user: model.user['id'],
+    company: model.company && model.company['id'],
+    user: model.user && model.user['id'],
     info: model.info,
-    timestamp: model.timestamp,
+    timestamp: model.timestamp || null,
   };
 
   const JETTI_DOC_PROP = Object.keys(newDoc);

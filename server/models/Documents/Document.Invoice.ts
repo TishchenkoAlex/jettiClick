@@ -46,7 +46,7 @@ export class DocumentInvoice extends DocumentBase {
   Status = 'PREPARED';
 
   @Props({ type: 'date', hiddenInList: true, order: 15 })
-  PayDay = null;
+  PayDay = new Date();
 
   @Props({ type: 'number', readOnly: true, order: 16 })
   Amount = 0;

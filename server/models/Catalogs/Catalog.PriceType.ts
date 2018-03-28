@@ -16,6 +16,6 @@ export class CatalogPriceType extends DocumentBase {
   currency: Ref = null;
 
   @Props({ type: 'boolean', required: true })
-  TaxInclude: Ref = null;
+  TaxInclude = false;
 
 }

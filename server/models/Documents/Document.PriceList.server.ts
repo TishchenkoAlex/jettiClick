@@ -51,7 +51,7 @@ export class DocumentPriceListServer extends DocumentPriceList implements Server
   async onPost(tx: MSSQL) {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
 
-    const priceType = await lib.doc.byId(this.PriceType, tx);
+    const priceType = await lib.doc.byId(this.PriceType as string, tx);
     for (const row of this.Items) {
       Registers.Info.push(new RegisterInfoPriceList({
         currency: priceType['currency'],

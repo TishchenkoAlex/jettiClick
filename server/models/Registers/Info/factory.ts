@@ -21,7 +21,7 @@ const RegisteredRegisterInfo: IRegisteredRegisterInfo[] = [
     { type: 'Register.Info.ExchangeRates', Class: RegisterInfoExchangeRates },
 ];
 
-export function createRegisterInfo(type: RegisterInfoTypes, data: { [x: string]: any }): RegisterInfo {
+export function createRegisterInfo(type: RegisterInfoTypes, data: { [x: string]: any }) {
     const doc = RegisteredRegisterInfo.find(el => el.type === type);
-    if (doc) { return new doc.Class(data); }
+    if (doc) return new doc.Class(data); else throw new Error(`can't create type! ${type} is not registered`);
 }

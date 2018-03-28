@@ -60,7 +60,7 @@ export const HTTP = httpServer.createServer(app);
 export const IO = socketIO(HTTP, { path: SUBSCRIPTION_ID + '/socket.io' });
 IO.use(authIO);
 
-const port = (+process.env.PORT) || 3000;
+const port = (process.env.PORT) || '3000';
 HTTP.listen(port, () => console.log(`API running on port:${port}`));
 JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
 // console.log(configSchema.get('Catalog.Account').QueryObject);

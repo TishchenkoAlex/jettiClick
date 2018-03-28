@@ -16,6 +16,6 @@ export class CatalogOperationGroup extends DocumentBase {
   parent: Ref = null;
 
   @Props({ type: 'string', required: true})
-  Prefix: string = null;
+  Prefix = '';
 
 }

@@ -5,7 +5,7 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   description: 'Организация',
   icon: 'fa fa-money',
   menu: 'Организации',
-  prefix: null
+  prefix: ''
 })
 export class CatalogCompany extends DocumentBase {
 
@@ -16,6 +16,6 @@ export class CatalogCompany extends DocumentBase {
   currency: Ref = null;
 
   @Props({ type: 'string', required: true })
-  prefix: string = null;
+  prefix = '';
 
 }

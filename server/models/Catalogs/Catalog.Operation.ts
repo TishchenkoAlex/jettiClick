@@ -33,10 +33,10 @@ export class CatalogOperation extends DocumentBase {
   Group: Ref = null;
 
   @Props({ type: 'string', order: 3, required: true, style: { width: '50%' } })
-  description = null;
+  description = '';
 
   @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '800px', overflow: 'auto' }, value: defaultScript })
-  script: string = null;
+  script = '';
 
   @Props({ type: 'table' })
   Parameters: Parameter[] = [new Parameter()];
@@ -48,28 +48,28 @@ export class CatalogOperation extends DocumentBase {
 
 class Parameter {
   @Props({ type: 'string', required: true })
-  parameter: string = null;
+  parameter = '';
 
   @Props({ type: 'string', required: true })
-  label: string = null;
+  label = '';
 
   @Props({ type: 'Catalog.Subcount', required: true })
   type: Ref = null;
 
   @Props({ type: 'number', required: true })
-  order: number = null;
+  order: 0;
 
   @Props({ type: 'boolean', required: true })
-  required: Ref = null;
+  required = false;
 
   @Props({ type: 'javascript', label: 'change script', hiddenInList: true })
-  change: string = null;
+  change = '';
 
   @Props({ type: 'json', hiddenInList: true })
-  tableDef: string = null;
+  tableDef = '';
 
   @Props({ type: 'json', hiddenInList: true })
-  Props: string = null;
+  Props = '';
 
 }
 
@@ -78,6 +78,6 @@ class CopyTo {
   Operation: Ref = null;
 
   @Props({ type: 'javascript', label: 'script', hiddenInList: true })
-  script: string = null;
+  script = '';
 
 }

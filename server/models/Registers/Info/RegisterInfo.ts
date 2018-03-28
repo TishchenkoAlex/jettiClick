@@ -18,10 +18,10 @@ export function JRegisterInfo(props: RegisterInfoOptions) {
 export class RegisterInfo {
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
-  type: string = null;
+  type: RegisterInfoTypes | null = null;
 
   @Props({ type: 'datetime' })
-  date: Date = new Date();
+  date = new Date();
 
   @Props({ type: 'Catalog.Company' })
   company: Ref = null;
@@ -56,5 +56,5 @@ export class RegisterInfo {
     return result;
   }
 
-  QueryList() { return SQLGenegator.QueryRegisterInfoList(this.Props(), this.type); }
+  QueryList() { return SQLGenegator.QueryRegisterInfoList(this.Props(), this.type as string); }
 }

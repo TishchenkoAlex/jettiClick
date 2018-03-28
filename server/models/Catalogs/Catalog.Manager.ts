@@ -13,15 +13,15 @@ export class CatalogManager extends DocumentBase {
   parent: Ref = null;
 
   @Props({ type: 'string', required: true })
-  FullName: boolean = null;
+  FullName = '';
 
   @Props({ type: 'boolean', required: true })
-  Gender: boolean = null;
+  Gender = false;
 
   @Props({ type: 'date' })
-  Birthday: boolean = null;
+  Birthday: Date;
 
   @Props({ type: 'Types.Subcount', required: true })
-  Product: boolean = null;
+  Product: Ref = null;
 
 }

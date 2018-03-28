@@ -8,7 +8,7 @@ export default async function (job: Queue.Job) {
   const params = job.data;
   const query = `SELECT id FROM "Documents"
     WHERE type = @p1 AND company = @p2 AND date between @p3 AND @p4 ORDER BY date`;
-  const TaskList = [];
+  const TaskList: any[] = [];
   const endDate = new Date(params.EndDate);
   endDate.setHours(23, 59, 59, 999);
   const list = await sdbq.manyOrNone<any>(query, [params.type, params.company, params.StartDate, endDate.toJSON()]);

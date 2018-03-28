@@ -43,5 +43,5 @@ export const RegisteredRegisterAccumulation: IRegisteredRegisterAccumulation[] =
 export function createRegisterAccumulation(
   type: RegisterAccumulationTypes, kind: boolean, data: { [x: string]: any }): RegisterAccumulation {
   const doc = RegisteredRegisterAccumulation.find(el => el.type === type);
-  if (doc) { return new doc.Class(kind, data); }
+  if (doc) return new doc.Class(kind, data); else throw new Error(`Can't create type! ${type} is not registered`);
 }

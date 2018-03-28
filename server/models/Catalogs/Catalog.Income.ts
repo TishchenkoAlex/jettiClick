@@ -5,7 +5,7 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   description: 'Статья доходов',
   icon: 'fa fa-money',
   menu: 'Статьи доходов',
-  prefix: null
+  prefix: ''
 })
 export class CatalogIncome extends DocumentBase {
 

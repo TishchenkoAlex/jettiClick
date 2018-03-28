@@ -34,14 +34,13 @@ import { DocumentPriceList } from './Documents/Document.PriceList';
 
 export interface IRegisteredDocument<T extends DocumentBase> { type: DocTypes; Class: T; }
 
-export function createDocument<T extends DocumentBase>(type: DocTypes, document?: IFlatDocument
-): T {
+export function createDocument<T extends DocumentBase>(type: DocTypes, document?: IFlatDocument): T {
   const doc = RegisteredDocument.find(el => el.type === type);
   if (doc) {
     const result = <T>new doc.Class;
-    result.map(document);
+    if (document) result.map(document);
     return result;
-  }
+  } else throw new Error(`can't create type! ${type} is not registered`);
 }
 
 export const RegisteredDocument: IRegisteredDocument<any>[] = [

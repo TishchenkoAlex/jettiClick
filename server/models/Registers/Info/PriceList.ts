@@ -19,7 +19,7 @@ export class RegisterInfoPriceList extends RegisterInfo {
   Unit: Ref = null;
 
   @Props({ type: 'number' })
-  Price: number = null;
+  Price = 0;
 
   constructor(public data: {
     currency: Ref,

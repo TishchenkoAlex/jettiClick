@@ -4,13 +4,13 @@ export class UserSettings {
 }
 
 export class UserDefaultsSettings {
-  company: string = null;
-  department: string = null;
+  company: string;
+  department: string;
 }
 
 export class FilterInterval {
-  start: number | string | boolean = null;
-  end: number | string | boolean = null;
+  start: number | string | boolean;
+  end: number | string | boolean;
 }
 
 export type FilterList = number[] | string[];

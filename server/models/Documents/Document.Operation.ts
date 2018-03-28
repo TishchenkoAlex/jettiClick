@@ -33,7 +33,7 @@ export class DocumentOperation extends DocumentBase {
   Operation: Ref = null;
 
   @Props({ type: 'number', order: 7 })
-  Amount: number = null;
+  Amount = 0;
 
   @Props({ type: 'Catalog.Currency', required: true, order: 7, label: 'Cur', style: { width: '70px' } })
   currency: Ref = null;

@@ -30,7 +30,7 @@ import { EventsService } from './services/events.service';
 import { DynamicFormsModule } from './UI/dynamic.froms.module';
 
 export function getJwtToken(): string {
-  return localStorage.getItem('access_token');
+  return localStorage.getItem('access_token') || '';
 }
 
 @NgModule({

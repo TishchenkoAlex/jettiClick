@@ -35,7 +35,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
 
   dataSource: any[];
   columns: ColumnDef[] = [];
-  selection = [];
+  selection: any[] = [];
   showTotals = false;
 
   private _subscription$: Subscription = Subscription.EMPTY;
@@ -64,7 +64,9 @@ export class TablePartsComponent implements OnInit, OnDestroy {
   }
 
   getControlValue(index: number, field: string) {
-    const value = this.getControl(index).get(field).value;
+    const control = this.getControl(index).get(field);
+    if (!control) return null;
+    const value = control.value;
     const result = value && (value.value || typeof value === 'object' ? value.value || '' : value || '');
     return result;
   }
@@ -112,7 +114,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
 
   private renum() {
     for (let i = 0; i < this.formGroup.length; i++) {
-      this.formGroup.at(i).get('index').patchValue(i, { emitEvent: false });
+      this.formGroup.at(i).get('index')!.patchValue(i, { emitEvent: false });
     }
   }
 

@@ -27,7 +27,7 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   const doc = RegisteredServerDocument.find(el => el.type === type);
   if (doc) {
     const serverResult = <T>new doc.Class;
-    serverResult.map(document);
+    if (document) serverResult.map(document);
     result = serverResult;
   } else {
     result = createDocument<T>(type, document);
@@ -49,9 +49,11 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
     }
   }
   const sc = configSchema.get(type);
-  if (!result['QueryList']) result['QueryList'] = () => sc.QueryList;
-  if (!result['QueryObject']) result['QueryObject'] = () => sc.QueryObject;
-  if (!result['QueryNew']) result['QueryNew'] = () => sc.QueryNew;
+  if (sc) {
+    if (!result['QueryList']) result['QueryList'] = () => sc.QueryList;
+    if (!result['QueryObject']) result['QueryObject'] = () => sc.QueryObject;
+    if (!result['QueryNew']) result['QueryNew'] = () => sc.QueryNew;
+  }
   // protect against mutate
   result.Props = () => Props;
   result.Prop = () => Prop;

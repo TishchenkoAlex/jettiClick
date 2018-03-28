@@ -10,7 +10,7 @@ export class RegisterInfoExchangeRates extends RegisterInfo {
   currency: Ref = null;
 
   @Props({ type: 'number' })
-  Rate: number = null;
+  Rate = 1;
 
   constructor(public data: {
     currency: Ref,

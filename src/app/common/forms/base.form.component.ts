@@ -50,7 +50,8 @@ export class BaseFormComponent {
   }
 
   focus() {
-    this.cdkTrapFocus.find(el => el.autoCapture).focusTrap.focusFirstTabbableElementWhenReady();
+    const autoCapture = this.cdkTrapFocus.find(el => el.autoCapture);
+    if (autoCapture) autoCapture.focusTrap.focusFirstTabbableElementWhenReady();
   }
 
   async Execute(): Promise<any> {

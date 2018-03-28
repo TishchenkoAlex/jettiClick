@@ -20,10 +20,10 @@ export class RegisterAccumulationCashTransit extends RegisterAccumulation {
   CashFlow: Ref = null;
 
   @Props({ type: 'number' })
-  Amount: number = null;
+  Amount = 0;
 
   @Props({ type: 'number' })
-  AmountInBalance: number = null;
+  AmountInBalance = 0;
 
   constructor(kind: boolean, public data: {
     currency: Ref,

@@ -20,5 +20,5 @@ class TableRates {
   Currency: Ref = null;
 
   @Props({ type: 'number', required: true })
-  Rate: number = null;
+  Rate = 1;
 }

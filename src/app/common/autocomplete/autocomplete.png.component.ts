@@ -1,37 +1,18 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  forwardRef,
-  Input,
-  Output,
-  ViewChild,
-} from '@angular/core';
-import {
-  AbstractControl,
-  ControlValueAccessor,
-  FormControl,
-  FormGroup,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator,
-  ValidatorFn,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
+// tslint:disable-next-line:max-line-length
+import { AbstractControl, ControlValueAccessor, FormControl, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AutoComplete } from 'primeng/components/autocomplete/autocomplete';
 import { take } from 'rxjs/operators';
-
 import { ISuggest } from '../../../../server/models/api';
 import { FormListSettings } from '../../../../server/models/user.settings';
-import { JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
+import { IJettiComplexObject, JettiComplexObject } from '../../common/dynamic-form/dynamic-form-base';
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
 
 function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
-  return (c: AbstractControl): { [key: string]: any } => {
-    if (!component.required || (c.value && c.value.value)) { return null; }
+  return (c: AbstractControl): { [key: string]: any } | null => {
+    if (!component.required || (c.value && c.value.value)) return null;
     return { 'required': true };
   };
 }
@@ -78,15 +59,14 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   private NO_EVENT = false;
   showDialog = false;
 
-  get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.'); }
+  get isComplexValue() { return !!this.value && !!this.value.type && this.value.type.includes('.'); }
   get isTypeControl() { return this.type && this.type.startsWith('Types.'); }
-  get isComplexControl() { return this.type && this.type.includes('.'); }
-  get isTypeValue() { return this.value && this.value.type && this.value.type.startsWith('Types.'); }
-  get EMPTY() { return { id: null, code: null, type: this.type, value: null }; }
+  get isComplexControl() { return (!!this.type && this.type.includes('.')); }
+  get isTypeValue() { return !!this.value && !!this.value.type && this.value.type.startsWith('Types.'); }
   get isEMPTY() { return this.isComplexControl && !(this.value && this.value.value); }
   get isCatalogParent() { return this.type.startsWith('Catalog.') && this.id === 'parent'; }
 
-  private _value: JettiComplexObject;
+  private _value: IJettiComplexObject;
   @Input() set value(obj) {
     if (this.isTypeControl && this.placeholder) {
       this.placeholder = this.placeholder.split('[')[0] + '[' + (obj && obj.type ? obj.type : '') + ']';
@@ -107,12 +87,10 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   writeValue(obj: any): void {
     this.NO_EVENT = true;
-    if (!obj) { obj = this.EMPTY; }
-    if (!this.type) { this.type = obj.type; }
+    if (!obj) obj = JettiComplexObject;
+    if (!this.type) this.type = obj.type;
     if (this.isComplexControl && (typeof obj === 'number' || typeof obj === 'boolean' || typeof obj === 'string') ||
-      (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) {
-      obj = this.EMPTY;
-    }
+      (obj && obj.type && obj.type !== this.type && !this.isTypeControl)) obj = JettiComplexObject;
     this.value = obj;
     this.suggest.markAsDirty({ onlySelf: true });
     this.cd.markForCheck();
@@ -121,7 +99,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   // implement Validator interface
   validate(c: AbstractControl): ValidationErrors | null {
-    if (!this.required || (c.value && c.value.value)) { return null; }
+    if (!this.required || (c.value && c.value.value)) return null;
     return { 'required': true };
   }
   // end of implementation Validator interface
@@ -135,7 +113,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
     });
   }
 
-  handleReset = (event: Event) => this.value = this.EMPTY;
+  handleReset = (event: Event) => this.value = JettiComplexObject;
   handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id]);
   handleSearch = (event: Event) => this.showDialog = true;
   select = () => this.input.inputEL.nativeElement.select();
@@ -145,23 +123,21 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   searchComplete(row: ISuggest) {
     this.showDialog = false;
-    if (!row) { return; }
+    if (!row) return;
     this.value = { id: this.isTypeValue ? null : row.id, code: row.code, type: row.type, value: this.isTypeValue ? null : row.description };
   }
 
   calcFilters() {
     const result = new FormListSettings();
-    if (this.owner && this.owner.owner && this.owner.owner.filterBy) {
-      if ((typeof this.owner.value === 'object' && this.owner.value.id)) {
+    // tslint:disable-next-line:no-non-null-assertion
+    if (this.owner && this.owner.owner && this.owner.owner.filterBy)
+      if ((typeof this.owner.value === 'object' && this.owner.value.id))
         result.filter.push({ left: this.owner.owner.filterBy, center: '=', right: this.owner.value });
-      }
-    }
+
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
     if (this.type.startsWith('Document.')) {
       const doc = this.formControl && this.formControl.root.value;
-      if (doc && doc.company.id) {
-        result.filter.push({ left: 'company', center: '=', right: doc.company });
-      }
+      if (doc && doc.company.id) result.filter.push({ left: 'company', center: '=', right: doc.company });
     }
     return result;
   }

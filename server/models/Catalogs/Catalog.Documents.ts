@@ -8,7 +8,7 @@ import { buildSubcountQueryList } from './../../fuctions/SQLGenerator.MSSQL';
   description: 'Documents types',
   icon: '',
   menu: 'Documents types',
-  prefix: null
+  prefix: ''
 })
 export class CatalogDocuments extends DocumentBase {
   @Props({ type: 'Catalog.Documents', hiddenInList: true, order: -1 })

@@ -17,25 +17,25 @@ export interface BatchRow {
 export interface JTL {
   db: MSSQL;
   account: {
-    balance: (account: Ref, date: string, company: Ref) => Promise<number>,
-    debit: (account: Ref, date: string, company: Ref) => Promise<number>,
-    kredit: (account: Ref, date: string, company: Ref) => Promise<number>,
-    byCode: (code: string, tx?: MSSQL) => Promise<string>
+    balance: (account: Ref, date: string, company: Ref) => Promise<number | null>,
+    debit: (account: Ref, date: string, company: Ref) => Promise<number | null>,
+    kredit: (account: Ref, date: string, company: Ref) => Promise<number | null>,
+    byCode: (code: string, tx?: MSSQL) => Promise<string | null>
   };
   register: {
     movementsByDoc: <T extends RegisterAccumulation>(type: RegisterAccumulationTypes, doc: Ref, tx?: MSSQL) => Promise<T[]>,
     balance: (type: RegisterAccumulationTypes, date: Date, resource: string[],
-      analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<{ [x: string]: number }>,
-    avgCost: (date: Date, analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<number>,
-    inventoryBalance: (date: Date, analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<{ Cost: number, Qty: number }>,
+      analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<{ [x: string]: number } | null>,
+    avgCost: (date: Date, analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<number | null>,
+    inventoryBalance: (date: Date, analytics: { [key: string]: Ref }, tx?: MSSQL) => Promise<{ Cost: number, Qty: number } | null>,
   };
   doc: {
-    byCode: (type: DocTypes, code: string, tx?: MSSQL) => Promise<string>;
+    byCode: (type: DocTypes, code: string, tx?: MSSQL) => Promise<string | null>;
     byId: (id: string, tx?: MSSQL) => Promise<IFlatDocument>;
     formControlRef: (id: string, tx?: MSSQL) => Promise<RefValue>;
     postById: (id: string, posted: boolean, tx?: MSSQL) => Promise<void>;
-    noSqlDocument: (flatDoc: IFlatDocument) => INoSqlDocument;
-    flatDocument: (noSqldoc: INoSqlDocument) => IFlatDocument;
+    noSqlDocument: (flatDoc: IFlatDocument) => INoSqlDocument | null;
+    flatDocument: (noSqldoc: INoSqlDocument) => IFlatDocument | null;
     docPrefix: (type: DocTypes, tx?: MSSQL) => Promise<string>
   };
   info: {
@@ -80,33 +80,34 @@ export const lib: JTL = {
   }
 };
 
-async function accountByCode(code: string, tx: MSSQL = sdb) {
+async function accountByCode(code: string, tx = sdb): Promise<string | null> {
   const result = await tx.oneOrNone<any>(`
     SELECT id result FROM "Documents" WHERE type = 'Catalog.Account' AND code = @p1`, [code]);
   return result ? result.result as string : null;
 }
 
-async function byCode(type: string, code: string, tx: MSSQL = sdb) {
+async function byCode(type: string, code: string, tx = sdb) {
   const result = await tx.oneOrNone<any>(`SELECT id result FROM "Documents" WHERE type = @p1 AND code = @p2`, [type, code]);
   return result ? result.result as string : null;
 }
 
-async function byId(id: string, tx: MSSQL = sdb): Promise<IFlatDocument> {
-  const result = await tx.oneOrNone<INoSqlDocument>(`
+async function byId(id: string, tx = sdb): Promise<IFlatDocument> {
+  const result = await tx.oneOrNone<INoSqlDocument | null>(`
   SELECT id, type, parent, DATEADD(ms, DATEDIFF(ms, '00:00:00', [time]), CONVERT(DATETIME, [date])) date, [time],
   code, description, posted, deleted, isfolder, company, [user], info, timestamp,
   JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
-  return flatDocument(result);
+  if (result) return flatDocument(result); else throw new Error(`lib.byId: document ${id} not found`);
 }
 
-function noSqlDocument(flatDoc: INoSqlDocument | DocumentBaseServer): INoSqlDocument {
-  if (!flatDoc) return null;
+function noSqlDocument(flatDoc: INoSqlDocument | DocumentBaseServer): INoSqlDocument | null {
+  if (!flatDoc) throw new Error(`lib.noSqlDocument: source is null!`);
   const { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, ...doc } = flatDoc;
-  return { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, doc };
+  return <INoSqlDocument>
+    { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, doc };
 }
 
 function flatDocument(noSqldoc: INoSqlDocument): IFlatDocument {
-  if (!noSqldoc) return null;
+  if (!noSqldoc) throw new Error(`lib.flatDocument: source is null!`);
   const { doc, ...header } = noSqldoc;
   const flatDoc = { ...header, ...doc };
   return flatDoc;
@@ -114,7 +115,7 @@ function flatDocument(noSqldoc: INoSqlDocument): IFlatDocument {
 
 async function docPrefix(type: DocTypes, tx: MSSQL = sdb): Promise<string> {
   const metadata = configSchema.get(type);
-  if (metadata.prefix) {
+  if (metadata && metadata.prefix) {
     const prefix = metadata.prefix;
     const queryText = `SELECT '${prefix}' + FORMAT((NEXT VALUE FOR "Sq.${type}"), '0000000000') result `;
     const result = await tx.oneOrNone<any>(queryText);
@@ -181,7 +182,7 @@ async function registerBalance(type: RegisterAccumulationTypes, date = new Date(
   return (result ? result : {});
 }
 
-async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<number> {
+async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<number | null> {
   const queryText = `
   SELECT
     SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) result
@@ -196,7 +197,7 @@ async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promi
   return result ? result.result : null;
 }
 
-async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<{ Cost: number, Qty: number }> {
+async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<{ Cost: number, Qty: number } | null> {
   const queryText = `
   SELECT
     SUM("Cost") "Cost", SUM("Qty") "Qty"
@@ -211,7 +212,7 @@ async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sd
 }
 
 async function sliceLast(type: string, date = new Date(), company: Ref,
-  resource: string, analytics: { [key: string]: any }, tx = sdb): Promise<number> {
+  resource: string, analytics: { [key: string]: any }, tx = sdb): Promise<number | null> {
 
   const addWhere = (key) => `NEAR((${key}, ${analytics[key]}),1) AND `;
   let where = ''; for (const el of Object.keys(analytics)) { where += addWhere(el); } where = where.slice(0, -4);
@@ -228,7 +229,7 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
   return result ? result.result : null;
 }
 
-export async function postById(id: string, posted: boolean, tx: MSSQL = sdb) {
+export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Promise<void> {
   return tx.tx<any>(async subtx => {
     const doc = await lib.doc.byId(id, subtx);
     if (doc.deleted) return; // throw new Error('cant POST deleted document');

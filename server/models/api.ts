@@ -82,7 +82,7 @@ export interface IAccount {
 }
 
 export interface ILoginResponse {
-  account: IAccount;
+  account: IAccount | undefined;
   token: string;
 }
 

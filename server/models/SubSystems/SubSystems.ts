@@ -1,6 +1,6 @@
 import { RoleObject } from '../../models/Roles/Base';
-import { DocumentOptions } from '../document';
-import { FormOptions } from '../Forms/form';
+import { DocumentOptions, DocumentBase } from '../document';
+import { FormOptions, FormBase } from '../Forms/form';
 import { createForm } from '../Forms/form.factory';
 import { FormTypes } from '../Forms/form.types';
 import { createDocument } from './../../models/documents.factory';
@@ -38,15 +38,20 @@ export interface MenuItem { type: string; icon: string; label: string; items?: M
 export function SubSystemsMenu(filter: RoleObject[] = []) {
   const menu: MenuItem[] = [];
   for (const s of SubSystems) {
-    const menuItem: MenuItem = {type: s.type, icon: s.icon, label: s.description, items: [] };
+    const menuItem: MenuItem = { type: s.type, icon: s.icon, label: s.description, items: [] };
     for (const o of s.Objects) {
-      const doc = createDocument(o as DocTypes) || createForm(o as FormTypes);
-      if (doc) {
-        const prop = <DocumentOptions | FormOptions>doc.Prop();
-        if (!filter.find(f => f.type === o)) { continue; }
-        const subMenuItem: MenuItem = {type: prop.type, icon: prop.icon, label: prop.menu, routerLink: ['/' + prop.type] };
-        menuItem.items.push(subMenuItem);
-      }
+      if (!filter.find(f => f.type === o)) { continue; }
+      try {
+        const prop = createDocument<DocumentBase>(o as DocTypes).Prop() as DocumentOptions;
+        const subMenuItem: MenuItem = { type: prop.type, icon: prop.icon, label: prop.menu, routerLink: ['/' + prop.type] };
+        menuItem.items!.push(subMenuItem);
+        continue;
+      } catch (err) {  }
+      try {
+        const prop = createForm(o as FormTypes).Prop() as FormOptions;
+        const subMenuItem: MenuItem = { type: prop.type, icon: prop.icon, label: prop.menu, routerLink: ['/' + prop.type] };
+        menuItem.items!.push(subMenuItem);
+      } catch (err) {  }
     }
     menu.push(menuItem);
   }

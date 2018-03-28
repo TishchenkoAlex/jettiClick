@@ -22,7 +22,7 @@ export class AppMenuComponent implements OnInit {
 
   constructor(public app: AppComponent, private cd: ChangeDetectorRef) {
     this.model$ = this.app.auth.userProfile$.pipe(
-      map(userProfile => this.buildMenu(getRoleObjects(userProfile.account ? userProfile.account.roles : undefined))));
+      map(userProfile => this.buildMenu(getRoleObjects(userProfile.account ? userProfile.account.roles : []))));
   }
 
   private buildMenu(userRoleObjects) {
@@ -199,7 +199,7 @@ export class AppSubMenuComponent {
   @Input() visible: boolean;
 
   _reset: boolean;
-  activeIndex: number;
+  activeIndex: number | null;
 
   constructor(public app: AppComponent) { }
 

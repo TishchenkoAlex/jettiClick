@@ -260,7 +260,7 @@ export class Table implements OnInit, AfterContentInit {
 
   _value: any[] = [];
 
-  filteredValue: any[];
+  filteredValue: any[] | null;
 
   headerTemplate: TemplateRef<any>;
 
@@ -302,19 +302,19 @@ export class Table implements OnInit, AfterContentInit {
 
   draggedColumn: any;
 
-  draggedRowIndex: number;
+  draggedRowIndex: number | null;
 
-  droppedRowIndex: number;
+  droppedRowIndex: number | null;
 
   rowDragging: boolean;
 
-  dropPosition: number;
+  dropPosition: number | null;
 
-  editingCell: Element;
+  editingCell: Element | null;
 
   _multiSortMeta: SortMeta[];
 
-  _sortField: string;
+  _sortField: string | null;
 
   _sortOrder: number = 1;
 
@@ -332,7 +332,7 @@ export class Table implements OnInit, AfterContentInit {
 
   filterTimeout: any;
 
-  initialized: boolean;
+  initialized: boolean | null;
 
   rowTouched: boolean;
 
@@ -432,11 +432,11 @@ export class Table implements OnInit, AfterContentInit {
     this.tableService.onValueChange(val);
   }
 
-  @Input() get sortField(): string {
+  @Input() get sortField() {
     return this._sortField;
   }
 
-  set sortField(val: string) {
+  set sortField(val) {
     this._sortField = val;
 
     //avoid triggering lazy load prior to lazy initialization at onInit
@@ -544,6 +544,7 @@ export class Table implements OnInit, AfterContentInit {
         if (!metaKey || !this.multiSortMeta) {
           this._multiSortMeta = [];
         }
+        // tslint:disable-next-line:no-non-null-assertion
         this.multiSortMeta.push({ field: event.field, order: this.defaultSortOrder });
       }
 
@@ -569,9 +570,9 @@ export class Table implements OnInit, AfterContentInit {
         }
         else {
           this.value.sort((data1, data2) => {
-            let value1 = this.objectUtils.resolveFieldData(data1, this.sortField);
-            let value2 = this.objectUtils.resolveFieldData(data2, this.sortField);
-            let result = null;
+            let value1 = this.objectUtils.resolveFieldData(data1, this.sortField || '');
+            let value2 = this.objectUtils.resolveFieldData(data2, this.sortField || '');
+            let result: number | null = null;
 
             if (value1 == null && value2 != null)
               result = -1;
@@ -637,7 +638,7 @@ export class Table implements OnInit, AfterContentInit {
   multisortField(data1, data2, multiSortMeta, index) {
     let value1 = this.objectUtils.resolveFieldData(data1, multiSortMeta[index].field);
     let value2 = this.objectUtils.resolveFieldData(data2, multiSortMeta[index].field);
-    let result = null;
+    let result = 0;
 
     if (typeof value1 == 'string' || value1 instanceof String) {
       if (value1.localeCompare && (value1 != value2)) {
@@ -838,7 +839,7 @@ export class Table implements OnInit, AfterContentInit {
       let rangeRowData = this.value[i];
       if (!this.isSelected(rangeRowData)) {
         this._selection = [...this.selection, rangeRowData];
-        let dataKeyValue: string = this.dataKey ? String(this.objectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
+        let dataKeyValue = this.dataKey ? String(this.objectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
         if (dataKeyValue) {
           this.selectionKeys[dataKeyValue] = 1;
         }
@@ -869,7 +870,7 @@ export class Table implements OnInit, AfterContentInit {
       let rangeRowData = this.value[i];
       let selectionIndex = this.findIndexInSelection(rangeRowData);
       this._selection = this.selection.filter((val, i) => i != selectionIndex);
-      let dataKeyValue: string = this.dataKey ? String(this.objectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
+      let dataKeyValue = this.dataKey ? String(this.objectUtils.resolveFieldData(rangeRowData, this.dataKey)) : null;
       if (dataKeyValue) {
         delete this.selectionKeys[dataKeyValue];
       }
@@ -1055,7 +1056,8 @@ export class Table implements OnInit, AfterContentInit {
           if (this.filters['global'] && !globalMatch && globalFilterFieldsArray) {
             for (let j = 0; j < globalFilterFieldsArray.length; j++) {
               let globalFilterField = globalFilterFieldsArray[j].field || globalFilterFieldsArray[j];
-              globalMatch = this.filterConstraints[this.filters['global'].matchMode](this.objectUtils.resolveFieldData(this.value[i], globalFilterField), this.filters['global'].value);
+              const filterConstraints = this.filters['global'].matchMode || '';
+              globalMatch = this.filterConstraints[filterConstraints](this.objectUtils.resolveFieldData(this.value[i], globalFilterField), this.filters['global'].value);
 
               if (globalMatch) {
                 break;
@@ -1228,7 +1230,7 @@ export class Table implements OnInit, AfterContentInit {
   public reset() {
     this._sortField = null;
     this._sortOrder = 1;
-    this._multiSortMeta = null;
+    this._multiSortMeta = []; // tishchenko
 
     this.filteredValue = null;
     this.filters = {};
@@ -1589,8 +1591,8 @@ export class Table implements OnInit, AfterContentInit {
 
   onRowDrop(event, rowElement) {
     if (this.droppedRowIndex != null) {
-      let dropIndex = (this.draggedRowIndex > this.droppedRowIndex) ? this.droppedRowIndex : (this.droppedRowIndex === 0) ? 0 : this.droppedRowIndex - 1;
-      this.objectUtils.reorderArray(this.value, this.draggedRowIndex, dropIndex);
+      let dropIndex = ((this.draggedRowIndex || 0) > this.droppedRowIndex) ? this.droppedRowIndex : (this.droppedRowIndex === 0) ? 0 : this.droppedRowIndex - 1;
+      this.objectUtils.reorderArray(this.value, this.draggedRowIndex || 0, dropIndex);
 
       this.onRowReorder.emit({
         dragIndex: this.draggedRowIndex,
@@ -1725,7 +1727,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
 
   footerScrollListener: Function;
 
-  frozenSiblingBody: Element;
+  frozenSiblingBody: Element | null;
 
   _scrollHeight: string;
 
@@ -1934,7 +1936,7 @@ export class SortableColumn implements OnInit, OnDestroy {
   }
 
   updateSortState() {
-    this.sorted = this.dt.isSorted(this.field);
+    this.sorted = !!this.dt.isSorted(this.field);
   }
 
   @HostListener('click', ['$event'])
@@ -2520,7 +2522,7 @@ export class EditableColumn implements AfterViewInit {
     let prevCell = cell.previousElementSibling;
 
     if (!prevCell) {
-      let previousRow = cell.parentElement.previousElementSibling;
+      let previousRow = cell.parentElement && cell.parentElement.previousElementSibling;
       if (previousRow) {
         prevCell = previousRow.lastElementChild;
       }
@@ -2541,7 +2543,7 @@ export class EditableColumn implements AfterViewInit {
     let nextCell = cell.nextElementSibling;
 
     if (!nextCell) {
-      let nextRow = cell.parentElement.nextElementSibling;
+      let nextRow = cell.parentElement && cell.parentElement.nextElementSibling;
       if (nextRow) {
         nextCell = nextRow.firstElementChild;
       }

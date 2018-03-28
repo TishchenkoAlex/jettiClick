@@ -29,8 +29,7 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
     const formControl = this.form.get(this.control.key);
     if (formControl) this.valueChanges$ = formControl.valueChanges.subscribe(async value => {
       if (this.control.onChange) {
-        const funcBody = this.control.onChange.toString()
-          .match(/function[^{]+\{([\s\S]*)\}$/)[1]
+        const funcBody = ((this.control.onChange.toString().match(/function[^{]+\{([\s\S]*)\}$/)) || [])[1]
           .replace(/\api\./g, 'await api.');
         const func = new Function('doc, value, api, body', `
           var AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;

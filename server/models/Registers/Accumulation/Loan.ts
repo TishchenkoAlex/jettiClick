@@ -14,10 +14,10 @@ export class RegisterAccumulationLoan extends RegisterAccumulation {
   Counterpartie: Ref = null;
 
   @Props({ type: 'number' })
-  Amount: number = null;
+  Amount = 0;
 
   @Props({ type: 'number' })
-  AmountInBalance: number = null;
+  AmountInBalance = 0;
 
   constructor(kind: boolean, public data: {
     Loan: Ref,

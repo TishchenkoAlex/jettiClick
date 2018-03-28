@@ -16,6 +16,6 @@ export class CatalogProduct extends DocumentBase {
   Brand: Ref = null;
 
   @Props({ type: 'number' })
-  Volume: number = null;
+  Volume = 0;
 
 }

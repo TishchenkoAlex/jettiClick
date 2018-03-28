@@ -18,13 +18,13 @@ export function JRegisterAccumulation(props: RegisterAccumulationOptions) {
 export class RegisterAccumulation {
   query: string;
   @Props({ type: 'boolean' })
-  kind: boolean = null;
+  kind: boolean;
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
-  type: RegisterAccumulationTypes = null;
+  type: RegisterAccumulationTypes | null = null;
 
   @Props({ type: 'datetime' })
-  date: Date = new Date();
+  date = new Date();
 
   @Props({ type: 'Types.Document', hidden: true, hiddenInList: true })
   document: Ref = null;
@@ -60,6 +60,6 @@ export class RegisterAccumulation {
     return result;
   }
 
-  QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type); }
+  QueryList() { return SQLGenegator.QueryRegisterAccumulatioList(this.Props(), this.type as string); }
 }
 

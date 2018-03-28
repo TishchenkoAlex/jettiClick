@@ -1,5 +1,5 @@
 import { v1 } from 'uuid';
-
+import 'reflect-metadata';
 import { INoSqlDocument, IFlatDocument } from './../models/ServerDocument';
 import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
 import { ICommand } from './commands';
@@ -39,7 +39,7 @@ export interface DocumentOptions {
   relations?: [{ name: string, type: DocTypes, field: string }];
 }
 
-export type Ref = string | null | RefValue;
+export type Ref = string | null;
 export const symbolProps = Symbol('Props');
 
 export function Props(props: PropOptions) {
@@ -61,7 +61,7 @@ export class DocumentBase {
   id = v1();
 
   @Props({ type: 'string', hidden: true, hiddenInList: true })
-  type: DocTypes = null;
+  type: DocTypes;
 
   @Props({ type: 'time', hidden: true, hiddenInList: true })
   time = new Date();
@@ -76,10 +76,10 @@ export class DocumentBase {
   description = '';
 
   @Props({ type: 'Catalog.Company', order: 4, required: true, onChangeServer: true })
-  company = null;
+  company: Ref = null;
 
   @Props({ type: 'Catalog.User', hiddenInList: true, order: -1 })
-  user = null;
+  user: Ref = null;
 
   @Props({ type: 'boolean', hidden: true, hiddenInList: true })
   posted = false;
@@ -88,7 +88,7 @@ export class DocumentBase {
   deleted = false;
 
   @Props({ type: 'Types.Subcount', hidden: true, hiddenInList: true, order: -1 })
-  parent = null;
+  parent: Ref = null;
 
   @Props({ type: 'boolean', hidden: true, hiddenInList: true })
   isfolder = false;
@@ -97,7 +97,7 @@ export class DocumentBase {
   info = '';
 
   @Props({ type: 'datetime', hiddenInList: true, order: -1, hidden: true })
-  timestamp: Date = null;
+  timestamp: Date | null = null;
 
   private targetProp(target: Object, propertyKey: string): PropOptions {
     const result = Reflect.getMetadata(symbolProps, target, propertyKey);

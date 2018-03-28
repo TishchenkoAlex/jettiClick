@@ -17,14 +17,14 @@ export class AuthEffects {
       this.authService.login(auth.email, auth.password).pipe(
         map(account => new LoginSuccess({
           accout: ({
-            created: account.account.created,
-            description: account.account.description,
-            email: account.account.email,
-            env: account.account.env,
-            isAdmin: account.account.isAdmin,
-            roles: account.account.roles,
-            status: account.account.status,
-            token: account.token
+            created: account!.account!.created,
+            description: account!.account!.description,
+            email: account!.account!.email,
+            env: account!.account!.env,
+            isAdmin: account!.account!.isAdmin,
+            roles: account!.account!.roles,
+            status: account!.account!.status,
+            token: account!.token || ''
           })
         })),
         catchError(error => of(new LoginFailure(error)))

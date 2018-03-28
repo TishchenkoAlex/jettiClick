@@ -8,11 +8,11 @@ import { DocumentBase, DocumentOptions, JDocument, Props, Ref } from './../docum
   description: 'Субконко',
   icon: '',
   menu: 'Субконто',
-  prefix: null
+  prefix: ''
 })
 export class CatalogSubcount extends DocumentBase {
   @Props({ type: 'Catalog.Subcount', hiddenInList: true, order: -1 })
-  parent: Ref = null;
+  parent: Ref;
 
 
   QueryList() {

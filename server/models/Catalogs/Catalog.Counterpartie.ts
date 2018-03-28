@@ -19,13 +19,13 @@ export class CatalogCounterpartie extends DocumentBase {
   parent: Ref = null;
 
   @Props({ type: 'string', required: true })
-  FullName: string = null;
+  FullName = '';
 
   @Props({ type: 'boolean', required: true })
-  Client: boolean = null;
+  Client = false;
 
   @Props({ type: 'boolean', required: true })
-  Supplier: boolean = null;
+  Supplier = false;
 
   @Props({ type: 'Catalog.Department', required: false })
   Department: Ref = null;

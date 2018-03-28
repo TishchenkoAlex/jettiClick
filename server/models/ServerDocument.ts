@@ -36,7 +36,7 @@ export interface IFlatDocument {
   isfolder: boolean;
   parent: Ref;
   info: string;
-  timestamp: Date;
+  timestamp: Date | null;
 }
 
 export abstract class DocumentBaseServer extends DocumentBase implements ServerDocument {
@@ -80,7 +80,7 @@ export interface ServerDocument {
   beforeDelete?(tx: MSSQL): Promise<void>;
   afterDelete?(tx: MSSQL): Promise<void>;
 
-  onValueChanged?(prop: string, value: any, tx: MSSQL): Promise<PatchValue>;
+  onValueChanged?(prop: string, value: any, tx: MSSQL): Promise<PatchValue | {}>;
   onCommand?(command: string, args: any, tx: MSSQL): Promise<any>;
 
   baseOn?(id: Ref, tx: MSSQL): Promise<DocumentBase>;

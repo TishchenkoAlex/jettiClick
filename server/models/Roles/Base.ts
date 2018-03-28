@@ -15,7 +15,10 @@ export interface Role { type: RoleType; Objects: RoleObject[]; }
 
 export function getRoleObjects(roles: RoleType[]) {
   const result: RoleObject[] = [];
-  (roles || []).forEach(r => result.push(...Roles.find(R => R.type === r).Objects));
+  (roles || []).forEach(r => {
+    const role = Roles.find(R => R.type === r);
+    if (role) result.push(...role.Objects);
+  });
   return result;
 }
 

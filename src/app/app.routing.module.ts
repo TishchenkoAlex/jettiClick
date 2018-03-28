@@ -21,24 +21,25 @@ export class AppRouteReuseStrategy extends RouteReuseStrategy {
   shouldDetach(route: ActivatedRouteSnapshot): boolean { return false; }
   store(route: ActivatedRouteSnapshot, detachedTree: DetachedRouteHandle): void { }
   shouldAttach(route: ActivatedRouteSnapshot): boolean { return false; }
-  retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle { return null; }
+  retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null { return null; }
   shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean { return future.component === curr.component; }
 }
 
 @Injectable()
-export class TabResolver implements Resolve<FormGroup | IViewModel> {
+export class TabResolver implements Resolve<FormGroup | IViewModel | null> {
   constructor(private dfs: DynamicFormService, private api: ApiService, private tabStore: TabsStore) { }
 
   public resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     const id = route.params.id || '';
     const type = route.params.type;
-    if (type === 'home') { return null; }
+    if (type === 'home') return null;
     if (type.startsWith('Form.')) { return this.dfs.getFormView$(type); }
     if (this.tabStore.state.tabs.findIndex(i => i.docType === type && i.docID === id) === -1) {
       return id ?
         this.dfs.getViewModel$(type, id, route.queryParams) :
         this.api.getView(type);
     }
+    return null;
   }
 }
 

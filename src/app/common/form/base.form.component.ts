@@ -51,10 +51,10 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   get hasTables() { return !!(<FormControlInfo[]>this.form['orderedControls']).find(t => t.type === 'table'); }
   get tables() { return (<FormControlInfo[]>this.form['orderedControls']).filter(t => t.type === 'table'); }
   get description() { return <FormControl>this.form.get('description'); }
-  get isPosted() { return <boolean>!!this.form.get('posted').value; }
-  get isDeleted() { return <boolean>!!this.form.get('deleted').value; }
-  get isNew() { return !this.form.get('timestamp').value; }
-  get isFolder() { return (!!this.form.get('isfolder').value); }
+  get isPosted() { return <boolean>!!this.form.get('posted')!.value; }
+  get isDeleted() { return <boolean>!!this.form.get('deleted')!.value; }
+  get isNew() { return !this.form.get('timestamp')!.value; }
+  get isFolder() { return (!!this.form.get('isfolder')!.value); }
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
@@ -80,17 +80,17 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       });
 
     this._descriptionSubscription$ = merge(...[
-      this.form.get('date').valueChanges,
-      this.form.get('code').valueChanges,
-      this.form.get('Group') ? this.form.get('Group').valueChanges : observableOf('')])
+      this.form.get('date')!.valueChanges,
+      this.form.get('code')!.valueChanges,
+      this.form.get('Group') ? this.form.get('Group')!.valueChanges : observableOf('')])
       .pipe(filter(_ => this.isDoc)).subscribe(_ => this.showDescription());
   }
 
   showDescription() {
     if (this.isDoc) {
-      const date = this.form.get('date').value;
-      const code = this.form.get('code').value;
-      const group = this.form.get('Group') && this.form.get('Group').value ? this.form.get('Group').value.value : '';
+      const date = this.form.get('date')!.value;
+      const code = this.form.get('code')!.value;
+      const group = this.form.get('Group') && this.form.get('Group')!.value ? this.form.get('Group')!.value.value : '';
       const value = calculateDescription(this.docDescription, date, code, group);
       this.description.patchValue(value, patchOptionsNoEvents);
     }
@@ -100,7 +100,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   Delete() { this.ds.delete(this.model.id); }
   Copy() { return this.router.navigate([this.model.type, v1().toUpperCase()], { queryParams: { copy: this.id } }); }
   Post() { const doc = this.model; doc.posted = true; this.Save(doc, 'post'); }
-  unPost() { this.ds.unpost(this.id).then(() => this.form.get('posted').patchValue(false, patchOptionsNoEvents)); }
+  unPost() { this.ds.unpost(this.id).then(() => this.form.get('posted')!.patchValue(false, patchOptionsNoEvents)); }
   PostClose() { const doc = this.model; doc.posted = true; this.Save(doc, 'post', true); }
 
   Goto() {
@@ -136,7 +136,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   }
 
   focus() {
-    this.cdkTrapFocus.find(el => el.autoCapture).focusTrap.focusFirstTabbableElementWhenReady();
+    const autoCapture = this.cdkTrapFocus.find(el => el.autoCapture);
+    if (autoCapture) autoCapture.focusTrap.focusFirstTabbableElementWhenReady();
   }
 
   Print = () => { };

@@ -5,7 +5,7 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   description: 'Статья баланса',
   icon: 'fa fa-money',
   menu: 'Статьи баланса',
-  prefix: null,
+  prefix: '',
   relations: [
     { name: 'Balance analytics', type: 'Catalog.Balance.Analytics', field: 'parent' }
   ]
@@ -16,10 +16,10 @@ export class CatalogBalance extends DocumentBase {
   parent: Ref = null;
 
   @Props({ type: 'boolean'})
-  isActive: boolean = null;
+  isActive = false;
 
   @Props({ type: 'boolean'})
-  isPassive: boolean = null;
+  isPassive = false;
 
   @Props({ type: 'table'})
   Subcounts: Subcounts[] = [new Subcounts()];

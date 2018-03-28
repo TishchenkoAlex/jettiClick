@@ -4,26 +4,26 @@ import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
 import { _if } from 'rxjs/observable/if';
 import { merge } from 'rxjs/observable/merge';
 import { of } from 'rxjs/observable/of';
-import { debounceTime, filter as filter$, map, tap } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
+import { debounceTime, map, tap, filter as filter$ } from 'rxjs/operators';
 import { v1 } from 'uuid';
-
 import { IViewModel } from '../../../../server/models/api';
 import { ColumnDef } from '../../../../server/models/column';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
 import { calendarLocale, dateFormat } from '../../primeNG.module';
+import { scrollIntoViewIfNeeded } from '../utils';
 import { DocumentOptions } from './../../../../server/models/document';
 import { createDocument } from './../../../../server/models/documents.factory';
 import { UserSettingsService } from './../../auth/settings/user.settings.service';
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
-import { scrollIntoViewIfNeeded } from '../utils';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,7 +54,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   }
 
   columns$: Observable<ColumnDef[]>;
-  selection = [];
+  selection: any[] = [];
   contextMenuSelection = [];
   filters: { [s: string]: FilterMetadata } = {};
   multiSortMeta: SortMeta[] = [];
@@ -146,9 +146,10 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
     field: 'posted', filter: {left: 'posted', center: '=', right: null}, type: 'boolean', label: 'posted',
     style: {}, order: 0, readOnly: false, required: false, hidden: false,
   });
-  private _update(col: ColumnDef, event, center) {
+  private _update(col: ColumnDef | undefined, event, center) {
+    if (!col) return;
     if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
-    this.filters[col.field] = { matchMode: center || col.filter.center, value: event };
+    this.filters[col.field] = { matchMode: center || (col.filter && col.filter.center), value: event };
     this.prepareDataSource(this.multiSortMeta);
     this.dataSource.sort();
   }
@@ -249,6 +250,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
 
   onContextMenuSelect(event) {
     let el = (event.originalEvent as MouseEvent).srcElement;
+    if (!el) return;
     while (!el.id && el.lastElementChild) { el = el.lastElementChild; }
     const value = event.data[el.id];
     this.ctxData = { column: el.id, value: value && value.id ? value : value };

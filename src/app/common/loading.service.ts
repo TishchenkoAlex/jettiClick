@@ -13,7 +13,7 @@ export class LoadingService {
   set loading(value: boolean) { if (value !== this._loading.value) this._loading.next(value); }
   get loading() { return this._loading.value; }
 
-  private _counter = new BehaviorSubject<number>(undefined);
+  private _counter = new BehaviorSubject<number | undefined>(undefined);
   counter$ = this._counter.asObservable();
   set counter(value) { if (value !== this._counter.value) this._counter.next(value); }
   get counter() { return this._counter.value; }

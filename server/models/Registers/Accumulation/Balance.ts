@@ -16,7 +16,7 @@ export class RegisterAccumulationBalance extends RegisterAccumulation {
   Analytics: Ref = null;
 
   @Props({ type: 'number' })
-  Amount: number = null;
+  Amount = 0;
 
   constructor(kind: boolean, public data: {
     Department: Ref,

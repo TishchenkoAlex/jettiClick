@@ -5,7 +5,7 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
   description: 'Счет БУ',
   icon: 'fa fa-list',
   menu: 'Счета БУ',
-  prefix: null,
+  prefix: '',
   presentation: 'code',
 })
 export class CatalogAccount extends DocumentBase {
@@ -17,10 +17,10 @@ export class CatalogAccount extends DocumentBase {
   isForex = false;
 
   @Props({ type: 'boolean' })
-  isActive: boolean = null;
+  isActive = false;
 
   @Props({ type: 'boolean' })
-  isPassive: boolean = null;
+  isPassive = false;
 
   @Props({ type: 'table' })
   Subcounts: Subcounts[] = [new Subcounts()];
@@ -31,11 +31,11 @@ class Subcounts {
   Subcount: Ref = null;
 
   @Props({ type: 'boolean' })
-  isQty: boolean = null;
+  isQty = false;
 
   @Props({ type: 'boolean' })
-  isSum: boolean = null;
+  isSum = true;
 
   @Props({ type: 'boolean', label: 'isTO' })
-  isTurnoversOnly: boolean = null;
+  isTurnoversOnly = false;
 }

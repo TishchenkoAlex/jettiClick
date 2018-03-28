@@ -84,7 +84,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           const copyDoc = await createDocumentServer<DocumentBaseServer>(params.type, copy);
           copyDoc.id = id; copyDoc.date = ServerDoc.date; copyDoc.code = ServerDoc.code;
           copyDoc.posted = false; copyDoc.deleted = false; copyDoc.timestamp = null;
-          copyDoc.parent = { ...copyDoc.parent, id: null, code: null, value: null };
+          copyDoc.parent = copyDoc.parent;
           copyDoc.description = 'Copy: ' + copyDoc.description;
           ServerDoc.map(copyDoc);
           addIncomeParamsIntoDoc(params, ServerDoc);

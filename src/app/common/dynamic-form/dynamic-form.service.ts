@@ -73,14 +73,15 @@ export function getFormGroup(schema: { [x: string]: any }, model: { [x: string]:
       const readOnly = !!prop['readOnly'];
       const disabled = !!prop['disabled'];
       const style = prop['style'];
-      const totals = prop['totals'] * 1 || null;
+      const totals = prop['totals'];
       const change = prop['change'];
       const owner = prop['owner'] || null;
       const onChange = prop['onChange'];
       const onChangeServer = !!prop['onChangeServer'];
       let newControl: FormControlInfo;
       const controlOptions: IFormControlInfo = {
-        key, label, type: controlType, required, readOnly, hidden, disabled, change, order, style, onChange, owner, totals, onChangeServer
+        key, label, type: controlType, required, readOnly,
+        hidden, disabled, change, order, style, onChange, owner, totals, onChangeServer
       };
       switch (controlType) {
         case 'table':
