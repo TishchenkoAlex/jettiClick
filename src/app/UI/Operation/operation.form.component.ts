@@ -76,7 +76,6 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
       const item = { id: o.Operation, description: (await this.super.ds.api.getRawDoc(o.Operation)).description };
       this.copyTo.push(item);
     }
-    console.log(this.copyTo);
     this.form['metadata'] = {...Prop};
     this.form['metadata']['copyTo'] = this.copyTo;
     this.super.cd.markForCheck();

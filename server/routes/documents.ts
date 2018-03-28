@@ -38,18 +38,14 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
 
     let Operation = req.query.Operation;
     if (params.type === 'Document.Operation' && req.query.copy) {
-      const sourceRaw = await lib.doc.byId(req.query.copy);
+      const sourceRaw = await lib.doc.byId(req.query.copy, sdb);
       Operation = sourceRaw && sourceRaw['Operation'];
     }
 
-    let ServerDoc: DocumentBaseServer;
-    if (id) {
-      const doc = await lib.doc.byId(id);
-      if (doc) ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, doc);
-      else throw new Error(`worng type ${params.type}`);
-    } else {
-      ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type);
-    }
+    let doc: IFlatDocument;
+    if (id) doc = await lib.doc.byId(id);
+    let ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, doc, sdb);
+    if (!ServerDoc) throw new Error(`wrong type ${params.type}`);
 
     let model = {};
     const settings = (await sdb.oneOrNone<{ settings: FormListSettings }>(`
@@ -58,10 +54,10 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
 
     if (id) {
 
-      const addIncomeParamsIntoDoc = async (prm, doc) => {
+      const addIncomeParamsIntoDoc = async (prm: {[x: string]: any}, d: DocumentBase) => {
         for (const k in prm) {
           if (k === 'type' || k === 'id' || k === 'new' || k === 'base' || k === 'copy') { continue; }
-          if (typeof params[k] !== 'boolean') doc[k] = params[k]; else doc[k] = params[k];
+          if (typeof params[k] !== 'boolean') d[k] = params[k]; else d[k] = params[k];
         }
       };
 

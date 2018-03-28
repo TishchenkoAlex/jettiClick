@@ -104,7 +104,6 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   onLazyLoad(event) {
     if (event.initialized) {
       this.multiSortMeta = event.multiSortMeta;
-      console.log('onLazyLoad');
       this.prepareDataSource();
       this.dataSource.sort();
     }
