@@ -57,7 +57,7 @@ class Parameter {
   type: Ref = null;
 
   @Props({ type: 'number', required: true })
-  order: 0;
+  order: number = null;
 
   @Props({ type: 'boolean', required: true })
   required = false;
