@@ -31,7 +31,7 @@ export interface JTL {
   };
   doc: {
     byCode: (type: DocTypes, code: string, tx?: MSSQL) => Promise<string | null>;
-    byId: (id: string, tx?: MSSQL) => Promise<IFlatDocument>;
+    byId: (id: string, tx?: MSSQL) => Promise<IFlatDocument | null>;
     formControlRef: (id: string, tx?: MSSQL) => Promise<RefValue>;
     postById: (id: string, posted: boolean, tx?: MSSQL) => Promise<void>;
     noSqlDocument: (flatDoc: IFlatDocument) => INoSqlDocument | null;
@@ -91,12 +91,12 @@ async function byCode(type: string, code: string, tx = sdb) {
   return result ? result.result as string : null;
 }
 
-async function byId(id: string, tx = sdb): Promise<IFlatDocument> {
+async function byId(id: string, tx = sdb): Promise<IFlatDocument | null> {
   const result = await tx.oneOrNone<INoSqlDocument | null>(`
   SELECT id, type, parent, DATEADD(ms, DATEDIFF(ms, '00:00:00', [time]), CONVERT(DATETIME, [date])) date, [time],
   code, description, posted, deleted, isfolder, company, [user], info, timestamp,
   JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
-  if (result) return flatDocument(result); else throw new Error(`lib.byId: document ${id} not found`);
+  if (result) return flatDocument(result); else return null;
 }
 
 function noSqlDocument(flatDoc: INoSqlDocument | DocumentBaseServer): INoSqlDocument | null {
@@ -232,8 +232,8 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
 export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Promise<void> {
   return tx.tx<any>(async subtx => {
     const doc = await lib.doc.byId(id, subtx);
-    if (doc.deleted) return; // throw new Error('cant POST deleted document');
-    const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
+    if (doc!.deleted) return; // throw new Error('cant POST deleted document');
+    const serverDoc = await createDocumentServer<DocumentBaseServer>(doc!.type as DocTypes, doc!);
     serverDoc.posted = posted;
 
     const deleted = await subtx.none(`
@@ -242,9 +242,9 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
       DELETE FROM "Register.Info" WHERE document = '${id}';
       DELETE FROM "Accumulation" WHERE document = '${id}';
       UPDATE "Documents" SET posted = @p1 WHERE id = '${id}'`, [serverDoc.posted]);
-    doc['deletedRegisterAccumulation'] = () => deleted;
+    doc!['deletedRegisterAccumulation'] = () => deleted;
 
-    if (posted && serverDoc.onPost && !doc.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx);
+    if (posted && serverDoc.onPost && !doc!.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx);
   });
 }
 
@@ -301,7 +301,7 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: MSSQ
     }
     if (total > 0) {
       const SKU = await lib.doc.byId(row.SKU as string, tx);
-      throw new Error(`Не достаточно ${total} единиц ${SKU.description}`);
+      throw new Error(`Не достаточно ${total} единиц ${SKU!.description}`);
     }
   }
   return result;
@@ -350,7 +350,7 @@ export async function batchReturn(retDoc: string, rows: BatchRow[], tx: MSSQL = 
     }
     if (total > 0) {
       const SKU = await lib.doc.byId(row.SKU as string, tx);
-      throw new Error(`Не достаточно ${total} единиц ${SKU.description}`);
+      throw new Error(`Не достаточно ${total} единиц ${SKU!.description}`);
     }
   }
   return result;
