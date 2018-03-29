@@ -14,7 +14,7 @@ export class MSSQL {
         .then(() => console.log('connected', this.config.database))
         .catch(err => console.log('connection error', err));
 
-      if (process.env.NODE_ENV !== 'production')
+      if (process.env.NODE_ENV === 'production')
         setInterval(() => {
           (<sql.ConnectionPool>this.POOL).connect()
             .then(() => console.log('reconnected', this.config.database))
