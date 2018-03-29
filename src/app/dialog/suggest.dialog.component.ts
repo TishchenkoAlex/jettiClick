@@ -31,7 +31,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   doc: DocumentBase | undefined;
 
   columns$: Observable<ColumnDef[]>;
-  selection: ISuggest[] = [];
+  selection: DocumentBase[] = [];
   filters: { [s: string]: FilterMetadata } = {};
   multiSortMeta: SortMeta[] = [];
 
@@ -69,8 +69,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     this.dataSource.result$.pipe(take(1),
       map(rows => rows.find(r => r.id === this.id)),
       filter(row => row !== undefined)).subscribe(row => {
-        const selection: ISuggest = { id: row!.id, type: row!.type, code: row!.code, value: row!.description };
-        this.selection = [selection];
+        this.selection = [row as DocumentBase];
       });
     this.dataSource.sort();
 
