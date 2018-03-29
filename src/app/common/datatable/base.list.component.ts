@@ -9,9 +9,9 @@ import { Subscription } from 'rxjs/Subscription';
 import { _if } from 'rxjs/observable/if';
 import { merge } from 'rxjs/observable/merge';
 import { of } from 'rxjs/observable/of';
-import { debounceTime, map, tap, filter as filter$ } from 'rxjs/operators';
+import { debounceTime, map, tap, filter, take } from 'rxjs/operators';
 import { v1 } from 'uuid';
-import { IViewModel } from '../../../../server/models/api';
+import { IViewModel, ISuggest } from '../../../../server/models/api';
 import { ColumnDef } from '../../../../server/models/column';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
@@ -68,6 +68,8 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
     if (!this.type) this.type = this.route.snapshot.params.type;
     const columns: ColumnDef[] = this.routeData ? this.routeData.columnsDef || [] : [];
 
+    this.dataSource = new ApiDataSource(this.ds.api, this.type, this.pageSize, true);
+
     this.columns$ = _if(() => !!columns.length,
       of(columns),
       this.ds.api.getView(this.type).pipe(map(v => v.columnsDef))).pipe(
@@ -80,14 +82,8 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
       this.setContextMenu(c);
     };
 
-    this.dataSource = new ApiDataSource(this.ds.api, this.type, this.pageSize);
-    setTimeout(() => {
-      this.prepareDataSource();
-      this.dataSource.sort();
-    });
-
     this._docSubscription$ = merge(...[this.ds.save$, this.ds.delete$, this.ds.saveClose$, this.ds.goto$]).pipe(
-      filter$(doc => doc && doc.type === this.type))
+      filter(doc => doc && doc.type === this.type))
       .subscribe(doc => {
         const exist = (this.dataSource.renderedData).find(d => d.id === doc.id);
         if (exist) {
@@ -101,7 +97,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
 
     // обработка команды найти в списке
     this._routeSubscruption$ = this.route.queryParams.pipe(
-      filter$(params => this.route.snapshot.params.type === this.type && params.goto && !this.route.snapshot.params.id))
+      filter(params => this.route.snapshot.params.type === this.type && params.goto && !this.route.snapshot.params.id))
       .subscribe(params => {
         const exist = this.dataSource.renderedData.find(d => d.id === params.goto);
         if (exist) {
@@ -143,7 +139,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line:member-ordering
   postedCol: ColumnDef = ({
-    field: 'posted', filter: {left: 'posted', center: '=', right: null}, type: 'boolean', label: 'posted',
+    field: 'posted', filter: { left: 'posted', center: '=', right: null }, type: 'boolean', label: 'posted',
     style: {}, order: 0, readOnly: false, required: false, hidden: false,
   });
   private _update(col: ColumnDef | undefined, event, center) {
@@ -161,20 +157,18 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   }
 
   onLazyLoad(event) {
-    if (event.initialized) {
-      this.multiSortMeta = event.multiSortMeta;
-      this.prepareDataSource();
-      this.dataSource.sort();
-    }
+    this.multiSortMeta = event.multiSortMeta;
+    this.prepareDataSource();
+    this.dataSource.sort();
   }
 
   prepareDataSource(multiSortMeta: SortMeta[] = this.multiSortMeta) {
     this.dataSource.id = this.id.id;
     const order = multiSortMeta
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-    const filter = Object.keys(this.filters)
+    const Filter = Object.keys(this.filters)
       .map(f => <FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value });
-    this.dataSource.formListSettings = { filter, order };
+    this.dataSource.formListSettings = { filter: Filter, order };
   }
 
   private setContextMenu(columns: ColumnDef[]) {

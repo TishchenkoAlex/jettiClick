@@ -25,7 +25,7 @@ export class ApiDataSource {
   result$: Observable<DocumentBase[]>;
   renderedData: DocumentBase[] = [];
 
-  continuation: Continuation = { first: { id: 'first', type: this.type }, last: { id: 'last', type: this.type } };
+  continuation: Continuation = { first: null, last: null};
   private EMPTY: DocListResponse = { data: [], continuation: { first: this.continuation.first, last: this.continuation.first } };
 
   constructor(public api: ApiService, public type: DocTypes, public pageSize = 10, direction = false) {
@@ -38,8 +38,8 @@ export class ApiDataSource {
         let offset = 0;
         let id = this.id;
         switch (stream.command) {
-          case 'prev': id = this.continuation.first.id as string; break;
-          case 'next': id = this.continuation.last.id as string; break;
+          case 'prev': id = this.continuation.first!.id as string; break;
+          case 'next': id = this.continuation.last!.id as string; break;
           case 'refresh': case 'sort': case undefined:
             offset = this.renderedData.findIndex(r => r.id === id);
             if (offset === -1) offset = 0; else id = this.renderedData[offset].id;

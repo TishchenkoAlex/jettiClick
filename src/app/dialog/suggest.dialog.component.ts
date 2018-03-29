@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import { of } from 'rxjs/observable/of';
-import { debounceTime, take, map, filter } from 'rxjs/operators';
+import { debounceTime, filter, map, take } from 'rxjs/operators';
 import { ISuggest } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { DocumentBase, DocumentOptions } from '../../../server/models/document';
@@ -14,7 +14,6 @@ import { FormListFilter, FormListOrder, FormListSettings } from '../../../server
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { calendarLocale, dateFormat } from '../primeNG.module';
 import { ApiService } from '../services/api.service';
-
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -107,11 +106,9 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   }
 
   onLazyLoad(event) {
-    if (event.initialized) {
-      this.multiSortMeta = event.multiSortMeta;
-      this.prepareDataSource();
-      this.dataSource.sort();
-    }
+    this.multiSortMeta = event.multiSortMeta;
+    this.prepareDataSource();
+    this.dataSource.sort();
   }
 
   prepareDataSource(multiSortMeta: SortMeta[] = this.multiSortMeta) {

@@ -27,7 +27,7 @@ export class ApiInterceptor implements HttpInterceptor {
     if (showLoading) { this.lds.color = 'accent'; this.lds.loading = true; }
     return next.handle(req).pipe(
       map(data => data instanceof HttpResponse ? data.clone({ body: JSON.parse(JSON.stringify(data.body), dateReviver) }) : data),
-      tap(data => { if (data instanceof HttpResponse) this.lds.loading = false; }),
+      tap(data => { if (data instanceof HttpResponse && data.body) this.lds.loading = false; }),
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
           this.auth.logout();

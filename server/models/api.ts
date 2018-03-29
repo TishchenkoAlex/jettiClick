@@ -12,7 +12,7 @@ export interface DocListRequestBody {
   order: FormListOrder[];
 }
 
-export interface Continuation { first: { id: Ref, type: string }; last: { id: Ref, type: string }; }
+export interface Continuation { first: { id: Ref, type: string } | null; last: { id: Ref, type: string } | null; }
 export interface DocListResponse { data: any[]; continuation: Continuation; }
 
 export interface MenuItem { type: string; description: string; icon: string; menu: string; }
