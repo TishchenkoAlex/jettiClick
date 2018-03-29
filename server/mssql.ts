@@ -14,7 +14,7 @@ export class MSSQL {
         .then(() => console.log('connected', this.config.database))
         .catch(err => console.log('connection error', err));
 
-      if (process.env.NODE_ENV === 'production')
+      if (process.env.NODE_ENV !== 'production')
         setInterval(() => {
           (<sql.ConnectionPool>this.POOL).connect()
             .then(() => console.log('reconnected', this.config.database))
@@ -102,4 +102,3 @@ export class MSSQL {
 export const sdb = new MSSQL(sqlConfig);
 export const sdbq = new MSSQL({ ...sqlConfig, requestTimeout: 1000 * 60 * 60 });
 export const sdba = new MSSQL(sqlConfigAccounts);
-console.log('process.env.NODE_ENV', process.env);
