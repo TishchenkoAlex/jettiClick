@@ -51,12 +51,12 @@
             <div *ngSwitchCase="'date'">
               <p-calendar selectionMode="range" showButtonBar="true" [ngModel]="filters[column.field]?.value" readonlyInput="true" [appendTo]="'body'"
                 [locale]="locale" (ngModelChange)="update(column, $event, '=')" [dateFormat]="dateFormat"
-                [monthNavigator]="true" [yearNavigator]="true" yearRange="2000:2030"></p-calendar>
+                [monthNavigator]="true" [yearNavigator]="true" yearRange="2010:2030"></p-calendar>
             </div>
             <div *ngSwitchCase="'datetime'">
               <p-calendar selectionMode="range" showButtonBar="true" [ngModel]="filters[column.field]?.value" readonlyInput="true" [appendTo]="'body'"
                 [locale]="locale" (ngModelChange)="update(column, $event, '=')" [dateFormat]="dateFormat"
-                [monthNavigator]="true" [yearNavigator]="true" yearRange="2000:2030"></p-calendar>
+                [monthNavigator]="true" [yearNavigator]="true" yearRange="2010:2030"></p-calendar>
             </div>
             <div *ngSwitchCase="'string'">
               <input [ngModel]="filters[column.field]?.value" pInputText (ngModelChange)="update(column, $event, 'like')">

@@ -1,15 +1,15 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
-import { of as observableOf } from 'rxjs/observable/of';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
-
+import { catchError, filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Continuation, DocListResponse } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
 import { scrollIntoViewIfNeeded } from '../utils';
 import { DocumentBase } from './../../../../server/models/document';
+import { of } from 'rxjs/observable/of';
+
 
 interface DatasourceCommand { command: string; data?: any; }
 
@@ -57,10 +57,10 @@ export class ApiDataSource {
             catchError(err => {
               this.renderedData = this.EMPTY.data;
               this.continuation = this.EMPTY.continuation;
-              return observableOf(this.EMPTY);
+              return of(this.EMPTY);
             }));
       }),
-      map(data => data.data));
+      map(data => data.data), shareReplay());
   }
 
   refresh(id: string) { this.id = id; this.paginator.next({ command: 'refresh' }); }

@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnI
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { SortMeta } from 'primeng/components/common/sortmeta';
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
-import { debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
-
+import { Subscription } from 'rxjs/Subscription';
+import { of } from 'rxjs/observable/of';
+import { debounceTime, take, map, filter } from 'rxjs/operators';
+import { ISuggest } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { DocumentBase, DocumentOptions } from '../../../server/models/document';
 import { createDocument } from '../../../server/models/documents.factory';
@@ -13,7 +14,7 @@ import { FormListFilter, FormListOrder, FormListSettings } from '../../../server
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { calendarLocale, dateFormat } from '../primeNG.module';
 import { ApiService } from '../services/api.service';
-import { Subscription } from 'rxjs/Subscription';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,11 +28,11 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   @Input() id: string;
   @Input() pageSize = 250;
   @Input() settings: FormListSettings = new FormListSettings();
-  @Output() Select = new EventEmitter();
+  @Output() Select = new EventEmitter<ISuggest>();
   doc: DocumentBase | undefined;
 
   columns$: Observable<ColumnDef[]>;
-  selection: any[] = [];
+  selection: ISuggest[] = [];
   filters: { [s: string]: FilterMetadata } = {};
   multiSortMeta: SortMeta[] = [];
 
@@ -64,11 +65,15 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     this.dataSource = new ApiDataSource(this.api, this.type, this.pageSize, true);
     this.setSortOrder();
     this.setFilters();
-    this.selection = [{ id: this.id, type: this.type }];
-    setTimeout(() => {
-      this.prepareDataSource();
-      this.dataSource.sort();
-    });
+    this.prepareDataSource();
+
+    this.dataSource.result$.pipe(take(1),
+      map(rows => rows.find(r => r.id === this.id)),
+      filter(row => row !== undefined)).subscribe(row => {
+        const selection: ISuggest = { id: row!.id, type: row!.type, code: row!.code, value: row!.description };
+        this.selection = [selection];
+      });
+    this.dataSource.sort();
 
     this._debonceSubscription$ = this.debonce$.pipe(debounceTime(500))
       .subscribe(event => this._update(event.col, event.event, event.center));
@@ -113,13 +118,14 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     this.dataSource.id = this.id;
     const order = multiSortMeta
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
-    const filter = Object.keys(this.filters)
+    const Filter = Object.keys(this.filters)
       .map(f => <FormListFilter>{ left: f, center: this.filters[f].matchMode, right: this.filters[f].value });
-    this.dataSource.formListSettings = { filter, order };
+    this.dataSource.formListSettings = { filter: Filter, order };
   }
 
-  open(event) {
-    this.Select.emit(event);
+  open(row: DocumentBase) {
+    const selection: ISuggest = { id: row.id, type: row.type, code: row.code, value: row.description };
+    this.Select.emit(selection);
   }
 
   ngOnDestroy() {
