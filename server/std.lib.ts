@@ -93,7 +93,7 @@ async function byCode(type: string, code: string, tx = sdb) {
 
 async function byId(id: string, tx = sdb): Promise<IFlatDocument | null> {
   const result = await tx.oneOrNone<INoSqlDocument | null>(`
-  SELECT id, type, parent, DATEADD(ms, DATEDIFF(ms, '00:00:00', [time]), CONVERT(DATETIME, [date])) date, [time],
+  SELECT id, type, parent, date,
   code, description, posted, deleted, isfolder, company, [user], info, timestamp,
   JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
   if (result) return flatDocument(result); else return null;
@@ -101,9 +101,9 @@ async function byId(id: string, tx = sdb): Promise<IFlatDocument | null> {
 
 function noSqlDocument(flatDoc: INoSqlDocument | DocumentBaseServer): INoSqlDocument | null {
   if (!flatDoc) throw new Error(`lib.noSqlDocument: source is null!`);
-  const { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, ...doc } = flatDoc;
+  const { id, date, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, ...doc } = flatDoc;
   return <INoSqlDocument>
-    { id, date, time, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, doc };
+    { id, date, type, code, description, company, user, posted, deleted, isfolder, parent, info, timestamp, doc };
 }
 
 function flatDocument(noSqldoc: INoSqlDocument): IFlatDocument {

@@ -63,9 +63,6 @@ export class DocumentBase {
   @Props({ type: 'string', hidden: true, hiddenInList: true })
   type: DocTypes;
 
-  @Props({ type: 'time', hidden: true, hiddenInList: true })
-  time = new Date();
-
   @Props({ type: 'datetime', order: 1 })
   date = new Date();
 

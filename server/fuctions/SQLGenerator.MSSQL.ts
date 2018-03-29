@@ -84,7 +84,7 @@ export class SQLGenegator {
     };
 
     let query = `
-    SELECT d.id, d.type, DATEADD(ms, DATEDIFF(ms, '00:00:00', d.[time]), CONVERT(DATETIME, d.[date])) date, d.time, d.code, d.description, d.posted, d.deleted, d.isfolder, d.info, d.timestamp,
+    SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.info, d.timestamp,
 
     "company".id "company.id",
     "company".description "company.value",
@@ -200,7 +200,7 @@ export class SQLGenegator {
     };
 
     let query = `
-    SELECT d.id, d.type, DATEADD(ms, DATEDIFF(ms, '00:00:00', d.[time]), CONVERT(DATETIME, d.[date])) date, d.time, d.code, d.description, d.posted, d.deleted, d.isfolder, d.info, d.timestamp,
+    SELECT d.id, d.type, d.date, d.code, d.description, d.posted, d.deleted, d.isfolder, d.info, d.timestamp,
 
     "company".id "company.id",
     "company".description "company.value",
@@ -236,7 +236,7 @@ export class SQLGenegator {
         WITH (
           [id] UNIQUEIDENTIFIER,
           [type] NVARCHAR(100),
-          [date] DATE,
+          [date] datetimeoffset(0),
           [time] TIME,
           [code] NVARCHAR(36),
           [description] NVARCHAR(150),
@@ -272,7 +272,7 @@ export class SQLGenegator {
     const addLeftJoin = (prop: string, type: string) =>
         `  LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
 
-    let query = `SELECT d.id, d.type, DATEADD(ms, DATEDIFF(ms, '00:00:00', d.[time]), CONVERT(DATETIME, d.[date])) date,
+    let query = `SELECT d.id, d.type, d.date,
       d.code, d.description, d.posted, d.deleted, d.isfolder, d.timestamp
 , ISNULL("parent".description, '') "parent.value", d."parent" "parent.id", "parent".type "parent.type"
 , ISNULL("company".description, '') "company.value", d."company" "company.id", "company".type "company.type"
@@ -609,7 +609,7 @@ export function buildSubcountQueryList(select: { type: any; description: string;
 }
 
 export function excludeProps(doc) {
-  const { user, company, parent, info, isfolder, description, id, type, date, time, code, posted, deleted, timestamp, ...newObject } = doc;
+  const { user, company, parent, info, isfolder, description, id, type, date, code, posted, deleted, timestamp, ...newObject } = doc;
   return newObject;
 }
 

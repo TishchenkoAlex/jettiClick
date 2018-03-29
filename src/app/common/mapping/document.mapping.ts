@@ -6,7 +6,6 @@ export function mapToApi(model: DocumentBase): IFlatDocument {
     id: model.id,
     type: model.type,
     date: model.date || new Date(),
-    time: model.time || new Date(),
     code: model.code,
     description: model.description,
     posted: model.posted,

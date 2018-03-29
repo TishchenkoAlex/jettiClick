@@ -42,9 +42,9 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
       Operation = sourceRaw && sourceRaw['Operation'];
     }
 
-    let doc: IFlatDocument;
+    let doc: IFlatDocument | null;
     if (id) doc = await lib.doc.byId(id);
-    let ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, doc, sdb);
+    let ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, doc!, sdb);
     if (!ServerDoc) throw new Error(`wrong type ${params.type}`);
 
     let model = {};
@@ -171,7 +171,6 @@ async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
          [id]
         ,[type]
         ,[date]
-        ,[time]
         ,[code]
         ,[description]
         ,[posted]
@@ -187,8 +186,7 @@ async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
       FROM OPENJSON(@p1) WITH (
         [id] UNIQUEIDENTIFIER,
         [type] NVARCHAR(100),
-        [date] DATE,
-        [time] TIME,
+        [date] datetimeoffset(0),
         [code] NVARCHAR(36),
         [description] NVARCHAR(150),
         [posted] BIT,
@@ -205,7 +203,7 @@ async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
       UPDATE Documents
         SET
           type = i.type, parent = i.parent,
-          date = i.date, time = i.time, code = i.code, description = i.description,
+          date = i.date, code = i.code, description = i.description,
           posted = i.posted, deleted = i.deleted, isfolder = i.isfolder,
           "user" = i."user", company = i.company, info = i.info, timestamp = GETDATE(),
           doc = i.doc
@@ -215,8 +213,7 @@ async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
           FROM OPENJSON(@p1) WITH (
             [id] UNIQUEIDENTIFIER,
             [type] NVARCHAR(100),
-            [date] DATE,
-            [time] TIME,
+            [date] datetimeoffset(0),
             [code] NVARCHAR(36),
             [description] NVARCHAR(150),
             [posted] BIT,

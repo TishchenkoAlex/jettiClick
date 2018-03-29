@@ -102,8 +102,8 @@ export interface ISuggest {
 export function calculateDescription(description: string, date: Date, code: string, group = '') {
   const Group = group ? '(' + group + ')' : '';
   const value = `${description} ${Group} #${code}, ${date ?
-    date.toLocaleDateString() + ', ' + date.toTimeString() :
-    (new Date()).toLocaleDateString() + ', ' + (new Date()).toTimeString()}`;
+    date.toISOString() :
+    (new Date()).toISOString()}`;
   return value;
 }
 

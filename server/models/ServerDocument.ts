@@ -7,7 +7,6 @@ import { PostResult } from './post.interfaces';
 export interface INoSqlDocument {
   id: Ref;
   date: Date;
-  time: Date;
   type: DocTypes;
   code: string;
   description: string;
@@ -25,7 +24,6 @@ export interface INoSqlDocument {
 export interface IFlatDocument {
   id: Ref;
   date: Date;
-  time: Date;
   type: DocTypes;
   code: string;
   description: string;
