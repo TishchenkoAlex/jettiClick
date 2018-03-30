@@ -25,7 +25,7 @@ export class ApiInterceptor implements HttpInterceptor {
       req.url.includes('/formControlRef'));
 
     if (isDevMode()) console.log('http', req.url);
-    if (!showLoading) { this.lds.color = 'accent'; this.lds.loading = { req: req.url, loading: true }; }
+    if (showLoading) { this.lds.color = 'accent'; this.lds.loading = { req: req.url, loading: true }; }
     return next.handle(req).pipe(
       map(data => data instanceof HttpResponse ? data.clone({ body: JSON.parse(data.body, dateReviver) }) : data),
       tap(data => {
