@@ -92,7 +92,7 @@ export class MSSQL {
     });
     const result = map && map[0] || null;
     if (result && typeof result['doc'] === 'string') result['doc'] = JSON.parse(result['doc']);
-    if (data && typeof result['data'] === 'string') result['data'] = JSON.parse(result['data']);
+    if (result && typeof result['data'] === 'string') result['data'] = JSON.parse(result['data']);
     return result;
   }
 
@@ -104,9 +104,9 @@ export class MSSQL {
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES ;`);
     let data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
     data = data ? JSON.parse(data) : null;
-    data = data ? data[0] : data;
-    if (data && typeof data.doc === 'string') data.doc = JSON.parse(data.doc);
-    if (data && typeof data.data === 'string') data.data = JSON.parse(data.data);
+    const result = data ? data[0] : data;
+    if (result && typeof result.doc === 'string') result.doc = JSON.parse(result.doc);
+    if (result && typeof result.data === 'string') result.data = JSON.parse(result.data);
     return data;
   }
 
