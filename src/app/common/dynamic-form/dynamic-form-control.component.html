@@ -25,20 +25,24 @@
     [showLabel]="control.showLabel" (focus)="pc.select()">
   </j-autocomplete-png>
 
-  <div *ngSwitchCase="'date'" [ngClass]="{'ui-float-label' : control.showLabel}">
-    <p-calendar #pc [required]="control.required" [formControlName]="control.key" showButtonBar="true" autocomplete="off" [showIcon]="true"
+  <div *ngSwitchCase="'date'" [ngClass]="{'ui-float-label' : false}">
+      <input #pc [required]="control.required" pInputText [formControlName]="control.key" [readonly]="control.readOnly" autocomplete="off"
+      (focus)="$event.target.select()" spellcheck="false" type="date">
+<!--     <p-calendar #pc [required]="control.required" [formControlName]="control.key" showButtonBar="true" autocomplete="off" [showIcon]="true"
       [showOnFocus]="false" [locale]="locale" [dateFormat]="dateFormat" (onSelect)="pc.overlayVisible=false" appendTo="body"
       (onFocus)="$event.target.select()" [monthNavigator]="true" [yearNavigator]="true" yearRange="2010:2030">
     </p-calendar>
-    <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
+    <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label> -->
   </div>
 
-  <div *ngSwitchCase="'datetime'" [ngClass]="{'ui-float-label' : control.showLabel}">
-    <p-calendar #pc [required]="control.required" [formControlName]="control.key" showTime="true" showButtonBar="true" autocomplete="off"
-      [showIcon]="true" [dateFormat]="dateFormat" [locale]="locale" (onSelect)="pc.overlayVisible=false" [showOnFocus]="false"
-      appendTo="body" (onFocus)="$event.target.select()" [monthNavigator]="true" [yearNavigator]="true" yearRange="2010:2030">
+  <div *ngSwitchCase="'datetime'" [ngClass]="{'ui-float-label' : false}">
+      <input #pc [required]="control.required" pInputText [formControlName]="control.key" [readonly]="control.readOnly" autocomplete="off"
+      (focus)="$event.target.select()" spellcheck="false" type="datetime-local">
+<!--     <p-calendar #pc [required]="control.required" [formControlName]="control.key" showTime="true" showButtonBar="true" autocomplete="off"
+      [showIcon]="true" [dateFormat]="dateFormat" [locale]="locale" (onSelect)="pc.overlayVisible=false" [showOnFocus]="false" [keepInvalid]="true"
+      appendTo="body" (onFocus)="$event.target.select()" [monthNavigator]="true" [yearNavigator]="true" yearRange="2010:2030" (onBlur)="checkDate(pc)">
     </p-calendar>
-    <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
+    <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label> -->
   </div>
 
   <div *ngSwitchCase="'boolean'" [style.marginTop]="control.showLabel ? '27px': ''">

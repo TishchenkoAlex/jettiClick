@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
-
 import { ApiService } from '../../services/api.service';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
 import { FormControlInfo } from './dynamic-form-base';
-import { patchOptionsNoEvents } from './dynamic-form.service';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
