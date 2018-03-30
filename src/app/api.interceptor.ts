@@ -23,9 +23,7 @@ export class ApiInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       map(data => data instanceof HttpResponse ? data.clone({ body: JSON.parse(data.body, dateReviver) }) : data),
       tap(data => {
-        if (data instanceof HttpResponse) {
-          this.lds.loading = {req: req.url, loading: false};
-        }
+        if (data instanceof HttpResponse) this.lds.loading = {req: req.url, loading: false};
       }),
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
@@ -33,8 +31,6 @@ export class ApiInterceptor implements HttpInterceptor {
           this.lds.loading =  {req: req.url, loading: false};
           return observableOf();
         }
-        this.lds.loading =  {req: req.url, loading: true};
-        this.lds.color = 'warn';
         this.messageService.add({
           severity: 'error', summary: err.statusText, key: '-1',
           detail: err.status === 500 ? err.error : err.message
