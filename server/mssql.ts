@@ -101,13 +101,12 @@ export class MSSQL {
     for (let i = 0; i < params.length; i++) {
       request.input(`p${i + 1}`, params[i]);
     }
-    const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES ;`);
-    let data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
-    data = data ? JSON.parse(data) : null;
-    const result = data ? data[0] : data;
+    const response = await request.query(`${text} FOR JSON PATH, WITHOUT_ARRAY_WRAPPER ,INCLUDE_NULL_VALUES ;`);
+    const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
+    const result = typeof data  === 'string' ? JSON.parse(data) : null;
     if (result && typeof result.doc === 'string') result.doc = JSON.parse(result.doc);
     if (result && typeof result.data === 'string') result.data = JSON.parse(result.data);
-    return data;
+    return result;
   }
 
   async none<T>(text: string, params: any[] = []): Promise<T | T[] | null> {
