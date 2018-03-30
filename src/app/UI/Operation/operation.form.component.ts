@@ -1,13 +1,13 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
-
-import { createDocument } from '../../../../server/models/documents.factory';
+import { v1 } from 'uuid';
 import { DocumentOperation } from '../../../../server/models/Documents/Document.Operation';
+import { DocumentOptions } from '../../../../server/models/document';
+import { createDocument } from '../../../../server/models/documents.factory';
 import { FormControlInfo } from '../../common/dynamic-form/dynamic-form-base';
 import { getFormGroup } from '../../common/dynamic-form/dynamic-form.service';
 import { BaseDocFormComponent } from '../../common/form/base.form.component';
-import { v1 } from 'uuid';
-import { DocumentOptions } from '../../../../server/models/document';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

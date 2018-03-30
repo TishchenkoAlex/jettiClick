@@ -38,7 +38,7 @@ export class CatalogOperation extends DocumentBase {
   @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '800px', overflow: 'auto' }, value: defaultScript })
   script = '';
 
-  @Props({ type: 'table' })
+  @Props({ type: 'table', required: true })
   Parameters: Parameter[] = [new Parameter()];
 
   @Props({ type: 'table', label: 'Copy to...' })
