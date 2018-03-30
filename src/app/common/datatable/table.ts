@@ -20,7 +20,7 @@
 // tslint:disable:semicolon
 // tslint:disable:no-string-throw
 import { CommonModule } from '@angular/common';
-import { AfterContentInit, AfterViewInit, Component, ContentChildren, Directive, ElementRef, EventEmitter, HostListener, Injectable, Input, NgModule, NgZone, OnInit, Output, QueryList, TemplateRef, ViewChild } from '@angular/core';
+import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ContentChildren, Directive, ElementRef, EventEmitter, HostListener, Injectable, Input, NgModule, NgZone, OnInit, Output, QueryList, TemplateRef, ViewChild } from '@angular/core';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { Column, PrimeTemplate, SharedModule } from 'primeng/components/common/shared';
@@ -1705,7 +1705,7 @@ export class TableBody {
         </div>
     `
 })
-export class ScrollableView implements AfterViewInit, OnDestroy {
+export class ScrollableView implements AfterViewInit, OnDestroy, AfterViewChecked {
 
   @Input("pScrollableView") columns: Column[];
 
@@ -1739,6 +1739,8 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
 
   totalRecordsSubscription: Subscription;
 
+  initialized: boolean;
+
   constructor(public dt: Table, public el: ElementRef, public domHandler: DomHandler, public zone: NgZone) {
     this.subscription = this.dt.tableService.valueSource$.subscribe(() => {
       this.zone.runOutsideAngular(() => {
@@ -1757,6 +1759,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
         });
       });
     }
+    this.initialized = false;
   }
 
   @Input() get scrollHeight(): string {
@@ -1765,6 +1768,13 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
   set scrollHeight(val: string) {
     this._scrollHeight = val;
     this.setScrollHeight();
+  }
+
+  ngAfterViewChecked() {
+    if (!this.initialized && this.el.nativeElement.offsetParent) {
+      this.alignScrollBar();
+      this.initialized = true;
+    }
   }
 
   ngAfterViewInit() {
@@ -1794,6 +1804,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
     if (this.dt.virtualScroll) {
       this.setVirtualScrollerHeight();
     }
+    this.initialized = false;
   }
 
   bindEvents() {
@@ -1934,6 +1945,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy {
     if (this.totalRecordsSubscription) {
       this.totalRecordsSubscription.unsubscribe();
     }
+    this.initialized = false;
   }
 }
 
@@ -2163,9 +2175,9 @@ export class SelectableRowDblClick implements OnInit, OnDestroy {
 
 @Directive({
   selector: '[pContextMenuRow]',
-/* Tishchenko  host: {
-    '[class.ui-contextmenu-selected]': 'selected'
-  } */
+  /* Tishchenko  host: {
+      '[class.ui-contextmenu-selected]': 'selected'
+    } */
 })
 export class ContextMenuRow {
 
