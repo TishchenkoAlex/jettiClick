@@ -1,85 +1,51 @@
-<h5 style="margin-bottom: 0px">Accounting register movements</h5>
-<div *ngFor="let item of (movements$ | async) as movements" style="min-height: 60px">
-  <div fxFlex="105px" fxLayoutAlign="center center">
-    <div fxFlex fxFill fxLayoutAlign="center center" class="account-box">
-      {{ item.date | date }}
-    </div>
-  </div>
-
-  <div fxFlex fxLayoutAlign="center center">
-
-    <div fxLayout="column" fxFlex=30 fxFill class="account-box">
-      <div fxLayoutAlign="center end" fxFlex fxFill class="account">
-        {{ item.debit.account }}
-      </div>
-      <div fxLayoutAlign="center start" fxFlex fxFill class="decription">
-        <span style="margin-top: 4px">{{ item.debit.description }} </span>
-      </div>
-    </div>
-
-    <div fxLayout="column" fxFill fxFlex=50 class="account-box">
-      <div *ngIf="item.debit.subcount1.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debit.subcount1.code" tooltipPosition="bottom">
-        {{ item.debit.subcount1.value }}
-      </div>
-      <div *ngIf="item.debit.subcount2.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debit.subcount2.code" tooltipPosition="bottom">
-        {{ item.debit.subcount2.value }}
-      </div>
-      <div *ngIf="item.debit.subcount3.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debit.subcount3.code" tooltipPosition="bottom">
-        {{ item.debit.subcount3.value }}
-      </div>
-      <div *ngIf="item.debit.subcount4.value" fxFlex fxFill fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.debit.subcount4.code" tooltipPosition="bottom">
-        {{ item.debit.subcount4.value }}
-      </div>
-    </div>
-    
-    <div fxFlex="10" fxFill fxLayoutAlign="center center" class="account-box">
-      {{ item.debit.qty | number }}
-    </div>
-    <div fxFlex="10" fxFill fxLayoutAlign="center center" class="account-box">
-      {{ item.debit.currency }}
-    </div>
-
-  </div>
-
-  <div fxFlex fxLayoutAlign="center center">
-
-    <div fxLayout="column" fxFlex="30" fxFill class="account-box">
-      <div fxLayoutAlign="center end" fxFlex fxFill class="account">
-        {{ item.kredit.account }}
-      </div>
-      <div fxLayoutAlign="center start" fxFlex fxFill class="decription">
-        <span style="margin-top: 4px">{{ item.kredit.description }} </span>
-      </div>
-    </div>
-
-    <div fxLayout="column" fxFill fxFlex=50 class="account-box">
-      <div *ngIf="item.kredit.subcount1.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.kredit.subcount1.code" tooltipPosition="bottom">
-        {{ item.kredit.subcount1.value }}
-      </div>
-      <div *ngIf="item.kredit.subcount2.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.kredit.subcount2.code" tooltipPosition="bottom">
-        {{ item.kredit.subcount2.value }}
-      </div>
-      <div *ngIf="item.kredit.subcount3.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.kredit.subcount3.code" tooltipPosition="bottom">
-        {{ item.kredit.subcount3.value }}
-      </div>
-      <div *ngIf="item.kredit.subcount4.value" fxFill fxFlex fxLayoutAlign="center center" class="sub-box" [pTooltip]="item.kredit.subcount4.code" tooltipPosition="bottom">
-        {{ item.kredit.subcount4.value }}
-      </div>
-    </div>
-
-    <div fxFlex="10" fxFill fxLayoutAlign="center center" class="account-box">
-      {{ item.kredit.qty | number }}
-    </div>
-    <div fxFlex="10" fxFill fxLayoutAlign="center center" class="account-box">
-      {{ item.kredit.currency }}
-    </div>
-
-  </div>
-
-  <div fxFlex="80px" fxLayoutAlign="center center">
-    <div fxFlex fxFill fxLayoutAlign="center center" class="account-box">
-      {{ item.sum | number }}
-    </div>
-  </div>
-
+<div *ngIf="movements$ | async as item">
+  <h5 style="margin-bottom: 0px">Accounting register movements</h5>
+  <p-table [value]="item" [resizableColumns]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 24px"></th>
+        <th pResizableColumn style="width: 110px">date</th>
+        <th pResizableColumn style="width: 60px">debit</th>
+        <th pResizableColumn style="width: 200px">debet subcounts</th>
+        <th pResizableColumn style="width: 50px">qty</th>
+        <th pResizableColumn style="width: 40px">curr</th>
+        <th pResizableColumn style="width: 60px">kredit</th>
+        <th pResizableColumn style="width: 200px">kredit subcounts</th>
+        <th pResizableColumn style="width: 50px">qty</th>
+        <th pResizableColumn style="width: 40px">curr</th>
+        <th pResizableColumn style="width: 80px">summa</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr style="text-align: center">
+        <td>
+          <i class="fa fa-check-circle" style="color: #5cb85c"></i>
+        </td>
+        <td>{{item.date | date: 'short'}}</td>
+        <td style="width: 50px; font-weight: bolder; font-size: larger">{{item.debit.account}}</td>
+        <td>
+          <div style="min-height: 60px">
+            <div>{{item.debit.subcount1.value}}</div>
+            <div>{{item.debit.subcount2.value}}</div>
+            <div>{{item.debit.subcount3.value}}</div>
+            <div>{{item.debit.subcount4.value}}</div>
+          </div>
+        </td>
+        <td style="text-align: right">{{item.debit.qty }}</td>
+        <td>{{item.debit.currency }}</td>
+        <td style="width: 50px; font-weight: bolder; font-size: larger">{{item.kredit.account}}</td>
+        <td>
+          <div style="min-height: 60px">
+            <div>{{item.kredit.subcount1.value}}</div>
+            <div>{{item.kredit.subcount2.value}}</div>
+            <div>{{item.kredit.subcount3.value}}</div>
+            <div>{{item.kredit.subcount4.value}}</div>
+          </div>
+        </td>
+        <td style="text-align: right">{{item.kredit.qty}}</td>
+        <td>{{item.kredit.currency}}</td>
+        <td style="text-align: right">{{item.sum | number:'1.2-2' }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>

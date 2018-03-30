@@ -17,6 +17,7 @@ import { DocumentBase } from './../../../../server/models/document';
 export class RegisterMovementComponent implements OnInit {
 
   movements$: Observable<AccountRegister[]>;
+  selection: any;
   @Input() doc: DocumentBase;
 
   constructor(private api: ApiService, private ds: DocService) { }
