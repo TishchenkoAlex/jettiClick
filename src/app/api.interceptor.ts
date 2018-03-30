@@ -18,17 +18,23 @@ export class ApiInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}` }, responseType: 'text' });
 
+    const showLoading = !(
+      req.url.includes('user/settings') ||
+      req.url.includes('/jobs') ||
+      req.url.includes('/raw') ||
+      req.url.includes('/formControlRef'));
+
     if (isDevMode()) console.log('http', req.url);
-    this.lds.color = 'accent'; this.lds.loading = {req: req.url, loading: true};
+    if (!showLoading) { this.lds.color = 'accent'; this.lds.loading = { req: req.url, loading: true }; }
     return next.handle(req).pipe(
       map(data => data instanceof HttpResponse ? data.clone({ body: JSON.parse(data.body, dateReviver) }) : data),
       tap(data => {
-        if (data instanceof HttpResponse) this.lds.loading = {req: req.url, loading: false};
+        if (data instanceof HttpResponse) this.lds.loading = { req: req.url, loading: false };
       }),
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
           this.auth.logout();
-          this.lds.loading =  {req: req.url, loading: false};
+          this.lds.loading = { req: req.url, loading: false };
           return observableOf();
         }
         this.messageService.add({
