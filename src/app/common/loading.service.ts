@@ -1,17 +1,20 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { map } from 'rxjs/operators';
-import { zip } from 'rxjs/observable/zip';
-import { merge } from 'rxjs/observable/merge';
 import { combineLatest } from 'rxjs/observable/combineLatest';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class LoadingService {
+  history = {};
 
-  private _loading = new BehaviorSubject<boolean>(false);
+  private _loading = new BehaviorSubject<{req: string, loading: boolean} | undefined>(undefined);
   loading$ = this._loading.asObservable();
-  set loading(value: boolean) { if (value !== this._loading.value) this._loading.next(value); }
-  get loading() { return this._loading.value; }
+  set loading(value: {req: string, loading: boolean}) {
+    if (history[value.req] && !value.loading) delete history[value.req];
+    else if (value.loading === true) history[value.req] = value.req;
+    if (Object.keys(history).length === 0) this._loading.next(undefined); else this._loading.next(value);
+  }
+  get loading() { return this._loading.value!; }
 
   private _counter = new BehaviorSubject<number | undefined>(undefined);
   counter$ = this._counter.asObservable();
@@ -23,6 +26,6 @@ export class LoadingService {
   set color(value) { if (value !== this._color.value) this._color.next(value); }
   get color() { return this._color.value; }
 
-  busy$ = combineLatest(this.loading$, this.color$).pipe(map(r => r[0] === true && r[1] === 'accent'));
+  busy$ = combineLatest(this.loading$, this.color$).pipe(map(r => r[0] && r[1] === 'accent'));
 
 }

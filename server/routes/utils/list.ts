@@ -10,12 +10,14 @@ export async function List(req: Request, res: Response) {
   params.filter = params.filter || [];
   params.command = params.command || 'first';
   const direction = params.command !== 'prev';
-  const { QueryList, Props } = configSchema.get(params.type as any);
+  const cs = configSchema.get(params.type as any);
+  if (!cs) throw new Error(`Error in get-List function. ${params.type} is not defined`);
+  const { QueryList, Props } = configSchema.get(params.type as any)!;
 
   let row;
   if (params.id) { row = (await sdb.oneOrNone<any>(`${QueryList} AND d.id = '${params.id}'`)); }
-  params.order.forEach(el => el.field += Props[el.field].type.includes('.') ? '.value' : '');
-  params.filter.forEach(el => el.left += (Props[el.left] && Props[el.left].type && Props[el.left].type.includes('.')) ? '.id' : '');
+  params.order.forEach(el => el.field += Props![el.field].type.includes('.') ? '.value' : '');
+  params.filter.forEach(el => el.left += (Props![el.left] && Props![el.left].type && Props![el.left].type.includes('.')) ? '.id' : '');
   const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
   params.order.filter(el => el.order !== '').forEach(el => {
     const value = row ? el.field.includes('.value') ? row[el.field.split('.')[0]].value : row[el.field] : '';
@@ -83,7 +85,7 @@ export async function List(req: Request, res: Response) {
     valueOrder.filter(o => o.value !== null).forEach(o => {
       let where = filterBuilder(params.filter);
       order.filter(_o => _o.value !== null).forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
-        char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value}' `);
+        char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value instanceof Date ? _o.value.toJSON() : _o.value}' `);
       order.length--;
       let addQuery = `\nSELECT * FROM(SELECT * FROM(${QueryList} ${filterBuilderForDoc(params.filter)}) d
         WHERE ${where}\n${lastORDER ?
@@ -115,8 +117,9 @@ export async function List(req: Request, res: Response) {
     }
   }
   query = `SELECT d.* FROM (${query}) d ${orderbyAfter} `;
+  console.log(query);
   const data = await sdb.manyOrNone<any>(query);
-  let result = [];
+  let result: any[] = [];
 
   const continuation = { first: null, last: null };
   const calculateContinuation = () => {

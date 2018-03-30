@@ -39,6 +39,30 @@ export class MSSQL {
     for (let i = 0; i < params.length; i++) {
       request.input(`p${i + 1}`, params[i]);
     }
+    const response = await request.query(`${text}`);
+    const data = response.recordset;
+    const result = data.map(el => {
+      const row = {};
+      const keys = Object.keys(el);
+      keys.forEach(k => {
+        if (k.indexOf('.id') !== -1) {
+          const key = k.split('.id')[0];
+          row[key] = { id: el[key + '.id'], type: el[key + '.type'], value: el[key + '.value'] };
+        } else {
+          if (k.indexOf('.type') !== -1 || k.indexOf('.value') !== -1 || k.indexOf('.code') !== -1) return;
+          row[k] = el[k];
+        }
+      });
+      return row as T;
+    });
+    return result || [];
+  }
+
+  async manyOrNoneJSON<T>(text: string, params: any[] = []): Promise<T[]> {
+    const request = new sql.Request(<any>(this.POOL));
+    for (let i = 0; i < params.length; i++) {
+      request.input(`p${i + 1}`, params[i]);
+    }
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES;`);
     let data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
     data = data ? JSON.parse(data) : [];
@@ -46,6 +70,33 @@ export class MSSQL {
   }
 
   async oneOrNone<T>(text: string, params: any[] = []): Promise<T> {
+    const request = new sql.Request(<any>(this.POOL));
+    for (let i = 0; i < params.length; i++) {
+      request.input(`p${i + 1}`, params[i]);
+    }
+    const response = await request.query(`${text}`);
+    const data = response.recordset;
+    const map = data.map(el => {
+      const row = {};
+      const keys = Object.keys(el);
+      keys.forEach(k => {
+        if (k.indexOf('.id') !== -1) {
+          const key = k.split('.id')[0];
+          row[key] = { id: el[key + '.id'], type: el[key + '.type'], value: el[key + '.value'] };
+        } else {
+          if (k.indexOf('.type') !== -1 || k.indexOf('.value') !== -1) return;
+          row[k] = el[k];
+        }
+      });
+      return row as T;
+    });
+    const result = map && map[0] || null;
+    if (result && typeof result['doc'] === 'string') result['doc'] = JSON.parse(result['doc']);
+    if (data && typeof result['data'] === 'string') result['data'] = JSON.parse(result['data']);
+    return result;
+  }
+
+  async oneOrNoneJSON<T>(text: string, params: any[] = []): Promise<T> {
     const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) {
       request.input(`p${i + 1}`, params[i]);

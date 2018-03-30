@@ -13,7 +13,7 @@ export function buildColumnDef(view, settings: FormListSettings): ColumnDef[] {
     const readOnly = !!prop['readOnly'];
     const required = !!prop['required'];
     const owner = prop['owner'] || null;
-    const totals = prop['totals'] * 1 || null;
+    const totals = prop['totals'] * 1;
     let style = prop['style'];
     if (type === 'number' && !style) { style = { 'width': '90px', 'text-align': 'right' }; }
     if (type === 'boolean' && !style) { style = { 'width': '90px', 'text-align': 'center' }; }
@@ -27,6 +27,6 @@ export function buildColumnDef(view, settings: FormListSettings): ColumnDef[] {
       sort: settings.order.find(f => f.field === property) || new FormListOrder(property)
     });
   });
-  columnDef.filter(c => c.type === 'string').forEach(c => c.filter.center = 'like');
+  columnDef.filter(c => c.type === 'string').forEach(c => c.filter!.center = 'like');
   return columnDef.sort((a, b) => a.order - b.order);
 }

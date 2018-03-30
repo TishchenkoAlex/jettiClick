@@ -4,31 +4,23 @@ import { JobOptions } from 'bull';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
 import { map } from 'rxjs/operators';
-
+import { RoleType, getRoleObjects } from '../../../server/models/Roles/Base';
+import { INoSqlDocument } from '../../../server/models/ServerDocument';
 import { AccountRegister } from '../../../server/models/account.register';
-import {
-  DocListRequestBody,
-  DocListResponse,
-  IJob,
-  IJobs,
-  ISuggest,
-  ITree,
-  IViewModel,
-  PatchValue,
-} from '../../../server/models/api';
+import { DocListRequestBody, DocListResponse, IJob, IJobs, ISuggest, ITree, IViewModel, PatchValue } from '../../../server/models/api';
 import { DocumentBase } from '../../../server/models/document';
 import { DocTypes } from '../../../server/models/documents.types';
-import { getRoleObjects, RoleType } from '../../../server/models/Roles/Base';
-import { INoSqlDocument } from '../../../server/models/ServerDocument';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
 import { IComplexObject } from '../common/dynamic-form/dynamic-form-base';
+import { LoadingService } from '../common/loading.service';
 import { mapToApi } from '../common/mapping/document.mapping';
+
 
 @Injectable()
 export class ApiService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, public lds: LoadingService) { }
 
   getRawDoc(id: string) {
     const query = `${environment.api}raw/${id}`;

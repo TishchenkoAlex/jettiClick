@@ -14,18 +14,18 @@ export function User(req: Request): string {
 router.get('/user/roles', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const email = User(req);
-    const query = `select JSON_QUERY(data, '$') result from "accounts" where id = @p1`;
-    const result = await sdba.oneOrNone<any>(query, [email]);
-    res.json(result ? (result.result as IAccount).roles : []);
+    const query = `select JSON_QUERY(data, '$') data from "accounts" where id = @p1`;
+    const result = await sdba.oneOrNone<{data: IAccount}>(query, [email]);
+    res.json(result ? result.data && result.data.roles : []);
   } catch (err) { next(err); }
 });
 
 router.get('/user/settings/:type', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = User(req);
-    const query = `select JSON_QUERY(settings, '$."${req.params.type}"') result from users where email = @p1`;
-    const result = await sdb.oneOrNone<{ result: FormListSettings }>(query, [user]);
-    res.json(result ? result.result : new FormListSettings());
+    const query = `select JSON_QUERY(settings, '$."${req.params.type}"') data from users where email = @p1`;
+    const result = await sdb.oneOrNone<{ data: FormListSettings }>(query, [user]);
+    res.json(result ? result.data : new FormListSettings());
   } catch (err) { next(err); }
 });
 
@@ -42,9 +42,9 @@ router.post('/user/settings/:type', async (req, res, next) => {
 router.get('/user/settings/defaults', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = User(req);
-    const query = `select JSON_QUERY(settings, '$."defaults"') result from users where email = @p1`;
-    const result = await sdb.oneOrNone<{ result: UserDefaultsSettings }>(query, [user]);
-    res.json(result ? result.result : new UserDefaultsSettings());
+    const query = `select JSON_QUERY(settings, '$."defaults"') data from users where email = @p1`;
+    const result = await sdb.oneOrNone<{ data: UserDefaultsSettings }>(query, [user]);
+    res.json(result ? result.data : new UserDefaultsSettings());
   } catch (err) { next(err); }
 });
 

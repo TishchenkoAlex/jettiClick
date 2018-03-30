@@ -48,9 +48,9 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     if (!ServerDoc) throw new Error(`wrong type ${params.type}`);
 
     let model = {};
-    const settings = (await sdb.oneOrNone<{ settings: FormListSettings }>(`
-        SELECT JSON_QUERY(settings, '$."${params.type}"') settings
-        FROM users where email = @p1`, [user])).settings as FormListSettings || new FormListSettings();
+    const settings = (await sdb.oneOrNone<{ doc: FormListSettings }>(`
+        SELECT JSON_QUERY(settings, '$."${params.type}"') doc
+        FROM users where email = @p1`, [user])).doc as FormListSettings || new FormListSettings();
 
     if (id) {
 
@@ -111,7 +111,7 @@ router.post('/view', viewAction);
 async function buildViewModel(ServerDoc: DocumentBaseServer) {
   const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props(), ServerDoc.Prop() as DocumentOptions);
   const NoSqlDocument = JSON.stringify(lib.doc.noSqlDocument(ServerDoc));
-  return await sdb.oneOrNone<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
+  return await sdb.oneOrNoneJSON<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
 }
 
 // Delete or UnDelete document
@@ -149,7 +149,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 // Upsert document
 async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
   const id = serverDoc.id;
-  const isNew = (await tx.oneOrNone<any>(`SELECT id FROM "Documents" WHERE id = '${id}'`) === null);
+  const isNew = (await tx.oneOrNone<{id: string}>(`SELECT id FROM "Documents" WHERE id = '${id}'`) === null);
   await doSubscriptions(serverDoc, isNew ? 'before insert' : 'before update', tx);
   if (serverDoc.isDoc) {
     const deleted = await tx.none<RegisterAccumulation[]>(`

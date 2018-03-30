@@ -86,7 +86,7 @@ async function accountByCode(code: string, tx = sdb): Promise<string | null> {
   return result ? result.result as string : null;
 }
 
-async function byCode(type: string, code: string, tx = sdb) {
+async function byCode(type: string, code: string, tx = sdb): Promise<string | null> {
   const result = await tx.oneOrNone<any>(`SELECT id result FROM "Documents" WHERE type = @p1 AND code = @p2`, [type, code]);
   return result ? result.result as string : null;
 }
@@ -131,21 +131,21 @@ async function formControlRef(id: string, tx: MSSQL = sdb): Promise<RefValue> {
 }
 
 async function debit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
-  const result = await sdb.oneOrNone<any>(`
+  const result = await sdb.oneOrNone<{result: number}>(`
     SELECT SUM(sum) result FROM "Register.Account"
     WHERE dt = @p1 AND datetime <= @p2 AND company = @p3`, [account, date, company]);
   return result ? result.result : null;
 }
 
 async function kredit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
-  const result = await sdb.oneOrNone<any>(`
+  const result = await sdb.oneOrNone<{result: number}>(`
     SELECT SUM(sum) result FROM "Register.Account"
     WHERE kt = @p1 AND datetime <= @p2 AND company = @p3`, [account, date, company]);
   return result ? result.result : null;
 }
 
 async function balance(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
-  const result = await sdb.oneOrNone<any>(`
+  const result = await sdb.oneOrNone<{result: number}>(`
   SELECT (SUM(u.dt) - SUM(u.kt)) result  FROM (
       SELECT SUM(sum) dt, 0 kt
       FROM "Register.Account"
@@ -193,7 +193,7 @@ async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promi
     AND company = @p2
     AND "SKU" = @p3
     AND "Storehouse" = @p4`;
-  const result = await tx.oneOrNone<any>(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
+  const result = await tx.oneOrNone<{result: number}>(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
   return result ? result.result : null;
 }
 
@@ -207,7 +207,8 @@ async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sd
       AND company = @p2
       AND "SKU" = @p3
       AND "Storehouse" = @p4`;
-  const result = await tx.oneOrNone<any>(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
+  // tslint:disable-next-line:max-line-length
+  const result = await tx.oneOrNone<{Cost: number, Qty: number, }>(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
   return result ? { Cost: result.Cost, Qty: result.Qty } : null;
 }
 
@@ -225,7 +226,7 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
       AND company = '${company}'
       AND CONTAINS(data, '${where}')
     ORDER BY date DESC`;
-  const result = await tx.oneOrNone<any>(queryText, [date]);
+  const result = await tx.oneOrNone<{result: any}>(queryText, [date]);
   return result ? result.result : null;
 }
 

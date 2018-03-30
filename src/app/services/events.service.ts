@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { take, throttleTime, map, share, startWith, shareReplay } from 'rxjs/operators';
+import { take, throttleTime, map, share, startWith, shareReplay, sampleTime } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import * as socketIOClient from 'socket.io-client';
 
@@ -21,7 +21,7 @@ export class EventsService implements OnDestroy {
 
   constructor(private auth: AuthService, private api: ApiService) {
 
-    this.debonce$.pipe(throttleTime(5000)).subscribe(job => this.update(job));
+    this.debonce$.pipe(sampleTime(5000)).subscribe(job => this.update(job));
 
     this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {

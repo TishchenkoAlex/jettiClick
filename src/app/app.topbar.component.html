@@ -131,7 +131,7 @@
               <div style="display: flex; align-items: center; ">
                 <p-progressSpinner *ngIf="(!event.failedReason) && event.progress < 100" [strokeWidth]="6" [style]="{width: '20px', height: '20px', 'margin-right': '7px'}"></p-progressSpinner>
                 <i *ngIf="event.progress >= 100 && !event.failedReason" class="fa fa-fw fa-tasks"></i>
-                <i *ngIf="event.failedReason" class="fa fa-fw fa-exclamation-circle"></i>
+                <i *ngIf="event.failedReason" class="fa fa-fw fa-exclamation-circle" style="color: red"></i>
                 <span>{{event.data['job'].description}}, {{event.failedReason }} {{(event.progress / 100) | percent }} , {{ event.finishedOn | date:'short' }}</span>
               </div>
               </a>
@@ -146,7 +146,8 @@
       </li>
     </ul>
   </div>
-  <p-progressBar [style]="(lds.color$ | async) === 'warn' ? {'background': 'red'} :  ''" *ngIf="(lds.loading$ | async) && !(lds.counter$ | async) "
-    mode="indeterminate"></p-progressBar>
+  <p-progressBar [style]="(lds.color$ | async) === 'warn' ? {'background': 'red'} :  ''" 
+  *ngIf="(lds.loading$ | async) && !(lds.counter$ | async)" mode="indeterminate"></p-progressBar>
+
   <p-progressBar *ngIf="lds.counter$ | async as counter" [value]="counter"></p-progressBar>
 </div>

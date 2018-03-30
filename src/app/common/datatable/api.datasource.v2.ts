@@ -46,7 +46,6 @@ export class ApiDataSource {
             stream.command = 'sort';
             break;
         }
-
         return this.api.getDocList(this.type, id, stream.command, this.pageSize, offset,
           this.formListSettings.order, this.formListSettings.filter).pipe(
             tap(data => {
