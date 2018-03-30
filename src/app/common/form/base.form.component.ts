@@ -10,7 +10,6 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core';
-import { ObservableMedia } from '@angular/flex-layout';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge } from 'rxjs/observable/merge';
@@ -60,7 +59,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
   private _saveCloseSubscription$: Subscription = Subscription.EMPTY;
 
-  constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia, public lds: LoadingService,
+  constructor(public router: Router, public route: ActivatedRoute, public lds: LoadingService,
     public cd: ChangeDetectorRef, public ds: DocService, public location: Location, public tabStore: TabsStore) { }
 
   ngOnInit() {

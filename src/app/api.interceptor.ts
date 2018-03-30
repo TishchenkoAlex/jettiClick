@@ -16,12 +16,12 @@ export class ApiInterceptor implements HttpInterceptor {
   constructor(private lds: LoadingService, private auth: AuthService, private messageService: MessageService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}` } });
+    req = req.clone({ setHeaders: { Authorization: `Bearer ${this.auth.token}` }, responseType: 'text' });
 
     if (isDevMode()) console.log('http', req.url);
     this.lds.color = 'accent'; this.lds.loading = {req: req.url, loading: true};
     return next.handle(req).pipe(
-      map(data => data instanceof HttpResponse ? data.clone({ body: JSON.parse(JSON.stringify(data.body), dateReviver) }) : data),
+      map(data => data instanceof HttpResponse ? data.clone({ body: JSON.parse(data.body, dateReviver) }) : data),
       tap(data => {
         if (data instanceof HttpResponse) {
           this.lds.loading = {req: req.url, loading: false};

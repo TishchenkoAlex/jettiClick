@@ -2,7 +2,7 @@
   <p-panel [header]="description?.value?.concat(isPosted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
-        <button pButton type="button" id="PostClose " icon="fa-check-square-o" [label]="(media.asObservable() | async)?.mqAlias === 'xs' ? 'P&C' : 'Post&Close'"
+        <button pButton type="button" id="PostClose " icon="fa-check-square-o" label="Post&Close"
           class="ui-button-warning" [disabled]="!form.valid || (lds.busy$ | async)" (click)="PostClose()" *ngIf="!isDeleted"></button>
         <button pButton type="button" id="Post" icon="fa-check" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
           (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
