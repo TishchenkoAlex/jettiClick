@@ -6,6 +6,7 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es2017",
+        "strictNullChecks": true,
         "outDir": ".",
         "lib": [
             "es6"

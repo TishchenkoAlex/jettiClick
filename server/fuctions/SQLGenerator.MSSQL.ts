@@ -267,10 +267,15 @@ export class SQLGenegator {
     };
 
     const complexProperty = (prop: string, type: string) =>
-        `, ISNULL("${prop}".description, N'') "${prop}.value", ISNULL("${prop}".type, N'${type}') "${prop}.type", CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}.id"\n`;
+      type.startsWith('Types.') ?
+        `,  JSON_QUERY(CASE WHEN "${prop}".id IS NULL THEN JSON_QUERY(d.doc, N'$.${prop}')
+          ELSE (SELECT "${prop}".id "id", "${prop}".description "value",
+            ISNULL("${prop}".type, '${type}') "type", "${prop}".code "code" FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) END, '$') "${prop}"\n` :
+        `, ISNULL("${prop}".description, N'') "${prop}.value", ISNULL("${prop}".type, N'${type}') "${prop}.type",
+            CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}.id"\n`;
 
     const addLeftJoin = (prop: string, type: string) =>
-        `  LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
+      `  LEFT JOIN dbo."Documents" "${prop}" ON "${prop}".id = CAST(JSON_VALUE(d.doc, N'$."${prop}"') AS UNIQUEIDENTIFIER)\n`;
 
     let query = `SELECT d.id, d.type, d.date,
       d.code, d.description, d.posted, d.deleted, d.isfolder, d.timestamp
@@ -424,7 +429,8 @@ FROM dbo."Documents" d
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `, ISNULL(JSON_VALUE(data, N'$.${prop}'), 0) "${prop}"\n`; }
-      if (type === 'number') { return `
+      if (type === 'number') {
+        return `
 , CAST(JSON_VALUE(data, N'$.${prop}') AS MONEY) * IIF(kind = 1, 1, -1) "${prop}"
 , CAST(JSON_VALUE(data, N'$.${prop}') AS MONEY) * IIF(kind = 1, 1, NULL) "${prop}.In"
 , CAST(JSON_VALUE(data, N'$.${prop}') AS MONEY) * IIF(kind = 1, NULL, 1) "${prop}.Out"\n`;

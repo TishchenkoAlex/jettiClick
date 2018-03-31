@@ -19,20 +19,20 @@
   </div>
 
   <div *ngIf="value?.type === 'datetime'">
-    <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : false}">
-      <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" [readonly]="readOnly"
-        autocomplete="off" spellcheck="false" (focus)="$event.target.select()" type="datetime-local" (ngModelChange)="value={id: 'string', code: '', type: 'string', value: $event}">
+    <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
+      <input pInputText class="calendar" [value]="suggest.value.value | date:'yyy-MM-ddTHH:ss'" [required]="required" [readonly]="readOnly"
+        autocomplete="off" spellcheck="false" (focus)="$event.target.select()" type="datetime-local" (input)="parseDateTime($event.target.value)">
+      <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
       <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
     </div>
   </div>
 
   <div *ngIf="value?.type === 'date'">
-    <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : false}">
-      <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : false}">
-        <input pInputText [ngModel]="suggest.value.value" [ngModelOptions]="{standalone: true}" [required]="required" [readonly]="readOnly"
-          autocomplete="off" spellcheck="false" (focus)="$event.target.select()" type="date" (ngModelChange)="value={id: 'string', code: '', type: 'string', value: $event}">
-        <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
-      </div>
+    <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
+      <input pInputText class="calendar" [value]="suggest.value.value | date:'yyy-MM-dd'" [required]="required" [readonly]="readOnly"
+        autocomplete="off" spellcheck="false" (focus)="$event.target.select()" type="date" (input)="parseDateTime($event.target.value)">
+      <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
+      <button pButton type="button" icon="fa-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
     </div>
   </div>
 

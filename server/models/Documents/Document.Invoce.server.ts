@@ -11,6 +11,7 @@ import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
 import { ServerDocument } from '../ServerDocument';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
+import { CatalogCompany } from '../Catalogs/Catalog.Company';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
@@ -28,9 +29,9 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     switch (prop) {
       case 'company':
         if (!value) { return {}; }
-        const company = await lib.doc.byId(value.id, tx);
+        const company = await lib.doc.byIdT<CatalogCompany>(value.id, tx);
         if (!company) { return {}; }
-        const currency = await lib.doc.formControlRef(company['currency'], tx);
+        const currency = await lib.doc.formControlRef(company.currency as string, tx);
         this.currency = currency.id;
         return { currency: currency };
       default:
@@ -47,8 +48,9 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
     }
   }
 
-  async baseOn(docID: string, tx: MSSQL): Promise<DocumentBase> {
-    const ISource = await lib.doc.byId(docID, tx);
+  async baseOn(source: string, tx: MSSQL): Promise<DocumentBase> {
+    const ISource = await lib.doc.byId(source, tx);
+    if (!ISource) return this;
     switch (ISource.type) {
       case 'Catalog.Counterpartie':
         const catalogCounterpartie = await createDocumentServer<CatalogCounterpartie>(ISource.type, ISource, tx);
@@ -58,7 +60,6 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
         return this;
     }
   }
-
 
   async onPost(tx: MSSQL): Promise<PostResult> {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };

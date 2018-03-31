@@ -146,4 +146,15 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   calcDialogWidth() {
     return Math.max(Math.floor(window.innerWidth / 2.5), 400);
   }
+
+  parseDateTime(dateString: string) {
+    const date = dateString ? new Date(dateString) : null;
+    this.value = <any>{id: 'datetime', code: '', type: 'datetime', value: date};
+  }
+
+  parseDate(dateString: string) {
+    const date = dateString ? new Date(dateString) : null;
+    this.value = <any>{id: 'date', code: '', type: 'date', value: date};
+  }
+
 }

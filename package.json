@@ -38,7 +38,7 @@
     "ioredis": "^3.2.2",
     "jsonwebtoken": "^8.2.0",
     "jwt-decode": "^2.2.0",
-    "moment": "^2.21.0",
+    "moment": "^2.22.0",
     "mssql": "^4.1.0",
     "nanoscroller": "^0.8.7",
     "ng-drag-drop": "^4.0.0",
@@ -51,7 +51,7 @@
     "tarn": "^1.1.4",
     "tedious": "^2.3.1",
     "uuid": "^3.2.1",
-    "zone.js": "^0.8.20"
+    "zone.js": "^0.8.21"
   },
   "engines": {
     "node": ">=9.4.0"
@@ -70,7 +70,7 @@
     "@types/jsonwebtoken": "^7.2.6",
     "@types/jwt-decode": "^2.2.1",
     "@types/node": "^9.6.1",
-    "@types/socket.io": "^1.4.32",
+    "@types/socket.io": "^1.4.33",
     "@types/socket.io-client": "^1.4.32",
     "@types/tedious": "^1.8.32",
     "@types/uuid": "^3.4.3",

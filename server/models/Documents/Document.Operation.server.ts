@@ -1,9 +1,10 @@
 import { MSSQL } from '../../mssql';
 import { lib } from '../../std.lib';
-import { createDocumentServer } from '../documents.factory.server';
-import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
+import { CatalogCompany } from '../Catalogs/Catalog.Company';
+import { CatalogOperation } from '../Catalogs/Catalog.Operation';
 import { ServerDocument } from '../ServerDocument';
 import { JQueue } from '../Tasks/tasks';
+import { createDocumentServer } from '../documents.factory.server';
 import { PostResult } from './../post.interfaces';
 import { DocumentOperation } from './Document.Operation';
 
@@ -13,14 +14,14 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     if (!value) { return {}; }
     switch (prop) {
       case 'company':
-        const company = await lib.doc.byId(value.id, tx);
+        const company = await lib.doc.byIdT<CatalogCompany>(value.id, tx);
         if (!company) { return {}; }
-        const currency = await lib.doc.formControlRef(company['currency'], tx);
+        const currency = await lib.doc.formControlRef(company.currency!, tx);
         return { currency };
       case 'Operation':
-        const Operation = await lib.doc.byId(value.id, tx);
+        const Operation = await lib.doc.byIdT<CatalogOperation>(value.id, tx);
         if (!Operation) { return {}; }
-        const Group = await lib.doc.formControlRef(Operation['Group'], tx);
+        const Group = await lib.doc.formControlRef(Operation.Group!, tx);
         return { Group };
       default:
         return {};
@@ -44,7 +45,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
     const script = `
       let AmountInBalance = doc.Amount / exchangeRate;
-      ${ Operation.script
+      ${ Operation!.script
         .replace(/\$\./g, 'doc.')
         .replace(/tx\./g, 'await tx.')
         .replace(/lib\./g, 'await lib.')
@@ -70,14 +71,14 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     return Registers;
   }
 
-  async baseOn(docId: string, tx: MSSQL) {
-    const rawDoc = await lib.doc.byId(docId, tx);
+  async baseOn(source: string, tx: MSSQL) {
+    const rawDoc = await lib.doc.byId(source, tx);
+    if (!rawDoc) return this;
     const sourceDoc = await createDocumentServer(rawDoc.type, rawDoc, tx);
 
-    if (sourceDoc instanceof DocumentOperation) {
-      const sourceOperationID = sourceDoc.Operation as string;
-      const rawOperation = await lib.doc.byId(sourceOperationID, tx);
-      const Rule = rawOperation['CopyTo'].find(c => c.Operation === this.Operation);
+    if (sourceDoc instanceof DocumentOperationServer) {
+      const Operation = await lib.doc.byIdT<CatalogOperation>(sourceDoc.Operation as string, tx);
+      const Rule = Operation!.CopyTo.find(c => c.Operation === this.Operation);
       if (Rule) {
         const script = `
         this.company = doc.company;
@@ -88,7 +89,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
             .replace(/tx\./g, 'await tx.')
             .replace(/lib\./g, 'await lib.')
             .replace(/\'doc\./g, '\'$.')}
-      `;
+          `;
         const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
         const func = new AsyncFunction('doc, tx, lib', script) as Function;
         await func.bind(this, sourceDoc, tx, lib)();

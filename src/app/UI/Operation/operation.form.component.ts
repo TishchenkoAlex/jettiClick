@@ -8,7 +8,6 @@ import { FormControlInfo } from '../../common/dynamic-form/dynamic-form-base';
 import { getFormGroup } from '../../common/dynamic-form/dynamic-form.service';
 import { BaseDocFormComponent } from '../../common/form/base.form.component';
 
-
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

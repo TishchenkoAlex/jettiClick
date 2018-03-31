@@ -1,6 +1,6 @@
 import { RefValue } from './models/api';
 import { configSchema } from './models/config';
-import { Ref } from './models/document';
+import { Ref, DocumentBase } from './models/document';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
@@ -8,6 +8,7 @@ import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAc
 import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/ServerDocument';
 import { MSSQL, sdb } from './mssql';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
+import { createDocument } from './models/documents.factory';
 
 export interface BatchRow {
   SKU: Ref; Storehouse: Ref; Qty: number; batch: Ref; Cost: number;
@@ -32,6 +33,7 @@ export interface JTL {
   doc: {
     byCode: (type: DocTypes, code: string, tx?: MSSQL) => Promise<string | null>;
     byId: (id: string, tx?: MSSQL) => Promise<IFlatDocument | null>;
+    byIdT: <T extends DocumentBase>(id: string, tx?: MSSQL) => Promise<T | null>;
     formControlRef: (id: string, tx?: MSSQL) => Promise<RefValue>;
     postById: (id: string, posted: boolean, tx?: MSSQL) => Promise<void>;
     noSqlDocument: (flatDoc: IFlatDocument) => INoSqlDocument | null;
@@ -65,6 +67,7 @@ export const lib: JTL = {
   doc: {
     byCode: byCode,
     byId: byId,
+    byIdT: byIdT,
     formControlRef,
     postById,
     noSqlDocument,
@@ -92,11 +95,17 @@ async function byCode(type: string, code: string, tx = sdb): Promise<string | nu
 }
 
 async function byId(id: string, tx = sdb): Promise<IFlatDocument | null> {
+  if (!id) return null;
   const result = await tx.oneOrNone<INoSqlDocument | null>(`
   SELECT id, type, parent, date,
   code, description, posted, deleted, isfolder, company, [user], info, timestamp,
   JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
   if (result) return flatDocument(result); else return null;
+}
+
+async function byIdT<T extends DocumentBase>(id: string, tx = sdb): Promise<T | null> {
+  const result = await byId(id, tx);
+  if (result) return createDocument<T>(result.type, result); else return null;
 }
 
 function noSqlDocument(flatDoc: INoSqlDocument | DocumentBaseServer): INoSqlDocument | null {
@@ -127,21 +136,21 @@ async function docPrefix(type: DocTypes, tx: MSSQL = sdb): Promise<string> {
 async function formControlRef(id: string, tx: MSSQL = sdb): Promise<RefValue> {
   const result = await tx.oneOrNone<RefValue>(`
     SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = '${id}'`);
-  return result;
+  return result!;
 }
 
 async function debit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
   const result = await sdb.oneOrNone<{result: number}>(`
     SELECT SUM(sum) result FROM "Register.Account"
     WHERE dt = @p1 AND datetime <= @p2 AND company = @p3`, [account, date, company]);
-  return result ? result.result : null;
+  return result ? result.result : 0;
 }
 
 async function kredit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
   const result = await sdb.oneOrNone<{result: number}>(`
     SELECT SUM(sum) result FROM "Register.Account"
     WHERE kt = @p1 AND datetime <= @p2 AND company = @p3`, [account, date, company]);
-  return result ? result.result : null;
+  return result ? result.result : 0;
 }
 
 async function balance(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
@@ -158,7 +167,7 @@ async function balance(account: Ref, date = new Date().toJSON(), company: Ref): 
       WHERE kt = @p1 AND datetime <= @p2 AND company = @p3
     ) u
     `, [account, date, company]);
-  return result ? result.result : null;
+  return result ? result.result : 0;
 }
 
 async function registerBalance(type: RegisterAccumulationTypes, date = new Date(),
@@ -253,7 +262,7 @@ export async function movementsByDoc<T extends RegisterAccumulation>(type: Regis
   const queryText = `
   SELECT kind, date, type, company, document, JSON_QUERY(data) data
   FROM Accumulation where type = '${type}' AND document = '${doc}'`;
-  return await tx.manyOrNone<T>(queryText);
+  return await tx.manyOrNoneJSON<T>(queryText);
 }
 
 export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: MSSQL = sdb) {

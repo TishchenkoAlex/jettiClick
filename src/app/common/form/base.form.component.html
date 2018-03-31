@@ -1,9 +1,9 @@
 <form novalidate [formGroup]="form" cdkTrapFocus>
-  <p-panel [header]="description?.value?.concat(isPosted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
+  <p-panel #mp [header]="description?.value?.concat(isPosted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
-        <button pButton type="button" id="PostClose " icon="fa-check-square-o" label="Post&Close"
-          class="ui-button-warning" [disabled]="!form.valid || (lds.busy$ | async)" (click)="PostClose()" *ngIf="!isDeleted"></button>
+        <button pButton type="button" id="PostClose " icon="fa-check-square-o" label="Post&Close" class="ui-button-warning" [disabled]="!form.valid || (lds.busy$ | async)"
+          (click)="PostClose()" *ngIf="!isDeleted"></button>
         <button pButton type="button" id="Post" icon="fa-check" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
           (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
         <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
@@ -17,7 +17,7 @@
       <div class="ui-toolbar-group-right">
         <!--  <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
         <button *ngIf="!isNew" pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()" [disabled]="(lds.busy$ | async)"></button>
-        <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" (click)="getPrice()" [disabled]="(lds.busy$ | async)"></button>
+        <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" [disabled]="(lds.busy$ | async)"></button>
       </div>
     </p-toolbar>
 
@@ -51,12 +51,15 @@
     </div>
   </p-panel>
 
-  <p-panel [toggleable]="true" header="Additonal Info" [collapsed]="true">
+  <p-panel #pad [toggleable]="true" header="Additonal Info" [collapsed]="true">
     <div fxLayout="row" fxLayoutGap="35px" fxLayout.xs="column">
       <j-control *ngIf="vk['parent']" [control]="vk['parent']" [form]="form"></j-control>
       <j-control *ngIf="vk['user']" [control]="vk['user']" [form]="form"></j-control>
     </div>
     <j-control *ngIf="vk['info']" [control]="vk['info']" [form]="form"></j-control>
+  </p-panel>
+
+  <p-panel *ngIf="type === 'Catalog.Operation'" [toggleable]="true" header="Maintance" [collapsed]="true" (collapsedChange)="mp.collapse(); pad.collapse()">
     <div *ngFor="let control of v; let i = index" fxLayout="column">
       <j-control *ngIf="control.controlType === 'script'" [control]="control" [form]="form"></j-control>
     </div>

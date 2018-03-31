@@ -1,52 +1,10 @@
 {
-    "Group": "42512520-BE7A-11E7-A145-CF5C65BC8F97",
-    "script": "const CashRegister = lib.doc.byId($.p3);\nconst Department = CashRegister.Department;\n\n// Account\nRegisters.Account.push({\n    debit: { account: lib.account.byCode('67.03'), subcounts: [$.p2] },\n    kredit: { account: lib.account.byCode('50.01'), subcounts: [$.p3] },\n    sum: AmountInBalance\n});\n\n// Balance\nRegisters.Accumulation.push({\n    kind: false,\n    type: \"Register.Accumulation.Balance\",\n    data: {\n        Department: $.p1,\n        Balance: lib.doc.byCode('Catalog.Balance', 'CASH', tx),\n        Analytics: $.p3,\n        Amount: AmountInBalance\n    }\n});\n\nRegisters.Accumulation.push({\n    kind: true,\n    type: \"Register.Accumulation.Balance\",\n    data: {\n        Department: $.p1,\n        Balance: lib.doc.byCode('Catalog.Balance', 'LOAN', tx),\n        Analytics: $.p2,\n        Amount: AmountInBalance\n    }\n});\n\n// Cash\nRegisters.Accumulation.push({\n    kind: false,\n    type: \"Register.Accumulation.Cash\",\n    data: {\n        CashRegister: $.p3,\n        CashFlow: lib.doc.byCode('Catalog.CashFlow', 'OUT.LOAN', tx),\n        Amount: $.Amount,\n        AmountInBalance\n    }\n});\n\n// loan\nRegisters.Accumulation.push({\n    kind: true,\n    type: \"Register.Accumulation.Loan\",\n    data: {\n        Department: $.p1,\n        Loan: $.p4,\n        CashFlow: lib.doc.byCode('Catalog.CashFlow', 'IN.LOAN', tx),\n        Counterpartie: $.p2,\n        Amount: $.Amount,\n        AmountInBalance\n    }\n});\n",
-    "Parameters": [
-        {
-            "parameter": "p1",
-            "label": "Department",
-            "type": "Catalog.Department",
-            "order": 1,
-            "required": true,
-            "change": null,
-            "tableDef": null,
-            "Props": null
-        },
-        {
-            "parameter": "p2",
-            "label": "Creditor",
-            "type": "Catalog.Counterpartie",
-            "order": 2,
-            "required": true,
-            "change": null,
-            "tableDef": null,
-            "Props": null
-        },
-        {
-            "parameter": "p3",
-            "label": "Cash Register",
-            "type": "Catalog.CashRegister",
-            "order": 3,
-            "required": true,
-            "change": null,
-            "tableDef": null,
-            "Props": null
-        },
-        {
-            "parameter": "p4",
-            "label": "Agreement",
-            "type": "Catalog.Loan",
-            "order": 4,
-            "required": true,
-            "change": "    ",
-            "tableDef": null,
-            "Props": null
-        }
-    ],
-    "CopyTo": [
-        {
-            "Operation": null,
-            "script": null
-        }
-    ]
+    "FullName": "Федоров Евлампий Вениаминович",
+    "Gender": true,
+    "Product": {
+        "id": null,
+        "code": "",
+        "type": "datetime",
+        "value": "2021-05-09T08:00:00.000Z"
+    }
 }

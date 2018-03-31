@@ -173,6 +173,10 @@ j-control {
   width: 40%;
 }
 
+.calendar {
+  padding: 3px 4px 2px 5px !important;
+}
+
 .noselect {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -180,4 +184,10 @@ j-control {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.ui-float-label > input[type=datetime-local] ~ label,
+.ui-float-label > input[type=date] ~ label {
+  top:-.75em;
+  font-size:12px;
 }

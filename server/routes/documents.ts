@@ -1,25 +1,22 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-
-import { DocumentBase, DocumentOptions, PropOptions } from '../../server/models/document';
-import { PatchValue, RefValue, calculateDescription, IViewModel } from '../models/api';
+import { DocumentBase, DocumentOptions } from '../../server/models/document';
+import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
+import { DocumentOperation } from '../models/Documents/Document.Operation';
+import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
+import { IViewModel, PatchValue, RefValue } from '../models/api';
+import { createDocument } from '../models/documents.factory';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
-import { ColumnDef } from './../models/column';
-import { configSchema } from './../models/config';
-import { DocumentBaseServer, INoSqlDocument, IFlatDocument } from './../models/ServerDocument';
+import { MSSQL, sdb } from '../mssql';
+import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib, postById } from './../std.lib';
 import { User } from './user.settings';
-import { doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
+import { InsertRegisterstoDB, doSubscriptions } from './utils/execute-script';
 import { List } from './utils/list';
-import { DocumentOperation } from '../models/Documents/Document.Operation';
-import { createDocument } from '../models/documents.factory';
-import { CatalogOperation } from '../models/Catalogs/Catalog.Operation';
-import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
-import { sdb, MSSQL } from '../mssql';
-import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
+
 
 export const router = express.Router();
 
@@ -32,29 +29,24 @@ router.post('/list', async (req: Request, res: Response, next: NextFunction) => 
 
 const viewAction = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const params = req.body as { [key: string]: any };
+    const params: { [key: string]: any } = req.body;
     const user = User(req);
-    const id = params.id as string;
+    const id: string | undefined = params.id;
+    const type: DocTypes = params.type;
+    const Operation: string | undefined = req.query.Operation;
 
-    let Operation = req.query.Operation;
-    if (params.type === 'Document.Operation' && req.query.copy) {
-      const sourceRaw = await lib.doc.byId(req.query.copy, sdb);
-      Operation = sourceRaw && sourceRaw['Operation'];
-    }
-
-    let doc: IFlatDocument | null;
-    if (id) doc = await lib.doc.byId(id);
-    let ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, doc!, sdb);
-    if (!ServerDoc) throw new Error(`wrong type ${params.type}`);
+    const doc = (id && await lib.doc.byId(id)) || { ...createDocument<DocumentOperation>('Document.Operation'), Operation };
+    const ServerDoc = await createDocumentServer<DocumentBaseServer>(type, doc, sdb);
+    if (!ServerDoc) throw new Error(`wrong type ${type}`);
 
     let model = {};
-    const settings = (await sdb.oneOrNone<{ doc: FormListSettings }>(`
-        SELECT JSON_QUERY(settings, '$."${params.type}"') doc
-        FROM users where email = @p1`, [user])).doc as FormListSettings || new FormListSettings();
+    const querySettings = await sdb.oneOrNone<{ doc: FormListSettings }>(`
+      SELECT JSON_QUERY(settings, '$."${type}"') doc FROM users where email = @p1`, [user]);
+    const settings = querySettings && querySettings.doc || new FormListSettings();
 
     if (id) {
 
-      const addIncomeParamsIntoDoc = async (prm: {[x: string]: any}, d: DocumentBase) => {
+      const addIncomeParamsIntoDoc = async (prm: { [x: string]: any }, d: DocumentBase) => {
         for (const k in prm) {
           if (k === 'type' || k === 'id' || k === 'new' || k === 'base' || k === 'copy') { continue; }
           if (typeof params[k] !== 'boolean') d[k] = params[k]; else d[k] = params[k];
@@ -70,31 +62,20 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           addIncomeParamsIntoDoc(params, ServerDoc);
           if (req.query.isfolder) ServerDoc.isfolder = true;
           if (ServerDoc.onCreate) { await ServerDoc.onCreate(sdb); }
-          if (Operation) {
-            ServerDoc['Operation'] = Operation;
-            ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, ServerDoc);
-          }
           break;
         case 'copy':
           const copy = await lib.doc.byId(req.query.copy);
-          const copyDoc = await createDocumentServer<DocumentBaseServer>(params.type, copy!);
+          if (!copy) throw new Error(`base document ${req.query.copy} for copy is not found!`);
+          const copyDoc = await createDocumentServer<DocumentBaseServer>(type, copy);
           copyDoc.id = id; copyDoc.date = ServerDoc.date; copyDoc.code = ServerDoc.code;
           copyDoc.posted = false; copyDoc.deleted = false; copyDoc.timestamp = null;
           copyDoc.parent = copyDoc.parent;
-          copyDoc.description = 'Copy: ' + copyDoc.description;
           ServerDoc.map(copyDoc);
           addIncomeParamsIntoDoc(params, ServerDoc);
-          if (Operation) {
-            ServerDoc['Operation'] = Operation;
-            ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, ServerDoc);
-          }
+          ServerDoc.description = 'Copy: ' + ServerDoc.description;
           break;
         case 'base':
-          if (Operation) {
-            ServerDoc['Operation'] = Operation;
-            ServerDoc = await createDocumentServer<DocumentBaseServer>(params.type, ServerDoc);
-          }
-          await ServerDoc.baseOn(req.query.base, sdb);
+          await ServerDoc.baseOn(req.query.base as string, sdb);
           break;
         default:
           break;
@@ -147,10 +128,11 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 // Upsert document
-async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
+async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MSSQL) {
   const id = serverDoc.id;
-  const isNew = (await tx.oneOrNone<{id: string}>(`SELECT id FROM "Documents" WHERE id = '${id}'`) === null);
+  const isNew = (await tx.oneOrNone<{ id: string }>(`SELECT id FROM "Documents" WHERE id = '${id}'`) === null);
   await doSubscriptions(serverDoc, isNew ? 'before insert' : 'before update', tx);
+  if (!!serverDoc.posted && serverDoc.beforePost) await serverDoc.beforePost(tx);
   if (serverDoc.isDoc) {
     const deleted = await tx.none<RegisterAccumulation[]>(`
     SELECT * FROM "Accumulation" WHERE document = '${id}';
@@ -159,9 +141,9 @@ async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
     DELETE FROM "Accumulation" WHERE document = '${id}';`);
     serverDoc['deletedRegisterAccumulation'] = () => deleted;
   }
-  if (!!serverDoc.posted && serverDoc.beforePost) await serverDoc.beforePost(tx);
   if (!serverDoc.code) serverDoc.code = await lib.doc.docPrefix(serverDoc.type, tx);
   serverDoc.timestamp = new Date();
+  if (!!serverDoc.posted && serverDoc.onPost && !serverDoc.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(tx), tx);
   const noSqlDocument = lib.doc.noSqlDocument(serverDoc);
   const jsonDoc = JSON.stringify(noSqlDocument);
   let response: INoSqlDocument;
@@ -229,7 +211,6 @@ async function post(serverDoc: DocumentBaseServer, tx: MSSQL) {
         WHERE Documents.id = i.id;`, [jsonDoc]);
   }
   serverDoc.map(response);
-  if (!!serverDoc.posted && serverDoc.onPost && !serverDoc.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(tx), tx);
   await doSubscriptions(serverDoc, isNew ? 'after insert' : 'after update', tx);
   return serverDoc;
 }
@@ -244,7 +225,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       if (mode === 'post') doc.posted = true;
       await addAdditionalToOperation(doc, tx);
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
-      await post(serverDoc, tx);
+      await post(serverDoc, mode, tx);
       const view = await buildViewModel(serverDoc);
       res.json(view);
     });

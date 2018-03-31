@@ -12,6 +12,7 @@ import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
 import { DocumentBaseServer, IFlatDocument } from './ServerDocument';
+import { CatalogOperation } from './Catalogs/Catalog.Operation';
 
 const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Invoice', Class: DocumentInvoiceServer },
@@ -36,11 +37,11 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   const Prop = Object.assign({}, result.Prop() as DocumentOptions);
   if (result instanceof DocumentOperation && document && document.id) {
     if (result.Operation) {
-      const Operation = await lib.doc.byId(result.Operation as string);
-      result.Group = Operation['Group'];
-      (Operation && Operation['Parameters'] || []).sort((a, b) => a.order - b.order).forEach(c => {
+      const Operation = await lib.doc.byIdT<CatalogOperation>(result.Operation as string);
+      result.Group = Operation!.Group;
+      (Operation && Operation.Parameters || []).sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(c => {
         Props[c.parameter] = ({
-          label: c.label, type: c.type, required: !!c.required, change: c.change, order: c.order + 103,
+          label: c.label, type: c.type, required: !!c.required, change: c.change, order: (c.order || 0) + 103,
           [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
         });
       });

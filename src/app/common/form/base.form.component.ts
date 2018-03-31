@@ -141,16 +141,6 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   Print = () => { };
 
-  async onCommand(event) {
-    /*     const result = await this.ds.api.onCommand(this.model, 'company', { Tax: -11 });
-        this.form.patchValue(result); */
-  }
-
-  async getPrice() {
-    /*     const result = await this.ds.api.docMethodOnServer(this.model, 'GetPrice', {}).toPromise();
-        this.form.patchValue(result.doc); */
-  }
-
   ngOnDestroy() {
     this._subscription$.unsubscribe();
     this._descriptionSubscription$.unsubscribe();

@@ -1,14 +1,12 @@
 import * as sql from 'mssql';
-
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
+import { dateReviver } from './fuctions/dateReviver';
 
 export class MSSQL {
   private POOL: sql.ConnectionPool | sql.Transaction;
 
   constructor(private config, private transaction?: sql.Transaction) {
-    if (transaction) {
-      this.POOL = transaction;
-    } else {
+    if (transaction) this.POOL = transaction; else {
       this.POOL = new sql.ConnectionPool(this.config);
       this.connect()
         .then(() => console.log('connected', this.config.database))
@@ -36,23 +34,21 @@ export class MSSQL {
 
   async manyOrNone<T>(text: string, params: any[] = []): Promise<T[]> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) {
-      request.input(`p${i + 1}`, params[i]);
-    }
+    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
     const response = await request.query(`${text}`);
     const data = response.recordset;
     const result = data.map(el => {
       const row = {};
-      const keys = Object.keys(el);
-      keys.forEach(k => {
-        if (k.indexOf('.id') !== -1) {
+      for (const k of Object.keys(el)) {
+        if (k.indexOf('.id') > -1) {
           const key = k.split('.id')[0];
           row[key] = { id: el[key + '.id'], type: el[key + '.type'], value: el[key + '.value'] };
         } else {
-          if (k.indexOf('.type') !== -1 || k.indexOf('.value') !== -1 || k.indexOf('.code') !== -1) return;
-          row[k] = el[k];
+          if (k.indexOf('.type') > -1 || k.indexOf('.value') > -1 || k.indexOf('.code') > -1) continue;
+          if (typeof el[k] === 'string' && el[k][0] === '{' && el[k][el[k].length - 1] === '}')
+            row[k] = JSON.parse(el[k]); else row[k] = el[k];
         }
-      });
+      }
       return row as T;
     });
     return result || [];
@@ -60,26 +56,20 @@ export class MSSQL {
 
   async manyOrNoneJSON<T>(text: string, params: any[] = []): Promise<T[]> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) {
-      request.input(`p${i + 1}`, params[i]);
-    }
+    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES;`);
-    let data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
-    data = data ? JSON.parse(data) : [];
-    return data;
+    const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
+    return data ? JSON.parse(data) : [];
   }
 
-  async oneOrNone<T>(text: string, params: any[] = []): Promise<T> {
+  async oneOrNone<T>(text: string, params: any[] = []): Promise<T | null> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) {
-      request.input(`p${i + 1}`, params[i]);
-    }
+    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
     const response = await request.query(`${text}`);
     const data = response.recordset;
     const map = data.map(el => {
       const row = {};
-      const keys = Object.keys(el);
-      keys.forEach(k => {
+      for (const k of Object.keys(el)) {
         if (k.indexOf('.id') !== -1) {
           const key = k.split('.id')[0];
           row[key] = { id: el[key + '.id'], type: el[key + '.type'], value: el[key + '.value'] };
@@ -87,7 +77,7 @@ export class MSSQL {
           if (k.indexOf('.type') !== -1 || k.indexOf('.value') !== -1) return;
           row[k] = el[k];
         }
-      });
+      }
       return row as T;
     });
     const result = map && map[0] || null;
@@ -98,12 +88,10 @@ export class MSSQL {
 
   async oneOrNoneJSON<T>(text: string, params: any[] = []): Promise<T> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) {
-      request.input(`p${i + 1}`, params[i]);
-    }
+    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
     const response = await request.query(`${text} FOR JSON PATH, WITHOUT_ARRAY_WRAPPER ,INCLUDE_NULL_VALUES ;`);
     const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
-    const result = typeof data  === 'string' ? JSON.parse(data) : null;
+    const result = typeof data === 'string' ? JSON.parse(data) : null;
     if (result && typeof result.doc === 'string') result.doc = JSON.parse(result.doc);
     if (result && typeof result.data === 'string') result.data = JSON.parse(result.data);
     return result;
@@ -111,9 +99,7 @@ export class MSSQL {
 
   async none<T>(text: string, params: any[] = []): Promise<T | T[] | null> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) {
-      request.input(`p${i + 1}`, params[i]);
-    }
+    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
     const response = await request.query(text);
     const data = response && response.recordset ? response.recordset : null;
     if (data && data.length === 1) {

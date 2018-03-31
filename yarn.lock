@@ -335,9 +335,9 @@
   version "1.4.32"
   resolved "https://registry.yarnpkg.com/@types/socket.io-client/-/socket.io-client-1.4.32.tgz#988a65a0386c274b1c22a55377fab6a30789ac14"
 
-"@types/socket.io@^1.4.32":
-  version "1.4.32"
-  resolved "https://registry.yarnpkg.com/@types/socket.io/-/socket.io-1.4.32.tgz#bf7bc4ea6991327f31672c05e237a8a28d7bfc30"
+"@types/socket.io@^1.4.33":
+  version "1.4.33"
+  resolved "https://registry.yarnpkg.com/@types/socket.io/-/socket.io-1.4.33.tgz#41e7e30e858b643519a139b8c93280390ccdff8d"
   dependencies:
     "@types/node" "*"
 
@@ -3760,9 +3760,13 @@ moment-timezone@^0.5.0:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0", moment@^2.21.0:
+"moment@>= 2.9.0":
   version "2.21.0"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.21.0.tgz#2a114b51d2a6ec9e6d83cf803f838a878d8a023a"
+
+moment@^2.22.0:
+  version "2.22.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.0.tgz#7921ade01017dd45186e7fee5f424f0b8663a730"
 
 move-concurrently@^1.0.1:
   version "1.0.1"
@@ -6200,6 +6204,6 @@ yn@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/yn/-/yn-2.0.0.tgz#e5adabc8acf408f6385fc76495684c88e6af689a"
 
-zone.js@^0.8.20:
-  version "0.8.20"
-  resolved "https://registry.yarnpkg.com/zone.js/-/zone.js-0.8.20.tgz#a218c48db09464b19ff6fc8f0d4bb5b1046e185d"
+zone.js@^0.8.21:
+  version "0.8.21"
+  resolved "https://registry.yarnpkg.com/zone.js/-/zone.js-0.8.21.tgz#8c0e8e361bd326ee1474e4f96e17d5ef99bec4b2"
