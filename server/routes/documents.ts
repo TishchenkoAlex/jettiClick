@@ -16,6 +16,7 @@ import { lib, postById } from './../std.lib';
 import { User } from './user.settings';
 import { InsertRegisterstoDB, doSubscriptions } from './utils/execute-script';
 import { List } from './utils/list';
+import { dateReviver } from '../fuctions/dateReviver';
 
 
 export const router = express.Router();
@@ -91,7 +92,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
 router.post('/view', viewAction);
 
 async function buildViewModel(ServerDoc: DocumentBaseServer) {
-  const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props(), ServerDoc.Prop() as DocumentOptions);
+  const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props());
   const NoSqlDocument = JSON.stringify(lib.doc.noSqlDocument(ServerDoc));
   return await sdb.oneOrNoneJSON<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
 }
@@ -221,7 +222,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await sdb.tx(async tx => {
       const mode: 'post' | 'save' = req.query.mode || 'save';
-      const doc: IFlatDocument = req.body;
+      const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body), dateReviver);
       if (doc.deleted) throw new Error('cant POST deleted document');
       if (mode === 'post') doc.posted = true;
       await addAdditionalToOperation(doc, tx);

@@ -1,11 +1,10 @@
 import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { CatalogSubcount } from './../models/Catalogs/Catalog.Subcount';
-import { DocumentOperation } from './../models/Documents/Document.Operation';
 import { CatalogDocuments } from './Catalogs/Catalog.Documents';
-import { DocumentOptions, DocumentBase } from './document';
-import { createDocument, RegisteredDocument } from './documents.factory';
-import { AllDocTypes, AllTypes, ComplexTypes, DocumentTypes, DocTypes } from './documents.types';
-import { createTypes, RegisteredTypes } from './Types/Types.factory';
+import { RegisteredTypes, createTypes } from './Types/Types.factory';
+import { DocumentBase, DocumentOptions } from './document';
+import { RegisteredDocument, createDocument } from './documents.factory';
+import { AllDocTypes, AllTypes, ComplexTypes, DocTypes, DocumentTypes } from './documents.types';
 
 export interface IConfigSchema {
   type: AllDocTypes;
@@ -15,7 +14,6 @@ export interface IConfigSchema {
   prefix?: string;
   QueryObject?: string;
   QueryList: string;
-  QueryNew?: string;
   dimensions?: { [x: string]: AllTypes }[];
   copyTo?: DocTypes[];
   Props?: { [x: string]: any };
@@ -35,9 +33,8 @@ export const configSchema = new Map([
       menu: Prop.menu,
       prefix: Prop.prefix,
       dimensions: Prop.dimensions,
-      QueryObject: SQLGenegator.QueryObject(Props, Prop),
-      QueryList: SQLGenegator.QueryList(Props, Prop),
-      QueryNew: SQLGenegator.QueryNew(Props, Prop),
+      QueryObject: SQLGenegator.QueryObject(Props, el.type),
+      QueryList: SQLGenegator.QueryList(Props, el.type),
       Props: Props,
       Prop: Prop,
       copyTo: Prop.copyTo,

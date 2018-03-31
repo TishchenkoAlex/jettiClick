@@ -1,18 +1,17 @@
-import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { sdb } from '../mssql';
 import { lib } from '../std.lib';
-import { createDocument, IRegisteredDocument } from './../models/documents.factory';
+import { IRegisteredDocument, createDocument } from './../models/documents.factory';
+import { CatalogOperation } from './Catalogs/Catalog.Operation';
 import { CatalogOperationServer } from './Catalogs/Catalog.Operation.server';
-import { configSchema } from './config';
-import { DocumentBase, DocumentOptions } from './document';
-import { DocTypes } from './documents.types';
 import { DocumentExchangeRatesServer } from './Documents/Document.ExchangeRates.server';
 import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
 import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
 import { DocumentBaseServer, IFlatDocument } from './ServerDocument';
-import { CatalogOperation } from './Catalogs/Catalog.Operation';
+import { RefValue, calculateDescription } from './api';
+import { DocumentBase, DocumentOptions } from './document';
+import { DocTypes } from './documents.types';
 
 const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Invoice', Class: DocumentInvoiceServer },
@@ -34,10 +33,12 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
     result = createDocument<T>(type, document);
   }
   const Props = Object.assign({}, result.Props());
-  const Prop = Object.assign({}, result.Prop() as DocumentOptions);
+  let Operation: CatalogOperation | null = null;
+  let Grop: RefValue | null = null;
   if (result instanceof DocumentOperation && document && document.id) {
     if (result.Operation) {
-      const Operation = await lib.doc.byIdT<CatalogOperation>(result.Operation as string);
+      Operation = await lib.doc.byIdT<CatalogOperation>(result.Operation as string);
+      Grop = await lib.doc.formControlRef(Operation!.Group as string);
       result.Group = Operation!.Group;
       (Operation && Operation.Parameters || []).sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(c => {
         Props[c.parameter] = ({
@@ -45,20 +46,13 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
           [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
         });
       });
-      result['QueryNew'] = () => SQLGenegator.QueryNew(Props, Prop);
-      result['QueryObject'] = () => SQLGenegator.QueryObject(Props, Prop);
     }
-  }
-  const sc = configSchema.get(type);
-  if (sc) {
-    if (!result['QueryList']) result['QueryList'] = () => sc.QueryList;
-    if (!result['QueryObject']) result['QueryObject'] = () => sc.QueryObject;
-    if (!result['QueryNew']) result['QueryNew'] = () => sc.QueryNew;
   }
   // protect against mutate
   result.Props = () => Props;
-  result.Prop = () => Prop;
   // Clear all document's table-parts
   if (!document) Object.keys(result).filter(k => result[k] instanceof Array).forEach(a => result[a].length = 0);
+  if (result.isDoc) result.description =
+    calculateDescription((result.Prop() as DocumentOptions).description, result.date, result.code, Grop && Grop.value as string || '');
   return result;
 }
