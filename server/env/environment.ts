@@ -12,8 +12,8 @@ export const sqlConfig: config = {
   password: process.env.DB_PASSWORD || 'MyNew01Password',
   requestTimeout: 1000 * 120,
   pool: {
-    min: 20,
-    max: 500,
+    min: 25,
+    max: 10000,
   },
   options: {
     encrypt: false,
