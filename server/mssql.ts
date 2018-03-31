@@ -16,7 +16,7 @@ export class MSSQL {
         setInterval(() => {
           (<sql.ConnectionPool>this.POOL).connect()
             .then(() => console.log('reconnected', this.config.database))
-            .catch(err => console.log('try reconnect', this.config.database));
+            .catch();
         }, 60000);
     }
   }
