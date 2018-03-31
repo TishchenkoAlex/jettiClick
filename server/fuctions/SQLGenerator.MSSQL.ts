@@ -301,7 +301,7 @@ FROM dbo."Documents" d
   LEFT JOIN dbo."Documents" "user" ON "user".id = d."user"
   LEFT JOIN dbo."Documents" "company" ON "company".id = d.company
   ${LeftJoin}
-    WHERE d.type = '${options.type}'  `;
+    WHERE d.[type] = '${options.type}'  `;
 
     return query;
   }

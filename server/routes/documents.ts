@@ -38,6 +38,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     const doc = (id && await lib.doc.byId(id)) || { ...createDocument<DocumentOperation>('Document.Operation'), Operation };
     const ServerDoc = await createDocumentServer<DocumentBaseServer>(type, doc, sdb);
     if (!ServerDoc) throw new Error(`wrong type ${type}`);
+    if (id) ServerDoc.id = id;
 
     let model = {};
     const querySettings = await sdb.oneOrNone<{ doc: FormListSettings }>(`

@@ -74,7 +74,7 @@ export class MSSQL {
           const key = k.split('.id')[0];
           row[key] = { id: el[key + '.id'], type: el[key + '.type'], value: el[key + '.value'] };
         } else {
-          if (k.indexOf('.type') !== -1 || k.indexOf('.value') !== -1) return;
+          if (k.indexOf('.type') !== -1 || k.indexOf('.value') !== -1) continue;
           row[k] = el[k];
         }
       }

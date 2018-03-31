@@ -87,17 +87,14 @@ export async function List(req: Request, res: Response) {
       order.filter(_o => _o.value !== null).forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
         char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value instanceof Date ? _o.value.toJSON() : _o.value}' `);
       order.length--;
-      let addQuery = `\nSELECT * FROM(SELECT * FROM(${QueryList} ${filterBuilderForDoc(params.filter)}) d
+      const addQuery = `\nSELECT * FROM(SELECT * FROM(${QueryList} ${filterBuilderForDoc(params.filter)}) d
         WHERE ${where}\n${lastORDER ?
           (char1 === '>') ? orderbyAfter : orderbyBefore :
-          (char1 === '<') ? orderbyAfter : orderbyBefore} OFFSET 0 ROWS FETCH NEXT ${params.count + 1} ROWS ONLY)`;
-      const idQuery = `SELECT d.id FROM (${addQuery} d) d`;
-      addQuery = addQuery.replace('FROM dbo\.\"Documents\"', `FROM (SELECT * FROM "Documents" WHERE id IN (${idQuery}))`);
-      const split = addQuery.split('WHERE d.type =');
-      result += split[0] + (split[1] ? ' WHERE d.type = ' + split[1] + ') d) ' : ' ');
-      result += ` "tmp${o.field}"\nUNION ALL`;
+          (char1 === '<') ? orderbyAfter : orderbyBefore} OFFSET 0 ROWS FETCH NEXT ${params.count + 1} ROWS ONLY) d`;
+
+      result += `SELECT * FROM (${addQuery}) "tmp${o.field}"\nUNION ALL\n`;
     });
-    return result.slice(0, -9);
+    return result.slice(0, -11);
   };
 
   let query = '';
