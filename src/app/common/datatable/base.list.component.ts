@@ -159,13 +159,11 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   onLazyLoad(event) {
     this.multiSortMeta = event.multiSortMeta;
     this.prepareDataSource();
-    console.log(this.dataSource.id);
     this.dataSource.sort();
   }
 
   prepareDataSource(multiSortMeta: SortMeta[] = this.multiSortMeta) {
     this.dataSource.id = this.id.id;
-    console.log(this.dataSource.id);
     const order = multiSortMeta
       .map(el => <FormListOrder>({ field: el.field, order: el.order === -1 ? 'desc' : 'asc' }));
     const Filter = Object.keys(this.filters)
