@@ -226,7 +226,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     await sdb.tx(async tx => {
       const mode: 'post' | 'save' = req.query.mode || 'save';
       const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body), dateReviver);
-      if (doc.deleted) throw new Error('cant POST deleted document');
+      if (doc.deleted && mode === 'post') throw new Error('cant POST deleted document');
       if (mode === 'post') doc.posted = true;
       await addAdditionalToOperation(doc, tx);
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
