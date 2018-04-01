@@ -38,6 +38,8 @@ export function createDocument<T extends DocumentBase>(type: DocTypes, document?
   const doc = RegisteredDocument.find(el => el.type === type);
   if (doc) {
     const result = <T>new doc.Class;
+    const ArrayProps = Object.keys(result).filter(k => result[k] instanceof Array);
+    ArrayProps.forEach(prop => result[prop].length = 0);
     if (document) result.map(document);
     return result;
   } else throw new Error(`can't create type! ${type} is not registered`);

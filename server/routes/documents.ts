@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { DocumentBase, DocumentOptions } from '../../server/models/document';
 import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { dateReviver } from '../fuctions/dateReviver';
-import { DocumentOperationServer } from '../models/Documents/Document.Operation.server';
+import { DocumentOperation } from '../models/Documents/Document.Operation';
 import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
 import { IViewModel, PatchValue, RefValue } from '../models/api';
 import { createDocument } from '../models/documents.factory';
@@ -35,8 +35,10 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     const type: DocTypes = params.type;
     const Operation: string | undefined = req.query.Operation || undefined;
 
-    const doc = (id && await lib.doc.byId(id)) || Operation ?
-      { ...createDocument<DocumentOperationServer>(type), Operation } :
+    let doc: IFlatDocument | DocumentOperation | null = null;
+    if (id) doc = await lib.doc.byId(id);
+    if (!doc) doc = Operation ?
+      { ...createDocument<DocumentBaseServer>(type), Operation } :
       createDocument<DocumentBaseServer>(type);
     const ServerDoc = await createDocumentServer<DocumentBaseServer>(type, doc, sdb);
     if (!ServerDoc) throw new Error(`wrong type ${type}`);
@@ -95,7 +97,7 @@ router.post('/view', viewAction);
 async function buildViewModel(ServerDoc: DocumentBaseServer) {
   const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props());
   const NoSqlDocument = JSON.stringify(lib.doc.noSqlDocument(ServerDoc));
-  return await sdb.oneOrNone<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
+  return await sdb.oneOrNoneJSON<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
 }
 
 // Delete or UnDelete document

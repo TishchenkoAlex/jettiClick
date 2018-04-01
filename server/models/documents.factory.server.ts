@@ -27,6 +27,8 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   const doc = RegisteredServerDocument.find(el => el.type === type);
   if (doc) {
     const serverResult = <T>new doc.Class;
+    const ArrayProps = Object.keys(serverResult).filter(k => serverResult[k] instanceof Array);
+    ArrayProps.forEach(prop => serverResult[prop].length = 0);
     if (document) serverResult.map(document);
     result = serverResult;
   } else {
@@ -50,11 +52,7 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   }
   // protect against mutate
   result.Props = () => Props;
-  // Clear all document's table-parts in NEW document
-  if (!(document && document.timestamp)) {
-    const ArrayProps = Object.keys(result).filter(k => result[k] instanceof Array);
-    ArrayProps.forEach(a => result[a].length = 0);
-  }
+
   if (result.isDoc) result.description =
     calculateDescription((result.Prop() as DocumentOptions).description, result.date, result.code, Grop && Grop.value as string || '');
   return result;

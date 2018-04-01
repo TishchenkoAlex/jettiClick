@@ -109,23 +109,26 @@ export class DocumentBase {
     }
   }
 
-  get isDoc() { return this.type.startsWith('Document.'); }
-  get isCatalog() { return this.type.startsWith('Catalog.'); }
-  get isType() { return this.type.startsWith('Types.'); }
-  get isJornal() { return this.type.startsWith('Journal.'); }
+  get isDoc() { return this.type && this.type.startsWith('Document.'); }
+  get isCatalog() { return this.type && this.type.startsWith('Catalog.'); }
+  get isType() { return this.type && this.type.startsWith('Types.'); }
+  get isJornal() { return this.type && this.type.startsWith('Journal.'); }
 
   Props() {
-    this.targetProp(this, 'description').hidden = this.isDoc;
-    this.targetProp(this, 'date').hidden = this.isCatalog;
-    this.targetProp(this, 'company').hidden = this.isCatalog && !(this.targetProp(this, 'company').hiddenInForm === false);
+
+    const proto = new this.constructor.prototype.constructor;
+
+    this.targetProp(proto, 'description').hidden = proto.isDoc;
+    this.targetProp(proto, 'date').hidden = proto.isCatalog;
+    this.targetProp(proto, 'company').hidden = proto.isCatalog && !(proto.targetProp(proto, 'company').hiddenInForm === false);
 
     const result: { [x: string]: PropOptions } = {};
-    for (const prop of Object.keys(this)) {
-      const Prop = this.targetProp(this, prop);
+    for (const prop of Object.keys(proto)) {
+      const Prop = proto.targetProp(this, prop);
       if (!Prop) { continue; }
       result[prop] = Object.assign({}, Prop);
       if (prop === 'code') {
-        const metadata = this.Prop() as DocumentOptions;
+        const metadata = proto.Prop() as DocumentOptions;
         if (metadata && metadata.prefix) {
           result[prop].label = (Prop.label || prop) + ' (auto)';
           result[prop].required = false;
@@ -134,11 +137,11 @@ export class DocumentBase {
       for (const el in result[prop]) {
         if (typeof result[prop][el] === 'function') result[prop][el] = result[prop][el].toString();
       }
-      const value = (this as any)[prop];
+      const value = (proto as any)[prop];
       if (value instanceof Array && value.length) {
         const arrayProp: { [x: string]: any } = {};
         for (const arrProp of Object.keys(value[0])) {
-          const PropArr = this.targetProp(value[0], arrProp);
+          const PropArr = proto.targetProp(value[0], arrProp);
           if (!PropArr) { continue; }
           arrayProp[arrProp] = Object.assign({}, PropArr);
           for (const el in arrayProp[arrProp]) {
@@ -148,17 +151,12 @@ export class DocumentBase {
         result[prop][prop] = arrayProp;
       }
     }
+    this.Props = () => result;
     return result;
   }
 
   map(doc: IFlatDocument) {
-    if (doc) {
-      const props = Object.assign({}, this.Props());
-      const prop = Object.assign({}, this.Prop());
-      this.Props = () => props;
-      this.Prop = () => prop;
-      Object.assign(this, doc);
-    }
+    if (doc) Object.assign(this, doc);
   }
 
 }
