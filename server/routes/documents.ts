@@ -2,6 +2,7 @@ import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 import { DocumentBase, DocumentOptions } from '../../server/models/document';
 import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
+import { dateReviver } from '../fuctions/dateReviver';
 import { DocumentOperation } from '../models/Documents/Document.Operation';
 import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
 import { IViewModel, PatchValue, RefValue } from '../models/api';
@@ -12,12 +13,10 @@ import { MSSQL, sdb } from '../mssql';
 import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
-import { lib, postById } from './../std.lib';
+import { lib } from './../std.lib';
 import { User } from './user.settings';
 import { InsertRegisterstoDB, doSubscriptions } from './utils/execute-script';
 import { List } from './utils/list';
-import { dateReviver } from '../fuctions/dateReviver';
-
 
 export const router = express.Router();
 
@@ -82,7 +81,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
         default:
           break;
       }
-      model = await buildViewModel(ServerDoc);
+      model = (await buildViewModel(ServerDoc))!;
     }
     const columnsDef = buildColumnDef(ServerDoc.Props(), settings);
     const result: IViewModel = { schema: ServerDoc.Props(), model, columnsDef, metadata: ServerDoc.Prop() as DocumentOptions, settings };
@@ -94,7 +93,7 @@ router.post('/view', viewAction);
 async function buildViewModel(ServerDoc: DocumentBaseServer) {
   const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props());
   const NoSqlDocument = JSON.stringify(lib.doc.noSqlDocument(ServerDoc));
-  return await sdb.oneOrNoneJSON<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
+  return await sdb.oneOrNone<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
 }
 
 // Delete or UnDelete document
@@ -111,12 +110,12 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       serverDoc.deleted = !!!serverDoc.deleted;
       serverDoc.posted = false;
 
-      const deleted = await tx.none<INoSqlDocument>(`
+      const deleted = await tx.manyOrNone<INoSqlDocument>(`
         SELECT * FROM "Accumulation" WHERE document = '${id}';
         DELETE FROM "Register.Account" WHERE document = '${id}';
         DELETE FROM "Register.Info" WHERE document = '${id}';
         DELETE FROM "Accumulation" WHERE document = '${id}';
-        UPDATE "Documents" SET deleted = @p1, posted = 0 OUTPUT deleted.*  WHERE id = '${id}';`, [serverDoc.deleted]);
+        UPDATE "Documents" SET deleted = @p1, posted = 0 WHERE id = '${id}';`, [serverDoc.deleted]);
       serverDoc['deletedRegisterAccumulation'] = () => deleted;
 
       if (serverDoc && serverDoc.afterDelete) await serverDoc.afterDelete(tx);
@@ -136,7 +135,7 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
   await doSubscriptions(serverDoc, isNew ? 'before insert' : 'before update', tx);
   if (!!serverDoc.posted && serverDoc.beforePost) await serverDoc.beforePost(tx);
   if (serverDoc.isDoc) {
-    const deleted = await tx.none<RegisterAccumulation[]>(`
+    const deleted = await tx.manyOrNone<RegisterAccumulation>(`
     SELECT * FROM "Accumulation" WHERE document = '${id}';
     DELETE FROM "Register.Account" WHERE document = '${id}';
     DELETE FROM "Register.Info" WHERE document = '${id}';
@@ -150,7 +149,7 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
   const jsonDoc = JSON.stringify(noSqlDocument);
   let response: INoSqlDocument;
   if (isNew) {
-    response = <INoSqlDocument>await tx.none<INoSqlDocument>(`
+    response = <INoSqlDocument>await tx.oneOrNone<INoSqlDocument>(`
       INSERT INTO Documents(
          [id]
         ,[type]
@@ -183,7 +182,7 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
         [doc] NVARCHAR(max) N'$.doc' AS JSON
       )`, [jsonDoc]);
   } else {
-    response = <INoSqlDocument>await tx.none<INoSqlDocument>(`
+    response = <INoSqlDocument>await tx.oneOrNone<INoSqlDocument>(`
       UPDATE Documents
         SET
           type = i.type, parent = i.parent,
@@ -248,7 +247,7 @@ async function addAdditionalToOperation(doc: IFlatDocument, tx) {
 // unPost by id (without returns posted object to client, for post in cicle many docs)
 router.get('/unpost/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await sdb.tx(async tx => await postById(req.params.id, false, tx));
+    await sdb.tx(async tx => await lib.doc.postById(req.params.id, false, tx));
     res.json(true);
   } catch (err) { next(err); }
 });
@@ -256,7 +255,7 @@ router.get('/unpost/:id', async (req: Request, res: Response, next: NextFunction
 // Post by id (without returns posted object to client, for post in cicle many docs)
 router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await sdb.tx(async tx => await postById(req.params.id, true, tx));
+    await sdb.tx(async tx => await lib.doc.postById(req.params.id, true, tx));
     res.json(true);
   } catch (err) { next(err); }
 });

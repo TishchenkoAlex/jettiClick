@@ -53,7 +53,7 @@ router.post('/user/settings/defaults', async (req: Request, res: Response, next:
     const user = User(req);
     const data = req.body || new UserDefaultsSettings();
     const query = `update users set settings = JSON_MODIFY(settings, '$."defaults"', JSON_QUERY(@p1)) where email = @p2`;
-    const result = await sdb.none(query, [JSON.stringify(data), user]);
+    await sdb.none(query, [JSON.stringify(data), user]);
     res.json(true);
   } catch (err) { next(err); }
 });

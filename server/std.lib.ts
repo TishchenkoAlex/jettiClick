@@ -97,9 +97,7 @@ async function byCode(type: string, code: string, tx = sdb): Promise<string | nu
 async function byId(id: string, tx = sdb): Promise<IFlatDocument | null> {
   if (!id) return null;
   const result = await tx.oneOrNone<INoSqlDocument | null>(`
-  SELECT id, type, parent, date,
-  code, description, posted, deleted, isfolder, company, [user], info, timestamp,
-  JSON_QUERY(doc) doc from Documents WHERE id = '${id}'`);
+  SELECT * FROM "Documents" WHERE id = '${id}'`);
   if (result) return flatDocument(result); else return null;
 }
 
@@ -246,12 +244,12 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
     const serverDoc = await createDocumentServer<DocumentBaseServer>(doc!.type as DocTypes, doc!);
     serverDoc.posted = posted;
 
-    const deleted = await subtx.none(`
+    const deleted = await subtx.manyOrNone(`
       SELECT * FROM "Accumulation" WHERE document = '${id}';
       DELETE FROM "Register.Account" WHERE document = '${id}';
       DELETE FROM "Register.Info" WHERE document = '${id}';
       DELETE FROM "Accumulation" WHERE document = '${id}';
-      UPDATE "Documents" SET posted = @p1 WHERE id = '${id}'`, [serverDoc.posted]);
+      UPDATE "Documents" SET posted = @p1 deleted = 0 WHERE id = '${id}'`, [serverDoc.posted]);
     doc!['deletedRegisterAccumulation'] = () => deleted;
 
     if (posted && serverDoc.onPost && !doc!.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx);
@@ -260,9 +258,8 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
 
 export async function movementsByDoc<T extends RegisterAccumulation>(type: RegisterAccumulationTypes, doc: Ref, tx: MSSQL = sdb) {
   const queryText = `
-  SELECT kind, date, type, company, document, JSON_QUERY(data) data
-  FROM Accumulation where type = '${type}' AND document = '${doc}'`;
-  return await tx.manyOrNoneJSON<T>(queryText);
+  SELECT * FROM Accumulation where type = '${type}' AND document = '${doc}'`;
+  return await tx.manyOrNone<T>(queryText);
 }
 
 export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: MSSQL = sdb) {

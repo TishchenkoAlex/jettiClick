@@ -7,7 +7,7 @@ import { SQLGenegator, excludeRegisterAccumulatioProps } from './SQLGenerator.MS
 // tslint:disable:no-shadowed-variable
 // tslint:disable:forin
 
-export class SQLMetadataGenegator {
+export class SQLGenegatorMetadata {
 
   static QueryTriggerRegisterAccumulation(doc: { [x: string]: any }, type: string) {
 
@@ -53,7 +53,7 @@ export class SQLMetadataGenegator {
     let query = '';
     for (const type of RegisteredRegisterAccumulation) {
       const register = createRegisterAccumulation(type.type, true, {});
-      query += SQLMetadataGenegator.QueryTriggerRegisterAccumulation(register.Props(), register.Prop().type);
+      query += SQLGenegatorMetadata.QueryTriggerRegisterAccumulation(register.Props(), register.Prop().type);
     }
 
     query = `

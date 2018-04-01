@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from 'express';
 import * as express from 'express';
-
-import { createRegisterAccumulation, RegisterAccumulationTypes } from '../models/Registers/Accumulation/factory';
+import { NextFunction, Request, Response } from 'express';
 import { RegisterAccumulation, RegisterAccumulationOptions } from '../models/Registers/Accumulation/RegisterAccumulation';
-import { createRegisterInfo, RegisterInfoTypes } from '../models/Registers/Info/factory';
+import { RegisterAccumulationTypes, createRegisterAccumulation } from '../models/Registers/Accumulation/factory';
 import { RegisterInfo, RegisterInfoOptions } from '../models/Registers/Info/RegisterInfo';
+import { RegisterInfoTypes, createRegisterInfo } from '../models/Registers/Info/factory';
+import { AccountRegister } from '../models/account.register';
 import { sdb } from '../mssql';
 
 export const router = express.Router();
@@ -12,7 +12,7 @@ export const router = express.Router();
 router.get('/register/account/movements/view/:id', async (req, res, next) => {
   try {
     const query = `SELECT * FROM "Register.Account.View" where "document.id" = @p1`;
-    const data = await sdb.manyOrNoneJSON<any>(query, [req.params.id]);
+    const data = await sdb.manyOrNoneJSON<AccountRegister>(query, [req.params.id]);
     res.json(data);
   } catch (err) { next(err); }
 });

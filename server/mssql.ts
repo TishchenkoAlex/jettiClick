@@ -32,26 +32,42 @@ export class MSSQL {
     return this;
   }
 
+  private ToJSON(value: any): any {
+    if (typeof value === 'string' &&
+      (value[0] === '{' || (value[0] === '[')) &&
+      (value[value.length - 1] === '}' || (value[value.length - 1] === ']')))
+      try { return JSON.parse(value, dateReviver); } catch { return value; }
+    else
+      return value;
+  }
+
+  private complexObject<T>(data: any) {
+    if (!data) return data;
+    const row: T = Object.assign({});
+    // tslint:disable-next-line:forin
+    for (const k in data) {
+      const value = this.ToJSON(data[k]);
+      if (k.includes('.')) {
+        const keys = k.split('.');
+        row[keys[0]] = { ...row[keys[0]], [keys[1]]: value };
+      } else
+        row[k] = value;
+    }
+    return row;
+  }
+
+  async oneOrNone<T>(text: string, params: any[] = []): Promise<T | null> {
+    const request = new sql.Request(<any>(this.POOL));
+    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
+    const response = await request.query(`${text}`);
+    return response.recordset.length ? this.complexObject<T>(response.recordset[0]) : null;
+  }
+
   async manyOrNone<T>(text: string, params: any[] = []): Promise<T[]> {
     const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
     const response = await request.query(`${text}`);
-    const data = response.recordset;
-    const result = data.map(el => {
-      const row = {};
-      for (const k of Object.keys(el)) {
-        if (k.indexOf('.id') > -1) {
-          const key = k.split('.id')[0];
-          row[key] = { id: el[key + '.id'], type: el[key + '.type'], value: el[key + '.value'] };
-        } else {
-          if (k.indexOf('.type') > -1 || k.indexOf('.value') > -1 || k.indexOf('.code') > -1) continue;
-          if (typeof el[k] === 'string' && el[k][0] === '{' && el[k][el[k].length - 1] === '}')
-            row[k] = JSON.parse(el[k]); else row[k] = el[k];
-        }
-      }
-      return row as T;
-    });
-    return result || [];
+    return response.recordset.map(el => this.complexObject<T>(el)) || [];
   }
 
   async manyOrNoneJSON<T>(text: string, params: any[] = []): Promise<T[]> {
@@ -59,62 +75,24 @@ export class MSSQL {
     for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES;`);
     const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
-    return data ? JSON.parse(data) : [];
-  }
-
-  async oneOrNone<T>(text: string, params: any[] = []): Promise<T | null> {
-    const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
-    const response = await request.query(`${text}`);
-    const data = response.recordset;
-    const map = data.map(el => {
-      const row = {};
-      for (const k of Object.keys(el)) {
-        if (k.indexOf('.id') !== -1) {
-          const key = k.split('.id')[0];
-          row[key] = { id: el[key + '.id'], type: el[key + '.type'], value: el[key + '.value'] };
-        } else {
-          if (k.indexOf('.type') !== -1 || k.indexOf('.value') !== -1) continue;
-          row[k] = el[k];
-        }
-      }
-      return row as T;
-    });
-    const result = map && map[0] || null;
-    if (result && typeof result['doc'] === 'string') result['doc'] = JSON.parse(result['doc']);
-    if (result && typeof result['data'] === 'string') result['data'] = JSON.parse(result['data']);
-    return result;
+    return data ? JSON.parse(data, dateReviver) : [];
   }
 
   async oneOrNoneJSON<T>(text: string, params: any[] = []): Promise<T> {
     const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
-    const response = await request.query(`${text} FOR JSON PATH, WITHOUT_ARRAY_WRAPPER ,INCLUDE_NULL_VALUES ;`);
+    const response = await request.query(`${text} FOR JSON PATH, WITHOUT_ARRAY_WRAPPER, INCLUDE_NULL_VALUES ;`);
     const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
     const result = typeof data === 'string' ? JSON.parse(data) : null;
-    if (result && typeof result.doc === 'string') result.doc = JSON.parse(result.doc);
-    if (result && typeof result.data === 'string') result.data = JSON.parse(result.data);
+    if (result && typeof result.doc === 'string') result.doc = JSON.parse(result.doc, dateReviver);
+    if (result && typeof result.data === 'string') result.data = JSON.parse(result.data, dateReviver);
     return result;
   }
 
-  async none<T>(text: string, params: any[] = []): Promise<T | T[] | null> {
+  async none<T>(text: string, params: any[] = []) {
     const request = new sql.Request(<any>(this.POOL));
     for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
-    const response = await request.query(text);
-    const data = response && response.recordset ? response.recordset : null;
-    if (data && data.length === 1) {
-      if (typeof data[0].doc === 'string') data[0].doc = JSON.parse(data[0].doc);
-      if (typeof data[0].data === 'string') data[0].data = JSON.parse(data[0].data);
-      return data[0];
-    }
-    if (data && data.length > 1) {
-      data.forEach(el => {
-        if (typeof el.doc === 'string') el.doc = JSON.parse(el.doc);
-        if (typeof el.data === 'string') el.data = JSON.parse(el.data);
-      });
-      return data;
-    }
-    return data || null;
+    await request.query(text);
   }
 
   async tx<T>(func: (tx: MSSQL) => Promise<T>) {

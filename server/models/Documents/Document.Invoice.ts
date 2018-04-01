@@ -8,7 +8,7 @@ import { stdDocumentListCommands } from '../commands';
   dimensions: [
     { Customer: 'Catalog.Counterpartie' },
     { Manager: 'Catalog.Manager' },
-    { Amount: 'number'},
+    { Amount: 'number' },
   ],
   icon: 'fa fa-file-text-o',
   menu: 'Invoices',
@@ -18,6 +18,9 @@ import { stdDocumentListCommands } from '../commands';
   ],
   copyTo: [
     'Document.PriceList'
+  ],
+  relations: [
+    { name: 'Operations', type: 'Document.Operation', field: 'parent' }
   ]
 })
 export class DocumentInvoice extends DocumentBase {
@@ -32,7 +35,7 @@ export class DocumentInvoice extends DocumentBase {
 
   @Props({
     type: 'Catalog.Counterpartie', required: true, order: 12,
-    style: { width: '250px', 'min-width': '250px', 'max-width': '250px',  }
+    style: { width: '250px', 'min-width': '250px', 'max-width': '250px', }
   })
   Customer: Ref = null;
 
@@ -112,6 +115,6 @@ export class DocumentInvoiceComment {
   @Props({ type: 'Catalog.User' })
   User: Ref = null;
 
-  @Props({ type: 'string'})
+  @Props({ type: 'string' })
   Comment = '';
 }
