@@ -26,33 +26,34 @@ export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: Po
   }
 
   for (const rec of Registers.Accumulation) {
-    const data = JSON.stringify({...rec.data, type: rec.type, company: rec.company || doc.company, document: doc.id});
+    const data = { ...rec.data, type: rec.type, company: rec.company || doc.company, document: doc.id };
     query += `
     INSERT INTO "Accumulation" (kind, date, type, company, document, data)
     VALUES (${rec.kind ? 1 : 0}, '${new Date(doc.date).toJSON()}', N'${rec.type}' , N'${rec.company || doc.company}',
-    '${doc.id}', JSON_QUERY(N'${data}'));`;
+    '${doc.id}', JSON_QUERY(N'${JSON.stringify(data)}'));`;
   }
 
   for (const rec of Registers.Info) {
-    const data = JSON.stringify({...rec.data, type: rec.type, document: doc.id, company: rec.company || doc.company});
+    const data = { ...rec.data, type: rec.type, document: doc.id, company: rec.company || doc.company };
     query += `
     INSERT INTO "Register.Info" (date, type, company, document, data)
-    VALUES ('${new Date(doc.date).toJSON()}', N'${rec.type}', N'${rec.company || doc.company}', '${doc.id}', JSON_QUERY(N'${data}'));`;
+    VALUES ('${new Date(doc.date).toJSON()}', N'${rec.type}', N'${rec.company || doc.company}',
+    '${doc.id}', JSON_QUERY(N'${JSON.stringify(data)}'));`;
   }
   query = query.replace(/\'undefined\'/g, 'NULL');
   if (query) { await tx.none(query); }
 }
 
 export async function doSubscriptions(doc: DocumentBaseServer, script: string, tx: MSSQL) {
-/*   const scripts = await tx.manyOrNone<any>(`
-    SELECT "then" FROM "Subscriptions" WHERE "what" ? @p1 AND "when" = @p2 ORDER BY "order"`, [doc.type, script]);
-  if (scripts.length) {
-    const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-    for (const scr of scripts) {
-      if (scr) {
-        const func = new AsyncFunction('doc, db', scr.then);
-        await func(JSON.parse(JSON.stringify(doc)), tx);
+  /*   const scripts = await tx.manyOrNone<any>(`
+      SELECT "then" FROM "Subscriptions" WHERE "what" ? @p1 AND "when" = @p2 ORDER BY "order"`, [doc.type, script]);
+    if (scripts.length) {
+      const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+      for (const scr of scripts) {
+        if (scr) {
+          const func = new AsyncFunction('doc, db', scr.then);
+          await func(JSON.parse(JSON.stringify(doc)), tx);
+        }
       }
-    }
-  } */
+    } */
 }

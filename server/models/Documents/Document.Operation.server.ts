@@ -7,6 +7,8 @@ import { JQueue } from '../Tasks/tasks';
 import { createDocumentServer } from '../documents.factory.server';
 import { PostResult } from './../post.interfaces';
 import { DocumentOperation } from './Document.Operation';
+import { calculateDescription } from '../api';
+import { DocumentOptions } from '../document';
 
 export class DocumentOperationServer extends DocumentOperation implements ServerDocument {
 

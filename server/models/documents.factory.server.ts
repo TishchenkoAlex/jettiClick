@@ -50,8 +50,11 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   }
   // protect against mutate
   result.Props = () => Props;
-  // Clear all document's table-parts
-  if (!document) Object.keys(result).filter(k => result[k] instanceof Array).forEach(a => result[a].length = 0);
+  // Clear all document's table-parts in NEW document
+  if (!(document && document.timestamp)) {
+    const ArrayProps = Object.keys(result).filter(k => result[k] instanceof Array);
+    ArrayProps.forEach(a => result[a].length = 0);
+  }
   if (result.isDoc) result.description =
     calculateDescription((result.Prop() as DocumentOptions).description, result.date, result.code, Grop && Grop.value as string || '');
   return result;

@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { DocumentBase, DocumentOptions } from '../../server/models/document';
 import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { dateReviver } from '../fuctions/dateReviver';
-import { DocumentOperation } from '../models/Documents/Document.Operation';
+import { DocumentOperationServer } from '../models/Documents/Document.Operation.server';
 import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
 import { IViewModel, PatchValue, RefValue } from '../models/api';
 import { createDocument } from '../models/documents.factory';
@@ -33,9 +33,11 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     const user = User(req);
     const id: string | undefined = params.id;
     const type: DocTypes = params.type;
-    const Operation: string | undefined = req.query.Operation;
+    const Operation: string | undefined = req.query.Operation || undefined;
 
-    const doc = (id && await lib.doc.byId(id)) || { ...createDocument<DocumentOperation>('Document.Operation'), Operation };
+    const doc = (id && await lib.doc.byId(id)) || Operation ?
+      { ...createDocument<DocumentOperationServer>(type), Operation } :
+      createDocument<DocumentBaseServer>(type);
     const ServerDoc = await createDocumentServer<DocumentBaseServer>(type, doc, sdb);
     if (!ServerDoc) throw new Error(`wrong type ${type}`);
     if (id) ServerDoc.id = id;
@@ -269,10 +271,10 @@ router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) =
 
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const doc = req.body.doc as IFlatDocument;
-    const value = req.body.value as RefValue;
-    const property = req.params.property as string;
-    const type = req.params.type as DocTypes;
+    const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body.doc), dateReviver);
+    const value: RefValue = JSON.parse(JSON.stringify(req.body.value), dateReviver);
+    const property: string = req.params.property;
+    const type: DocTypes = req.params.type;
     const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc);
 
     let result: PatchValue = {};

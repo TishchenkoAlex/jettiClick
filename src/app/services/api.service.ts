@@ -4,10 +4,13 @@ import { JobOptions } from 'bull';
 import { Observable } from 'rxjs/Observable';
 import { of } from 'rxjs/observable/of';
 import { map } from 'rxjs/operators';
+import { RegisterAccumulation } from '../../../server/models/Registers/Accumulation/RegisterAccumulation';
+import { RegisterInfo } from '../../../server/models/Registers/Info/RegisterInfo';
 import { RoleType, getRoleObjects } from '../../../server/models/Roles/Base';
-import { INoSqlDocument } from '../../../server/models/ServerDocument';
+import { IFlatDocument } from '../../../server/models/ServerDocument';
 import { AccountRegister } from '../../../server/models/account.register';
-import { DocListRequestBody, DocListResponse, IJob, IJobs, ISuggest, ITree, IViewModel, PatchValue } from '../../../server/models/api';
+// tslint:disable-next-line:max-line-length
+import { DocListRequestBody, DocListResponse, IJob, IJobs, ISuggest, ITree, IViewModel, PatchValue, RefValue } from '../../../server/models/api';
 import { DocumentBase } from '../../../server/models/document';
 import { DocTypes } from '../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
@@ -22,29 +25,29 @@ export class ApiService {
 
   constructor(private http: HttpClient, public lds: LoadingService) { }
 
-  getRawDoc(id: string) {
+  getRawDoc(id: string): Promise<IFlatDocument> {
     const query = `${environment.api}raw/${id}`;
-    return (this.http.get<INoSqlDocument>(query)).toPromise();
+    return (this.http.get<IFlatDocument>(query)).toPromise();
   }
 
-  formControlRef(id: string) {
+  formControlRef(id: string): Promise<RefValue> {
     const query = `${environment.api}formControlRef/${id}`;
-    return (this.http.get<INoSqlDocument>(query)).toPromise();
+    return (this.http.get<RefValue>(query)).toPromise();
   }
 
   getDocList(type: string, id: string, command: string,
-    count = 10, offset = 0, order: FormListOrder[] = [], filter: FormListFilter[] = []) {
+    count = 10, offset = 0, order: FormListOrder[] = [], filter: FormListFilter[] = []): Observable<DocListResponse> {
     const query = `${environment.api}list`;
     const body: DocListRequestBody = { id, type, command, count, offset, order, filter };
     return this.http.post<DocListResponse>(query, body);
   }
 
-  getView(type: string) {
+  getView(type: string): Observable<IViewModel> {
     const query = `${environment.api}view`;
     return this.http.post<IViewModel>(query, { type });
   }
 
-  getViewModel(type: string, id = '', params: { [key: string]: any } = {}) {
+  getViewModel(type: string, id = '', params: { [key: string]: any } = {}): Observable<IViewModel> {
     const query = `${environment.api}view`;
     return this.http.post<IViewModel>(query, { type, id, ...params }, { params });
   }
@@ -55,12 +58,12 @@ export class ApiService {
     return this.http.get<ISuggest[]>(query);
   }
 
-  getSuggestsById(id: string): Observable<any> {
+  getSuggestsById(id: string): Observable<ISuggest> {
     const query = `${environment.api}suggest/${id}`;
-    return (this.http.get(query));
+    return (this.http.get<ISuggest>(query));
   }
 
-  postDoc(doc: DocumentBase, mode: 'post' | 'save' = 'save') {
+  postDoc(doc: DocumentBase, mode: 'post' | 'save' = 'save'): Observable<DocumentBase> {
     const apiDoc = mapToApi(doc);
     const query = `${environment.api}`;
     return (this.http.post<DocumentBase>(query, apiDoc, { params: { mode } }));
@@ -86,26 +89,25 @@ export class ApiService {
     return (this.http.get<AccountRegister[]>(query));
   }
 
-  getDocRegisterAccumulationList(id: string) {
+  getDocRegisterAccumulationList(id: string): Observable<string[]> {
     const query = `${environment.api}register/accumulation/list/${id}`;
-    return (this.http.get(query) as Observable<any[]>);
+    return (this.http.get(query) as Observable<string[]>);
   }
 
-  getDocRegisterInfoList(id: string) {
+  getDocRegisterInfoList(id: string): Observable<string[]> {
     const query = `${environment.api}register/info/list/${id}`;
-    return (this.http.get(query) as Observable<any[]>);
+    return (this.http.get(query) as Observable<string[]>);
   }
 
   getDocAccumulationMovements(type: string, id: string) {
     const query = `${environment.api}register/accumulation/${type}/${id}`;
-    return (this.http.get(query) as Observable<any[]>);
+    return (this.http.get(query) as Observable<RegisterAccumulation[]>);
   }
 
   getDocInfoMovements(type: string, id: string) {
     const query = `${environment.api}register/info/${type}/${id}`;
-    return (this.http.get(query) as Observable<any[]>);
+    return (this.http.get(query) as Observable<RegisterInfo[]>);
   }
-
 
   getOperationsGroups(): Observable<IComplexObject[]> {
     const query = `${environment.api}operations/groups`;

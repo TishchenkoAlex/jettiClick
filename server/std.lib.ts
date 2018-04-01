@@ -362,3 +362,5 @@ export async function batchReturn(retDoc: string, rows: BatchRow[], tx: MSSQL = 
   }
   return result;
 }
+
+// global.lib = lib;

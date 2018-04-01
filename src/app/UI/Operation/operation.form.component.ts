@@ -24,13 +24,23 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
 
   get form() { return this.super.form; }
   set form(value) { this.super.form = value; }
+  get Operation() { return this.form.get('Operation')!; }
+
   @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
 
   copyTo: {id: string, description: string}[] = [];
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
+    this.copyTo = [];
+    const OperationID = this.Operation.value;
+    const Operation = OperationID && OperationID.id ? await this.super.ds.api.getRawDoc(OperationID.id) : { doc: { Parameters: [] } };
+    for (const o of (Operation['CopyTo'] || [])) {
+      const item = { id: o.Operation, description: (await this.super.ds.api.getRawDoc(o.Operation)).description };
+      this.copyTo.push(item);
+    }
+    this.form['metadata']['copyTo'] = this.copyTo;
     this._subscription$.unsubscribe();
-    this._subscription$ = this.form.get('Operation')!.valueChanges
+    this._subscription$ = this.Operation.valueChanges
       .subscribe(v => this.update(v).then(() => this.super.cd.detectChanges()));
   }
 
@@ -71,14 +81,9 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
     });
     (this.form['orderedControls'] as FormControlInfo[]).splice(7, 0, ...orderedControls);
     const Prop = doc.Prop() as DocumentOptions;
-    for (const o of (Operation['CopyTo'] || [])) {
-      const item = { id: o.Operation, description: (await this.super.ds.api.getRawDoc(o.Operation)).description };
-      this.copyTo.push(item);
-    }
     this.form['metadata'] = {...Prop};
-    this.form['metadata']['copyTo'] = this.copyTo;
-    this.super.cd.markForCheck();
 
+    this.super.cd.markForCheck();
     this.ngAfterViewInit();
   }
 

@@ -64,4 +64,3 @@ router.get('/register/info/:type/:id', async (req: Request, res: Response, next:
   } catch (err) { next(err); }
 });
 
-

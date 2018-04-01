@@ -1,6 +1,6 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-import { ISuggest } from '../models/api';
+import { ISuggest, RefValue } from '../models/api';
 import { sdb } from '../mssql';
 
 
@@ -11,7 +11,7 @@ router.get('/suggest/:id', async (req: Request, res: Response, next: NextFunctio
     const query = `
         SELECT id as id, description as value, code as code, type as type
         FROM "Documents" WHERE id = @p1`;
-    const data = await sdb.oneOrNone(query, req.params.id);
+    const data = await sdb.oneOrNone<ISuggest>(query, req.params.id);
     res.json(data);
   } catch (err) { next(err); }
 });

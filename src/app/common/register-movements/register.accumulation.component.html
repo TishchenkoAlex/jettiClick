@@ -1,11 +1,11 @@
 <!-- <div style="max-height: 500px; overflow: auto; "> -->
-<p-table [value]="movements" selectionMode="single" [resizableColumns]="true" [(selection)]="selection">
+<p-table [value]="movements$ | async" selectionMode="single" [resizableColumns]="true" [(selection)]="selection">
   <ng-template pTemplate="header">
     <tr>
       <th pResizableColumn style="width: 24px; text-align: center"></th>
       <th pResizableColumn pSortableColumn="date" style="width: 110px; text-align: center">date<p-sortIcon field="date"></p-sortIcon></th>
       <th pResizableColumn pSortableColumn="company" style="width: 150px; text-align: center">company<p-sortIcon field="company"></p-sortIcon></th>
-      <th pResizableColumn [pSortableColumn]="column" *ngFor="let column of additionalColumns" 
+      <th pResizableColumn [pSortableColumn]="column" *ngFor="let column of (additionalColumns$ | async)" 
         style="text-align: center; width: 200px">{{column}}
         <p-sortIcon [field]="column"></p-sortIcon>
       </th>
@@ -20,7 +20,7 @@
       </td>
       <td style="width: 110px; text-align: center">{{rowData.date | date: 'short'}}</td>
       <td style="width: 150px; text-align: center">{{rowData.company.value}}</td>
-      <td *ngFor="let column of additionalColumns" style="text-align: center; width: 200px">
+      <td *ngFor="let column of (additionalColumns$ | async)" style="text-align: center; width: 200px">
         {{ rowData[column]?.value === null ? 'EMPTY' : rowData[column]?.value || rowData[column] }}
       </td>
     </tr>

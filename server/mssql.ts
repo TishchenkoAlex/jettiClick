@@ -1,6 +1,7 @@
 import * as sql from 'mssql';
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
 import { dateReviver } from './fuctions/dateReviver';
+import { lib } from './std.lib';
 
 export class MSSQL {
   private POOL: sql.ConnectionPool | sql.Transaction;

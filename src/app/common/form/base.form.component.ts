@@ -19,7 +19,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { v1 } from 'uuid';
 
 import { calculateDescription } from '../../../../server/models/api';
-import { DocumentBase } from '../../../../server/models/document';
+import { DocumentBase, DocumentOptions } from '../../../../server/models/document';
 import { DocService } from '../../common/doc.service';
 import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
@@ -43,6 +43,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   isDoc = this.type.startsWith('Document.');
   isCopy = this.route.snapshot.queryParams.command === 'copy';
   get docDescription() { return <string>this.form['metadata'].description; }
+  get metadata() { return <DocumentOptions>this.form['metadata']; }
   get relations() { return this.form['metadata'].relations || []; }
   get v() { return <FormControlInfo[]>this.form['orderedControls']; }
   get vk() { return <{ [key: string]: FormControlInfo }>this.form['byKeyControls']; }

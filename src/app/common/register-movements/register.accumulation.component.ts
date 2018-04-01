@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { take } from 'rxjs/operators';
-
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { map, share } from 'rxjs/operators';
+import { RegisterAccumulation } from '../../../../server/models/Registers/Accumulation/RegisterAccumulation';
 import { ApiService } from '../../services/api.service';
 import { DocumentBase } from './../../../../server/models/document';
 
@@ -14,23 +15,18 @@ export class RegisterAccumulationComponent implements OnInit {
 
   @Input() register: string;
   @Input() doc: DocumentBase;
-  movements: DocumentBase[] = [];
-  displayedColumns: any[] = [];
-  additionalColumns: any[] = [];
-  selection: any;
+  movements$: Observable<RegisterAccumulation[]>;
+  additionalColumns$: Observable<string[]>;
+  selection: RegisterAccumulation | null = null;
 
-  constructor(private apiService: ApiService, private cd: ChangeDetectorRef) { }
+  constructor(private apiService: ApiService) { }
 
   ngOnInit() {
-    this.apiService.getDocAccumulationMovements(this.register, this.doc.id).pipe(take(1))
-      .subscribe(data => {
-        this.movements = data;
-        this.additionalColumns =
-          Object.keys(data[0]).filter(el => ['date', 'kind', 'company', 'document'].findIndex(e => e === el) === -1);
-        this.displayedColumns = [...this.displayedColumns, ...this.additionalColumns];
-        this.cd.detectChanges();
-      }
-    );
+
+    this.movements$ = this.apiService.getDocAccumulationMovements(this.register, this.doc.id).pipe(share());
+    this.additionalColumns$ = this.movements$.pipe(
+      map(data =>  Object.keys(data[0]).filter(el => ['date', 'kind', 'company', 'document'].findIndex(e => e === el) === -1)), share());
+
   }
 
 }

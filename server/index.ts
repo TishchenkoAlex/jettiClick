@@ -63,6 +63,7 @@ IO.use(authIO);
 const port = (process.env.PORT) || '3000';
 HTTP.listen(port, () => console.log(`API running on port:${port}`));
 JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
+
 // console.log(configSchema.get('Catalog.Account').QueryObject);
 // console.log(SQLGenegator.AlterTriggerRegisterAccumulation());
 // console.log(SQLGenegator.CreateTableRegisterAccumulation());

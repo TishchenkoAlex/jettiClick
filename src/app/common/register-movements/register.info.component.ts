@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { take } from 'rxjs/operators';
-
+import { Observable } from 'rxjs/Observable';
+import { map, share } from 'rxjs/operators';
+import { RegisterInfo } from '../../../../server/models/Registers/Info/RegisterInfo';
 import { ApiService } from '../../services/api.service';
 import { DocumentBase } from './../../../../server/models/document';
 
@@ -13,22 +14,17 @@ export class RegisterInfoComponent implements OnInit {
 
   @Input() register: string;
   @Input() doc: DocumentBase;
-  movements: DocumentBase[] = [];
-  displayedColumns: any[] = [];
-  additionalColumns: any[] = [];
-  selection: any;
+  movements$: Observable<RegisterInfo[]>;
+  additionalColumns$: Observable<string[]>;
+  selection: RegisterInfo;
 
   constructor(private apiService: ApiService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.apiService.getDocInfoMovements(this.register, this.doc.id).pipe(take(1))
-      .subscribe(data => {
-        this.movements = data;
-        this.additionalColumns =
-          Object.keys(data[0]).filter(el => ['date', 'kind', 'company', 'document'].findIndex(e => e === el) === -1);
-        this.displayedColumns = [...this.displayedColumns, ...this.additionalColumns];
-        this.cd.detectChanges();
-      }
-    );
+
+    this.movements$ = this.apiService.getDocInfoMovements(this.register, this.doc.id).pipe(share());
+    this.additionalColumns$ = this.movements$.pipe(
+      map(data => Object.keys(data[0]).filter(el => ['date', 'kind', 'company', 'document'].findIndex(e => e === el) === -1)), share());
+
   }
 }
