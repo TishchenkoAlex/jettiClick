@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/bin/node /Users/at/.yarn/bin/yarn.js
+  /usr/local/bin/node /Users/at/.yarn/bin/yarn.js add @covalent/code-editor
 
 PATH: 
   /Users/at/.yarn/bin:/Users/at/.config/yarn/global/node_modules/.bin:/Users/at/google-cloud-sdk/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Users/at/.yarn/bin:/Users/at/.config/yarn/global/node_modules/.bin:/Users/at/google-cloud-sdk/bin
@@ -58,7 +58,7 @@ npm manifest:
       "mssql": "^4.1.0",
       "nanoscroller": "^0.8.7",
       "ng-drag-drop": "^4.0.0",
-      "ngx-monaco-editor": "^4.0.1",
+      "ngx-monaco-editor": "4.0.1",
       "primeng": "^5.2.4",
       "reflect-metadata": "^0.1.12",
       "rxjs": "5.5.8",
@@ -67,7 +67,7 @@ npm manifest:
       "tarn": "^1.1.4",
       "tedious": "^2.3.1",
       "uuid": "^3.2.1",
-      "zone.js": "^0.8.21"
+      "zone.js": "^0.8.22"
     },
     "engines": {
       "node": ">=9.4.0"
@@ -3964,9 +3964,9 @@ Lockfile:
     version "4.0.0"
     resolved "https://registry.yarnpkg.com/ng-drag-drop/-/ng-drag-drop-4.0.0.tgz#ce2e1b8f556a981256f0f1907724f098b769c1f0"
   
-  ngx-monaco-editor@^4.1.0:
-    version "4.1.0"
-    resolved "https://registry.yarnpkg.com/ngx-monaco-editor/-/ngx-monaco-editor-4.1.0.tgz#533d67120375397a5f8b20dc764679a8273b3ff8"
+  ngx-monaco-editor@4.0.1:
+    version "4.0.1"
+    resolved "https://registry.yarnpkg.com/ngx-monaco-editor/-/ngx-monaco-editor-4.0.1.tgz#6c6be3f2719305449f5e11bbb9133ffe958e7b72"
   
   no-case@^2.2.0:
     version "2.3.2"
@@ -6308,9 +6308,9 @@ Lockfile:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/yn/-/yn-2.0.0.tgz#e5adabc8acf408f6385fc76495684c88e6af689a"
   
-  zone.js@^0.8.21:
-    version "0.8.21"
-    resolved "https://registry.yarnpkg.com/zone.js/-/zone.js-0.8.21.tgz#8c0e8e361bd326ee1474e4f96e17d5ef99bec4b2"
+  zone.js@^0.8.22:
+    version "0.8.22"
+    resolved "https://registry.yarnpkg.com/zone.js/-/zone.js-0.8.22.tgz#e200ceb210283ad7f4dc744d1b75f9558832f387"
 
 Trace: 
   Error: EACCES: permission denied, unlink '/Users/at/Projects/jetti-fs-mat/node_modules/.yarn-integrity'

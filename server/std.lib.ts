@@ -364,3 +364,5 @@ export async function batchReturn(retDoc: string, rows: BatchRow[], tx: MSSQL = 
 }
 
 global['lib'] = lib;
+global['DOC'] = lib.doc;
+global['byCode'] = lib.doc.byCode;

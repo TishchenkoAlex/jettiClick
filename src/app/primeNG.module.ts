@@ -29,6 +29,7 @@ import { TreeTableModule } from 'primeng/components/treetable/treetable';
 import { TriStateCheckboxModule } from 'primeng/components/tristatecheckbox/tristatecheckbox';
 
 import { TableModule } from './common/datatable/table';
+import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
 @NgModule({
   exports: [
@@ -82,7 +83,8 @@ import { TableModule } from './common/datatable/table';
     TableModule,
     TabViewModule,
 
-    NgDragDropModule
+    NgDragDropModule,
+    CovalentCodeEditorModule
   ],
     providers: [ConfirmationService, MessageService]
 })

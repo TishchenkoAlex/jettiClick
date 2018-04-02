@@ -10,7 +10,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgDragDropModule } from 'ng-drag-drop';
-import { MonacoEditorModule } from 'ngx-monaco-editor';
 import { take } from 'rxjs/operators';
 
 import { environment } from '../environments/environment';
@@ -51,7 +50,6 @@ export function getJwtToken(): string {
     PrimeNGModule,
     DynamicFormsModule,
     NgDragDropModule.forRoot(),
-    MonacoEditorModule.forRoot(),
     RoutingModule,
     // StoreModule.forRoot(reducers),
     // EffectsModule.forRoot([AuthEffects]),

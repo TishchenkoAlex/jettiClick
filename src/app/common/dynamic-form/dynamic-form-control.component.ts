@@ -12,14 +12,14 @@ import { FormControlInfo } from './dynamic-form-base';
 export class DynamicFormControlComponent implements OnInit, OnDestroy {
   @Input() control: FormControlInfo;
   @Input() form: FormGroup;
-  formControl: AbstractControl;
+  formControl: FormControl;
 
   valueChanges$: Subscription = Subscription.EMPTY;
 
   constructor(public api: ApiService) { }
 
   ngOnInit() {
-    this.formControl = this.form.get(this.control.key)!;
+    this.formControl = this.form.get(this.control.key)! as FormControl;
     if (this.formControl && (this.control.onChange || this.control.onChangeServer))
       this.valueChanges$ = this.formControl.valueChanges.subscribe(async value => {
 
@@ -44,7 +44,9 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
 
   parseDate(dateString: string) {
     const date = dateString ? new Date(dateString) : null;
-    this.formControl.setValue(date);
+    if (date) this.formControl.setValue(date, {onlySelf: true});
+    if (!date && this.control.required) this.formControl.setErrors({ 'invalid date': true }, {emitEvent: false});
+    if (!date && !this.control.required) this.formControl.setValue(date, {onlySelf: true});
   }
 
   marginTop() {

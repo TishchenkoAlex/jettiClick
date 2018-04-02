@@ -185,6 +185,13 @@
   dependencies:
     tslib "^1.7.1"
 
+"@covalent/code-editor@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@covalent/code-editor/-/code-editor-1.0.0.tgz#dd88560223796292fac903d3df8560c28d7ef34b"
+  dependencies:
+    monaco-editor "^0.10.1"
+    tslib "^1.7.1"
+
 "@ngrx/effects@^5.2.0":
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/@ngrx/effects/-/effects-5.2.0.tgz#aa762b69cb6fd4644d724a1cecd265caa42baf09"
@@ -3768,6 +3775,10 @@ moment@^2.22.0:
   version "2.22.0"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.0.tgz#7921ade01017dd45186e7fee5f424f0b8663a730"
 
+monaco-editor@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.10.1.tgz#8c96c4f15b6b5258bf92cbde93cad8a7e3007e14"
+
 move-concurrently@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/move-concurrently/-/move-concurrently-1.0.1.tgz#be2c005fda32e0b29af1f05d7c4b33214c701f92"
@@ -3859,10 +3870,6 @@ next-tick@1:
 ng-drag-drop@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/ng-drag-drop/-/ng-drag-drop-4.0.0.tgz#ce2e1b8f556a981256f0f1907724f098b769c1f0"
-
-ngx-monaco-editor@4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/ngx-monaco-editor/-/ngx-monaco-editor-4.0.1.tgz#6c6be3f2719305449f5e11bbb9133ffe958e7b72"
 
 no-case@^2.2.0:
   version "2.3.2"

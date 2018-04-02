@@ -13,7 +13,7 @@
         "manifest.json",
         {
           "glob": "**/*",
-          "input": "../node_modules/ngx-monaco-editor/assets/monaco",
+          "input": "../node_modules/@covalent/code-editor/assets/monaco",
           "output": "./assets/monaco/"
         }
       ],
@@ -33,8 +33,7 @@
         "styles.scss",
         "theme.scss"
       ],
-      "scripts": [
-      ],
+      "scripts": [],
       "environmentSource": "environments/environment.ts",
       "environments": {
         "dev": "environments/environment.ts",

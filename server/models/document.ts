@@ -120,6 +120,7 @@ export class DocumentBase {
 
     this.targetProp(proto, 'description').hidden = proto.isDoc;
     this.targetProp(proto, 'date').hidden = proto.isCatalog;
+    this.targetProp(proto, 'date').required = proto.isDoc;
     this.targetProp(proto, 'company').hidden = proto.isCatalog && !(proto.targetProp(proto, 'company').hiddenInForm === false);
 
     const result: { [x: string]: PropOptions } = {};

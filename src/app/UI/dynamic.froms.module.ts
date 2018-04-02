@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 import { BaseTreeListComponent } from '../common/datatable/base.tree-list.component';
 import { BaseTreeListToolbarComponent } from '../common/datatable/base.tree-list.toolbar.component';
@@ -63,7 +62,6 @@ import { TabsStore } from '../common/tabcontroller/tabs.store';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
-    MonacoEditorModule,
     PipesModule,
     PrimeNGModule,
   ],
