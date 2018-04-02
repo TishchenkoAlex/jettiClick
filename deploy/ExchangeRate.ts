@@ -24,11 +24,11 @@ const LOAN = async () => {
       SUM(CAST(JSON_VALUE(data, N'$.AmountInBalance') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "AmountInBalance"
     FROM "Accumulation" r
     JOIN "Documents" "Loan" ON "Loan".id = JSON_VALUE(data, N'$.Loan')
-    JOIN "Documents" "currency" ON currency.id = JSON_VALUE("Loan".doc, N'$.currency') AND currency.code <> N'UAH'
+    JOIN "Documents" "currency" ON currency.id = JSON_VALUE("Loan".doc, N'$.currency') AND currency.id <> @p2
     WHERE r.type = N'Register.Accumulation.Loan' AND r.date <= @p1
     GROUP BY JSON_VALUE(r.data, N'$.Loan'), JSON_VALUE(r.data, N'$.Counterpartie'), currency.id `;
 
-    const queryResult = tx.manyOrNone(queryText, [endOfMonth]);
+    const queryResult = tx.manyOrNone(queryText, [endOfMonth, balanceCurrency]);
     for (const row of queryResult) {
         const kurs = lib.info.sliceLast('ExchangeRates', endOfMonth, doc.company, 'Rate', { currency: row.currency }, tx) || 1;
         const Amount = row.Amount / kurs;
@@ -78,7 +78,7 @@ const LOAN = async () => {
             data: {
                 Department: Department,
                 Balance: lib.doc.byCode('Catalog.Balance', 'LOAN', tx),
-                Analytics: row.Counterpartie,
+                Analytics: row.Employee,
                 Amount: difference < 0 ? -difference : difference
             }
         });
