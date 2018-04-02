@@ -85,7 +85,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
         default:
           break;
       }
-      model = (await buildViewModel(ServerDoc))!;
+      model = (await buildViewModel(ServerDoc, sdb))!;
     }
     const columnsDef = buildColumnDef(ServerDoc.Props(), settings);
     const result: IViewModel = { schema: ServerDoc.Props(), model, columnsDef, metadata: ServerDoc.Prop() as DocumentOptions, settings };
@@ -94,10 +94,9 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
 };
 router.post('/view', viewAction);
 
-async function buildViewModel(ServerDoc: DocumentBaseServer) {
-  const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props());
-  const NoSqlDocument = JSON.stringify(lib.doc.noSqlDocument(ServerDoc));
-  return await sdb.oneOrNoneJSON<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
+async function buildViewModel(ServerDoc: DocumentBaseServer, tx = sdb) {
+  const viewModelQuery = SQLGenegator.QueryObject(ServerDoc.Props(), ServerDoc.type);
+  return await tx.oneOrNone<{ [key: string]: any }>(`${viewModelQuery} AND d.id = '${ServerDoc.id}'`);
 }
 
 // Delete or UnDelete document
@@ -126,7 +125,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
       await doSubscriptions(serverDoc, 'after detele', tx);
       if (serverDoc && serverDoc.onPost) await serverDoc.onPost(tx);
 
-      const view = await buildViewModel(serverDoc);
+      const view = await buildViewModel(serverDoc, tx);
       res.json(view);
     });
   } catch (err) { next(err); }
@@ -230,7 +229,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       if (mode === 'post') doc.posted = true;
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await post(serverDoc, mode, tx);
-      const view = await buildViewModel(serverDoc);
+      const view = await buildViewModel(serverDoc, tx);
       res.json(view);
     });
   } catch (err) { next(err); }

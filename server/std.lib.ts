@@ -9,6 +9,7 @@ import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/Serv
 import { MSSQL, sdb } from './mssql';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
 import { createDocument } from './models/documents.factory';
+import * as moment from 'moment';
 
 export interface BatchRow {
   SKU: Ref; Storehouse: Ref; Qty: number; batch: Ref; Cost: number;
@@ -365,3 +366,4 @@ export async function batchReturn(retDoc: string, rows: BatchRow[], tx: MSSQL = 
 global['lib'] = lib;
 global['DOC'] = lib.doc;
 global['byCode'] = lib.doc.byCode;
+global['moment'] = moment;
