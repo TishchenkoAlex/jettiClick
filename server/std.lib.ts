@@ -249,7 +249,7 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
       DELETE FROM "Register.Account" WHERE document = '${id}';
       DELETE FROM "Register.Info" WHERE document = '${id}';
       DELETE FROM "Accumulation" WHERE document = '${id}';
-      UPDATE "Documents" SET posted = @p1 deleted = 0 WHERE id = '${id}'`, [serverDoc.posted]);
+      UPDATE "Documents" SET posted = @p1, deleted = 0 WHERE id = '${id}'`, [serverDoc.posted]);
     doc!['deletedRegisterAccumulation'] = () => deleted;
 
     if (posted && serverDoc.onPost && !doc!.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx);
