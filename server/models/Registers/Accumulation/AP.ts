@@ -26,7 +26,7 @@ export class RegisterAccumulationAP extends RegisterAccumulation {
   Amount = 0;
 
   @Props({ type: 'number' })
-  AmountInBalance = null;
+  AmountInBalance = 0;
 
   constructor(kind: boolean, public data: {
     currency: Ref,
