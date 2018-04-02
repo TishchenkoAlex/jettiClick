@@ -38,11 +38,14 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   let Operation: CatalogOperation | null = null;
   let Grop: RefValue | null = null;
   if (result instanceof DocumentOperation && document && document.id) {
+    result.f1 = null; result.f2 = null; result.f3 = null;
     if (result.Operation) {
       Operation = await lib.doc.byIdT<CatalogOperation>(result.Operation as string);
       Grop = await lib.doc.formControlRef(Operation!.Group as string);
       result.Group = Operation!.Group;
+      let i = 1;
       (Operation && Operation.Parameters || []).sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(c => {
+        if (c.type!.startsWith('Catalog.')) result[`f${i++}`] = result[c.parameter];
         Props[c.parameter] = ({
           label: c.label, type: c.type, required: !!c.required, change: c.change, order: (c.order || 0) + 103,
           [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')

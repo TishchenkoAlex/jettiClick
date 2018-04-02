@@ -228,7 +228,6 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body), dateReviver);
       if (doc.deleted && mode === 'post') throw new Error('cant POST deleted document');
       if (mode === 'post') doc.posted = true;
-      await addAdditionalToOperation(doc, tx);
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc);
       await post(serverDoc, mode, tx);
       const view = await buildViewModel(serverDoc);
@@ -236,17 +235,6 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     });
   } catch (err) { next(err); }
 });
-
-async function addAdditionalToOperation(doc: IFlatDocument, tx) {
-  if (doc.type === 'Document.Operation') {
-    const Operation = await lib.doc.byId(doc['Operation'], tx);
-    const Parameters = (Operation && Operation['Parameters'] || []);
-    let i = 1; (Operation && Operation['Parameters'] || [])
-      .sort((a, b) => a.order - b.order)
-      .filter(p => p.type.startsWith('Catalog.'))
-      .forEach(p => doc[`f${i++}`] = doc[p.parameter]);
-  }
-}
 
 // unPost by id (without returns posted object to client, for post in cicle many docs)
 router.get('/unpost/:id', async (req: Request, res: Response, next: NextFunction) => {

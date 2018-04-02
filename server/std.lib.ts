@@ -239,9 +239,9 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
 
 export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Promise<void> {
   return tx.tx<any>(async subtx => {
-    const doc = await lib.doc.byId(id, subtx);
-    if (doc!.deleted) return; // throw new Error('cant POST deleted document');
-    const serverDoc = await createDocumentServer<DocumentBaseServer>(doc!.type as DocTypes, doc!);
+    const doc = (await lib.doc.byId(id, subtx))!;
+    if (doc.deleted) return; // throw new Error('cant POST deleted document');
+    const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc!);
     serverDoc.posted = posted;
 
     const deleted = await subtx.manyOrNone(`
@@ -250,9 +250,8 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
       DELETE FROM "Register.Info" WHERE document = '${id}';
       DELETE FROM "Accumulation" WHERE document = '${id}';
       UPDATE "Documents" SET posted = @p1, deleted = 0 WHERE id = '${id}'`, [serverDoc.posted]);
-    doc!['deletedRegisterAccumulation'] = () => deleted;
-
-    if (posted && serverDoc.onPost && !doc!.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx);
+    doc['deletedRegisterAccumulation'] = () => deleted;
+    if (posted && serverDoc.onPost && !doc.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(subtx), subtx);
   });
 }
 
