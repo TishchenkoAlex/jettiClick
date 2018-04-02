@@ -42,20 +42,24 @@ export class DocumentOperationServer extends DocumentOperation implements Server
   async onPost(tx: MSSQL) {
     const Registers: PostResult = { Account: [], Accumulation: [], Info: [] };
 
-    const query = `SELECT JSON_VALUE(doc, '$.script') script FROM "Documents" WHERE id = '${this.Operation}'`;
-    const Operation = await tx.oneOrNone<{ script: string }>(query);
-    const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
-    const script = `
+    if (this.posted && !this.deleted) {
+      const query = `
+      SELECT (SELECT "script" FROM OPENJSON(doc) WITH ("script" NVARCHAR(MAX) '$."script"')) "script"
+      FROM "Documents" WHERE id = '${this.Operation}'`;
+      const Operation = await tx.oneOrNone<{ script: string }>(query);
+      const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
+      const script = `
       let AmountInBalance = doc.Amount / exchangeRate;
       ${ Operation!.script
-        .replace(/\$\./g, 'doc.')
-        .replace(/tx\./g, 'await tx.')
-        .replace(/lib\./g, 'await lib.')
-        .replace(/\'doc\./g, '\'$.')}
-    `;
-    const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-    const func = new AsyncFunction('doc, Registers, tx, lib, exchangeRate', script);
-    await func(this, Registers, tx, lib, exchangeRate);
+          .replace(/\$\./g, 'doc.')
+          .replace(/tx\./g, 'await tx.')
+          .replace(/lib\./g, 'await lib.')
+          .replace(/\'doc\./g, '\'$.')}
+      `;
+      const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+      const func = new AsyncFunction('doc, Registers, tx, lib, exchangeRate', script);
+      await func(this, Registers, tx, lib, exchangeRate);
+    }
 
     const oldInventory = ((this['deletedRegisterAccumulation'] && <any[]>this['deletedRegisterAccumulation']()) || [])
       .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true);

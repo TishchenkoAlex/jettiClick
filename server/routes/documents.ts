@@ -95,8 +95,9 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
 router.post('/view', viewAction);
 
 async function buildViewModel(ServerDoc: DocumentBaseServer, tx = sdb) {
-  const viewModelQuery = SQLGenegator.QueryObject(ServerDoc.Props(), ServerDoc.type);
-  return await tx.oneOrNone<{ [key: string]: any }>(`${viewModelQuery} AND d.id = '${ServerDoc.id}'`);
+  const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props());
+  const NoSqlDocument = JSON.stringify(lib.doc.noSqlDocument(ServerDoc));
+  return await tx.oneOrNone<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
 }
 
 // Delete or UnDelete document
@@ -147,7 +148,10 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
   }
   if (!serverDoc.code) serverDoc.code = await lib.doc.docPrefix(serverDoc.type, tx);
   serverDoc.timestamp = new Date();
-  if (!!serverDoc.posted && serverDoc.onPost && !serverDoc.deleted) await InsertRegisterstoDB(serverDoc, await serverDoc.onPost(tx), tx);
+  if (serverDoc.isDoc && serverDoc.onPost) {
+    const Registers = await serverDoc.onPost(tx);
+    if (serverDoc.posted && !serverDoc.deleted) await InsertRegisterstoDB(serverDoc, Registers, tx);
+  }
   const noSqlDocument = lib.doc.noSqlDocument(serverDoc);
   const jsonDoc = JSON.stringify(noSqlDocument);
   let response: INoSqlDocument;
