@@ -232,7 +232,7 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
       AND date <= @p1
       AND type = 'Register.Info.${type}'
       AND company = '${company}'
-      ${where}'
+      ${where}
     ORDER BY date DESC`;
   const result = await tx.oneOrNone<{ result: any }>(queryText, [date]);
   return result ? result.result : null;
