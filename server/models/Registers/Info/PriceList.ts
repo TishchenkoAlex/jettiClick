@@ -6,19 +6,20 @@ import { JRegisterInfo, RegisterInfo } from './RegisterInfo';
   description: 'Price list',
 })
 export class RegisterInfoPriceList extends RegisterInfo {
-  @Props({ type: 'Catalog.Currency' })
+
+  @Props({ type: 'Catalog.Currency', required: true })
   currency: Ref = null;
 
-  @Props({ type: 'Catalog.Product' })
+  @Props({ type: 'Catalog.Product', required: true })
   Product: Ref = null;
 
-  @Props({ type: 'Catalog.PriceType' })
+  @Props({ type: 'Catalog.PriceType', required: true })
   PriceType: Ref = null;
 
-  @Props({ type: 'Catalog.Unit' })
+  @Props({ type: 'Catalog.Unit', required: true })
   Unit: Ref = null;
 
-  @Props({ type: 'number' })
+  @Props({ type: 'number', required: true })
   Price = 0;
 
   constructor(public data: {

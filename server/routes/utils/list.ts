@@ -70,7 +70,7 @@ export async function List(req: Request, res: Response) {
     filter.forEach(f => {
       const field = f.left.split('.')[0];
       if (field !== 'parent' && field !== 'user' && field !== 'company' && f.right && f.right.id) {
-        where += `\nAND CONTAINS(d.doc, 'NEAR((${field}, ${f.right.id}),1)') `;
+        where += `\nAND CAST(JSON_VALUE(d.doc, N'$."${field}"') AS UNIQUEIDENTIFIER) = '${f.right.id}' `;
         return;
       }
     });

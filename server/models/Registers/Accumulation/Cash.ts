@@ -7,10 +7,13 @@ import { JRegisterAccumulation, RegisterAccumulation } from './RegisterAccumulat
 })
 export class RegisterAccumulationCash extends RegisterAccumulation {
 
-  @Props({ type: 'Catalog.CashRegister' })
+  @Props({ type: 'Catalog.Currency', required: true })
+  currency: Ref = null;
+
+  @Props({ type: 'Catalog.CashRegister', required: true })
   CashRegister: Ref = null;
 
-  @Props({ type: 'Catalog.CashFlow' })
+  @Props({ type: 'Catalog.CashFlow', required: true })
   CashFlow: Ref = null;
 
   @Props({ type: 'number' })

@@ -12,7 +12,8 @@ import { BaseDocFormComponent } from '../../common/form/base.form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
   <j-form>
-    <div fxLayout="row">
+    <div fxLayout="row" *ngIf="copyTo.length">
+      <br>
       <button *ngFor="let m of copyTo"
         pButton type="button" id=[m.id] icon="fa-share" [label]="m.description" class="ui-button-secondary" (click)="baseOn(m)">
       </button>

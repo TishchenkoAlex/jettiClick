@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import { catchError, filter, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { catchError, filter, map, shareReplay, switchMap, tap, share } from 'rxjs/operators';
 import { Continuation, DocListResponse } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListSettings } from '../../../../server/models/user.settings';
@@ -59,7 +59,7 @@ export class ApiDataSource {
               return of(this.EMPTY);
             }));
       }),
-      map(data => data.data), shareReplay());
+      map(data => data.data), share());
   }
 
   refresh(id: string) { this.id = id; this.paginator.next({ command: 'refresh' }); }

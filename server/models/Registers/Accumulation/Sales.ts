@@ -8,7 +8,7 @@ import { RegisterAccumulationTypes } from './factory';
 })
 export class RegisterAccumulationSales extends RegisterAccumulation {
 
-  @Props({ type: 'Catalog.Currency' })
+  @Props({ type: 'Catalog.Currency', required: true })
   currency: Ref = null;
 
   @Props({ type: 'Catalog.Department' })

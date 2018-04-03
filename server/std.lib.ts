@@ -223,16 +223,16 @@ async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sd
 async function sliceLast(type: string, date = new Date(), company: Ref,
   resource: string, analytics: { [key: string]: any }, tx = sdb): Promise<number | null> {
 
-  const addWhere = (key) => `NEAR((${key}, ${analytics[key]}),1) AND `;
-  let where = ''; for (const el of Object.keys(analytics)) { where += addWhere(el); } where = where.slice(0, -4);
+  const addWhere = (key) => `AND CAST(JSON_VALUE(data, N'$."${key}"') AS UNIQUEIDENTIFIER) = '${analytics[key]}' \n`;
+  let where = ''; for (const el of Object.keys(analytics)) { where += addWhere(el); }
 
   const queryText = `
-    SELECT TOP 1 JSON_VALUE(data, '$.${resource}') result FROM "Register.Info"
+    SELECT TOP 1 JSON_VALUE(data, N'$."${resource}"') result FROM "Register.Info"
     WHERE (1=1)
       AND date <= @p1
       AND type = 'Register.Info.${type}'
       AND company = '${company}'
-      AND CONTAINS(data, '${where}')
+      ${where}'
     ORDER BY date DESC`;
   const result = await tx.oneOrNone<{ result: any }>(queryText, [date]);
   return result ? result.result : null;

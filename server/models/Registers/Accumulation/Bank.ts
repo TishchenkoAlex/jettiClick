@@ -7,10 +7,13 @@ import { Ref, Props } from '../../document';
 })
 export class RegisterAccumulationBank extends RegisterAccumulation {
 
-  @Props({ type: 'Catalog.BankAccount' })
+  @Props({ type: 'Catalog.Currency', required: true })
+  currency: Ref = null;
+
+  @Props({ type: 'Catalog.BankAccount', required: true })
   BankAccount: Ref = null;
 
-  @Props({ type: 'Catalog.CashFlow' })
+  @Props({ type: 'Catalog.CashFlow', required: true })
   CashFlow: Ref = null;
 
   @Props({ type: 'number' })

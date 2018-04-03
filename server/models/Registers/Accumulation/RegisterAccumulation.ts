@@ -17,19 +17,19 @@ export function JRegisterAccumulation(props: RegisterAccumulationOptions) {
 }
 export class RegisterAccumulation {
   query: string;
-  @Props({ type: 'boolean' })
+  @Props({ type: 'boolean', required: true })
   kind: boolean;
 
-  @Props({ type: 'string', hidden: true, hiddenInList: true })
+  @Props({ type: 'string', hidden: true, hiddenInList: true , required: true})
   type: RegisterAccumulationTypes | null = null;
 
-  @Props({ type: 'datetime' })
+  @Props({ type: 'datetime', required: true })
   date = new Date();
 
-  @Props({ type: 'Types.Document', hidden: true, hiddenInList: true })
+  @Props({ type: 'Types.Document', hidden: true, hiddenInList: true, required: true })
   document: Ref = null;
 
-  @Props({ type: 'Catalog.Company' })
+  @Props({ type: 'Catalog.Company', required: true })
   company: Ref = null;
 
   constructor (kind: boolean, public data: { [x: string]: any } = {}) {

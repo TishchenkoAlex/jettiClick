@@ -17,16 +17,16 @@ export function JRegisterInfo(props: RegisterInfoOptions) {
 }
 export class RegisterInfo {
 
-  @Props({ type: 'string', hidden: true, hiddenInList: true })
+  @Props({ type: 'string', hidden: true, hiddenInList: true, required: true })
   type: RegisterInfoTypes | null = null;
 
-  @Props({ type: 'datetime' })
+  @Props({ type: 'datetime', required: true })
   date = new Date();
 
-  @Props({ type: 'Catalog.Company' })
+  @Props({ type: 'Catalog.Company', required: true })
   company: Ref = null;
 
-  @Props({ type: 'Types.Document', hiddenInList: true })
+  @Props({ type: 'Types.Document', hiddenInList: true, required: true })
   document: Ref = null;
 
   constructor(public data: { [x: string]: any }) {

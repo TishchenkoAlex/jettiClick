@@ -6,10 +6,11 @@ import { JRegisterInfo, RegisterInfo } from './RegisterInfo';
   description: 'Exchange rates',
 })
 export class RegisterInfoExchangeRates extends RegisterInfo {
-  @Props({ type: 'Catalog.Currency' })
+
+  @Props({ type: 'Catalog.Currency', required: true })
   currency: Ref = null;
 
-  @Props({ type: 'number' })
+  @Props({ type: 'number', required: true })
   Rate = 1;
 
   constructor(public data: {
