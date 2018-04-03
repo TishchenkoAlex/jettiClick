@@ -1,18 +1,19 @@
 import { MSSQL } from '../../mssql';
+import { buildViewModel } from '../../routes/utils/execute-script';
 import { lib } from '../../std.lib';
 import { CatalogCompany } from '../Catalogs/Catalog.Company';
 import { CatalogOperation } from '../Catalogs/Catalog.Operation';
-import { ServerDocument } from '../ServerDocument';
+import { DocumentBaseServer, ServerDocument } from '../ServerDocument';
 import { JQueue } from '../Tasks/tasks';
 import { createDocumentServer } from '../documents.factory.server';
 import { PostResult } from './../post.interfaces';
 import { DocumentOperation } from './Document.Operation';
-import { calculateDescription } from '../api';
-import { DocumentOptions } from '../document';
+import { PatchValue } from '../api';
+import { DocumentInvoice } from './Document.Invoice';
 
 export class DocumentOperationServer extends DocumentOperation implements ServerDocument {
 
-  async onValueChanged(prop: string, value: any, tx: MSSQL) {
+  async onValueChanged(prop: string, value: any, tx: MSSQL): Promise<PatchValue | {} | { [key: string]: any }> {
     if (!value) { return {}; }
     switch (prop) {
       case 'company':
@@ -25,6 +26,9 @@ export class DocumentOperationServer extends DocumentOperation implements Server
         if (!Operation) { return {}; }
         const Group = await lib.doc.formControlRef(Operation.Group!, tx);
         return { Group };
+      case 'Invoice':
+        const Invoice = await lib.doc.byIdT<DocumentInvoice>(value.id, tx);
+        return { AR: Invoice!.Amount };
       default:
         return {};
     }

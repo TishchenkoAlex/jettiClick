@@ -1,5 +1,7 @@
+import { SQLGenegator } from '../../fuctions/SQLGenerator.MSSQL';
 import { PostResult } from '../../models/post.interfaces';
 import { MSSQL, sdb } from '../../mssql';
+import { lib } from '../../std.lib';
 import { DocumentBaseServer } from './../../models/ServerDocument';
 
 export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: PostResult, tx = sdb) {
@@ -56,4 +58,10 @@ export async function doSubscriptions(doc: DocumentBaseServer, script: string, t
         }
       }
     } */
+}
+
+export async function buildViewModel(ServerDoc: DocumentBaseServer, tx = sdb) {
+  const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props());
+  const NoSqlDocument = JSON.stringify(lib.doc.noSqlDocument(ServerDoc));
+  return await tx.oneOrNone<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
 }

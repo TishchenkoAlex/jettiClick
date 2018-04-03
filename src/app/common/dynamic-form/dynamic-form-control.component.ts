@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl, AbstractControl } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 import { ApiService } from '../../services/api.service';
@@ -16,7 +16,7 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
 
   valueChanges$: Subscription = Subscription.EMPTY;
 
-  constructor(public api: ApiService) { }
+  constructor(public api: ApiService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.formControl = this.form.get(this.control.key)! as FormControl;
@@ -36,8 +36,11 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
         }
 
         if (this.control.onChangeServer) {
-          this.api.valueChanges(this.form.getRawValue(), this.control.key, value)
-            .then(patch => this.form.patchValue(patch || {}));
+          this.api.valueChanges(this.form!.root.value, this.control.key, value)
+            .then(patch => {
+              this.form.patchValue(patch || {});
+              this.cd.markForCheck();
+            });
         }
       });
   }

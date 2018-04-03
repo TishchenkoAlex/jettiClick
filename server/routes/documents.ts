@@ -1,7 +1,6 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 import { DocumentBase, DocumentOptions } from '../../server/models/document';
-import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { dateReviver } from '../fuctions/dateReviver';
 import { DocumentOperation } from '../models/Documents/Document.Operation';
 import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
@@ -15,7 +14,7 @@ import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib } from './../std.lib';
 import { User } from './user.settings';
-import { InsertRegisterstoDB, doSubscriptions } from './utils/execute-script';
+import { InsertRegisterstoDB, buildViewModel, doSubscriptions } from './utils/execute-script';
 import { List } from './utils/list';
 
 export const router = express.Router();
@@ -94,11 +93,6 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
 };
 router.post('/view', viewAction);
 
-async function buildViewModel(ServerDoc: DocumentBaseServer, tx = sdb) {
-  const viewModelQuery = SQLGenegator.QueryObjectFromJSON(ServerDoc.Props());
-  const NoSqlDocument = JSON.stringify(lib.doc.noSqlDocument(ServerDoc));
-  return await tx.oneOrNone<{ [key: string]: any }>(viewModelQuery, [NoSqlDocument]);
-}
 
 // Delete or UnDelete document
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
