@@ -266,7 +266,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
     this._routeSubscruption$.unsubscribe();
     this._debonceSubscription$.unsubscribe();
     this.debonce$.complete();
-    if (!this.route.snapshot.queryParams.goto) { this.saveUserSettings(); }
+    // if (!this.route.snapshot.queryParams.goto) { this.saveUserSettings(); }
   }
 
 }

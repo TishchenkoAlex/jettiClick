@@ -18,6 +18,9 @@ import { SQLGenegator } from '../../fuctions/SQLGenerator.MSSQL';
   menu: 'Operations',
   prefix: 'OPER-',
   commands: [],
+  relations: [
+    { name: 'Descendants', type: 'Document.Operation', field: 'parent' }
+  ]
 })
 export class DocumentOperation extends DocumentBase {
   @Props({ type: 'Types.Document', hiddenInList: true, order: -1 })
