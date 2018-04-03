@@ -18,7 +18,7 @@ export interface PropOptions {
   order?: number;
   controlType?: PrimitiveTypes;
   style?: { [x: string]: any };
-  owner?: OwnerRef;
+  owner?: OwnerRef[];
   totals?: number;
   change?: boolean;
   onChange?: Function;

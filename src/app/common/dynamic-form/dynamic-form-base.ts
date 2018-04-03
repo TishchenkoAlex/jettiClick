@@ -1,3 +1,5 @@
+import { OwnerRef } from '../../../../server/models/document';
+
 export type ControlTypes = 'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'table';
 
 export interface IFormControlInfo {
@@ -11,7 +13,7 @@ export interface IFormControlInfo {
   disabled: boolean;
   order: number;
   style: any;
-  owner?: { dependsOn: string, filterBy: string };
+  owner?: OwnerRef[];
   totals: number;
   change: string;
   onChange?: ((doc, value) => Promise<any>) | string;
@@ -30,7 +32,7 @@ export class FormControlInfo {
   order: number;
   controlType: string;
   style: { [key: string]: any };
-  owner?: { dependsOn: string, filterBy: string };
+  owner?: OwnerRef[];
   totals: number;
   showLabel = true;
   change: string;

@@ -9,6 +9,7 @@ import { FormListSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
 import { IComplexObject } from '../dynamic-form/dynamic-form-base';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
+import { OwnerRef } from '../../../../server/models/document';
 
 
 function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {
@@ -31,7 +32,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   locale = calendarLocale; dateFormat = dateFormat;
 
   @Input() readOnly = false;
-  @Input() owner: { owner: { dependsOn: string, filterBy: string }, value: any };
+  @Input() owner: OwnerRef[];
   @Input() placeholder = '';
   @Input() required = false;
   @Input() disabled = false;
@@ -128,9 +129,11 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   calcFilters() {
     const result = new FormListSettings();
-    if (this.owner && this.owner.owner && this.owner.owner.filterBy) {
-      if ((typeof this.owner.value === 'object' && this.owner.value.id)) {
-        result.filter.push({ left: this.owner.owner.filterBy, center: '=', right: this.owner.value });
+    if (this.owner && this.owner.length) {
+      for (const row of this.owner) {
+        const fc = this.formControl.parent.get(row.dependsOn) || this.formControl.root.get(row.dependsOn);
+        if (fc && fc.value)
+          result.filter.push({ left: row.filterBy, center: '=', right: fc!.value });
       }
     }
     // if (this.isCatalogParent) { result.push({ left: 'isfolder', center: '=', right: true }); }
@@ -149,9 +152,9 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   parseDate(dateString: string) {
     const date = dateString ? new Date(dateString) : null;
-    if (date) this.formControl.setValue(date, {onlySelf: true});
-    else if (!date && this.required) this.formControl.setErrors({ 'invalid date': true }, {emitEvent: false});
-    else if (!date && !this.required) this.formControl.setValue(date, {onlySelf: true});
+    if (date) this.formControl.setValue(date, { onlySelf: true });
+    else if (!date && this.required) this.formControl.setErrors({ 'invalid date': true }, { emitEvent: false });
+    else if (!date && !this.required) this.formControl.setValue(date, { onlySelf: true });
   }
 
 }

@@ -1,4 +1,5 @@
 import { FormListFilter, FormListOrder } from './user.settings';
+import { OwnerRef } from './document';
 
 export interface ColumnDef {
     field: string;
@@ -9,7 +10,7 @@ export interface ColumnDef {
     style: string | {[key: string]: any};
     required: boolean;
     readOnly: boolean;
-    owner?: { dependsOn: string, filterBy: string };
+    owner?: OwnerRef[];
     totals?: number;
     onChange?: Function;
     onChangeServer?: boolean;

@@ -30,7 +30,7 @@ export class DocumentOperation extends DocumentBase {
   Group: Ref = null;
 
   @Props({
-    type: 'Catalog.Operation', owner: { dependsOn: 'Group', filterBy: 'Group' },
+    type: 'Catalog.Operation', owner: [{ dependsOn: 'Group', filterBy: 'Group' }],
     required: true, onChangeServer: true, order: 6, style: { width: '270px' }
   })
   Operation: Ref = null;
