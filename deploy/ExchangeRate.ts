@@ -11,7 +11,7 @@ const Income = lib.doc.byCode('Catalog.Income', 'EXCH.PROFIT', tx);
 
 const BalanceEMPLOYEE = lib.doc.byCode('Catalog.Balance', 'EMPLOYEE', tx);
 const BalancePL = lib.doc.byCode('Catalog.Balance', 'PL', tx);
-const BalanceLOAN = lib.doc.byCode('Catalog.Balance', 'LOAN', tx)
+const BalanceLOAN = lib.doc.byCode('Catalog.Balance', 'LOAN', tx);
 
 const AnaliticsExpenseLOAN = lib.doc.byCode('Catalog.Expense.Analytics', 'EXCH.LOAN', tx);
 const AnaliticsExpensePERS = lib.doc.byCode('Catalog.Expense.Analytics', 'EXCH.PERS', tx);
@@ -20,28 +20,28 @@ const AnaliticsExpenseAR = lib.doc.byCode('Catalog.Expense.Analytics', 'EXCH.AR'
 const AnaliticsExpenseCASH = lib.doc.byCode('Catalog.Expense.Analytics', 'EXCH.CASH', tx);
 const AnaliticsExpenseBANK = lib.doc.byCode('Catalog.Expense.Analytics', 'EXCH.BANK', tx);
 
-const endOfMonth = $.Дата || doc.date;
+const endOfMonth = doc.date;
 
 let totalDiff = 0;
 
 const LOAN = async () => {
     const queryText = `
     SELECT
-      JSON_VALUE(r.data, N'$.Loan') "Loan", 
-      currency.id "currency", 
+      JSON_VALUE(r.data, N'$.Loan') "Loan",
+      currency.id "currency",
       JSON_VALUE(r.data, N'$.Counterpartie') "Counterpartie",
       SUM(CAST(JSON_VALUE(data, N'$.Amount') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "Amount",
       SUM(CAST(JSON_VALUE(data, N'$.AmountInBalance') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "AmountInBalance"
     FROM "Accumulation" r
         JOIN "Documents" "Loan" ON "Loan".id = JSON_VALUE(data, N'$.Loan')
         JOIN "Documents" "currency" ON currency.id = JSON_VALUE("Loan".doc, N'$.currency') AND currency.id <> @p3
-    WHERE 
-        r.type = N'Register.Accumulation.Loan' AND 
+    WHERE
+        r.type = N'Register.Accumulation.Loan' AND
         r.company = @p1 AND
         r.date <= @p2
-    GROUP BY 
-        JSON_VALUE(r.data, N'$.Loan'), 
-        JSON_VALUE(r.data, N'$.Counterpartie'), 
+    GROUP BY
+        JSON_VALUE(r.data, N'$.Loan'),
+        JSON_VALUE(r.data, N'$.Counterpartie'),
         currency.id `;
 
     const queryResult = tx.manyOrNone(queryText, [doc.company, endOfMonth, balanceCurrency]);
@@ -111,14 +111,14 @@ const PERS = async () => {
         SUM(CAST(JSON_VALUE(data, '$.Amount') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "Amount",
         SUM(CAST(JSON_VALUE(data, '$.AmountInBalance') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "AmountInBalance"
     FROM "Accumulation" r
-    WHERE 
-        r.type = 'Register.Accumulation.AccountablePersons' AND 
+    WHERE
+        r.type = 'Register.Accumulation.AccountablePersons' AND
         r.company = @p1 AND
-        r.date <= @p2 AND 
+        r.date <= @p2 AND
         CAST(JSON_VALUE(r.data, '$.currency') AS UNIQUEIDENTIFIER) <> @p3
-    GROUP BY 
-        CAST(JSON_VALUE(r.data, '$.CashFlow') AS UNIQUEIDENTIFIER), 
-        CAST(JSON_VALUE(r.data, '$.Employee') AS UNIQUEIDENTIFIER), 
+    GROUP BY
+        CAST(JSON_VALUE(r.data, '$.CashFlow') AS UNIQUEIDENTIFIER),
+        CAST(JSON_VALUE(r.data, '$.Employee') AS UNIQUEIDENTIFIER),
         CAST(JSON_VALUE(r.data, '$.currency') AS UNIQUEIDENTIFIER)`;
 
     const queryResult = tx.manyOrNone(queryText, [doc.company, endOfMonth, balanceCurrency]);
@@ -126,8 +126,7 @@ const PERS = async () => {
         const kurs = lib.info.sliceLast('ExchangeRates', endOfMonth, doc.company, 'Rate', { currency: row.currency }, tx) || 1;
         const Amount = row.Amount / kurs;
         const difference = Amount - row.AmountInBalance;
-        const EmployeeObject = lib.doc.byId(row.Employee);
-        const Department = EmployeeObject ? EmployeeObject.Department || null : null;
+        const Department = doc.Подразделение;
         totalDiff += difference;
 
         // AccountablePersons

@@ -12,11 +12,13 @@ import { BaseDocFormComponent } from '../../common/form/base.form.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
   <j-form>
-    <div fxLayout="row" *ngIf="copyTo.length">
+    <div *ngIf="copyTo.length && !this.super.isNew">
       <br>
-      <button *ngFor="let m of copyTo"
-        pButton type="button" id=[m.id] icon="fa-share" [label]="m.description" class="ui-button-secondary" (click)="baseOn(m)">
-      </button>
+      <div fxLayout="row">
+        <button *ngFor="let m of copyTo"
+          pButton type="button" id=[m.id] icon="fa-share" [label]="m.description" class="ui-button-primary" (click)="baseOn(m)">
+        </button>
+      </div>
     </div>
   </j-form>`
 })
