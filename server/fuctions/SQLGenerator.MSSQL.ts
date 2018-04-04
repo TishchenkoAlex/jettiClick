@@ -234,7 +234,7 @@ export class SQLGenegator {
         WITH (
           [id] UNIQUEIDENTIFIER,
           [type] NVARCHAR(100),
-          [date] datetime2,
+          [date] datetimeoffset(7),
           [code] NVARCHAR(36),
           [description] NVARCHAR(150),
           [posted] BIT,

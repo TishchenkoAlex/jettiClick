@@ -42,8 +42,10 @@ export class SQLGenegatorMetadata {
 
     const query = `
       INSERT INTO "${type}"
-      (date, document, company, kind ${insert})
+      (DT, date, document, company, kind ${insert})
       SELECT
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date] ) * 10 + (DATEPART(NANOSECOND, [date] ) % 1000 ) / 100 +
+        (SELECT ABS(CONVERT(smallint, CONVERT(VARBINARY(16), (document), 1)))) AS bigint) DT,
         CAST(date AS DATE) date, document, company, kind ${select}
       FROM INSERTED WHERE type = N'${type}'; \n`;
     return query;
@@ -99,7 +101,8 @@ export class SQLGenegatorMetadata {
         [kind] [bit] NULL,
         [company] [uniqueidentifier] NULL,
         [document] [uniqueidentifier] NOT NULL,
-        [date] [date] NOT NULL
+        [date] [date] NOT NULL,
+        DT BIGINT NOT NULL
         ${select}
       );
       CREATE CLUSTERED COLUMNSTORE INDEX "cci.${register.type}" ON "${register.type}";\n`;

@@ -6,7 +6,7 @@ export const REDIS_DB_PREFIX = process.env.REDIS_DB_PREFIX || 'bull';
 export const JTW_KEY = process.env.JTW_KEY || 'Pa5315word';
 
 export const sqlConfig: config = {
-  database: process.env.DB_NAME || 'jetti-app-m',
+  database: process.env.DB_NAME || 'bcg',
   server: process.env.DB_HOST || '35.198.154.104',
   user: process.env.DB_USER || 'yuralex',
   password: process.env.DB_PASSWORD || 'MyNew01Password',
@@ -26,6 +26,7 @@ export const sqlConfigAccounts: config = {
   user: process.env.DB_ACCOUNTS_USER || 'yuralex',
   password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',
   options: {
+    useUTC: false,
     encrypt: false,
   }
 };

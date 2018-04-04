@@ -2,6 +2,7 @@ import * as sql from 'mssql';
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
 import { dateReviver } from './fuctions/dateReviver';
 import { lib } from './std.lib';
+import { TYPES } from 'mssql';
 
 export class MSSQL {
   private POOL: sql.ConnectionPool | sql.Transaction;
@@ -57,23 +58,33 @@ export class MSSQL {
     return row;
   }
 
+  private setParams(params: any[], request: sql.Request) {
+    for (let i = 0; i < params.length; i++) {
+      if (params[i] instanceof Date) {
+        request.input(`p${i + 1}`, sql.DateTimeOffset, params[i]);
+      } else
+        request.input(`p${i + 1}`, params[i]);
+    }
+  }
+
   async oneOrNone<T>(text: string, params: any[] = []): Promise<T | null> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
+    this.setParams(params, request);
     const response = await request.query(`${text}`);
     return response.recordset.length ? this.complexObject<T>(response.recordset[0]) : null;
   }
 
+
   async manyOrNone<T>(text: string, params: any[] = []): Promise<T[]> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
+    this.setParams(params, request);
     const response = await request.query(`${text}`);
     return response.recordset.map(el => this.complexObject<T>(el)) || [];
   }
 
   async manyOrNoneJSON<T>(text: string, params: any[] = []): Promise<T[]> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
+    this.setParams(params, request);
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES;`);
     const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
     return data ? JSON.parse(data, dateReviver) : [];
@@ -81,7 +92,7 @@ export class MSSQL {
 
   async oneOrNoneJSON<T>(text: string, params: any[] = []): Promise<T> {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
+    this.setParams(params, request);
     const response = await request.query(`${text} FOR JSON PATH, WITHOUT_ARRAY_WRAPPER, INCLUDE_NULL_VALUES ;`);
     const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
     const result = typeof data === 'string' ? JSON.parse(data) : null;
@@ -92,7 +103,7 @@ export class MSSQL {
 
   async none<T>(text: string, params: any[] = []) {
     const request = new sql.Request(<any>(this.POOL));
-    for (let i = 0; i < params.length; i++) request.input(`p${i + 1}`, params[i]);
+    this.setParams(params, request);
     await request.query(text);
   }
 
