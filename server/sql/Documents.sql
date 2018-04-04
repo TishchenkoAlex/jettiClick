@@ -19,7 +19,7 @@ GO
 CREATE TABLE [dbo].[Documents](
 	[id] [uniqueidentifier] NOT NULL,
 	[type] [nvarchar](100) NOT NULL,
-	[date] [datetimeoffset](0) NOT NULL,
+	[date] [datetime2] NOT NULL,
 	[code] [nvarchar](36) NOT NULL,
 	[description] [nvarchar](150) NOT NULL,
 	[posted] [bit] NOT NULL,

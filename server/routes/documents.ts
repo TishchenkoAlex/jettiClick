@@ -170,7 +170,7 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
       FROM OPENJSON(@p1) WITH (
         [id] UNIQUEIDENTIFIER,
         [type] NVARCHAR(100),
-        [date] datetimeoffset(0),
+        [date] datetime2,
         [code] NVARCHAR(36),
         [description] NVARCHAR(150),
         [posted] BIT,
@@ -197,7 +197,7 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
           FROM OPENJSON(@p1) WITH (
             [id] UNIQUEIDENTIFIER,
             [type] NVARCHAR(100),
-            [date] datetimeoffset(0),
+            [date] datetime2,
             [code] NVARCHAR(36),
             [description] NVARCHAR(150),
             [posted] BIT,

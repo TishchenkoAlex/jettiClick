@@ -51,7 +51,7 @@ export class SQLGenegator {
           case 'number': return `, "${prop}" MONEY \n`;
           case 'boolean': return `, "${prop}" BIT \n`;
           case 'date': return `, "${prop}" DATE \n`;
-          case 'datetime': return `, "${prop}" DATETIME \n`;
+          case 'datetime': return `, "${prop}" DATETIME2 \n`;
           default: return `, "${prop}" NVARCHAR(max) \n`;
         }
       }
@@ -168,7 +168,7 @@ export class SQLGenegator {
           case 'number': return `, "${prop}" MONEY \n`;
           case 'boolean': return `, "${prop}" BIT \n`;
           case 'date': return `, "${prop}" DATE\ n`;
-          case 'datetime': return `, "${prop}" DATETIME \n`;
+          case 'datetime': return `, "${prop}" DATETIME2 \n`;
           default: return `, "${prop}" NVARCHAR(max) \n`;
         }
       }
@@ -234,14 +234,14 @@ export class SQLGenegator {
         WITH (
           [id] UNIQUEIDENTIFIER,
           [type] NVARCHAR(100),
-          [date] datetimeoffset(0),
+          [date] datetime2,
           [code] NVARCHAR(36),
           [description] NVARCHAR(150),
           [posted] BIT,
           [deleted] BIT,
           [isfolder] BIT,
           [info] NVARCHAR(4000),
-          [timestamp] DATETIME,
+          [timestamp] DATETIME2(0),
           [company] UNIQUEIDENTIFIER,
           [user] UNIQUEIDENTIFIER,
           [parent] UNIQUEIDENTIFIER,

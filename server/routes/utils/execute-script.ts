@@ -9,11 +9,11 @@ export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: Po
   for (const rec of Registers.Account) {
     query += `
       INSERT INTO "Register.Account" (
-        date, time, document, operation, sum, company,
+        date, document, operation, sum, company,
         dt, dt_subcount1, dt_subcount2, dt_subcount3, dt_subcount4, dt_qty, dt_cur,
         kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur )
       VALUES (
-        '${new Date(doc.date).toJSON()}', '${new Date(doc.date).toJSON()}',
+        '${new Date(doc.date).toJSON()}',
         '${doc.id}', '${rec.operation || doc['Operation'] || '00000000-0000-0000-0000-000000000000'}'
         ,${rec.sum || 0}, '${rec.company || doc.company}',
         '${rec.debit.account}',
