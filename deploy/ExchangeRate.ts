@@ -9,9 +9,16 @@ const balanceCurrency = doc.currency;
 const Expense = lib.doc.byCode('Catalog.Expense', 'EXCH.LOSS', tx);
 const Income = lib.doc.byCode('Catalog.Income', 'EXCH.PROFIT', tx);
 
+const CashFlowSALARY = lib.doc.byCode('Catalog.CashFlow', 'SALARY', tx);
+const CashFlowOUTEMPLOYEE = lib.doc.byCode('Catalog.CashFlow', 'OUT.EMPLOYEE', tx);
+const CashFlowINEMPLOYEE = lib.doc.byCode('Catalog.CashFlow', 'IN.EMPLOYEE', tx);
+
 const BalanceEMPLOYEE = lib.doc.byCode('Catalog.Balance', 'EMPLOYEE', tx);
+const BalanceSALARY = lib.doc.byCode('Catalog.Balance', 'SALARY', tx);
 const BalancePL = lib.doc.byCode('Catalog.Balance', 'PL', tx);
 const BalanceLOAN = lib.doc.byCode('Catalog.Balance', 'LOAN', tx);
+const BalanceAP = lib.doc.byCode('Catalog.Balance', 'AP', tx);
+const BalanceAR = lib.doc.byCode('Catalog.Balance', 'AR', tx);
 
 const AnaliticsExpenseLOAN = lib.doc.byCode('Catalog.Expense.Analytics', 'EXCH.LOAN', tx);
 const AnaliticsExpensePERS = lib.doc.byCode('Catalog.Expense.Analytics', 'EXCH.PERS', tx);
@@ -49,6 +56,7 @@ const LOAN = async () => {
         const kurs = lib.info.sliceLast('ExchangeRates', endOfMonth, doc.company, 'Rate', { currency: row.currency }, tx) || 1;
         const Amount = row.Amount / kurs;
         const difference = Amount - row.AmountInBalance;
+        if (Math.round(difference * 100) / 100 === 0) continue;
         const LoanObject = lib.doc.byId(row.Loan);
         const Department = LoanObject ? LoanObject.Department : null;
         totalDiff += difference;
@@ -60,6 +68,7 @@ const LOAN = async () => {
             data: {
                 Loan: row.Loan,
                 Counterpartie: row.Counterpartie,
+                currency: row.currency,
                 Amount: 0,
                 AmountInBalance: difference < 0 ? -difference : difference
             }
@@ -126,6 +135,7 @@ const PERS = async () => {
         const kurs = lib.info.sliceLast('ExchangeRates', endOfMonth, doc.company, 'Rate', { currency: row.currency }, tx) || 1;
         const Amount = row.Amount / kurs;
         const difference = Amount - row.AmountInBalance;
+        if (Math.round(difference * 100) / 100 === 0) continue;
         const Department = doc.Подразделение;
         totalDiff += difference;
 
@@ -136,8 +146,8 @@ const PERS = async () => {
             data: {
                 CashFlow: row.CashFlow,
                 Employee: row.Employee,
+                currency: row.currency,
                 Amount: 0,
-                currency: balanceCurrency,
                 AmountInBalance: difference < 0 ? -difference : difference
             }
         });
@@ -171,10 +181,174 @@ const PERS = async () => {
             type: 'Register.Accumulation.Balance',
             data: {
                 Department: Department,
-                Balance: BalanceEMPLOYEE,
+                Balance: row.CashFlow === CashFlowSALARY ? BalanceSALARY : BalanceEMPLOYEE,
                 Analytics: row.Employee,
                 Amount: difference < 0 ? -difference : difference
             }
         });
     }
 };
+
+const AP = async () => {
+    const queryText = `
+    SELECT
+        CAST(JSON_VALUE(r.data, '$.Department') AS UNIQUEIDENTIFIER) "Department",
+        CAST(JSON_VALUE(r.data, '$.Supplier') AS UNIQUEIDENTIFIER) "Supplier",
+        CAST(JSON_VALUE(r.data, '$.AO') AS UNIQUEIDENTIFIER) "AO",
+        CAST(JSON_VALUE(r.data, '$.currency') AS UNIQUEIDENTIFIER) "currency",
+        SUM(CAST(JSON_VALUE(data, '$.Amount') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "Amount",
+        SUM(CAST(JSON_VALUE(data, '$.AmountInBalance') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "AmountInBalance"
+    FROM "Accumulation" r
+    WHERE
+        r.type = 'Register.Accumulation.AP' AND
+        r.company = @p1 AND
+        r.date <= @p2 AND
+        CAST(JSON_VALUE(r.data, '$.currency') AS UNIQUEIDENTIFIER) <> @p3
+    GROUP BY
+        CAST(JSON_VALUE(r.data, '$.Department') AS UNIQUEIDENTIFIER),
+        CAST(JSON_VALUE(r.data, '$.Supplier') AS UNIQUEIDENTIFIER),
+        CAST(JSON_VALUE(r.data, '$.AO') AS UNIQUEIDENTIFIER),
+        CAST(JSON_VALUE(r.data, '$.currency') AS UNIQUEIDENTIFIER)`;
+
+    const queryResult = tx.manyOrNone(queryText, [doc.company, endOfMonth, balanceCurrency]);
+    for (const row of queryResult) {
+        const kurs = lib.info.sliceLast('ExchangeRates', endOfMonth, doc.company, 'Rate', { currency: row.currency }, tx) || 1;
+        const Amount = row.Amount / kurs;
+        const difference = Amount - row.AmountInBalance;
+        if (Math.round(difference * 100) / 100 === 0) continue;
+        const Department = row.Department;
+        totalDiff += difference;
+
+        // AccountablePersons
+        Registers.Accumulation.push({
+            kind: difference < 0 ? false : true,
+            type: 'Register.Accumulation.AP',
+            data: {
+                Department: row.Department,
+                AO: row.AO,
+                Supplier: row.Supplier,
+                currency: row.currency,
+                Amount: 0,
+                AmountInBalance: difference < 0 ? -difference : difference
+            }
+        });
+
+        // PL
+        Registers.Accumulation.push({
+            kind: true,
+            type: 'Register.Accumulation.PL',
+            data: {
+                Department: Department,
+                PL: difference < 0 ? Expense : Income,
+                Analytics: AnaliticsExpenseAP,
+                Amount: difference < 0 ? -difference : difference
+            }
+        });
+
+        // Balance
+        Registers.Accumulation.push({
+            kind: difference < 0 ? true : false,
+            type: 'Register.Accumulation.Balance',
+            data: {
+                Department: Department,
+                Balance: BalancePL,
+                Analytics: difference < 0 ? Expense : Income,
+                Amount: difference < 0 ? -difference : difference
+            }
+        });
+
+        Registers.Accumulation.push({
+            kind: difference < 0 ? false : true,
+            type: 'Register.Accumulation.Balance',
+            data: {
+                Department: Department,
+                Balance: BalanceAP,
+                Analytics: row.Supplier,
+                Amount: difference < 0 ? -difference : difference
+            }
+        });
+    }
+};
+
+const AR = async () => {
+    const queryText = `
+    SELECT
+        CAST(JSON_VALUE(r.data, '$.Department') AS UNIQUEIDENTIFIER) "Department",
+        CAST(JSON_VALUE(r.data, '$.Customer') AS UNIQUEIDENTIFIER) "Customer",
+        CAST(JSON_VALUE(r.data, '$.AO') AS UNIQUEIDENTIFIER) "AO",
+        CAST(JSON_VALUE(r.data, '$.currency') AS UNIQUEIDENTIFIER) "currency",
+        SUM(CAST(JSON_VALUE(data, '$.AR') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "Amount",
+        SUM(CAST(JSON_VALUE(data, '$.AmountInBalance') AS MONEY) * CASE WHEN kind = 1 THEN 1 ELSE -1 END) "AmountInBalance"
+    FROM "Accumulation" r
+    WHERE
+        r.type = 'Register.Accumulation.AR' AND
+        r.company = @p1 AND
+        r.date <= @p2 AND
+        CAST(JSON_VALUE(r.data, '$.currency') AS UNIQUEIDENTIFIER) <> @p3
+    GROUP BY
+        CAST(JSON_VALUE(r.data, '$.Department') AS UNIQUEIDENTIFIER),
+        CAST(JSON_VALUE(r.data, '$.Customer') AS UNIQUEIDENTIFIER),
+        CAST(JSON_VALUE(r.data, '$.AO') AS UNIQUEIDENTIFIER),
+        CAST(JSON_VALUE(r.data, '$.currency') AS UNIQUEIDENTIFIER)`;
+
+    const queryResult = tx.manyOrNone(queryText, [doc.company, endOfMonth, balanceCurrency]);
+    for (const row of queryResult) {
+        const kurs = lib.info.sliceLast('ExchangeRates', endOfMonth, doc.company, 'Rate', { currency: row.currency }, tx) || 1;
+        const Amount = row.Amount / kurs;
+        const difference = Amount - row.AmountInBalance;
+        if (Math.round(difference * 100) / 100 === 0) continue;
+        const Department = row.Department;
+        totalDiff += difference;
+
+        // AR
+        Registers.Accumulation.push({
+            kind: difference < 0 ? false : true,
+            type: 'Register.Accumulation.AR',
+            data: {
+                Department: row.Department,
+                AO: row.AO,
+                Customer: row.Customer,
+                currency: row.currency,
+                Amount: 0,
+                AmountInBalance: difference < 0 ? -difference : difference
+            }
+        });
+
+        // PL
+        Registers.Accumulation.push({
+            kind: true,
+            type: 'Register.Accumulation.PL',
+            data: {
+                Department: Department,
+                PL: difference < 0 ? Expense : Income,
+                Analytics: AnaliticsExpenseAR,
+                Amount: difference < 0 ? -difference : difference
+            }
+        });
+
+        // Balance
+        Registers.Accumulation.push({
+            kind: difference < 0 ? true : false,
+            type: 'Register.Accumulation.Balance',
+            data: {
+                Department: Department,
+                Balance: BalancePL,
+                Analytics: difference < 0 ? Expense : Income,
+                Amount: difference < 0 ? -difference : difference
+            }
+        });
+
+        Registers.Accumulation.push({
+            kind: difference < 0 ? false : true,
+            type: 'Register.Accumulation.Balance',
+            data: {
+                Department: Department,
+                Balance: BalanceAR,
+                Analytics: row.Customer,
+                Amount: difference < 0 ? -difference : difference
+            }
+        });
+    }
+};
+
+doc.Amount = totalDiff;
