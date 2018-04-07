@@ -1,13 +1,14 @@
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, QueryList, ViewChildren } from '@angular/core';
 import { ObservableMedia } from '@angular/flex-layout';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-
+import { FormBase, FormOptions } from '../../../../server/models/Forms/form';
 import { AuthService } from '../../auth/auth.service';
 import { DocService } from '../../common/doc.service';
 import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
 import { TabsStore } from '../tabcontroller/tabs.store';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,11 +22,23 @@ export class BaseFormComponent {
   @Input() form: FormGroup = this.route.snapshot.data.detail;
   @ViewChildren(CdkTrapFocus) cdkTrapFocus: QueryList<CdkTrapFocus>;
 
+  get model() { return this.form.getRawValue() as FormBase; }
+
+  isDoc = this.type.startsWith('Document.');
+  isCopy = this.route.snapshot.queryParams.command === 'copy';
   get docDescription() { return <string>this.form['metadata'].description; }
+  get metadata() { return <FormOptions>this.form['metadata']; }
+  get relations() { return this.form['metadata'].relations || []; }
   get v() { return <FormControlInfo[]>this.form['orderedControls']; }
   get vk() { return <{ [key: string]: FormControlInfo }>this.form['byKeyControls']; }
+  get viewModel() { return this.form.getRawValue(); }
   get hasTables() { return !!(<FormControlInfo[]>this.form['orderedControls']).find(t => t.type === 'table'); }
   get tables() { return (<FormControlInfo[]>this.form['orderedControls']).filter(t => t.type === 'table'); }
+  get description() { return <FormControl>this.form.get('description'); }
+  get isPosted() { return <boolean>!!this.form.get('posted')!.value; }
+  get isDeleted() { return <boolean>!!this.form.get('deleted')!.value; }
+  get isNew() { return !this.form.get('timestamp')!.value; }
+  get isFolder() { return (!!this.form.get('isfolder')!.value); }
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService, private auth: AuthService, public tabStore: TabsStore) { }
@@ -56,6 +69,7 @@ export class BaseFormComponent {
 
   async Execute(): Promise<any> {
     const data = this.form.value;
+    console.log(data);
     return await this.ds.api.jobAdd({
       job: { id: 'post', description: '(Post Invoices' },
       type: data.type.id,
