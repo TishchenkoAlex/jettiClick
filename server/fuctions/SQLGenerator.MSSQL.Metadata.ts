@@ -44,9 +44,10 @@ export class SQLGenegatorMetadata {
       INSERT INTO "${type}"
       (DT, date, document, company, kind ${insert})
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date] ) * 10 + (DATEPART(NANOSECOND, [date] ) % 1000 ) / 100 +
-        (SELECT ABS(CONVERT(smallint, CONVERT(VARBINARY(16), (document), 1)))) AS bigint) DT,
-        CAST(date AS DATE) date, document, company, kind ${select}
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
+        document, company, kind ${select}
       FROM INSERTED WHERE type = N'${type}'; \n`;
     return query;
   }

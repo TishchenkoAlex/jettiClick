@@ -13,6 +13,9 @@ export class RegisterAccumulationLoan extends RegisterAccumulation {
   @Props({ type: 'Catalog.Counterpartie' })
   Counterpartie: Ref = null;
 
+  @Props({ type: 'Catalog.CashFlow' })
+  CashFlow: Ref = null;
+
   @Props({ type: 'number' })
   Amount = 0;
 
@@ -22,6 +25,7 @@ export class RegisterAccumulationLoan extends RegisterAccumulation {
   constructor(kind: boolean, public data: {
     Loan: Ref,
     Counterpartie: Ref,
+    CashFlow: Ref,
     Amount: number,
     AmountInBalance: number,
   }) {
