@@ -5,7 +5,7 @@ metadata:
   labels:
     app: jetti
 spec:
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       labels:
@@ -57,7 +57,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "69"            
+              value: "70"            
             - name: NODE_ENV
               value: "production"
             - name: SUBSCRIPTION_ID
