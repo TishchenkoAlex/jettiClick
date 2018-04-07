@@ -16,7 +16,7 @@ export const Tasks = {
 };
 
 export const JQueue = new Queue('GLOBAL', QueOpts);
-JQueue.process(10, async t => {
+JQueue.process(async t => {
   const task = Tasks[t.data.job.id];
   if (task) { await task(t); }
 });
