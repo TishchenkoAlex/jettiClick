@@ -127,14 +127,18 @@
         </a>
         <ul class="layout-menu fadeInDown">
           <li *ngFor="let event of (ts.latestJobs$ | async)" role="menuitem">
-            <a href="#">
+            <a href="#" (click)="$event.preventDefault()">
               <div style="display: flex; align-items: center; ">
-                <p-progressSpinner *ngIf="(!event.failedReason) && event.progress < 100" [strokeWidth]="6" [style]="{width: '20px', height: '20px', 'margin-right': '7px'}"></p-progressSpinner>
-                <i *ngIf="event.progress >= 100 && !event.failedReason" class="fa fa-fw fa-tasks"></i>
-                <i *ngIf="event.failedReason" class="fa fa-fw fa-exclamation-circle" style="color: red"></i>
-                <span>{{event.data['job'].description}}, {{event.failedReason }} {{(event.progress / 100) | percent }} , {{ event.finishedOn | date:'short' }}</span>
+                <p-progressSpinner *ngIf="event['status'] === 'Active'" [strokeWidth]="6" [style]="{width: '20px', height: '20px', 'margin-right': '7px'}"></p-progressSpinner>
+                <i *ngIf="event['status'] === 'Completed'" class="fa fa-fw fa-tasks"></i>
+                <i *ngIf="event['status'] === 'Waiting'" class="fa fa-fw fa-clock-o"></i>
+                <i *ngIf="event['status'] === 'Failed'" class="fa fa-fw fa-exclamation-circle" style="color: red"></i>
+                <span>
+                  {{event.data && event.data['job'].description}}, {{event.failedReason }} {{(event.progress / 100) | percent}} of {{event.data['total']}},
+                  {{ event.finishedOn | date:'short' }}
+                </span>
               </div>
-              </a>
+            </a>
           </li>
         </ul>
       </li>
@@ -146,8 +150,8 @@
       </li>
     </ul>
   </div>
-  <p-progressBar [style]="(lds.color$ | async) === 'warn' ? {'background': 'red'} :  ''" 
-  *ngIf="(lds.loading$ | async) && !(lds.counter$ | async)" mode="indeterminate"></p-progressBar>
+  <p-progressBar [style]="(lds.color$ | async) === 'warn' ? {'background': 'red'} :  ''" *ngIf="(lds.loading$ | async) && !(lds.counter$ | async)"
+    mode="indeterminate"></p-progressBar>
 
   <p-progressBar *ngIf="lds.counter$ | async as counter" [value]="counter"></p-progressBar>
 </div>

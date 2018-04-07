@@ -13,9 +13,14 @@ export class EventsService implements OnDestroy {
 
   private _latestJobs$ = new Subject<IJobs>();
   latestJobs$ = this._latestJobs$.asObservable().pipe(map(j => {
-    return [...j.Active, ...j.Completed, ...j.Failed].sort((a, b) => b.timestamp - a.timestamp);
-  }), shareReplay());
-  latestJobsAll$ = this._latestJobs$.asObservable().pipe(map(j => j.Active.length), shareReplay());
+    return [
+      ...(j.Active.map(el => ({ ...el, status: 'Active'}))),
+      ...(j.Completed.map(el => ({ ...el, status: 'Completed'}))),
+      ...(j.Failed.map(el => ({ ...el, status: 'Failed'}))),
+      ...(j.Waiting.map(el => ({ ...el, status: 'Waiting'})))]
+      .sort((a, b) => b.timestamp - a.timestamp);
+  }), share());
+  latestJobsAll$ = this._latestJobs$.asObservable().pipe(map(j => j.Active.length), share());
   private debonce$ = new Subject<IJob>();
   private socket: SocketIOClient.Socket;
 
@@ -26,7 +31,7 @@ export class EventsService implements OnDestroy {
     this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
         this.socket = socketIOClient(environment.host,
-          { query: 'token=' + u.token, path: environment.path + '/socket.io', transports: ['websocket']});
+          { query: 'token=' + u.token, path: environment.path + '/socket.io', transports: ['websocket'] });
         this.socket.on('job', (job: IJob) => job.finishedOn ? this.update(job) : this.debonce$.next(job));
         this.update();
       } else {

@@ -43,9 +43,11 @@ export default async function (job: Queue.Job) {
   }
   const TaskList: any[] = [];
   const count = list.length; let offset = 0;
+  job.data['total'] = list.length;
+  await job.update(job.data);
   while (offset < count) {
     let i = 0;
-    for (i = 0; i < 50; i++) {
+    for (i = 0; i < 25; i++) {
       if (!list[i + offset]) { break; }
       const q = lib.doc.postById(list[i + offset].document, true, sdbq);
       TaskList.push(q);

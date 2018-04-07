@@ -67,7 +67,8 @@ export interface IJobs {
   Completed: IJob[];
   Delayed: IJob[];
   Failed: IJob[];
-  RepeatableJobs: Queue.JobInformation[];
+  Waiting: IJob[];
+  RepeatableJobs?: Queue.JobInformation[];
 }
 
 export interface IAccount {

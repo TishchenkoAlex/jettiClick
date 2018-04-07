@@ -16,7 +16,7 @@ export const Tasks = {
 };
 
 export const JQueue = new Queue('GLOBAL', QueOpts);
-JQueue.process(async t => {
+JQueue.process(5, async t => {
   const task = Tasks[t.data.job.id];
   if (task) { await task(t); }
 });
@@ -29,7 +29,7 @@ JQueue.on('active', (job, jobPromise) => {
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 
-JQueue.on('failed', (job, err) => {
+JQueue.on('failed', async (job, err) => {
   const MapJob =  mapJob(job);
   MapJob.failedReason = err.message;
   MapJob.finishedOn = new Date().getTime();
@@ -40,7 +40,7 @@ JQueue.on('progress', (job, progress: number) => {
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 
-JQueue.on('completed', job => {
+JQueue.on('completed', async job => {
   const MapJob =  mapJob(job);
   MapJob.finishedOn = new Date().getTime();
   userSocketsEmit(job.data.userId, 'job', MapJob);

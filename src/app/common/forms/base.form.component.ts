@@ -64,9 +64,8 @@ export class BaseFormComponent {
 
   async Execute(): Promise<any> {
     const data = this.form.value;
-    console.log(data);
     return await this.ds.api.jobAdd({
-      job: { id: 'post', description: '(Post Invoices' },
+      job: { id: 'post', description: 'Post documents' },
       type: data.type.id,
       company: data.company.id,
       StartDate: data.StartDate,

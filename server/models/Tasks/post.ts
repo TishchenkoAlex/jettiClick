@@ -13,6 +13,8 @@ export default async function (job: Queue.Job) {
   endDate.setHours(23, 59, 59, 999);
   const list = await sdbq.manyOrNone<any>(query, [params.type, params.company, params.StartDate, endDate.toJSON()]);
   const count = list.length; let offset = 0;
+  job.data['total'] = list.length;
+  await job.update(job.data);
   while (offset < count) {
     let i = 0;
     for (i = 0; i < 99; i++) {

@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 
 import { JQueue, mapJob } from '../models/Tasks/tasks';
 import { User } from '../routes/user.settings';
+import { IJob, IJobs } from '../models/api';
 
 export const router = express.Router();
 
@@ -22,12 +23,14 @@ router.get('/jobs', async (req: Request, res: Response, next: NextFunction) => {
       JQueue.getCompleted(),
       JQueue.getDelayed(),
       JQueue.getFailed(),
+      JQueue.getWaiting(),
     ]);
-    const result = {
+    const result: IJobs = {
       Active: all[0].map(el => mapJob(el)),
       Completed: all[1].map(el => mapJob(el)),
       Delayed: all[2].map(el => mapJob(el)),
       Failed: all[3].map(el => mapJob(el)),
+      Waiting: all[4].map(el => mapJob(el)),
     };
     result.Completed.length = Math.min(5, result.Completed.length);
     result.Delayed.length = Math.min(5, result.Delayed.length);
