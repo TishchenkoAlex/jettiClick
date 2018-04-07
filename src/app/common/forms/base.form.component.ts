@@ -9,7 +9,6 @@ import { DocService } from '../../common/doc.service';
 import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
 import { TabsStore } from '../tabcontroller/tabs.store';
 
-
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-forms',
@@ -35,10 +34,6 @@ export class BaseFormComponent {
   get hasTables() { return !!(<FormControlInfo[]>this.form['orderedControls']).find(t => t.type === 'table'); }
   get tables() { return (<FormControlInfo[]>this.form['orderedControls']).filter(t => t.type === 'table'); }
   get description() { return <FormControl>this.form.get('description'); }
-  get isPosted() { return <boolean>!!this.form.get('posted')!.value; }
-  get isDeleted() { return <boolean>!!this.form.get('deleted')!.value; }
-  get isNew() { return !this.form.get('timestamp')!.value; }
-  get isFolder() { return (!!this.form.get('isfolder')!.value); }
 
   constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
     public cd: ChangeDetectorRef, public ds: DocService, private auth: AuthService, public tabStore: TabsStore) { }
