@@ -57,7 +57,7 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
 }
 
 export const HTTP = httpServer.createServer(app);
-export const IO = socketIO(HTTP, { path: SUBSCRIPTION_ID + '/socket.io', pingInterval: 40000, pingTimeout: 25000 });
+export const IO = socketIO(HTTP, { path: SUBSCRIPTION_ID + '/socket.io', transports: ['websocket'] });
 IO.use(authIO);
 
 const port = (process.env.PORT) || '3000';
