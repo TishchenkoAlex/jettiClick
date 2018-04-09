@@ -56,10 +56,6 @@ export class AuthService {
       }));
   }
 
-  refesh() {
-    this._userProfile$.next(this._userProfile$.value);
-  }
-
   private init(loginResponse: ILoginResponse) {
     if (loginResponse.token && loginResponse.account) {
       this.token = loginResponse.token;
