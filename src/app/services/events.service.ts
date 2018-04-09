@@ -26,7 +26,7 @@ export class EventsService implements OnDestroy {
 
   constructor(private auth: AuthService, private api: ApiService) {
 
-    this.debonce$.pipe(sampleTime(5000)).subscribe(job => this.update(job));
+    this.debonce$.pipe(sampleTime(1000)).subscribe(job => this.update(job));
 
     this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
