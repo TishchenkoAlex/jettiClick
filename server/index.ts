@@ -55,7 +55,7 @@ function errorHandler(err: Error, req: Request, res: Response, next: NextFunctio
 }
 
 export const HTTP = httpServer.createServer(app);
-export const IO = socketIO(HTTP, { path: SUBSCRIPTION_ID + '/socket.io' });
+export const IO = socketIO(HTTP);
 IO.use(authIO);
 
 const port = (process.env.PORT) || '3000';
