@@ -33,14 +33,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(root, 'dist')));
 
 console.log('SUBSCRIPTION_ID', SUBSCRIPTION_ID, `${SUBSCRIPTION_ID}/api`);
-const api = `${SUBSCRIPTION_ID}/api`;
+const api = `/api`;
 app.use(api, authHTTP, documents);
 app.use(api, authHTTP, userSettings);
 app.use(api, authHTTP, suggests);
 app.use(api, authHTTP, utils);
 app.use(api, authHTTP, registers);
 app.use(api, authHTTP, tasks);
-app.use(`${SUBSCRIPTION_ID}/auth`, auth);
 app.use('/auth', auth);
 
 app.get('*', (req: Request, res: Response) => {
