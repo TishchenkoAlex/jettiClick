@@ -1,16 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, isDevMode } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { filter, map, tap } from 'rxjs/operators';
 import { shareReplay } from 'rxjs/operators/shareReplay';
-
+import { RoleObject, RoleType, getRoleObjects } from '../../../server/models/Roles/Base';
 import { IAccount, ILoginResponse } from '../../../server/models/api';
-import { getRoleObjects, RoleObject, RoleType } from '../../../server/models/Roles/Base';
-import { environment } from '../../environments/environment';
-import { Login } from './store/actions';
+import { environment } /*  */ from '../../environments/environment';
 
 export const ANONYMOUS_USER: ILoginResponse = { account: undefined, token: '' };
 
@@ -36,9 +34,7 @@ export class AuthService {
   set token(value) { localStorage.setItem('jetti_token', value); }
   get tokenPayload() { return jwt_decode(this.token); }
 
-  constructor(private router: Router, private http: HttpClient, public sanitizer: DomSanitizer) {
-    if (this.token) { this.setEnv(); }
-  }
+  constructor(private router: Router, private http: HttpClient, public sanitizer: DomSanitizer) {}
 
   public login(email: string, password: string) {
     return this.http.post<ILoginResponse>(`${environment.auth}login`, { email, password }).pipe(
@@ -60,17 +56,6 @@ export class AuthService {
       }));
   }
 
-  private setEnv() {
-    const tokenPayload = this.tokenPayload;
-    const env = tokenPayload ? tokenPayload['env'] : null;
-    if (!isDevMode() && env) {
-      environment.api = env.host + env.path + '/api/';
-      environment.host = env.host;
-      environment.path = env.path;
-      environment.auth = env.host + env.path + '/auth/';
-    }
-  }
-
   refesh() {
     this._userProfile$.next(this._userProfile$.value);
   }
@@ -78,7 +63,6 @@ export class AuthService {
   private init(loginResponse: ILoginResponse) {
     if (loginResponse.token && loginResponse.account) {
       this.token = loginResponse.token;
-      this.setEnv();
       this.userRoles = loginResponse.account.roles as RoleType[];
       this.userRoleObjects = getRoleObjects(this.userRoles);
       this._userProfile$.next(loginResponse);
