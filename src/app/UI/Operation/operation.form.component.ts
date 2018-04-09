@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, ViewChild } from '@angular/core';
+import { MenuItem } from 'primeng/components/common/menuitem';
 import { Subscription } from 'rxjs/Subscription';
-import { v1 } from 'uuid';
+import { CatalogOperation } from '../../../../server/models/Catalogs/Catalog.Operation';
 import { DocumentOperation } from '../../../../server/models/Documents/Document.Operation';
 import { DocumentOptions } from '../../../../server/models/document';
 import { createDocument } from '../../../../server/models/documents.factory';
@@ -11,16 +12,7 @@ import { BaseDocFormComponent } from '../../common/form/base.form.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-  <j-form>
-    <div *ngIf="copyTo.length && !this.super.isNew">
-      <br>
-      <div fxLayout="row">
-        <button *ngFor="let m of copyTo"
-          pButton type="button" id=[m.id] icon="fa-share" [label]="m.description" class="ui-button-primary" (click)="baseOn(m)">
-        </button>
-      </div>
-    </div>
-  </j-form>`
+  <j-form></j-form>`
 })
 export class OperationFormComponent implements AfterViewInit, OnDestroy {
   private _subscription$: Subscription = Subscription.EMPTY;
@@ -31,31 +23,38 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
 
-  copyTo: {id: string, description: string}[] = [];
-
   async ngAfterViewInit() {
-    this.copyTo = [];
-    const OperationID = this.Operation.value;
-    const Operation = OperationID && OperationID.id ? await this.super.ds.api.getRawDoc(OperationID.id) : { doc: { Parameters: [] } };
-    for (const o of (Operation['CopyTo'] || [])) {
-      const item = { id: o.Operation, description: (await this.super.ds.api.getRawDoc(o.Operation)).description };
-      this.copyTo.push(item);
+    this.form['metadata']['copyTo'] = [];
+    const Operation = this.Operation && this.Operation.value && this.Operation.value.id ?
+      await this.super.ds.api.byId<CatalogOperation>(this.Operation.value.id) : null;
+
+    for (const o of ((Operation && Operation.CopyTo) || [])) {
+      const item: MenuItem = {
+        icon: '',
+        label: (await this.super.ds.api.byId<CatalogOperation>(o.Operation)).description,
+        command: () => this.super.baseOn(o.Operation)
+      };
+      this.form['metadata']['copyTo'].push(item);
     }
-    this.form['metadata']['copyTo'] = this.copyTo;
+
+    this.form['metadata']['commandsOnServer'] = [];
+    for (const o of ((Operation && Operation.commandsOnServer) || [])) {
+      const item: MenuItem = {
+        label: o.label, icon: o.icon,
+        command: () => this.super.commandOnSever(o.method)
+      };
+      this.form['metadata']['commandsOnServer'].push(item);
+    }
+
     this._subscription$.unsubscribe();
     this._subscription$ = this.Operation.valueChanges
       .subscribe(v => this.update(v).then(() => this.super.cd.detectChanges()));
   }
 
-  baseOn(m) {
-    this.super.router.navigate([this.super.type, v1()],
-      { queryParams: { base: this.super.id, Operation: m.id } });
-  }
-
   update = async (value) => {
     const oldValue = Object.assign({}, this.super.model);
 
-    const Operation = value.id ? await this.super.ds.api.getRawDoc(value.id) : { doc: { Parameters: [] } };
+    const Operation = value.id ? await this.super.ds.api.byId(value.id) : { doc: { Parameters: [] } };
     const view = {};
     const Parameters = Operation['Parameters'] || [];
     Parameters.sort((a, b) => a.order - b.order).forEach(c => view[c.parameter] = {
@@ -84,7 +83,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
     });
     (this.form['orderedControls'] as FormControlInfo[]).splice(7, 0, ...orderedControls);
     const Prop = doc.Prop() as DocumentOptions;
-    this.form['metadata'] = {...Prop};
+    this.form['metadata'] = { ...Prop };
 
     this.super.cd.markForCheck();
     this.ngAfterViewInit();

@@ -57,7 +57,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "56"
+              value: "60"
             - name: NODE_ENV
               value: "production"
             - name: SUBSCRIPTION_ID
@@ -74,26 +74,23 @@ spec:
   selector:
     app: bcg
   ports:
-  - port: 80
+  - port: 8080
     targetPort: 8080
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: bcg
-  labels:
-    app: bcg
+  name: bcg-ingress-nginx
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: bcg
-    kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/ingress.class: "nginx"
   labels:
     app: bcg
 spec:
-  tls:
-  - secretName: jetti-ssl
   backend:
     serviceName: bcg
-    servicePort: 80
+    servicePort: 8080
+  tls:
+  - secretName: jetti-ssl
 
 #sed -ie "s/суббота, 13 января 2018 г. 21:31:39 (EET)/$(date)/g" add-account.yaml
 #kubectl create secret generic mssql-db-credentials --from-literal=username=yuralex --from-literal=password=MyNew01Password

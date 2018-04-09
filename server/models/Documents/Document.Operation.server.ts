@@ -26,9 +26,6 @@ export class DocumentOperationServer extends DocumentOperation implements Server
         if (!Operation) { return {}; }
         const Group = await lib.doc.formControlRef(Operation.Group!, tx);
         return { Group };
-      case 'Invoice':
-        const Invoice = await lib.doc.byIdT<DocumentInvoice>(value.id, tx);
-        return { AR: Invoice!.Amount };
       default:
         return {};
     }

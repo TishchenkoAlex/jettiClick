@@ -7,11 +7,10 @@ import { map } from 'rxjs/operators';
 import { RegisterAccumulation } from '../../../server/models/Registers/Accumulation/RegisterAccumulation';
 import { RegisterInfo } from '../../../server/models/Registers/Info/RegisterInfo';
 import { RoleType, getRoleObjects } from '../../../server/models/Roles/Base';
-import { IFlatDocument } from '../../../server/models/ServerDocument';
 import { AccountRegister } from '../../../server/models/account.register';
 // tslint:disable-next-line:max-line-length
 import { DocListRequestBody, DocListResponse, IJob, IJobs, ISuggest, ITree, IViewModel, PatchValue, RefValue } from '../../../server/models/api';
-import { DocumentBase } from '../../../server/models/document';
+import { DocumentBase, Ref } from '../../../server/models/document';
 import { DocTypes } from '../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
@@ -25,9 +24,9 @@ export class ApiService {
 
   constructor(private http: HttpClient, public lds: LoadingService) { }
 
-  getRawDoc(id: string): Promise<IFlatDocument> {
-    const query = `${environment.api}raw/${id}`;
-    return (this.http.get<IFlatDocument>(query)).toPromise();
+  byId<T extends DocumentBase>(id: Ref): Promise<T> {
+    const query = `${environment.api}byId/${id}`;
+    return (this.http.get<T>(query)).toPromise();
   }
 
   formControlRef(id: string): Promise<RefValue> {
@@ -154,24 +153,10 @@ export class ApiService {
   }
 
   onCommand(doc: DocumentBase, command: string, args: { [x: string]: any }) {
+    const apiDoc = mapToApi(doc);
     const query = `${environment.api}command/${doc.type}/${command}`;
-    const callConfig = { doc: doc, args: args };
-    return this.http.post(query, callConfig).toPromise();
-  }
-
-  docMethodOnServer(doc: DocumentBase, func: string, params: any): Observable<{ doc: DocumentBase, result: any }> {
-    const query = `${environment.api}/server/${doc.type}/${func}`;
-    return this.http.post<{ doc: DocumentBase, result: any }>(query, { doc, params });
-  }
-
-  call(type: string, formView: any, method: string, params: any[], async = false): Observable<any> {
-    const query = `${environment.api}call/${async ? 'async' : ''}`;
-    return this.http.post(query, {
-      type: type,
-      method: method,
-      formView: formView,
-      params: params
-    });
+    const callConfig = { doc: apiDoc, args: args };
+    return this.http.post<PatchValue>(query, callConfig).toPromise();
   }
 
   jobAdd(data: any, opts?: JobOptions) {

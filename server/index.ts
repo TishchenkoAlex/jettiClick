@@ -16,7 +16,6 @@ import { router as auth } from './routes/auth';
 import { router as documents } from './routes/documents';
 import { authHTTP, authIO } from './routes/middleware/check-auth';
 import { router as registers } from './routes/registers';
-import { router as server } from './routes/server';
 import { router as suggests } from './routes/suggest';
 import { router as tasks } from './routes/tasks';
 import { router as userSettings } from './routes/user.settings';
@@ -35,7 +34,6 @@ app.use(express.static(path.join(root, 'dist')));
 
 console.log('SUBSCRIPTION_ID', SUBSCRIPTION_ID, `${SUBSCRIPTION_ID}/api`);
 const api = `${SUBSCRIPTION_ID}/api`;
-app.use(api, authHTTP, server);
 app.use(api, authHTTP, documents);
 app.use(api, authHTTP, userSettings);
 app.use(api, authHTTP, suggests);

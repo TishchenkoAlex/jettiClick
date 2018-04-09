@@ -38,12 +38,20 @@ export class CatalogOperation extends DocumentBase {
   @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '600px' }, value: defaultScript })
   script = '';
 
+  @Props({ type: 'javascript', hiddenInList: true, style: { height: '600px' } })
+  module = '';
+
   @Props({ type: 'table', required: true })
   Parameters: Parameter[] = [new Parameter()];
 
   @Props({ type: 'table', label: 'Copy to...' })
   CopyTo: CopyTo[] = [new CopyTo()];
 
+  @Props({ type: 'table', label: 'Commands on server' })
+  commandsOnServer: Command[] = [new Command()];
+
+  @Props({ type: 'table', label: 'Commands on client' })
+  commandsOnClient: Command[] = [new Command()];
 }
 
 class Parameter {
@@ -70,14 +78,29 @@ class Parameter {
 
   @Props({ type: 'json', hiddenInList: true })
   Props = '';
-
 }
 
 class CopyTo {
-  @Props({ type: 'Catalog.Operation', required: true, style: { width: '50%' } })
+  @Props({ type: 'Catalog.Operation', required: true, style: { width: '400px' } })
   Operation: Ref = null;
 
   @Props({ type: 'javascript', label: 'script', hiddenInList: true })
   script = '';
 
+  @Props({ type: 'javascript', label: 'script', hiddenInList: true })
+  method = '';
+}
+
+class Command {
+  @Props({ type: 'string', required: true })
+  method = '';
+
+  @Props({ type: 'string', required: true })
+  label = '';
+
+  @Props({ type: 'string'})
+  icon = '';
+
+  @Props({ type: 'number', required: true })
+  order: number | null = null;
 }

@@ -19,12 +19,13 @@ import { Subscription } from 'rxjs/Subscription';
 import { v1 } from 'uuid';
 
 import { calculateDescription } from '../../../../server/models/api';
-import { DocumentBase, DocumentOptions } from '../../../../server/models/document';
+import { DocumentBase, DocumentOptions, Ref } from '../../../../server/models/document';
 import { DocService } from '../../common/doc.service';
 import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
 import { LoadingService } from '../loading.service';
 import { TabsStore } from '../tabcontroller/tabs.store';
+import { MenuItem } from 'primeng/components/common/menuitem';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,6 +56,8 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   get isDeleted() { return <boolean>!!this.form.get('deleted')!.value; }
   get isNew() { return !this.form.get('timestamp')!.value; }
   get isFolder() { return (!!this.form.get('isfolder')!.value); }
+  get commands() { return (<MenuItem[]>this.form['metadata']['commandsOnServer']) || []; }
+  get copyTo() { return (<MenuItem[]>this.form['metadata']['copyTo']) || []; }
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
@@ -141,6 +144,18 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   }
 
   Print = () => { };
+
+  baseOn(id: Ref) {
+    this.router.navigate([this.type, v1()],
+      { queryParams: { base: this.id, Operation: id } });
+  }
+
+  commandOnSever(method: string) {
+    this.ds.api.onCommand(this.form.value, method, {}).then(value => {
+      this.form.patchValue(value || {}, patchOptionsNoEvents);
+      this.cd.detectChanges();
+    });
+  }
 
   ngOnDestroy() {
     this._subscription$.unsubscribe();

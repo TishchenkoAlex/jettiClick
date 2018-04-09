@@ -51,6 +51,10 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
           [c.parameter]: c.tableDef ? JSON.parse(c.tableDef) : null, ...JSON.parse(c.Props ? c.Props : '{}')
         });
       });
+      if (Operation && Operation.module) {
+        const func = new Function('', Operation.module);
+        result['module'] = func.bind(result)();
+      }
     }
   }
   // protect against mutate

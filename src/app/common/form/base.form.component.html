@@ -15,7 +15,8 @@
         <button pButton type="button" id="Delete" icon="fa-trash" class="ui-button-danger" *ngIf="!isNew" (click)="Delete()" [disabled]="(lds.busy$ | async)"></button>
       </div>
       <div class="ui-toolbar-group-right">
-        <!--  <p-splitButton [model]="this.commands" styleClass="ui-button-secondary" label="more ..."></p-splitButton> -->
+        <p-splitButton *ngIf="copyTo.length" [model]="copyTo" styleClass="ui-button-secondary" label="base on"></p-splitButton>
+        <p-splitButton  *ngIf="commands.length" [model]="commands" styleClass="ui-button-secondary" label="commands"></p-splitButton>
         <button *ngIf="!isNew" pButton type="button" icon="fa-list" class="ui-button-secondary" (click)="Goto()" [disabled]="(lds.busy$ | async)"></button>
         <button *ngIf="isPosted" pButton type="button" icon="fa-print" class="ui-button-secondary" [disabled]="(lds.busy$ | async)"></button>
       </div>
@@ -59,10 +60,12 @@
     <j-control *ngIf="vk['info']" [control]="vk['info']" [form]="form"></j-control>
   </p-panel>
 
-  <p-panel *ngIf="type === 'Catalog.Operation'" [toggleable]="true" header="Maintance" [collapsed]="true" (collapsedChange)="mp.collapse(); pad.collapse()">
-    <div *ngFor="let control of v; let i = index" fxLayout="column">
-      <j-control *ngIf="control.controlType === 'script'" [control]="control" [form]="form"></j-control>
-    </div>
+  <p-panel *ngIf="type === 'Catalog.Operation'" [toggleable]="true" header="Post script" [collapsed]="true" (collapsedChange)="mp.collapse(); pad.collapse()">
+    <j-control *ngIf="vk['script']" [control]="vk['script']" [form]="form"></j-control>
+  </p-panel>
+
+  <p-panel *ngIf="type === 'Catalog.Operation'" [toggleable]="true" header="Document module" [collapsed]="true" (collapsedChange)="mp.collapse(); pad.collapse()">
+    <j-control *ngIf="vk['module']" [control]="vk['module']" [form]="form"></j-control>
   </p-panel>
 
   <p-panel [toggleable]="true" [collapsed]="true" header="Register movements" #accumulation *ngIf="isDoc && isPosted">

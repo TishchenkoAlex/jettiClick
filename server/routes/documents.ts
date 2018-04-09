@@ -239,7 +239,7 @@ router.get('/post/:id', async (req: Request, res: Response, next: NextFunction) 
 });
 
 // Get raw document by id
-router.get('/raw/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/byId/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(await lib.doc.byId(req.params.id, sdb));
   } catch (err) { next(err); }
@@ -254,7 +254,10 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc);
 
     let result: PatchValue = {};
-    if (serverDoc && serverDoc.onValueChanged && typeof serverDoc.onValueChanged === 'function') {
+    const docModule = serverDoc['module'] && serverDoc['module'][property + '_OnChange'];
+    if (docModule) result = await docModule(value);
+
+    if (result === {} && serverDoc && serverDoc.onValueChanged && typeof serverDoc.onValueChanged === 'function') {
       result = await serverDoc.onValueChanged(property, value, sdb);
     }
     res.json(result);
@@ -263,28 +266,16 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
 
 router.post('/command/:type/:command', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let result: any = {};
-    await sdb.tx(async tx => {
-      const doc = req.body.doc as IFlatDocument;
-      const serverDoc = await createDocumentServer<DocumentBaseServer>(req.params.type, doc);
-      if (serverDoc && serverDoc.onCommand && typeof serverDoc.onCommand === 'function') {
-        result = await serverDoc.onCommand(req.params.command, req.body.args, tx);
-      }
-      res.json(result);
-    });
-  } catch (err) { next(err); }
-});
+    const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body.doc), dateReviver);
+    const command: string = req.params.command;
+    const type: DocTypes = req.params.type;
+    const args: { [key: string]: any } = req.params.args;
+    const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc);
 
-router.post('/server/:type/:func', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const doc = req.body.doc as IFlatDocument;
-    const serverDoc = createDocumentServer(req.params.type, doc);
-    let result = { serverDoc, result: {} };
-    await sdb.tx(async tx => {
-      const func = (serverDoc[req.params.func] as Function).bind(serverDoc, req.body.params, tx);
-      if (func && typeof func === 'function') { result = await func(); }
-      res.json(result);
-    });
+    const docModule = serverDoc['module'] && serverDoc['module'][command];
+    if (docModule) await docModule(args);
+    const view = await buildViewModel(serverDoc);
+    res.json(view);
   } catch (err) { next(err); }
 });
 

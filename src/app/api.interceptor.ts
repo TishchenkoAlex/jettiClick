@@ -21,7 +21,7 @@ export class ApiInterceptor implements HttpInterceptor {
     const showLoading = !(
       req.url.includes('user/settings') ||
       req.url.includes('/jobs') ||
-      req.url.includes('/raw') ||
+      req.url.includes('/byId') ||
       req.url.includes('/formControlRef'));
 
     if (isDevMode()) console.log('http', req.url);
