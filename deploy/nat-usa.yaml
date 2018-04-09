@@ -57,7 +57,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "70"            
+              value: "72"            
             - name: NODE_ENV
               value: "production"
             - name: SUBSCRIPTION_ID
@@ -77,22 +77,6 @@ spec:
   - port: 8080
     targetPort: 8080
 ---
-#apiVersion: extensions/v1beta1
-#kind: Ingress
-#metadata:
-#  name: jetti
-#  annotations:
-#    kubernetes.io/ingress.global-static-ip-name: jetti-ip
-#    kubernetes.io/ingress.allow-http: "false"
-#  labels:
-#    app: jetti
-#spec:
-#  tls:
-#  - secretName: jetti-ssl
-#  backend:
-#    serviceName: jetti
-#    servicePort: 80
-#---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
