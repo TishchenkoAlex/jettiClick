@@ -7,7 +7,7 @@ export const JTW_KEY = process.env.JTW_KEY || 'Pa5315word';
 
 export const sqlConfig: config = {
   database: process.env.DB_NAME || 'jetti-app',
-  server: process.env.DB_HOST || '35.198.154.104',
+  server: process.env.DB_HOST || '35.198.94.186',
   user: process.env.DB_USER || 'yuralex',
   password: process.env.DB_PASSWORD || 'MyNew01Password',
   requestTimeout: 1000 * 120,
@@ -22,7 +22,7 @@ export const sqlConfig: config = {
 
 export const sqlConfigAccounts: config = {
   database: process.env.DB_ACCOUNTS_NAME || 'accounts',
-  server: process.env.DB_ACCOUNTS_HOST || '35.198.154.104',
+  server: process.env.DB_ACCOUNTS_HOST || '35.198.94.186',
   user: process.env.DB_ACCOUNTS_USER || 'yuralex',
   password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',
   options: {
