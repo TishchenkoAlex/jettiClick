@@ -57,7 +57,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "78"            
+              value: "80"            
             - name: NODE_ENV
               value: "production"
             - name: SUBSCRIPTION_ID
