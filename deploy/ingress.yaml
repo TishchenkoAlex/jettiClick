@@ -1,77 +1,29 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx-ingress
-spec:
-  type: LoadBalancer
-  loadBalancerIP: 10.10.10.10
-  ports:
-    - port: 80
-      name: http
-    - port: 443
-      name: https
-  selector:
-    k8s-app: nginx-ingress-lb
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: nginx-ingress-controller
-spec:
-  replicas: 1
-  revisionHistoryLimit: 3
-  template:
-    metadata:
-      labels:
-        k8s-app: nginx-ingress-lb
-    spec:
-      terminationGracePeriodSeconds: 60
-      containers:
-        - name: nginx-ingress-controller
-          image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.11.0
-          imagePullPolicy: Always
-          args:
-            - /nginx-ingress-controller
-            - --default-backend-service=default/bcg
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-          ports:
-            - containerPort: 80
-            - containerPort: 443
----
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: bcg-ingress
-  labels:
-    app: bcg
+  name: ingress-nginx
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    kubernetes.io/ingress.global-static-ip-name: bcg
+    kubernetes.io/ingress.class: nginx
   labels:
-    app: bcg
+    app: ingress
 spec:
   tls:
-    - secretName: jetti-ssl
-      hosts:
-        - bcg.jetti-app.com
+    - hosts:
+      - bcg.jetti-app.com  
+      - cl.jetti-app.com  
+      secretName: jetti-ssl
   rules:
     - host: bcg.jetti-app.com
       http:
         paths:
-          - path: /
-            backend:
-              serviceName: bcg
-              servicePort: 80
-
-
-#sed -ie "s/суббота, 13 января 2018 г. 21:31:39 (EET)/$(date)/g" add-account.yaml
-#kubectl create secret generic mssql-db-credentials --from-literal=username=yuralex --from-literal=password=MyNew01Password
-#kubectl apply -f bcg.yaml
+        - path: /
+          backend:
+            serviceName: bcg
+            servicePort: 8080
+    - host: cl.jetti-app.com
+      http:
+        paths:
+        - path: /
+          backend:
+            serviceName: jetti
+            servicePort: 8080
