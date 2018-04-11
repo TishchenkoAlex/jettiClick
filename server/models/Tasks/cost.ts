@@ -7,7 +7,7 @@ import { RegisterAccumulationInventory } from '../Registers/Accumulation/Invento
 import { flow, groupBy, map, tap, chain } from 'lodash';
 
 export default async function (job: Queue.Job) {
-  job.progress(0);
+  await job.progress(0);
   const params = job.data;
   const doc = params.doc as DocumentBase;
   const oldInventory = params.Inventory[0];
@@ -44,7 +44,7 @@ export default async function (job: Queue.Job) {
   const TaskList: any[] = [];
   const count = list.length; let offset = 0;
   job.data['total'] = list.length;
-  job.update(job.data);
+  await job.update(job.data);
   while (offset < count) {
     let i = 0;
     for (i = 0; i < 25; i++) {
@@ -53,12 +53,9 @@ export default async function (job: Queue.Job) {
       TaskList.push(q);
     }
     offset = offset + i;
-    Promise.all(TaskList)
-      .then(() => {
-        TaskList.length = 0;
-        job.progress(Math.round(offset / count * 100));
-      })
-      .catch(() => job.progress(100));
+    await Promise.all(TaskList);
+    TaskList.length = 0;
+    await job.progress(Math.round(offset / count * 100));
   }
-  job.progress(100);
+  await job.progress(100);
 }
