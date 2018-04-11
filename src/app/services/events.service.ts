@@ -30,7 +30,7 @@ export class EventsService implements OnDestroy {
 
     this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
-        this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket']});
+        this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token});
         this.socket.on('job', (job: IJob) => job.finishedOn ? this.update(job) : this.debonce$.next(job));
         this.update();
       } else {
