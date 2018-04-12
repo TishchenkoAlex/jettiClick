@@ -17,13 +17,12 @@ export async function authHTTP (req: Request, res: Response, next: NextFunction)
 }
 
 export async function authIO(socket: SocketIO.Socket, next) {
-  const handshakeData = socket.request;
   const token = socket.handshake.query.token;
   try {
     const decoded = await jwt.verify(token, JTW_KEY as string) as IJWTPayload;
     socket.handshake.query.user = decoded.email;
     next();
   } catch (error) {
-    next(new Error(error));
+    next();
   }
 }

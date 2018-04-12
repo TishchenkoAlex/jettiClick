@@ -27,11 +27,11 @@
     "@covalent/code-editor": "^1.0.0",
     "@ngrx/effects": "^5.2.0",
     "@ngrx/store": "^5.2.0",
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^2.0.0",
     "body-parser": "^1.18.2",
     "bull": "^3.3.10",
     "compression": "^1.7.2",
-    "core-js": "^2.5.4",
+    "core-js": "^2.5.5",
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "font-awesome": "^4.7.0",
@@ -45,13 +45,13 @@
     "ng-drag-drop": "^4.0.1",
     "primeng": "^5.2.4",
     "reflect-metadata": "^0.1.12",
-    "rxjs": "5.5.8",
+    "rxjs": "5.5.9",
     "socket.io": "^2.1.0",
     "socket.io-client": "^2.1.0",
     "tarn": "^1.1.4",
     "tedious": "^2.3.1",
     "uuid": "^3.2.1",
-    "zone.js": "^0.8.25"
+    "zone.js": "^0.8.26"
   },
   "engines": {
     "node": ">=9.4.0"
@@ -70,7 +70,7 @@
     "@types/jsonwebtoken": "^7.2.6",
     "@types/jwt-decode": "^2.2.1",
     "@types/mssql": "^4.0.7",
-    "@types/node": "^9.6.2",
+    "@types/node": "^9.6.4",
     "@types/socket.io": "^1.4.33",
     "@types/socket.io-client": "^1.4.32",
     "@types/tedious": "^1.8.32",
