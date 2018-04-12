@@ -1,12 +1,12 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { take, throttleTime, map, share, startWith, shareReplay, sampleTime, filter } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
+import { filter, map, share, take } from 'rxjs/operators';
 import * as socketIOClient from 'socket.io-client';
-
 import { IJob, IJobs } from '../../../server/models/api';
 import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
 import { environment } from './../../environments/environment';
+
 
 @Injectable()
 export class EventsService implements OnDestroy {
