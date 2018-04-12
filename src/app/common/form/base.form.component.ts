@@ -143,7 +143,9 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
     if (autoCapture) autoCapture.focusTrap.focusFirstTabbableElementWhenReady();
   }
 
-  Print = () => { };
+  Print = () => {
+    throw new Error('Print not implemented!');
+  }
 
   baseOn(id: Ref) {
     this.router.navigate([this.type, v1()],
