@@ -7,7 +7,6 @@ import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
 import { environment } from './../../environments/environment';
 
-
 @Injectable()
 export class EventsService implements OnDestroy {
 
@@ -26,11 +25,9 @@ export class EventsService implements OnDestroy {
 
   constructor(private auth: AuthService, private api: ApiService) {
 
-    this.debonce$.subscribe(job => this.update(job));
-
     this.auth.userProfile$.pipe(filter(u => !!(u && u.account))).subscribe(u => {
       this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'], secure: true });
-      this.socket.on('job', (job: IJob) => job.finishedOn ? this.update(job) : this.debonce$.next(job));
+      this.socket.on('job', (job: IJob) => this.update(job));
       this.update();
     });
   }
