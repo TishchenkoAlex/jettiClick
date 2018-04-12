@@ -32,9 +32,6 @@ export class EventsService implements OnDestroy {
       if (u && u.account) {
         this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'], secure: true });
         this.socket.on('job', (job: IJob) => job.finishedOn ? this.update(job) : this.debonce$.next(job));
-        this.socket.on('reconnect_attempt', () => {
-          this.socket.io.opts.transports = ['polling', 'websocket'];
-        });
         this.update();
       } else {
         if (this.socket) { this.socket.disconnect(); }
