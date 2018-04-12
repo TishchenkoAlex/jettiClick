@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { take, throttleTime, map, share, startWith, shareReplay, sampleTime } from 'rxjs/operators';
+import { take, throttleTime, map, share, startWith, shareReplay, sampleTime, filter } from 'rxjs/operators';
 import { Subject } from 'rxjs/Subject';
 import * as socketIOClient from 'socket.io-client';
 
@@ -28,14 +28,10 @@ export class EventsService implements OnDestroy {
 
     this.debonce$.subscribe(job => this.update(job));
 
-    this.auth.userProfile$.subscribe(u => {
-      if (u && u.account) {
-        this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'], secure: true });
-        this.socket.on('job', (job: IJob) => job.finishedOn ? this.update(job) : this.debonce$.next(job));
-        this.update();
-      } else {
-        if (this.socket) { this.socket.disconnect(); }
-      }
+    this.auth.userProfile$.pipe(filter(u => !!(u && u.account))).subscribe(u => {
+      this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'], secure: true });
+      this.socket.on('job', (job: IJob) => job.finishedOn ? this.update(job) : this.debonce$.next(job));
+      this.update();
     });
   }
 
