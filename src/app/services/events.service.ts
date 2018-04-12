@@ -14,10 +14,10 @@ export class EventsService implements OnDestroy {
   private _latestJobs$ = new Subject<IJobs>();
   latestJobs$ = this._latestJobs$.asObservable().pipe(map(j => {
     return [
-      ...((j.Active || []).map(el => ({ ...el, status: 'Active'}))),
-      ...((j.Completed || []).map(el => ({ ...el, status: 'Completed'}))),
-      ...((j.Failed || []).map(el => ({ ...el, status: 'Failed'}))),
-      ...((j.Waiting || []).map(el => ({ ...el, status: 'Waiting'})))]
+      ...((j.Active || []).map(el => ({ ...el, status: 'Active' }))),
+      ...((j.Completed || []).map(el => ({ ...el, status: 'Completed' }))),
+      ...((j.Failed || []).map(el => ({ ...el, status: 'Failed' }))),
+      ...((j.Waiting || []).map(el => ({ ...el, status: 'Waiting' })))]
       .sort((a, b) => b.timestamp - a.timestamp);
   }), share());
   latestJobsAll$ = this._latestJobs$.asObservable().pipe(map(j => j.Active.length), share());
@@ -30,8 +30,11 @@ export class EventsService implements OnDestroy {
 
     this.auth.userProfile$.subscribe(u => {
       if (u && u.account) {
-        this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token});
+        this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'], secure: true });
         this.socket.on('job', (job: IJob) => job.finishedOn ? this.update(job) : this.debonce$.next(job));
+        this.socket.on('reconnect_attempt', () => {
+          this.socket.io.opts.transports = ['polling', 'websocket'];
+        });
         this.update();
       } else {
         if (this.socket) { this.socket.disconnect(); }

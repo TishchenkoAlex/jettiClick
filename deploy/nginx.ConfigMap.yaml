@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: nginx-ingress
+    chart: nginx-ingress-0.13.1
+    component: controller
+    heritage: Tiller
+    release: jetti
+  name: jetti-nginx-ingress-controller
+  namespace: default
+data:
+  enable-vts-status: "false"
+  location-snippet: |
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_cache_bypass $http_upgrade;
+  proxy-read-timeout: "3600"
+  proxy-send-timeout: "3600"
