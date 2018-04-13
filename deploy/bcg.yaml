@@ -57,7 +57,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "64"
+              value: "66"
             - name: NODE_ENV
               value: "production"
             - name: SUBSCRIPTION_ID
@@ -71,6 +71,7 @@ metadata:
     app: bcg
 spec:
   type: NodePort
+  sessionAffinity: ClientIP
   selector:
     app: bcg
   ports:

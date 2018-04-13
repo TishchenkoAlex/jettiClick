@@ -8,18 +8,19 @@ export class MSSQL {
   private POOL: sql.ConnectionPool | sql.Transaction;
 
   constructor(private config, private transaction?: sql.Transaction) {
-    if (transaction) this.POOL = transaction; else {
-      this.POOL = new sql.ConnectionPool(this.config);
-      this.connect()
-        .then(() => console.log('connected', this.config.database))
-        .catch(err => console.log('connection error', err));
-
+    if (transaction) this.POOL = transaction;
+    else {
       if (process.env.NODE_ENV === 'production')
         setInterval(() => {
           (<sql.ConnectionPool>this.POOL).connect()
             .then(() => console.log('reconnected', this.config.database))
-            .catch(err => {});
-        }, 60000);
+            .catch(err => { });
+        }, 20000);
+
+      this.POOL = new sql.ConnectionPool(this.config);
+      this.connect()
+        .then(() => console.log('connected', this.config.database))
+        .catch(err => console.log('connection error', err));
     }
   }
 
