@@ -6,14 +6,20 @@ import { lib } from '../../std.lib';
 export default async function (job: Queue.Job) {
   await job.progress(0);
   const params = job.data;
-  const query = `SELECT id FROM "Documents"
-    WHERE type = @p1 AND company = @p2 AND date between @p3 AND @p4 ORDER BY date `;
+  const query = `
+    SELECT id FROM "Documents"
+    WHERE (1=1) AND
+      type = @p1 AND
+      company = @p2 AND
+      date between @p3 AND @p4
+    ORDER BY
+      date`;
   const TaskList: any[] = [];
   const endDate = new Date(params.EndDate);
   endDate.setHours(23, 59, 59, 999);
   const list = await sdbq.manyOrNone<any>(query, [params.type, params.company, params.StartDate, endDate.toJSON()]);
   const count = list.length; let offset = 0;
-  job.data['total'] = list.length;
+  job.data.job['total'] = list.length;
   await job.update(job.data);
   while (offset < count) {
     let i = 0;

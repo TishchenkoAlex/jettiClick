@@ -30,7 +30,7 @@ JQueue.on('active', (job, jobPromise) => {
 });
 
 JQueue.on('failed', async (job, err) => {
-  const MapJob =  mapJob(job);
+  const MapJob = mapJob(job);
   MapJob.failedReason = err.message;
   MapJob.finishedOn = new Date().getTime();
   userSocketsEmit(job.data.userId, 'job', MapJob);
@@ -41,7 +41,7 @@ JQueue.on('progress', (job, progress: number) => {
 });
 
 JQueue.on('completed', async job => {
-  const MapJob =  mapJob(job);
+  const MapJob = mapJob(job);
   MapJob.finishedOn = new Date().getTime();
   userSocketsEmit(job.data.userId, 'job', MapJob);
 });
@@ -58,7 +58,7 @@ export function mapJob(j: Queue.Job) {
     failedReason: (<any>j).failedReason,
     finishedOn: (<any>j).finishedOn,
     processedOn: (<any>j).processedOn,
-    data: j.data
+    data: { job: j.data.job }
   };
   return result;
 }

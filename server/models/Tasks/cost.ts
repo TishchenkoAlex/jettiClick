@@ -43,7 +43,7 @@ export default async function (job: Queue.Job) {
   }
   const TaskList: any[] = [];
   const count = list.length; let offset = 0;
-  job.data['total'] = list.length;
+  job.data.job['total'] = list.length;
   await job.update(job.data);
   while (offset < count) {
     let i = 0;

@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
-import { filter, map, share, take } from 'rxjs/operators';
+import { filter, map, sampleTime, share, take, throttleTime, shareReplay } from 'rxjs/operators';
 import * as socketIOClient from 'socket.io-client';
 import { IJob, IJobs } from '../../../server/models/api';
 import { AuthService } from '../auth/auth.service';
@@ -18,16 +18,17 @@ export class EventsService implements OnDestroy {
       ...((j.Failed || []).map(el => ({ ...el, status: 'Failed' }))),
       ...((j.Waiting || []).map(el => ({ ...el, status: 'Waiting' })))]
       .sort((a, b) => b.timestamp - a.timestamp);
-  }), share());
-  latestJobsAll$ = this._latestJobs$.asObservable().pipe(map(j => j.Active.length), share());
+  }));
+  latestJobsAll$ = this._latestJobs$.asObservable().pipe(map(j => j.Active.length));
   private debonce$ = new Subject<IJob>();
   private socket: SocketIOClient.Socket;
 
   constructor(private auth: AuthService, private api: ApiService) {
+    this.debonce$.pipe(sampleTime(1000)).subscribe(job => this.update(job));
 
     this.auth.userProfile$.pipe(filter(u => !!(u && u.account))).subscribe(u => {
       this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'] });
-      this.socket.on('job', (job: IJob) => this.update(job));
+      this.socket.on('job', (job: IJob) => this.debonce$.next(job));
       this.update();
     });
   }
