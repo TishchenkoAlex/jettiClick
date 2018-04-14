@@ -26,7 +26,7 @@ export class EventsService implements OnDestroy {
   constructor(private auth: AuthService, private api: ApiService) {
 
     this.auth.userProfile$.pipe(filter(u => !!(u && u.account))).subscribe(u => {
-      this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'], secure: true });
+      this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'] });
       this.socket.on('job', (job: IJob) => this.update(job));
       this.update();
     });
