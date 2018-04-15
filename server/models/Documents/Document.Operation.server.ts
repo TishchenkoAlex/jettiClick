@@ -70,7 +70,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
 
     if (!(oldInventory.length || newInventory.length)) return Registers;
 
-    await JQueue.add({
+    JQueue.add({
       job: { id: 'cost', description: `${this.description}` },
       doc: this,
       Inventory: [oldInventory, newInventory],

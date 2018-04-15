@@ -10,7 +10,9 @@ import post from './post';
 export const QueOpts: QueueOptions = {
   redis: {
     host: REDIS_DB_HOST,
-    reconnectOnError: (err) => true,
+    reconnectOnError: (err) => <any>2,
+    enableOfflineQueue: true,
+    autoResendUnfulfilledCommands: true,
   },
   prefix: DB_NAME
 };
@@ -21,7 +23,7 @@ export const Tasks: { [key: string]: (job: Queue.Job) => Promise<void> } = {
   cost: cost
 };
 
-export const JQueue = new Queue('GLOBAL', QueOpts);
+export const JQueue = new Queue(DB_NAME, QueOpts);
 JQueue.process(5, async t => {
   const task = Tasks[t.data.job.id];
   if (task) await task(t);
