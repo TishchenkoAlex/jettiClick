@@ -43,7 +43,6 @@ JQueue.on('failed', async (job, err) => {
 });
 
 JQueue.on('progress', (job, progress: number) => {
-  if (progress === 100) return;
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 
