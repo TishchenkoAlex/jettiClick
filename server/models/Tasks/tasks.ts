@@ -1,7 +1,7 @@
 import { QueueOptions } from 'bull';
 import * as Queue from 'bull';
 
-import { REDIS_DB_HOST, REDIS_DB_PREFIX } from '../../env/environment';
+import { REDIS_DB_HOST, DB_NAME } from '../../env/environment';
 import { userSocketsEmit } from '../../sockets';
 import { IJob } from '../api';
 import cost from './cost';
@@ -12,10 +12,10 @@ export const QueOpts: QueueOptions = {
     host: REDIS_DB_HOST,
     reconnectOnError: (err) => true,
   },
-  prefix: REDIS_DB_PREFIX
+  prefix: DB_NAME
 };
 
-export const Tasks = {
+export const Tasks: { [key: string]: (job: Queue.Job) => Promise<void> } = {
   post: post,
   FormPostServer: post,
   cost: cost
@@ -43,6 +43,7 @@ JQueue.on('failed', async (job, err) => {
 });
 
 JQueue.on('progress', (job, progress: number) => {
+  if (progress === 100) return;
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 

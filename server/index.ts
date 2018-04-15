@@ -10,7 +10,6 @@ import * as httpServer from 'http';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 
-import { SUBSCRIPTION_ID } from './env/environment';
 import { JQueue } from './models/Tasks/tasks';
 import { router as auth } from './routes/auth';
 import { router as documents } from './routes/documents';
@@ -32,7 +31,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(root, 'dist')));
 
-console.log('SUBSCRIPTION_ID', SUBSCRIPTION_ID, `${SUBSCRIPTION_ID}/api`);
 const api = `/api`;
 app.use(api, authHTTP, documents);
 app.use(api, authHTTP, userSettings);

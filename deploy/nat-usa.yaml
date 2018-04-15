@@ -49,19 +49,15 @@ spec:
                   key: password
             - name: REDIS_DB_HOST
               value: redis-master
-            - name: REDIS_DB_PREFIX
-              value: jetti
             - name: JTW_KEY
               valueFrom:
                 secretKeyRef:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "4"            
+              value: "5"            
             - name: NODE_ENV
               value: "production"
-            - name: SUBSCRIPTION_ID
-              value: 
 ---
 apiVersion: v1
 kind: Service
