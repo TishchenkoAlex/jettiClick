@@ -52,7 +52,12 @@ export default async function (job: Queue.Job) {
       TaskList.push(q);
     }
     offset = offset + i;
-    await Promise.all(TaskList);
+    try {
+      await Promise.all(TaskList);
+    } catch (err) {
+      await job.progress(Math.round(offset / count * 100));
+      throw err;
+    }
     TaskList.length = 0;
     await job.progress(Math.round(offset / count * 100));
   }
