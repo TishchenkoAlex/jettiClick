@@ -10,7 +10,6 @@ import post from './post';
 export const QueOpts: QueueOptions = {
   redis: {
     host: REDIS_DB_HOST,
-    lazyConnect: true,
     reconnectOnError: (err) => true,
   },
   prefix: REDIS_DB_PREFIX
