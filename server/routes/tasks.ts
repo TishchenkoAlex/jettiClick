@@ -1,9 +1,8 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-
 import { JQueue, mapJob } from '../models/Tasks/tasks';
+import { IJobs } from '../models/api';
 import { User } from '../routes/user.settings';
-import { IJob, IJobs } from '../models/api';
 
 export const router = express.Router();
 

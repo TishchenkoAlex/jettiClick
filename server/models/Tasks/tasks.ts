@@ -7,7 +7,14 @@ import { IJob } from '../api';
 import cost from './cost';
 import post from './post';
 
-export const QueOpts: QueueOptions = { redis: { host: REDIS_DB_HOST }, prefix: REDIS_DB_PREFIX };
+export const QueOpts: QueueOptions = {
+  redis: {
+    host: REDIS_DB_HOST,
+    lazyConnect: true,
+    reconnectOnError: (err) => true,
+  },
+  prefix: REDIS_DB_PREFIX
+};
 
 export const Tasks = {
   post: post,
@@ -18,7 +25,7 @@ export const Tasks = {
 export const JQueue = new Queue('GLOBAL', QueOpts);
 JQueue.process(5, async t => {
   const task = Tasks[t.data.job.id];
-  if (task) { await task(t); }
+  if (task) await task(t);
 });
 
 JQueue.on('error', err => {

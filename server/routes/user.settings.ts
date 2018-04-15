@@ -1,9 +1,8 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-
-import { FormListSettings, UserDefaultsSettings } from './../models/user.settings';
 import { IAccount } from '../models/api';
 import { sdb, sdba } from '../mssql';
+import { FormListSettings, UserDefaultsSettings } from './../models/user.settings';
 
 export const router = express.Router();
 

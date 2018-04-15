@@ -1,8 +1,7 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-import { ISuggest, RefValue } from '../models/api';
+import { ISuggest } from '../models/api';
 import { sdb } from '../mssql';
-
 
 export const router = express.Router();
 

@@ -26,18 +26,17 @@ export default async function (job: Queue.Job) {
   for (const r of grouped) {
     const query = `
     SELECT s.date, s.document, d.description doc FROM (
-    SELECT date, document from "Register.Accumulation.Inventory"
-    WHERE [Qty.Out] <> 0
-      AND date >= @p1
-      AND company = @p2
-      AND Storehouse = @p3
-      AND SKU = @p4
-      AND batch = @p5
-      AND document <> @p6
-    GROUP BY date, document) s
+      SELECT date, document from "Register.Accumulation.Inventory"
+      WHERE [Qty.Out] <> 0
+        AND date >= @p1
+        AND company = @p2
+        AND Storehouse = @p3
+        AND SKU = @p4
+        AND batch = @p5
+        AND document <> @p6
+      GROUP BY date, document) s
     LEFT JOIN "Documents" d ON d.id = s.document
-    ORDER BY s.date
-    `;
+    ORDER BY s.date`;
     list = [...list, ...(await sdbq.manyOrNone<any>(query,
       [doc.date, r!.company, r!.Storehouse, r!.SKU, r!.batch, doc.id]))];
   }
@@ -48,7 +47,7 @@ export default async function (job: Queue.Job) {
   while (offset < count) {
     let i = 0;
     for (i = 0; i < 25; i++) {
-      if (!list[i + offset]) { break; }
+      if (!list[i + offset]) break;
       const q = lib.doc.postById(list[i + offset].document, true, sdbq);
       TaskList.push(q);
     }
