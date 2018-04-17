@@ -23,7 +23,7 @@ export function mapToApi(model: DocumentBase): IFlatDocument {
   for (const property in model) {
     if (!model.hasOwnProperty(property)) { continue; }
     if (JETTI_DOC_PROP.indexOf(property) > -1) { continue; }
-    if ((model[property] instanceof Array)) {
+    if ((Array.isArray(model[property]))) {
       const copy = JSON.parse(JSON.stringify(model[property])) as any[];
       copy.forEach(element => {
         for (const p in element) {

@@ -1,26 +1,23 @@
-import { QueueOptions } from 'bull';
 import * as Queue from 'bull';
-
-import { REDIS_DB_HOST, DB_NAME } from '../../env/environment';
+import { QueueOptions } from 'bull';
+import { DB_NAME, REDIS_DB_HOST } from '../../env/environment';
 import { userSocketsEmit } from '../../sockets';
 import { IJob } from '../api';
 import cost from './cost';
 import post from './post';
 
-export const QueOpts: QueueOptions = {
-  redis: {
-    host: REDIS_DB_HOST,
-    reconnectOnError: (err) => <any>2,
-    enableOfflineQueue: true,
-    autoResendUnfulfilledCommands: true,
-  },
-  prefix: DB_NAME
-};
-
 export const Tasks: { [key: string]: (job: Queue.Job) => Promise<void> } = {
   post: post,
-  FormPostServer: post,
   cost: cost
+};
+
+const QueOpts: QueueOptions = {
+  redis: {
+    host: REDIS_DB_HOST,
+    showFriendlyErrorStack: true,
+    reconnectOnError: (err) => true
+  },
+  prefix: DB_NAME,
 };
 
 export const JQueue = new Queue(DB_NAME, QueOpts);

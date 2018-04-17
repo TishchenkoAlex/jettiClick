@@ -43,7 +43,7 @@ export abstract class FormBase {
       }
       result[prop] = Prop;
       const value = (this as any)[prop];
-      if (value instanceof Array && value.length) {
+      if (Array.isArray(value) && value.length) {
         const arrayProp: { [x: string]: any } = {};
         for (const arrProp of Object.keys(value[0])) {
           const PropArr = Object.assign({}, this.targetProp(value[0], arrProp));

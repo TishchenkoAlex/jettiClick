@@ -892,7 +892,7 @@ export class Table implements OnInit, AfterContentInit {
         return this.selectionKeys[this.objectUtils.resolveFieldData(rowData, this.dataKey)] !== undefined;
       }
       else {
-        if (this.selection instanceof Array)
+        if (Array.isArray(this.selection))
           return this.findIndexInSelection(rowData) > -1;
         else
           return this.equals(rowData, this.selection);
@@ -1000,7 +1000,7 @@ export class Table implements OnInit, AfterContentInit {
 
   isFilterBlank(filter: any): boolean {
     if (filter !== null && filter !== undefined) {
-      if ((typeof filter === 'string' && filter.trim().length == 0) || (filter instanceof Array && filter.length == 0))
+      if ((typeof filter === 'string' && filter.trim().length == 0) || (Array.isArray(filter) && filter.length == 0))
         return true;
       else
         return false;

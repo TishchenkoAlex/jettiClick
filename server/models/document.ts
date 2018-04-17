@@ -139,7 +139,7 @@ export class DocumentBase {
         if (typeof result[prop][el] === 'function') result[prop][el] = result[prop][el].toString();
       }
       const value = (proto as any)[prop];
-      if (value instanceof Array && value.length) {
+      if (Array.isArray(value) && value.length) {
         const arrayProp: { [x: string]: any } = {};
         for (const arrProp of Object.keys(value[0])) {
           const PropArr = proto.targetProp(value[0], arrProp);

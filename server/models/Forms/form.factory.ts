@@ -2,7 +2,6 @@ import { FormPost } from './Form.Post';
 import { FormBase } from './form';
 import { FormTypes } from './form.types';
 
-
 export interface IRegisteredForm<T extends FormBase> {
   type: FormTypes;
   class: T;

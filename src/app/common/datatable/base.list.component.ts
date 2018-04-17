@@ -144,13 +144,13 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   });
   private _update(col: ColumnDef | undefined, event, center) {
     if (!col) return;
-    if ((event instanceof Array) && event[1]) { event[1].setHours(23, 59, 59, 999); }
+    if ((Array.isArray(event)) && event[1]) { event[1].setHours(23, 59, 59, 999); }
     this.filters[col.field] = { matchMode: center || (col.filter && col.filter.center), value: event };
     this.prepareDataSource(this.multiSortMeta);
     this.dataSource.sort();
   }
   update(col: ColumnDef, event, center = 'like') {
-    if (!event || (typeof event === 'object' && !event.value && !(event instanceof Array))) {
+    if (!event || (typeof event === 'object' && !event.value && !(Array.isArray(event)))) {
       if (typeof event !== 'boolean') event = null;
     }
     this.debonce$.next({ col, event, center });

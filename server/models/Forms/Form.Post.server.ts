@@ -15,7 +15,7 @@ export default class FormPostServer extends FormPost {
     endDate.setHours(23, 59, 59, 999);
 
     const result = (await JQueue.add({
-      job: { id: 'post', description: '(job) post Invoives' },
+      job: { id: 'post', description: '(job) post Invoices' },
       user: this.CallRequest.user,
       type: this.CallRequest.formView.type.id,
       company: this.CallRequest.formView.company.id,

@@ -27,7 +27,7 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   const doc = RegisteredServerDocument.find(el => el.type === type);
   if (doc) {
     const serverResult = <T>new doc.Class;
-    const ArrayProps = Object.keys(serverResult).filter(k => serverResult[k] instanceof Array);
+    const ArrayProps = Object.keys(serverResult).filter(k => Array.isArray(serverResult[k]));
     ArrayProps.forEach(prop => serverResult[prop].length = 0);
     if (document) serverResult.map(document);
     result = serverResult;

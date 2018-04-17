@@ -38,7 +38,7 @@ export async function List(req: Request, res: Response) {
     filter.filter(f => !(f.right === null || f.right === undefined)).forEach(f => {
       switch (f.center) {
         case '=': case '>=': case '<=': case '>': case '<':
-          if (f.right instanceof Array) { // time interval
+          if (Array.isArray(f.right)) { // time interval
             if (f.right[0]) { where += ` AND d."${f.left}" >= '${f.right[0]}'`; }
             if (f.right[1]) { where += ` AND d."${f.left}" <= '${f.right[1]}'`; }
             break;
