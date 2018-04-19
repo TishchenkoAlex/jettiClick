@@ -6,7 +6,7 @@ import { IJob } from '../api';
 import cost from './cost';
 import post from './post';
 
-export const Tasks: { [key: string]: (job: Queue.Job) => Promise<void> } = {
+export const Jobs: { [key: string]: (job: Queue.Job) => Promise<void> } = {
   post: post,
   cost: cost
 };
@@ -20,21 +20,21 @@ const QueOpts: QueueOptions = {
   prefix: DB_NAME,
 };
 
-export const JQueue = new Queue(DB_NAME, QueOpts);
-JQueue.process(5, async t => {
-  const task = Tasks[t.data.job.id];
-  if (task) await task(t);
+export let JQueue = new Queue(DB_NAME, QueOpts);
+JQueue.process(5, job => {
+  const task = Jobs[job.data.job.id];
+  if (task) return task(job);
 });
 
 JQueue.on('error', err => {
-  console.log('error', err.message);
+  console.log('queue error', err.message);
 });
 
 JQueue.on('active', (job, jobPromise) => {
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 
-JQueue.on('failed', async (job, err) => {
+JQueue.on('failed', (job, err) => {
   const MapJob = mapJob(job);
   MapJob.failedReason = err.message;
   MapJob.finishedOn = new Date().getTime();
@@ -45,7 +45,13 @@ JQueue.on('progress', (job, progress: number) => {
   userSocketsEmit(job.data.userId, 'job', mapJob(job));
 });
 
-JQueue.on('completed', async job => {
+JQueue.on('completed', job => {
+  const MapJob = mapJob(job);
+  MapJob.finishedOn = new Date().getTime();
+  userSocketsEmit(job.data.userId, 'job', MapJob);
+});
+
+JQueue.on('stalled', job => {
   const MapJob = mapJob(job);
   MapJob.finishedOn = new Date().getTime();
   userSocketsEmit(job.data.userId, 'job', MapJob);
