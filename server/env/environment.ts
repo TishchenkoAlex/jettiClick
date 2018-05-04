@@ -6,6 +6,7 @@ export const JTW_KEY = process.env.JTW_KEY || 'Pa5315word';
 
 export const sqlConfig: config = {
   server: process.env.DB_HOST || 'sql.jetti-app.com',
+  port: 14330,
   database: DB_NAME,
   user: process.env.DB_USER || 'yuralex',
   password: process.env.DB_PASSWORD || 'MyNew01Password',
@@ -21,6 +22,7 @@ export const sqlConfig: config = {
 
 export const sqlConfigAccounts: config = {
   server: process.env.DB_ACCOUNTS_HOST || 'sql.jetti-app.com',
+  port: 14330,
   database: process.env.DB_ACCOUNTS_NAME || 'accounts',
   user: process.env.DB_ACCOUNTS_USER || 'yuralex',
   password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',

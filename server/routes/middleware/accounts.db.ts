@@ -18,7 +18,7 @@ export namespace Accounts {
       return data;
     } else {
       const data = await sdba.oneOrNone<IAccount>(`
-        UPDATE "accounts" SET data = $2 WHERE id = @p1 OUTPUT updated.*`, [account.email, account]);
+        UPDATE "accounts" SET data = $2 OUTPUT inserted.* WHERE id = @p1 `, [account.email, account]);
       return data;
     }
   }

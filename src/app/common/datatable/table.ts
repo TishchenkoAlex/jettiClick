@@ -19,6 +19,8 @@
 // tslint:disable:no-trailing-whitespace
 // tslint:disable:semicolon
 // tslint:disable:no-string-throw
+// tslint:disable:whitespace
+
 import { CommonModule } from '@angular/common';
 import { AfterContentInit, AfterViewChecked, AfterViewInit, Component, ContentChildren, Directive, ElementRef, EventEmitter, HostListener, Injectable, Input, NgModule, NgZone, OnInit, Output, QueryList, TemplateRef, ViewChild } from '@angular/core';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
@@ -46,7 +48,7 @@ export class TableService {
   valueSource$ = this.valueSource.asObservable();
   totalRecordsSource$ = this.totalRecordsSource.asObservable();
 
-  onSort(sortMeta: SortMeta | SortMeta[]) {
+  onSort(sortMeta) {
     this.sortSource.next(sortMeta);
   }
 
@@ -70,8 +72,8 @@ export class TableService {
 @Component({
   selector: 'p-table',
   template: `
-        <div #container [ngStyle]="style" [class]="styleClass" 
-            [ngClass]="{'ui-table ui-widget': true, 'ui-table-responsive': responsive, 'ui-table-resizable': resizableColumns, 
+        <div #container [ngStyle]="style" [class]="styleClass"
+            [ngClass]="{'ui-table ui-widget': true, 'ui-table-responsive': responsive, 'ui-table-resizable': resizableColumns,
                 'ui-table-resizable-fit': (resizableColumns && columnResizeMode === 'fit'),
                 'ui-table-hoverable-rows': (rowHover||selectionMode), 'ui-table-auto-layout': autoLayout}">
             <div class="ui-table-loading ui-widget-overlay" *ngIf="loading"></div>
@@ -102,7 +104,7 @@ export class TableService {
                <div class="ui-table-frozen-view" *ngIf="frozenColumns||frozenBodyTemplate" [pScrollableView]="frozenColumns" [frozen]="true" [ngStyle]="{width: frozenWidth}" [scrollHeight]="scrollHeight"></div>
                <div [pScrollableView]="columns" [frozen]="false" [scrollHeight]="scrollHeight"></div>
             </div>
-                        
+            
             <p-paginator [rows]="rows" [first]="first" [totalRecords]="totalRecords" [pageLinkSize]="pageLinks" styleClass="ui-paginator-bottom" [alwaysShow]="alwaysShowPaginator"
                 (onPageChange)="onPageChange($event)" [rowsPerPageOptions]="rowsPerPageOptions" *ngIf="paginator && (paginatorPosition === 'bottom' || paginatorPosition =='both')"
                 [templateLeft]="paginatorLeftTemplate" [templateRight]="paginatorRightTemplate" [dropdownAppendTo]="paginatorDropdownAppendTo"></p-paginator>
@@ -150,6 +152,8 @@ export class Table implements OnInit, AfterContentInit {
 
   @Input() sortMode: string = 'single';
 
+  @Input() resetPageOnSort: boolean = true;
+
   @Input() selectionMode: string;
 
   @Output() selectionChange: EventEmitter<any> = new EventEmitter();
@@ -190,7 +194,7 @@ export class Table implements OnInit, AfterContentInit {
 
   @Input() virtualScrollDelay: number = 500;
 
-  @Input() virtualRowHeight: number = 27;
+  @Input() virtualRowHeight: number = 28;
 
   @Input() frozenWidth: string;
 
@@ -213,6 +217,8 @@ export class Table implements OnInit, AfterContentInit {
   @Input() customSort: boolean;
 
   @Input() autoLayout: boolean;
+
+  @Input() exportFunction;
 
   @Output() onRowSelect: EventEmitter<any> = new EventEmitter();
 
@@ -445,11 +451,11 @@ export class Table implements OnInit, AfterContentInit {
     this.tableService.onTotalRecordsChange(this._totalRecords);
   }
 
-  @Input() get sortField(): string | null {
-    return this._sortField;
+  @Input() get sortField(): string {
+    return this._sortField as string;
   }
 
-  set sortField(val: string | null) {
+  set sortField(val: string) {
     this._sortField = val;
 
     //avoid triggering lazy load prior to lazy initialization at onInit
@@ -474,11 +480,11 @@ export class Table implements OnInit, AfterContentInit {
     }
   }
 
-  @Input() get multiSortMeta(): SortMeta[] | null {
-    return this._multiSortMeta;
+  @Input() get multiSortMeta(): SortMeta[] {
+    return this._multiSortMeta as SortMeta[];
   }
 
-  set multiSortMeta(val: SortMeta[] | null) {
+  set multiSortMeta(val: SortMeta[]) {
     this._multiSortMeta = val;
     if (this.sortMode === 'multiple') {
       this.sortMultiple();
@@ -553,7 +559,7 @@ export class Table implements OnInit, AfterContentInit {
         if (!metaKey || !this.multiSortMeta) {
           this._multiSortMeta = [];
         }
-        this.multiSortMeta!.push({ field: event.field, order: this.defaultSortOrder });
+        this.multiSortMeta.push({ field: event.field, order: this.defaultSortOrder });
       }
 
       this.sortMultiple();
@@ -562,7 +568,9 @@ export class Table implements OnInit, AfterContentInit {
 
   sortSingle() {
     if (this.sortField && this.sortOrder) {
-      this.first = 0;
+      if (this.resetPageOnSort) {
+        this.first = 0;
+      }
 
       if (this.lazy) {
         this.onLazyLoad.emit(this.createLazyLoadMetadata());
@@ -578,9 +586,9 @@ export class Table implements OnInit, AfterContentInit {
         }
         else {
           this.value.sort((data1, data2) => {
-            let value1 = this.objectUtils.resolveFieldData(data1, this.sortField!);
-            let value2 = this.objectUtils.resolveFieldData(data2, this.sortField!);
-            let result: number | null = null;
+            let value1 = this.objectUtils.resolveFieldData(data1, this.sortField);
+            let value2 = this.objectUtils.resolveFieldData(data2, this.sortField);
+            let result: any = null;
 
             if (value1 == null && value2 != null)
               result = -1;
@@ -646,8 +654,14 @@ export class Table implements OnInit, AfterContentInit {
   multisortField(data1, data2, multiSortMeta, index) {
     let value1 = this.objectUtils.resolveFieldData(data1, multiSortMeta[index].field);
     let value2 = this.objectUtils.resolveFieldData(data2, multiSortMeta[index].field);
-    let result: number | null = null;
+    let result: any = null;
 
+    if (value1 == null && value2 != null)
+      result = -1;
+    else if (value1 != null && value2 == null)
+      result = 1;
+    else if (value1 == null && value2 == null)
+      result = 0;
     if (typeof value1 == 'string' || value1 instanceof String) {
       if (value1.localeCompare && (value1 != value2)) {
         return (multiSortMeta[index].order * value1.localeCompare(value2));
@@ -661,7 +675,7 @@ export class Table implements OnInit, AfterContentInit {
       return (multiSortMeta.length - 1) > (index) ? (this.multisortField(data1, data2, multiSortMeta, index + 1)) : 0;
     }
 
-    return (multiSortMeta[index].order * result!);
+    return (multiSortMeta[index].order * result);
   }
 
   getSortMeta(field: string) {
@@ -892,7 +906,7 @@ export class Table implements OnInit, AfterContentInit {
         return this.selectionKeys[this.objectUtils.resolveFieldData(rowData, this.dataKey)] !== undefined;
       }
       else {
-        if (Array.isArray(this.selection))
+        if (this.selection instanceof Array)
           return this.findIndexInSelection(rowData) > -1;
         else
           return this.equals(rowData, this.selection);
@@ -1000,7 +1014,7 @@ export class Table implements OnInit, AfterContentInit {
 
   isFilterBlank(filter: any): boolean {
     if (filter !== null && filter !== undefined) {
-      if ((typeof filter === 'string' && filter.trim().length == 0) || (Array.isArray(filter) && filter.length == 0))
+      if ((typeof filter === 'string' && filter.trim().length == 0) || (filter instanceof Array && filter.length == 0))
         return true;
       else
         return false;
@@ -1238,6 +1252,7 @@ export class Table implements OnInit, AfterContentInit {
     this._sortField = null;
     this._sortOrder = 1;
     this._multiSortMeta = null;
+    this.tableService.onSort(null);
 
     this.filteredValue = null;
     this.filters = {};
@@ -1280,10 +1295,19 @@ export class Table implements OnInit, AfterContentInit {
         if (column.exportable !== false && column.field) {
           let cellData = this.objectUtils.resolveFieldData(record, column.field);
 
-          if (cellData != null)
-            cellData = String(cellData).replace(/"/g, '""');
+          if (cellData != null) {
+            if (this.exportFunction) {
+              cellData = this.exportFunction({
+                data: cellData,
+                field: column.field
+              });
+            }
+            else
+              cellData = String(cellData).replace(/"/g, '""');
+          }
           else
             cellData = '';
+
 
           csv += '"' + cellData + '"';
 
@@ -1603,7 +1627,6 @@ export class Table implements OnInit, AfterContentInit {
         dropIndex: this.droppedRowIndex
       });
     }
-
     //cleanup
     this.onRowDragLeave(event, rowElement);
     this.onRowDragEnd(event);
@@ -1759,6 +1782,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy, AfterViewChecke
         });
       });
     }
+
     this.initialized = false;
   }
 
@@ -1804,7 +1828,6 @@ export class ScrollableView implements AfterViewInit, OnDestroy, AfterViewChecke
     if (this.dt.virtualScroll) {
       this.setVirtualScrollerHeight();
     }
-    this.initialized = false;
   }
 
   bindEvents() {
@@ -1864,7 +1887,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy, AfterViewChecke
     if (this.dt.virtualScroll) {
       let viewport = this.domHandler.getOuterHeight(this.scrollBodyViewChild.nativeElement);
       let tableHeight = this.domHandler.getOuterHeight(this.scrollTableViewChild.nativeElement);
-      let pageHeight = 28 * this.dt.rows;
+      let pageHeight = this.dt.virtualRowHeight * this.dt.rows;
       let virtualTableHeight = this.domHandler.getOuterHeight(this.virtualScrollerViewChild.nativeElement);
       let pageCount = (virtualTableHeight / pageHeight) || 1;
       let scrollBodyTop = this.scrollTableViewChild.nativeElement.style.top || '0';
@@ -1931,6 +1954,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy, AfterViewChecke
         this.scrollFooterBoxViewChild.nativeElement.style.marginRight = scrollBarWidth + 'px';
       }
     }
+    this.initialized = false;
   }
 
   ngOnDestroy() {
@@ -1963,7 +1987,7 @@ export class SortableColumn implements OnInit, OnDestroy {
 
   @Input() pSortableColumnDisabled: boolean;
 
-  sorted: boolean | null | '' | undefined;
+  sorted: boolean;
 
   subscription: Subscription;
 
@@ -1982,7 +2006,7 @@ export class SortableColumn implements OnInit, OnDestroy {
   }
 
   updateSortState() {
-    this.sorted = this.dt.isSorted(this.field);
+    this.sorted = !!this.dt.isSorted(this.field); // tishchenko
   }
 
   @HostListener('click', ['$event'])
@@ -2024,8 +2048,6 @@ export class SortIcon implements OnInit, OnDestroy {
   subscription: Subscription;
 
   sortOrder: number;
-
-  sorted: boolean;
 
   constructor(public dt: Table) {
     this.subscription = this.dt.tableService.sortSource$.subscribe(sortMeta => {
@@ -2459,7 +2481,6 @@ export class EditableColumn implements AfterViewInit {
     return true; //  tishchenko (this.dt.editingCell && this.domHandler.find(this.dt.editingCell, '.ng-invalid.ng-dirty').length === 0);
   }
 
-
   @HostListener('click', ['$event'])
   onClick(event: MouseEvent) {
     if (this.isEnabled()) {
@@ -2521,6 +2542,8 @@ export class EditableColumn implements AfterViewInit {
 
       //tab
       else if (event.keyCode == 9) {
+        this.dt.onEditComplete.emit({ field: this.field, data: this.data });
+
         if (event.shiftKey)
           this.moveToPreviousCell(event);
         else
@@ -2687,7 +2710,9 @@ export class TableRadioButton {
   }
 
   onClick(event: Event) {
-    this.dt.toggleRowWithRadio(event, this.value);
+    if (!this.disabled) {
+      this.dt.toggleRowWithRadio(event, this.value);
+    }
     this.domHandler.clearSelection();
   }
 
@@ -2744,7 +2769,9 @@ export class TableCheckbox {
   }
 
   onClick(event: Event) {
-    this.dt.toggleRowWithCheckbox(event, this.value);
+    if (!this.disabled) {
+      this.dt.toggleRowWithCheckbox(event, this.value);
+    }
     this.domHandler.clearSelection();
   }
 
@@ -2786,10 +2813,16 @@ export class TableHeaderCheckbox {
 
   disabled: boolean;
 
-  subscription: Subscription;
+  selectionChangeSubscription: Subscription;
+
+  valueChangeSubscription: Subscription;
 
   constructor(public dt: Table, public domHandler: DomHandler, public tableService: TableService) {
-    this.subscription = this.dt.tableService.selectionSource$.subscribe(() => {
+    this.valueChangeSubscription = this.dt.tableService.valueSource$.subscribe(() => {
+      this.checked = this.updateCheckedState();
+    });
+
+    this.selectionChangeSubscription = this.dt.tableService.selectionSource$.subscribe(() => {
       this.checked = this.updateCheckedState();
     });
   }
@@ -2815,13 +2848,18 @@ export class TableHeaderCheckbox {
   }
 
   ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.selectionChangeSubscription) {
+      this.selectionChangeSubscription.unsubscribe();
+    }
+
+    if (this.valueChangeSubscription) {
+      this.valueChangeSubscription.unsubscribe();
     }
   }
 
   updateCheckedState() {
-    return (this.dt.value && this.dt.value.length > 0 && this.dt.selection && this.dt.selection.length > 0 && this.dt.selection.length === this.dt.value.length);
+    const val = this.dt.filteredValue || this.dt.value;
+    return (val && val.length > 0 && this.dt.selection && this.dt.selection.length > 0 && this.dt.selection.length === val.length);
   }
 
 }
@@ -2950,6 +2988,8 @@ export class ReorderableRow implements AfterViewInit {
     if (this.isEnabled() && this.dt.rowDragging) {
       this.dt.onRowDrop(event, this.el.nativeElement);
     }
+
+    event.preventDefault()
   }
 }
 

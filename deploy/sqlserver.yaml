@@ -28,9 +28,9 @@ spec:
         image: eu.gcr.io/jetti-pg/mssql
         ports:
         - containerPort: 1433
-        resources:
-          requests:
-            cpu: 1
+        #resources:
+          #requests:
+            #cpu: 1
         env:
         - name: ACCEPT_EULA
           value: "Y"
@@ -71,6 +71,6 @@ spec:
     app: mssql
   ports:
     - protocol: TCP
-      port: 1433
+      port: 14330
       targetPort: 1433
   type: LoadBalancer

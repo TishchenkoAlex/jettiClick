@@ -122,7 +122,7 @@ router.post('/refresh', authHTTP, async (req, res, next) => {
       roles: existing.roles,
       env: existing.env,
     };
-    const token = jwt.sign(new_payload, JTW_KEY, { expiresIn: '2h' });
+    const token = jwt.sign(new_payload, JTW_KEY, { expiresIn: '24h' });
     return res.json({ account: existing, token });
   } catch (err) { next(err); }
 });

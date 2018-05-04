@@ -12,7 +12,7 @@ export const router = express.Router();
 router.get('/register/account/movements/view/:id', async (req, res, next) => {
   try {
     const query = `SELECT * FROM "Register.Account.View" where "document.id" = @p1`;
-    const data = await sdb.manyOrNoneJSON<AccountRegister>(query, [req.params.id]);
+    const data = await sdb.manyOrNoneFromJSON<AccountRegister>(query, [req.params.id]);
     res.json(data);
   } catch (err) { next(err); }
 });

@@ -18,27 +18,17 @@ export class MSSQL {
         }, 20000);
 
       this.POOL = new sql.ConnectionPool(this.config);
-      this.connect()
+      (<sql.ConnectionPool>this.POOL).connect()
         .then(() => console.log('connected', this.config.database))
         .catch(err => console.log('connection error', err));
     }
   }
 
-  async connect() {
-    try { await this.close(); } catch { }
-    await (<sql.ConnectionPool>this.POOL).connect();
-    return this;
-  }
-
-  async close() {
-    try { await (<sql.ConnectionPool>this.POOL).close(); } catch { }
-    return this;
-  }
-
   private ToJSON(value: any): any {
-    if (typeof value === 'string' &&
-      (value[0] === '{' || (value[0] === '[')) &&
-      (value[value.length - 1] === '}' || (value[value.length - 1] === ']')))
+    if (typeof value === 'string' && (
+      (value[0] === '{' && value[value.length - 1] === '}') ||
+      (value[0] === '[' && value[value.length - 1] === ']')
+    ))
       try { return JSON.parse(value, dateReviver); } catch { return value; }
     else
       return value;
@@ -75,7 +65,6 @@ export class MSSQL {
     return response.recordset.length ? this.complexObject<T>(response.recordset[0]) : null;
   }
 
-
   async manyOrNone<T>(text: string, params: any[] = []): Promise<T[]> {
     const request = new sql.Request(<any>(this.POOL));
     this.setParams(params, request);
@@ -83,23 +72,12 @@ export class MSSQL {
     return response.recordset.map(el => this.complexObject<T>(el)) || [];
   }
 
-  async manyOrNoneJSON<T>(text: string, params: any[] = []): Promise<T[]> {
+  async manyOrNoneFromJSON<T>(text: string, params: any[] = []): Promise<T[]> {
     const request = new sql.Request(<any>(this.POOL));
     this.setParams(params, request);
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES;`);
     const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
     return data ? JSON.parse(data, dateReviver) : [];
-  }
-
-  async oneOrNoneJSON<T>(text: string, params: any[] = []): Promise<T> {
-    const request = new sql.Request(<any>(this.POOL));
-    this.setParams(params, request);
-    const response = await request.query(`${text} FOR JSON PATH, WITHOUT_ARRAY_WRAPPER, INCLUDE_NULL_VALUES ;`);
-    const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
-    const result = typeof data === 'string' ? JSON.parse(data) : null;
-    if (result && typeof result.doc === 'string') result.doc = JSON.parse(result.doc, dateReviver);
-    if (result && typeof result.data === 'string') result.data = JSON.parse(result.data, dateReviver);
-    return result;
   }
 
   async none<T>(text: string, params: any[] = []) {
@@ -109,7 +87,7 @@ export class MSSQL {
   }
 
   async tx<T>(func: (tx: MSSQL) => Promise<T>) {
-    const transaction = new sql.Transaction(<any>this.POOL);
+    const transaction = new sql.Transaction(this.POOL as sql.ConnectionPool);
     await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
     try {
       await func(new MSSQL(this.config, transaction));
