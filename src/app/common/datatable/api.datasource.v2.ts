@@ -1,13 +1,11 @@
-import { catchError, filter, map, shareReplay, switchMap, tap, share } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
+import { catchError, filter, map, share, switchMap, tap } from 'rxjs/operators';
 import { Continuation, DocListResponse } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
 import { scrollIntoViewIfNeeded } from '../utils';
 import { DocumentBase } from './../../../../server/models/document';
-// tslint:disable-next-line:import-blacklist
-import { Subject, BehaviorSubject, Observable, of } from 'rxjs';
-
 
 interface DatasourceCommand { command: string; data?: any; }
 

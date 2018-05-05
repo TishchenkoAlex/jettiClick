@@ -43,7 +43,6 @@ export function getPeriod(value: string): { startDate: Date, endDate: Date } {
   }
 }
 
-
 export function scrollIntoViewIfNeeded(type, style, direction = false) {
   let target;
   let highlight = document.getElementsByClassName(`scrollTo-${type} ${style}`);

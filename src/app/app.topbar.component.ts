@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-
 import { AppComponent } from './app.component';
 import { LoadingService } from './common/loading.service';
 import { EventsService } from './services/events.service';

@@ -19,6 +19,8 @@ spec:
           ports:
             - containerPort: 8080
           env:
+            - name: DB_PORT
+              value: "1433"
             - name: DB_HOST
               value: mssql
             - name: DB_NAME

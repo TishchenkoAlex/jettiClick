@@ -1,15 +1,13 @@
-import { ChangeDetectionStrategy, Component, QueryList, ViewChildren, HostListener } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, QueryList, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { merge } from 'rxjs';
 import { filter } from 'rxjs/operators';
-
 import { INoSqlDocument } from '../../../../server/models/ServerDocument';
 import { DocService } from '../doc.service';
 import { DynamicComponent } from '../dynamic-component/dynamic-component';
-import { TabDef, TabsStore } from './tabs.store';
 import { scrollIntoViewIfNeeded } from '../utils';
-// tslint:disable-next-line:import-blacklist
-import { merge } from 'rxjs';
+import { TabDef, TabsStore } from './tabs.store';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

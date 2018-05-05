@@ -1,22 +1,12 @@
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { Location } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-  QueryList,
-  ViewChildren,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-// tslint:disable-next-line:import-blacklist
-import { of as observableOf, merge, Subscription } from 'rxjs';
+import { MenuItem } from 'primeng/components/common/menuitem';
+import { Subscription, merge, of as observableOf } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { v1 } from 'uuid';
-
 import { calculateDescription } from '../../../../server/models/api';
 import { DocumentBase, DocumentOptions, Ref } from '../../../../server/models/document';
 import { DocService } from '../../common/doc.service';
@@ -24,7 +14,6 @@ import { FormControlInfo } from '../dynamic-form/dynamic-form-base';
 import { patchOptionsNoEvents } from '../dynamic-form/dynamic-form.service';
 import { LoadingService } from '../loading.service';
 import { TabsStore } from '../tabcontroller/tabs.store';
-import { MenuItem } from 'primeng/components/common/menuitem';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

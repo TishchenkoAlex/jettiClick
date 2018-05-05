@@ -6,7 +6,7 @@ import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
 import { environment } from './../../environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class EventsService implements OnDestroy {
 
   private _latestJobs$ = new Subject<IJobs>();

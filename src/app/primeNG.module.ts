@@ -1,9 +1,11 @@
 import locale from '@angular/common/locales/ru';
 import { NgModule } from '@angular/core';
+import { CovalentCodeEditorModule } from '@covalent/code-editor';
 import { NgDragDropModule } from 'ng-drag-drop';
 import { AutoCompleteModule } from 'primeng/components/autocomplete/autocomplete';
 import { ButtonModule } from 'primeng/components/button/button';
 import { CalendarModule } from 'primeng/components/calendar/calendar';
+import { CheckboxModule } from 'primeng/components/checkbox/checkbox';
 import { ConfirmationService } from 'primeng/components/common/confirmationservice';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { ConfirmDialogModule } from 'primeng/components/confirmdialog/confirmdialog';
@@ -12,7 +14,6 @@ import { DialogModule } from 'primeng/components/dialog/dialog';
 import { FieldsetModule } from 'primeng/components/fieldset/fieldset';
 import { GrowlModule } from 'primeng/components/growl/growl';
 import { InputTextModule } from 'primeng/components/inputtext/inputtext';
-import { CheckboxModule } from 'primeng/components/checkbox/checkbox';
 import { InputTextareaModule } from 'primeng/components/inputtextarea/inputtextarea';
 import { PaginatorModule } from 'primeng/components/paginator/paginator';
 import { PanelModule } from 'primeng/components/panel/panel';
@@ -27,9 +28,7 @@ import { ToolbarModule } from 'primeng/components/toolbar/toolbar';
 import { TooltipModule } from 'primeng/components/tooltip/tooltip';
 import { TreeTableModule } from 'primeng/components/treetable/treetable';
 import { TriStateCheckboxModule } from 'primeng/components/tristatecheckbox/tristatecheckbox';
-
 import { TableModule } from './common/datatable/table';
-import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
 @NgModule({
   exports: [

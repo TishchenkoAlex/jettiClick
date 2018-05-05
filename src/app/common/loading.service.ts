@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
-// tslint:disable-next-line:import-blacklist
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LoadingService {
   history = {};
 
-  private _loading = new BehaviorSubject<{req: string, loading: boolean} | undefined>(undefined);
+  private _loading = new BehaviorSubject<{ req: string, loading: boolean } | undefined>(undefined);
   loading$ = this._loading.asObservable();
-  set loading(value: {req: string, loading: boolean}) {
+  set loading(value: { req: string, loading: boolean }) {
     if (history[value.req] && !value.loading) delete history[value.req];
     else if (value.loading === true) history[value.req] = value.req;
     if (Object.keys(history).length === 0) this._loading.next(undefined); else this._loading.next(value);

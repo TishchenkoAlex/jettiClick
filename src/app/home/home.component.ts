@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { take } from 'rxjs/operators';
-
 import { AuthService } from '../auth/auth.service';
 import { EventsService } from './../services/events.service';
 

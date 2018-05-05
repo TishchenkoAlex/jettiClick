@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { map, share } from 'rxjs/operators';
 import { RegisterAccumulation } from '../../../../server/models/Registers/Accumulation/RegisterAccumulation';
 import { ApiService } from '../../services/api.service';
 import { DocumentBase } from './../../../../server/models/document';
-// tslint:disable-next-line:import-blacklist
-import { Observable } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,11 +22,9 @@ export class RegisterAccumulationComponent implements OnInit {
   constructor(private apiService: ApiService) { }
 
   ngOnInit() {
-
     this.movements$ = this.apiService.getDocAccumulationMovements(this.register, this.doc.id).pipe(share());
     this.additionalColumns$ = this.movements$.pipe(
       map(data =>  Object.keys(data[0]).filter(el => ['date', 'kind', 'company', 'document'].findIndex(e => e === el) === -1)), share());
-
   }
 
 }

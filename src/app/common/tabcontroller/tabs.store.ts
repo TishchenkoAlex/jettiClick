@@ -1,4 +1,4 @@
-// tslint:disable-next-line:import-blacklist
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface TabDef {
@@ -15,6 +15,7 @@ const initailState: TabsState = {
   tabs: [{ header: 'Home', docType: 'home', icon: 'fa fa-home', docID: '', routerLink: '/' + 'home' }]
 };
 
+@Injectable()
 export class TabsStore {
 
   private readonly _state: BehaviorSubject<TabsState> = new BehaviorSubject(initailState);

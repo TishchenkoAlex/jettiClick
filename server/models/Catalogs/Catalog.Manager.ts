@@ -19,7 +19,7 @@ export class CatalogManager extends DocumentBase {
   Gender = false;
 
   @Props({ type: 'date' })
-  Birthday: Date;
+  Birthday: Date | null = null;
 
   @Props({ type: 'Types.Subcount', required: true })
   Product: Ref = null;

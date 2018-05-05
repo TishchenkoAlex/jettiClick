@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-
 import { EllipsisPipe } from './ellipsis';
 
 export const PIPES = [EllipsisPipe];

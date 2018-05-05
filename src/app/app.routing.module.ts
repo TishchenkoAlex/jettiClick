@@ -1,15 +1,7 @@
 import { Injectable, NgModule } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import {
-  ActivatedRouteSnapshot,
-  DetachedRouteHandle,
-  Resolve,
-  RouteReuseStrategy,
-  RouterModule,
-  RouterStateSnapshot,
-  Routes,
-} from '@angular/router';
-
+// tslint:disable-next-line:max-line-length
+import { ActivatedRouteSnapshot, DetachedRouteHandle, Resolve, RouteReuseStrategy, RouterModule, RouterStateSnapshot, Routes } from '@angular/router';
 import { IViewModel } from '../../server/models/api';
 import { AuthGuardService } from './auth/auth.guard.service';
 import { DynamicFormService } from './common/dynamic-form/dynamic-form.service';

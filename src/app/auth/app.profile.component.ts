@@ -1,7 +1,6 @@
-
-import { AuthService } from '../auth/auth.service';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, Input } from '@angular/core';
-import { trigger, state, style, transition, animate } from '@angular/animations';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-inline-profile',

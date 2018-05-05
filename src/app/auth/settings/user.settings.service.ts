@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
-import { filter, take } from 'rxjs/operators';
-// tslint:disable-next-line:import-blacklist
 import { Subject } from 'rxjs';
-
+import { filter, take } from 'rxjs/operators';
 import { FormListSettings, UserDefaultsSettings, UserSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
 
 export interface FormListSettingsAction { type: string; payload: FormListSettings; }
 
-@Injectable()
+@Injectable({providedIn: 'root'})
 export class UserSettingsService {
 
   userSettings = new UserSettings();

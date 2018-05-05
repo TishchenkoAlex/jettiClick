@@ -3,9 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
-import { debounceTime, map, tap, filter, take } from 'rxjs/operators';
+import { Observable, Subject, Subscription, iif as _if, merge, of } from 'rxjs';
+import { debounceTime, filter, map, tap } from 'rxjs/operators';
 import { v1 } from 'uuid';
-import { IViewModel, ISuggest } from '../../../../server/models/api';
+import { IViewModel } from '../../../../server/models/api';
 import { ColumnDef } from '../../../../server/models/column';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../../server/models/user.settings';
@@ -17,7 +18,6 @@ import { UserSettingsService } from './../../auth/settings/user.settings.service
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
-import { Subscription, Subject, Observable, iif as _if, of, merge } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

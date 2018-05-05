@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { JobOptions } from 'bull';
-// tslint:disable-next-line:import-blacklist
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { RegisterAccumulation } from '../../../server/models/Registers/Accumulation/RegisterAccumulation';
@@ -18,8 +17,7 @@ import { IComplexObject } from '../common/dynamic-form/dynamic-form-base';
 import { LoadingService } from '../common/loading.service';
 import { mapToApi } from '../common/mapping/document.mapping';
 
-
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ApiService {
 
   constructor(private http: HttpClient, public lds: LoadingService) { }

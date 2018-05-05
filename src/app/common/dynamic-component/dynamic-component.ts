@@ -1,18 +1,5 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ComponentFactoryResolver,
-  ComponentRef,
-  Directive,
-  Input,
-  OnInit,
-  Type,
-  ViewChild,
-  ViewContainerRef,
-} from '@angular/core';
-
+// tslint:disable-next-line:max-line-length
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentFactoryResolver, ComponentRef, Directive, Input, OnInit, Type, ViewChild, ViewContainerRef } from '@angular/core';
 import { getFormComponent, getListComponent } from '../../UI/userForms';
 
 export class BaseDynamicCompoment {

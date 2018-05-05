@@ -1,26 +1,15 @@
-// tslint:disable:no-output-on-prefix
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit,
-  QueryList,
-  ViewChild,
-  ViewChildren,
-} from '@angular/core';
+// tslint:disable-next-line:max-line-length
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-// tslint:disable-next-line:import-blacklist
-import { merge, Subscription } from 'rxjs';
-
+import { Subscription, merge } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { ColumnDef } from '../../../../server/models/column';
 import { TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
 import { cloneFormGroup, patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
 import { EditableColumn, Table } from './table';
-import { filter } from 'rxjs/operators';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,8 +1,6 @@
-// tslint:disable:max-line-length
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { TreeNode } from 'primeng/components/common/treenode';
-
 import { BaseTreeListComponent } from '../../common/datatable/base.tree-list.component';
 
 @Component({
@@ -30,6 +28,7 @@ export class BaseTreeListToolbarComponent {
 
   buttons: MenuItem[] = [];
   initState() {
+    // tslint:disable:max-line-length
     this.buttons = [
       { label: 'add', icon: 'fa-plus', styleClass: 'ui-button-success', command: this.owner.add.bind(this.owner), visible: true },
       { label: 'open', icon: 'fa-pencil-square-o', styleClass: 'ui-button-secondary', command: this.owner.open.bind(this.owner), visible: this.selection !== null },

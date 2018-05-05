@@ -1,5 +1,5 @@
+import { IFlatDocument } from './../../../../server/models/ServerDocument';
 import { DocumentBase } from './../../../../server/models/document';
-import { INoSqlDocument, IFlatDocument } from './../../../../server/models/ServerDocument';
 
 export function mapToApi(model: DocumentBase): IFlatDocument {
   const newDoc: IFlatDocument = {

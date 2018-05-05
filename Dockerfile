@@ -14,9 +14,9 @@ COPY patches/mssql/lib/ node_modules/mssql/lib/
 #COPY patches/mssql/lib/msnodesqlv8.js node_modules/mssql/lib/msnodesqlv8.js
 
 #build Angular app
+#COPY ngsw-config.json ./ngsw-config.json
 COPY angular.json ./angular.json
 COPY tsconfig.json ./tsconfig.json
-COPY ngsw-config.json ./ngsw-config.json
 COPY src/ ./src
 COPY server/ ./server
 RUN node_modules/typescript/bin/tsc -p ./server

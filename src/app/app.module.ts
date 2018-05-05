@@ -19,14 +19,8 @@ import { RoutingModule } from './app.routing.module';
 import { AppTopBarComponent } from './app.topbar.component';
 import { AppProfileComponent } from './auth/app.profile.component';
 import { AuthService } from './auth/auth.service';
-import { UserSettingsService } from './auth/settings/user.settings.service';
-import { LoadingService } from './common/loading.service';
 import { MaterialModule } from './material.module';
 import { PrimeNGModule } from './primeNG.module';
-import { ApiService } from './services/api.service';
-import { EventsService } from './services/events.service';
-
-
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token') || '';
@@ -55,11 +49,7 @@ export function getJwtToken(): string {
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'ru-RU' },
-    ApiService,
     AuthService,
-    UserSettingsService,
-    LoadingService,
-    EventsService,
     { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true }
   ],
   entryComponents: [],

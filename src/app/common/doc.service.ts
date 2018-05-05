@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ConfirmationService } from 'primeng/components/common/confirmationservice';
 import { MessageService } from 'primeng/components/common/messageservice';
+import { Subject } from 'rxjs';
 import { ApiService } from '../services/api.service';
 import { DocumentBase } from './../../../server/models/document';
-// tslint:disable-next-line:import-blacklist
-import { Subject } from 'rxjs';
 
 @Injectable()
 export class DocService {

@@ -12,7 +12,7 @@ import { DocumentBase, DocumentOptions, JDocument, Props, Ref } from './../docum
 })
 export class CatalogSubcount extends DocumentBase {
   @Props({ type: 'Catalog.Subcount', hiddenInList: true, order: -1 })
-  parent: Ref;
+  parent: Ref = null;
 
 
   QueryList() {

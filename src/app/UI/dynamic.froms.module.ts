@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 import { BaseTreeListComponent } from '../common/datatable/base.tree-list.component';
 import { BaseTreeListToolbarComponent } from '../common/datatable/base.tree-list.toolbar.component';
 import { PipesModule } from '../common/pipes';
 import { RegisterAccumulationComponent } from '../common/register-movements/register.accumulation.component';
 import { RegisterAccumulationListComponent } from '../common/register-movements/register.accumulation.list.component';
 import { RegisterInfoComponent } from '../common/register-movements/register.info.component';
+import { TabsStore } from '../common/tabcontroller/tabs.store';
 import { PrimeNGModule } from '../primeNG.module';
+import { CatalogListComponent } from './../UI/Catalog/calatog-list.component';
 import { AutocompleteComponent } from './../common/autocomplete/autocomplete.png.component';
 import { BaseDocListComponent } from './../common/datatable/base.list.component';
 import { TablePartsComponent } from './../common/datatable/table-parts.png.component';
@@ -23,10 +24,8 @@ import { TabControllerComponent } from './../common/tabcontroller/tabcontroller.
 import { SuggestDialogComponent } from './../dialog/suggest.dialog.component';
 import { HomeComponent } from './../home/home.component';
 import { MaterialModule } from './../material.module';
-import { CatalogListComponent } from './../UI/Catalog/calatog-list.component';
 import { OperationFormComponent } from './Operation/operation.form.component';
 import { OperationListComponent } from './Operation/operation.list.component';
-import { TabsStore } from '../common/tabcontroller/tabs.store';
 
 @NgModule({
   declarations: [

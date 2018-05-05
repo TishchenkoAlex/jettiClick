@@ -1,25 +1,12 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-// tslint:disable-next-line:import-blacklist
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import { createForm } from '../../../../server/models/Forms/form.factory';
 import { FormTypes } from '../../../../server/models/Forms/form.types';
 import { ApiService } from '../../services/api.service';
-import {
-  AutocompleteFormControl,
-  BooleanFormControl,
-  DateFormControl,
-  DateTimeFormControl,
-  FormControlInfo,
-  IFormControlInfo,
-  NumberFormControl,
-  ScriptFormControl,
-  TableDynamicControl,
-  TextareaFormControl,
-  TextboxFormControl,
-} from './dynamic-form-base';
+// tslint:disable-next-line:max-line-length
+import { AutocompleteFormControl, BooleanFormControl, DateFormControl, DateTimeFormControl, FormControlInfo, IFormControlInfo, NumberFormControl, ScriptFormControl, TableDynamicControl, TextareaFormControl, TextboxFormControl } from './dynamic-form-base';
 
 export function cloneFormGroup(formGroup: FormGroup): FormGroup {
   const newFormGroup = new FormGroup({});
@@ -160,7 +147,6 @@ export function getFormGroup(schema: { [x: string]: any }, model: { [x: string]:
   formGroup['byKeyControls'] = byKeyControls;
   return formGroup;
 }
-
 
 @Injectable()
 export class DynamicFormService {

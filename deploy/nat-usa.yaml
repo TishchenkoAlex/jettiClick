@@ -20,7 +20,7 @@ spec:
             - containerPort: 8080
           env:
             - name: DB_PORT
-              value: 1433
+              value: "1433"
             - name: DB_HOST
               value: mssql
             - name: DB_NAME
@@ -57,7 +57,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "9"            
+              value: "10"            
             - name: NODE_ENV
               value: "production"
 ---

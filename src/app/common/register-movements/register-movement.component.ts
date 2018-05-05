@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-// tslint:disable-next-line:import-blacklist
 import { Observable, merge } from 'rxjs';
 import { filter, startWith, switchMap } from 'rxjs/operators';
-
 import { AccountRegister } from '../../../../server/models/account.register';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
@@ -17,7 +15,7 @@ import { DocumentBase } from './../../../../server/models/document';
 export class RegisterMovementComponent implements OnInit {
 
   movements$: Observable<AccountRegister[]>;
-  selection: any;
+  selection: AccountRegister | null = null;
   @Input() doc: DocumentBase;
 
   constructor(private api: ApiService, private ds: DocService) { }
