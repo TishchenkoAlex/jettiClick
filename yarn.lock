@@ -209,12 +209,12 @@
   dependencies:
     tslib "^1.9.0"
 
-"@covalent/code-editor@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@covalent/code-editor/-/code-editor-1.0.0.tgz#dd88560223796292fac903d3df8560c28d7ef34b"
+"@covalent/code-editor@^2.0.0-beta.1":
+  version "2.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@covalent/code-editor/-/code-editor-2.0.0-beta.1.tgz#2475fa320f3e7d4bcc3dec2c4e0b4a923af1d4d8"
   dependencies:
     monaco-editor "^0.10.1"
-    tslib "^1.7.1"
+    tslib "^1.9.0"
 
 "@ngtools/webpack@6.0.0":
   version "6.0.0"
