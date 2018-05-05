@@ -1,11 +1,8 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable, isDevMode } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { Observable } from 'rxjs/Observable';
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
-import { of as observableOf } from 'rxjs/observable/of';
+import { Observable, throwError ,  of as observableOf } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-
 import { dateReviver } from './../../server/fuctions/dateReviver';
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
@@ -41,7 +38,7 @@ export class ApiInterceptor implements HttpInterceptor {
           severity: 'error', summary: err.statusText, key: '-1',
           detail: err.status === 500 ? err.error : err.message
         });
-        return ErrorObservable.create(err);
+        return throwError(err);
       }));
   }
 }

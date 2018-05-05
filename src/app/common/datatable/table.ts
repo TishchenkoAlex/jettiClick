@@ -30,8 +30,8 @@ import { SortMeta } from 'primeng/components/common/sortmeta';
 import { DomHandler } from 'primeng/components/dom/domhandler';
 import { PaginatorModule } from 'primeng/components/paginator/paginator';
 import { ObjectUtils } from 'primeng/components/utils/objectutils';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
+// tslint:disable-next-line:import-blacklist
+import { Subject, Subscription } from 'rxjs';
 
 @Injectable()
 export class TableService {

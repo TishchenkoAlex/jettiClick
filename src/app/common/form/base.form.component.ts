@@ -12,10 +12,9 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { merge } from 'rxjs/observable/merge';
-import { of as observableOf } from 'rxjs/observable/of';
+// tslint:disable-next-line:import-blacklist
+import { of as observableOf, merge, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs/Subscription';
 import { v1 } from 'uuid';
 
 import { calculateDescription } from '../../../../server/models/api';

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { SelectItem } from 'primeng/components/common/selectitem';
-import { Observable } from 'rxjs/Observable';
+// tslint:disable-next-line:import-blacklist
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { BaseDocListComponent } from './../../common/datatable/base.list.component';

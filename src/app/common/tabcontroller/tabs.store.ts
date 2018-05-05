@@ -1,4 +1,5 @@
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+// tslint:disable-next-line:import-blacklist
+import { BehaviorSubject } from 'rxjs';
 
 export interface TabDef {
   header: string; icon: string; docType: string; docID: string; routerLink: string;

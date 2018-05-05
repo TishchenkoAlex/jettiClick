@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { of } from 'rxjs/observable/of';
+// tslint:disable-next-line:import-blacklist
+import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { createForm } from '../../../../server/models/Forms/form.factory';

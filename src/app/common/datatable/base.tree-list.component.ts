@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { TreeNode } from 'primeng/components/common/treenode';
-import { Observable } from 'rxjs/Observable';
+// tslint:disable-next-line:import-blacklist
+import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { v1 } from 'uuid';
 

@@ -9,7 +9,7 @@ export const environment = {
   production: false,
   api: `${domain}:3000/api/`,
   auth: `${domain}:3000/auth/`,
-  socket: `${domain}:3000`,
+  socket: `ws://localhost:3000/socket.io/`,
   host: `${domain}:3000`,
   path: ''
 };

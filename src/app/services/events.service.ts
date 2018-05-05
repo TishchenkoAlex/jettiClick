@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { filter, map, sampleTime, share, take, throttleTime, shareReplay } from 'rxjs/operators';
-import * as socketIOClient from 'socket.io-client';
+import { Subject } from 'rxjs';
+import { filter, map, take, sampleTime } from 'rxjs/operators';
 import { IJob, IJobs } from '../../../server/models/api';
 import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
@@ -21,15 +20,21 @@ export class EventsService implements OnDestroy {
   }));
   latestJobsAll$ = this._latestJobs$.asObservable().pipe(map(j => j.Active.length));
   private debonce$ = new Subject<IJob>();
-  private socket: SocketIOClient.Socket;
 
   constructor(private auth: AuthService, private api: ApiService) {
     this.debonce$.pipe(sampleTime(1000)).subscribe(job => this.update(job));
 
     this.auth.userProfile$.pipe(filter(u => !!(u && u.account))).subscribe(u => {
-      this.socket = socketIOClient(`${environment.socket}`, { query: 'token=' + u.token, transports: ['websocket'] });
-      this.socket.on('job', (job: IJob) => this.debonce$.next(job));
-      this.update();
+      const wsUrl = `${environment.socket}?token=${u.token}&transport=websocket`;
+
+      const wsAuto = (url: string, onmessage: (data) => void) => {
+        const socket = new WebSocket(url);
+        socket.onmessage = data => onmessage(data);
+        socket.onclose = () => setTimeout(() => wsAuto(url, onmessage), 5000);
+      };
+
+      wsAuto(wsUrl, data => { this.debonce$.next(data); });
+      this.debonce$.next();
     });
   }
 
@@ -40,6 +45,5 @@ export class EventsService implements OnDestroy {
   ngOnDestroy() {
     this.debonce$.complete();
     this.debonce$.unsubscribe();
-    this.socket.disconnect();
   }
 }

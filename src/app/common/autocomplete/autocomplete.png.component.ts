@@ -3,13 +3,14 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { AbstractControl, ControlValueAccessor, FormControl, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AutoComplete } from 'primeng/components/autocomplete/autocomplete';
-import { Observable } from 'rxjs/Observable';
 import { ISuggest } from '../../../../server/models/api';
 import { FormListSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';
 import { IComplexObject } from '../dynamic-form/dynamic-form-base';
 import { calendarLocale, dateFormat } from './../../primeNG.module';
 import { OwnerRef } from '../../../../server/models/document';
+// tslint:disable-next-line:import-blacklist
+import { Observable } from 'rxjs';
 
 
 function AutocompleteValidator(component: AutocompleteComponent): ValidatorFn {

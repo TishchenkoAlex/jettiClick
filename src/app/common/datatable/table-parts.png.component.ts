@@ -11,8 +11,8 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { merge } from 'rxjs/observable/merge';
-import { Subscription } from 'rxjs/Subscription';
+// tslint:disable-next-line:import-blacklist
+import { merge, Subscription } from 'rxjs';
 
 import { ColumnDef } from '../../../../server/models/column';
 import { TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';

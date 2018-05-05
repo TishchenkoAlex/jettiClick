@@ -1,10 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { SortMeta } from 'primeng/components/common/sortmeta';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { of } from 'rxjs/observable/of';
+// tslint:disable-next-line:import-blacklist
+import { Observable, Subject, Subscription, of } from 'rxjs';
 import { debounceTime, filter, map, take } from 'rxjs/operators';
 import { ISuggest } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';

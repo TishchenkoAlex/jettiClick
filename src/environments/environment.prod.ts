@@ -4,7 +4,7 @@ export const environment = {
   production: true,
   api: '/api/',
   auth: '/auth/',
-  socket: '',
+  socket: `wss://${window.location.host}/socket.io/`,
   host: '',
   path: ''
 };

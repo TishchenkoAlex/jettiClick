@@ -173,7 +173,7 @@ const parameterCorrection = function (value) {
 }
 
 class ConnectionPool extends base.ConnectionPool {
-  _poolCreate () {
+  _poolCreate() {
     return new base.Promise((resolve, reject) => {
       const cfg = {
         userName: this.config.user,
@@ -208,16 +208,25 @@ class ConnectionPool extends base.ConnectionPool {
           payload: true
         }
       }
+      let hasPromiseResolved = false
 
       const tedious = new tds.Connection(cfg)
 
       tedious.once('connect', err => {
+        hasPromiseResolved = true;
         if (err) {
           err = new base.ConnectionError(err)
           return reject(err)
         }
 
         resolve(tedious)
+      })
+
+      tedious.on('end', () => {
+        if (!hasPromiseResolved) {
+          const err = new base.ConnectionError('The connection ended without ever completing the connection')
+          reject(err)
+        }
       })
 
       tedious.on('error', err => {
@@ -235,11 +244,11 @@ class ConnectionPool extends base.ConnectionPool {
     })
   }
 
-  _poolValidate (tedious) {
+  _poolValidate(tedious) {
     return !tedious.closed && !tedious.hasError
   }
 
-  _poolDestroy (tedious) {
+  _poolDestroy(tedious) {
     return new base.Promise((resolve, reject) => {
       tedious.once('end', () => {
         resolve()
@@ -251,7 +260,7 @@ class ConnectionPool extends base.ConnectionPool {
 }
 
 class Transaction extends base.Transaction {
-  constructor (parent) {
+  constructor(parent) {
     super(parent)
 
     this._abort = () => {
@@ -273,7 +282,7 @@ class Transaction extends base.Transaction {
     }
   }
 
-  _begin (isolationLevel, callback) {
+  _begin(isolationLevel, callback) {
     super._begin(isolationLevel, err => {
       if (err) return callback(err)
 
@@ -297,7 +306,7 @@ class Transaction extends base.Transaction {
     })
   }
 
-  _commit (callback) {
+  _commit(callback) {
     super._commit(err => {
       if (err) return callback(err)
 
@@ -318,7 +327,7 @@ class Transaction extends base.Transaction {
     })
   }
 
-  _rollback (callback) {
+  _rollback(callback) {
     super._rollback(err => {
       if (err) return callback(err)
 
@@ -345,7 +354,7 @@ class Request extends base.Request {
   Execute specified sql batch.
   */
 
-  _batch (batch, callback) {
+  _batch(batch, callback) {
     this._isBatch = true
     this._query(batch, callback)
   }
@@ -354,7 +363,7 @@ class Request extends base.Request {
   Bulk load.
   */
 
-  _bulk (table, callback) {
+  _bulk(table, callback) {
     super._bulk(table, err => {
       if (err) return callback(err)
 
@@ -464,7 +473,7 @@ class Request extends base.Request {
         const bulk = connection.newBulkLoad(table.path, done)
 
         for (let col of table.columns) {
-          bulk.addColumn(col.name, getTediousType(col.type), {nullable: col.nullable, length: col.length, scale: col.scale, precision: col.precision})
+          bulk.addColumn(col.name, getTediousType(col.type), { nullable: col.nullable, length: col.length, scale: col.scale, precision: col.precision })
         }
 
         for (let row of table.rows) {
@@ -491,7 +500,7 @@ class Request extends base.Request {
   Execute specified sql command.
   */
 
-  _query (command, callback) {
+  _query(command, callback) {
     super._query(command, err => {
       if (err) return callback(err)
 
@@ -685,7 +694,7 @@ class Request extends base.Request {
             Object.defineProperty(recordset, 'toTable', {
               enumerable: false,
               configurable: true,
-              value () { return Table.fromRecordset(this) }
+              value() { return Table.fromRecordset(this) }
             })
 
             recordsets.push(recordset)
@@ -785,9 +794,9 @@ class Request extends base.Request {
           for (let name in this.parameters) {
             let param = this.parameters[name]
             if (param.io === 1) {
-              req.addParameter(param.name, getTediousType(param.type), parameterCorrection(param.value), {length: param.length, scale: param.scale, precision: param.precision})
+              req.addParameter(param.name, getTediousType(param.type), parameterCorrection(param.value), { length: param.length, scale: param.scale, precision: param.precision })
             } else {
-              req.addOutputParameter(param.name, getTediousType(param.type), parameterCorrection(param.value), {length: param.length, scale: param.scale, precision: param.precision})
+              req.addOutputParameter(param.name, getTediousType(param.type), parameterCorrection(param.value), { length: param.length, scale: param.scale, precision: param.precision })
             }
           }
         }
@@ -801,7 +810,7 @@ class Request extends base.Request {
   Execute stored procedure with specified parameters.
   */
 
-  _execute (procedure, callback) {
+  _execute(procedure, callback) {
     super._execute(procedure, err => {
       if (err) return callback(err)
 
@@ -990,7 +999,7 @@ class Request extends base.Request {
             Object.defineProperty(recordset, 'toTable', {
               enumerable: false,
               configurable: true,
-              value () { return Table.fromRecordset(this) }
+              value() { return Table.fromRecordset(this) }
             })
 
             recordsets.push(recordset)
@@ -1011,9 +1020,9 @@ class Request extends base.Request {
         for (let name in this.parameters) {
           let param = this.parameters[name]
           if (param.io === 1) {
-            req.addParameter(param.name, getTediousType(param.type), parameterCorrection(param.value), {length: param.length, scale: param.scale, precision: param.precision})
+            req.addParameter(param.name, getTediousType(param.type), parameterCorrection(param.value), { length: param.length, scale: param.scale, precision: param.precision })
           } else {
-            req.addOutputParameter(param.name, getTediousType(param.type), parameterCorrection(param.value), {length: param.length, scale: param.scale, precision: param.precision})
+            req.addOutputParameter(param.name, getTediousType(param.type), parameterCorrection(param.value), { length: param.length, scale: param.scale, precision: param.precision })
           }
         }
 

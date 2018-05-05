@@ -3,12 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { _if } from 'rxjs/observable/if';
-import { merge } from 'rxjs/observable/merge';
-import { of } from 'rxjs/observable/of';
 import { debounceTime, map, tap, filter, take } from 'rxjs/operators';
 import { v1 } from 'uuid';
 import { IViewModel, ISuggest } from '../../../../server/models/api';
@@ -23,7 +17,7 @@ import { UserSettingsService } from './../../auth/settings/user.settings.service
 import { ApiDataSource } from './../../common/datatable/api.datasource.v2';
 import { DocService } from './../../common/doc.service';
 import { LoadingService } from './../../common/loading.service';
-
+import { Subscription, Subject, Observable, iif as _if, of, merge } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -224,7 +218,6 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
     for (const s of this.selection) {
       this.lds.counter = Math.round(100 - ((--i) / tasksCount * 100));
       if (mode === 'post') {
-        await this.ds.post(s.id);
         s.posted = (await this.ds.post(s.id));
       } else {
         s.posted = !(await this.ds.unpost(s.id));

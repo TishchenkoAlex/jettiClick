@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { filter, take } from 'rxjs/operators';
-import { Subject } from 'rxjs/Subject';
+// tslint:disable-next-line:import-blacklist
+import { Subject } from 'rxjs';
 
 import { FormListSettings, UserDefaultsSettings, UserSettings } from '../../../../server/models/user.settings';
 import { ApiService } from '../../services/api.service';

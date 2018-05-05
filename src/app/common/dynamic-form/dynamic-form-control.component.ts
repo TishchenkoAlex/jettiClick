@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl, AbstractControl } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+// tslint:disable-next-line:import-blacklist
+import { Subscription } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { FormControlInfo } from './dynamic-form-base';
 

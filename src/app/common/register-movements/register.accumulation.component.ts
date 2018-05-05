@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
 import { map, share } from 'rxjs/operators';
 import { RegisterAccumulation } from '../../../../server/models/Registers/Accumulation/RegisterAccumulation';
 import { ApiService } from '../../services/api.service';
 import { DocumentBase } from './../../../../server/models/document';
+// tslint:disable-next-line:import-blacklist
+import { Observable } from 'rxjs';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

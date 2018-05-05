@@ -1,5 +1,4 @@
-FROM node
-
+FROM node:latest
 # Create app directory
 RUN mkdir -p /usr/jetti
 WORKDIR /usr/jetti
@@ -15,8 +14,9 @@ COPY patches/mssql/lib/ node_modules/mssql/lib/
 #COPY patches/mssql/lib/msnodesqlv8.js node_modules/mssql/lib/msnodesqlv8.js
 
 #build Angular app
-COPY .angular-cli.json ./.angular-cli.json
+COPY angular.json ./angular.json
 COPY tsconfig.json ./tsconfig.json
+COPY ngsw-config.json ./ngsw-config.json
 COPY src/ ./src
 COPY server/ ./server
 RUN node_modules/typescript/bin/tsc -p ./server
@@ -26,3 +26,4 @@ ENV PORT 8080
 EXPOSE 8080
 
 CMD [ "node", "./server/index.js" ]
+#sudo rm -rf node_modules && npm cache clear --force && npm install

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+// tslint:disable-next-line:import-blacklist
+import { Observable } from 'rxjs';
 import { map, share } from 'rxjs/operators';
 import { RegisterInfo } from '../../../../server/models/Registers/Info/RegisterInfo';
 import { ApiService } from '../../services/api.service';

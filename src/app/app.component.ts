@@ -1,12 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
-
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
 import { ApiService } from './services/api.service';
-
-// import { Store } from '@ngrx/store';
-// import * as fromRoot from './store/reducers';
 
 enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
 
@@ -52,11 +48,6 @@ export class AppComponent implements AfterViewInit {
       });
 
     }
-
-    // store.select(fromRoot.getAccount).subscribe(data => console.log('getAccount', data));
-    // this.store.dispatch(new Auth.Login({email: 'tischenko.a@gmail.com', password: 'Pa$$word'}));
-    // store.select(fromRoot.getColor).subscribe(data => console.log('getColor', data));
-    // this.store.dispatch(new UI.SetColor({color: 'accent'}));
   }
 
   ngAfterViewInit() {

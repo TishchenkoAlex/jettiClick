@@ -92,11 +92,11 @@ export class PrimeNGModule { }
 
 export const calendarLocale = {
   firstDayOfWeek: 1,
-  dayNames: locale[3][2],
-  dayNamesShort: locale[3][0],
-  dayNamesMin: locale[3][0],
-  monthNames: locale[5][2],
-  monthNamesShort: locale[5][1],
+  dayNames: locale[3]![2],
+  dayNamesShort: locale[3]![0],
+  dayNamesMin: locale[3]![0],
+  monthNames: locale[5]![2],
+  monthNamesShort: locale[5]![1],
   today: 'Today',
   clear: 'Clear'
 };
