@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-
 import { registerLocaleData } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import localeRUExtra from '@angular/common/locales/extra/ru';
@@ -10,9 +8,10 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { NgDragDropModule } from 'ng-drag-drop';
+import 'reflect-metadata';
 import { take } from 'rxjs/operators';
-
 import { environment } from '../environments/environment';
+import { DynamicFormsModule } from './UI/dynamic.froms.module';
 import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
 import { AppMenuComponent, AppSubMenuComponent } from './app.menu.component';
@@ -26,7 +25,8 @@ import { MaterialModule } from './material.module';
 import { PrimeNGModule } from './primeNG.module';
 import { ApiService } from './services/api.service';
 import { EventsService } from './services/events.service';
-import { DynamicFormsModule } from './UI/dynamic.froms.module';
+
+
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token') || '';
@@ -51,8 +51,6 @@ export function getJwtToken(): string {
     DynamicFormsModule,
     NgDragDropModule.forRoot(),
     RoutingModule,
-    // StoreModule.forRoot(reducers),
-    // EffectsModule.forRoot([AuthEffects]),
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
   ],
   providers: [

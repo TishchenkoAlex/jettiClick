@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { filter, map, take, sampleTime } from 'rxjs/operators';
+import { filter, map, sampleTime, take } from 'rxjs/operators';
 import { IJob, IJobs } from '../../../server/models/api';
 import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';

@@ -3,12 +3,11 @@ import { Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
-import { filter, map, tap, shareReplay } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
+import { filter, map, shareReplay, tap } from 'rxjs/operators';
 import { RoleObject, RoleType, getRoleObjects } from '../../../server/models/Roles/Base';
 import { IAccount, ILoginResponse } from '../../../server/models/api';
 import { environment } /*  */ from '../../environments/environment';
-// tslint:disable-next-line:import-blacklist
-import { BehaviorSubject } from 'rxjs';
 
 export const ANONYMOUS_USER: ILoginResponse = { account: undefined, token: '' };
 
