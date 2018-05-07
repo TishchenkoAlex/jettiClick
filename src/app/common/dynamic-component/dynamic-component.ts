@@ -20,8 +20,8 @@ export class DynamicComponentDirective {
   template: `<ng-template component-host></ng-template>`,
 })
 export class DynamicComponent implements OnInit, AfterViewInit {
-  @Input() type: string;
   @Input() id: string;
+  @Input() type: string;
   @Input() kind: 'list' | 'form';
   component: BaseDynamicCompoment;
   componentRef: ComponentRef<any>;
