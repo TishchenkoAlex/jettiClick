@@ -5,23 +5,17 @@ export const REDIS_DB_HOST = process.env.REDIS_DB_HOST || '127.0.0.1';
 export const JTW_KEY = process.env.JTW_KEY || 'Pa5315word';
 
 const DB_PORT = isNaN(parseInt(process.env.DB_PORT as string, undefined)) ?
-   14330 : parseInt(process.env.DB_PORT as string, undefined);
+  14330 : parseInt(process.env.DB_PORT as string, undefined);
 
 export const sqlConfig: config = {
   server: process.env.DB_HOST || 'sql.jetti-app.com',
-  // tslint:disable-next-line:radix
   port: DB_PORT,
   database: DB_NAME,
   user: process.env.DB_USER || 'yuralex',
   password: process.env.DB_PASSWORD || 'MyNew01Password',
   requestTimeout: 1000 * 120,
-  pool: {
-    min: 25,
-    max: 10000,
-  },
-  options: {
-    encrypt: false,
-  }
+  pool: { min: 25, max: 10000 },
+  options: { encrypt: false }
 };
 
 export const sqlConfigAccounts: config = {
@@ -31,11 +25,6 @@ export const sqlConfigAccounts: config = {
   user: process.env.DB_ACCOUNTS_USER || 'yuralex',
   password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',
   requestTimeout: 1000 * 120,
-  pool: {
-    min: 25,
-    max: 10000,
-  },
-  options: {
-    encrypt: false,
-  }
+  pool: { min: 25, max: 10000 },
+  options: { encrypt: false }
 };

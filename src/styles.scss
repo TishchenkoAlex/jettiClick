@@ -29,6 +29,10 @@ body {
   height: 26px;
 }
 
+.tabViewClassInForm .ui-table .ui-table-tbody>tr>td.ui-editing-cell {
+  padding: 0
+}
+
 .tabViewClassInForm {
   .ui-table {
     .ui-corner-all {

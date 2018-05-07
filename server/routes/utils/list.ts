@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-
 import { sdb } from '../../mssql';
 import { DocListRequestBody } from './../../models/api';
 import { configSchema } from './../../models/config';
