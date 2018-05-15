@@ -22,7 +22,7 @@ export class MSSQL {
     }
   }
 
-  private ToJSON(value: any): any {
+  private toJSON(value: any): any {
     if (typeof value === 'string' && (
       (value[0] === '{' && value[value.length - 1] === '}') ||
       (value[0] === '[' && value[value.length - 1] === ']')
@@ -37,7 +37,7 @@ export class MSSQL {
     const row: T = Object.assign({});
     // tslint:disable-next-line:forin
     for (const k in data) {
-      const value = this.ToJSON(data[k]);
+      const value = this.toJSON(data[k]);
       if (k.includes('.')) {
         const keys = k.split('.');
         row[keys[0]] = { ...row[keys[0]], [keys[1]]: value };

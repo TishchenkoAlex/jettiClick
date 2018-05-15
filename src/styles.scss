@@ -199,6 +199,10 @@ j-control {
   font-size: 12px;
 }
 
+.ui-float-label > label {
+  margin-top: -.43em;
+}
+
 .layout-menu {
   width: 400px !important;
 }

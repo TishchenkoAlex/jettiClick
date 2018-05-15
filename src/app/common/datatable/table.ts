@@ -30,7 +30,6 @@ import { SortMeta } from 'primeng/components/common/sortmeta';
 import { DomHandler } from 'primeng/components/dom/domhandler';
 import { PaginatorModule } from 'primeng/components/paginator/paginator';
 import { ObjectUtils } from 'primeng/components/utils/objectutils';
-// tslint:disable-next-line:import-blacklist
 import { Subject, Subscription } from 'rxjs';
 
 @Injectable()
@@ -48,7 +47,7 @@ export class TableService {
   valueSource$ = this.valueSource.asObservable();
   totalRecordsSource$ = this.totalRecordsSource.asObservable();
 
-  onSort(sortMeta) {
+  onSort(sortMeta: SortMeta | SortMeta[]) {
     this.sortSource.next(sortMeta);
   }
 
@@ -342,7 +341,7 @@ export class Table implements OnInit, AfterContentInit {
 
   filterTimeout: any;
 
-  initialized: boolean | null;
+  initialized: boolean;
 
   rowTouched: boolean;
 
@@ -434,6 +433,8 @@ export class Table implements OnInit, AfterContentInit {
         this.sortSingle();
       else if (this.sortMode == 'multiple')
         this.sortMultiple();
+      else if (this.hasFilter())       //sort already filters
+        this._filter();
     }
 
     if (this.virtualScroll && this.virtualScrollCallback) {
@@ -452,7 +453,7 @@ export class Table implements OnInit, AfterContentInit {
   }
 
   @Input() get sortField(): string {
-    return this._sortField as string;
+    return this._sortField!;
   }
 
   set sortField(val: string) {
@@ -481,7 +482,7 @@ export class Table implements OnInit, AfterContentInit {
   }
 
   @Input() get multiSortMeta(): SortMeta[] {
-    return this._multiSortMeta as SortMeta[];
+    return this._multiSortMeta!;
   }
 
   set multiSortMeta(val: SortMeta[]) {
@@ -588,7 +589,7 @@ export class Table implements OnInit, AfterContentInit {
           this.value.sort((data1, data2) => {
             let value1 = this.objectUtils.resolveFieldData(data1, this.sortField);
             let value2 = this.objectUtils.resolveFieldData(data2, this.sortField);
-            let result: any = null;
+            let result: null | number = null;
 
             if (value1 == null && value2 != null)
               result = -1;
@@ -654,7 +655,7 @@ export class Table implements OnInit, AfterContentInit {
   multisortField(data1, data2, multiSortMeta, index) {
     let value1 = this.objectUtils.resolveFieldData(data1, multiSortMeta[index].field);
     let value2 = this.objectUtils.resolveFieldData(data2, multiSortMeta[index].field);
-    let result: any = null;
+    let result: null | number = null;
 
     if (value1 == null && value2 != null)
       result = -1;
@@ -675,7 +676,7 @@ export class Table implements OnInit, AfterContentInit {
       return (multiSortMeta.length - 1) > (index) ? (this.multisortField(data1, data2, multiSortMeta, index + 1)) : 0;
     }
 
-    return (multiSortMeta[index].order * result);
+    return (multiSortMeta[index].order * result!);
   }
 
   getSortMeta(field: string) {
@@ -1252,7 +1253,7 @@ export class Table implements OnInit, AfterContentInit {
     this._sortField = null;
     this._sortOrder = 1;
     this._multiSortMeta = null;
-    this.tableService.onSort(null);
+    this.tableService.onSort(null!);
 
     this.filteredValue = null;
     this.filters = {};
@@ -1654,7 +1655,7 @@ export class Table implements OnInit, AfterContentInit {
 
   ngOnDestroy() {
     this.editingCell = null;
-    this.initialized = null;
+    this.initialized = null!;
   }
 }
 
@@ -1754,7 +1755,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy, AfterViewChecke
 
   footerScrollListener: Function;
 
-  frozenSiblingBody: Element | null;
+  frozenSiblingBody: Element;
 
   _scrollHeight: string;
 
@@ -1960,7 +1961,7 @@ export class ScrollableView implements AfterViewInit, OnDestroy, AfterViewChecke
   ngOnDestroy() {
     this.unbindEvents();
 
-    this.frozenSiblingBody = null;
+    this.frozenSiblingBody = null!;
 
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -1987,7 +1988,7 @@ export class SortableColumn implements OnInit, OnDestroy {
 
   @Input() pSortableColumnDisabled: boolean;
 
-  sorted: boolean;
+  sorted: boolean | "" | undefined;
 
   subscription: Subscription;
 
@@ -2038,12 +2039,18 @@ export class SortableColumn implements OnInit, OnDestroy {
 @Component({
   selector: 'p-sortIcon',
   template: `
-        <span class="ui-sortable-column-icon fa fa-fw fa-sort" [ngClass]="{'fa-sort-asc': sortOrder === 1, 'fa-sort-desc': sortOrder === -1}"></span>
+        <a href="#" (click)="onClick($event)" [attr.aria-label]=" sortOrder === 1 ? ariaLabelAsc : sortOrder === -1 ? ariaLabelDesc : '' ">
+            <i class="ui-sortable-column-icon fa fa-fw fa-sort" [ngClass]="{'fa-sort-asc': sortOrder === 1, 'fa-sort-desc': sortOrder === -1}"></i>
+        </a>
     `
 })
 export class SortIcon implements OnInit, OnDestroy {
 
   @Input() field: string;
+
+  @Input() ariaLabelDesc: string;
+
+  @Input() ariaLabelAsc: string;
 
   subscription: Subscription;
 
@@ -2057,6 +2064,10 @@ export class SortIcon implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.updateSortState();
+  }
+
+  onClick(event) {
+    event.preventDefault();
   }
 
   updateSortState() {
@@ -2478,7 +2489,7 @@ export class EditableColumn implements AfterViewInit {
   }
 
   isValid() {
-    return true; //  tishchenko (this.dt.editingCell && this.domHandler.find(this.dt.editingCell, '.ng-invalid.ng-dirty').length === 0);
+    return true; //  tishchenko (this.dt.editingCell && this.domHandler.find(this.dt.editingCell, '.ng-invalid.ng-dirty').length === 0);  
   }
 
   @HostListener('click', ['$event'])
