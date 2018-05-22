@@ -255,9 +255,11 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
 
     let result: PatchValue = {};
     const docModule = serverDoc['module'] && serverDoc['module'][property + '_OnChange'];
-    if (docModule) result = await docModule(value);
+    if (docModule) result = await docModule(value) || {};
 
-    if (result === {} && serverDoc && serverDoc.onValueChanged && typeof serverDoc.onValueChanged === 'function') {
+    if (Object.keys(result).length === 0 &&
+      (serverDoc && serverDoc.onValueChanged) &&
+      (typeof serverDoc.onValueChanged === 'function')) {
       result = await serverDoc.onValueChanged(property, value, sdb);
     }
     res.json(result);
