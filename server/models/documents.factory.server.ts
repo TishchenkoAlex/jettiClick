@@ -8,6 +8,7 @@ import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
 import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
+import { DocumentSettingsServer } from './Documents/Document.Settings.server';
 import { DocumentBaseServer, IFlatDocument } from './ServerDocument';
 import { RefValue, calculateDescription } from './api';
 import { DocumentBase, DocumentOptions } from './document';
@@ -18,6 +19,7 @@ const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.ExchangeRates', Class: DocumentExchangeRatesServer },
   { type: 'Document.PriceList', Class: DocumentPriceListServer },
   { type: 'Document.Operation', Class: DocumentOperationServer },
+  { type: 'Document.Settings', Class: DocumentSettingsServer },
   { type: 'Catalog.Operation', Class: CatalogOperationServer },
 ];
 

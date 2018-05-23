@@ -1,4 +1,4 @@
-import { INoSqlDocument, IFlatDocument } from '../models/ServerDocument';
+import { IFlatDocument } from '../models/ServerDocument';
 import { CatalogAccount } from './Catalogs/Catalog.Account';
 import { CatalogBalance } from './Catalogs/Catalog.Balance';
 import { CatalogBalanceAnalytics } from './Catalogs/Catalog.Balance.Analytics';
@@ -25,12 +25,13 @@ import { CatalogStorehouse } from './Catalogs/Catalog.Storehouse';
 import { CatalogSubcount } from './Catalogs/Catalog.Subcount';
 import { CatalogUnit } from './Catalogs/Catalog.Unit';
 import { CatalogUser } from './Catalogs/Catalog.User';
-import { DocumentBase } from './document';
-import { DocTypes } from './documents.types';
 import { DocumentExchangeRates } from './Documents/Document.ExchangeRates';
 import { DocumentInvoice } from './Documents/Document.Invoice';
 import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentPriceList } from './Documents/Document.PriceList';
+import { DocumentSettings } from './Documents/Document.Settings';
+import { DocumentBase } from './document';
+import { DocTypes } from './documents.types';
 
 export interface IRegisteredDocument<T extends DocumentBase> { type: DocTypes; Class: T; }
 
@@ -74,6 +75,7 @@ export const RegisteredDocument: IRegisteredDocument<any>[] = [
   { type: 'Catalog.Brand', Class: CatalogBrand },
 
   { type: 'Document.ExchangeRates', Class: DocumentExchangeRates },
+  { type: 'Document.Settings', Class: DocumentSettings },
   { type: 'Document.Invoice', Class: DocumentInvoice },
   { type: 'Document.Operation', Class: DocumentOperation },
   { type: 'Document.PriceList', Class: DocumentPriceList },

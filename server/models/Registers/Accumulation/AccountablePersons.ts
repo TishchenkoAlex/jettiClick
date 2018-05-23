@@ -1,5 +1,5 @@
-import { RegisterAccumulation, JRegisterAccumulation } from './RegisterAccumulation';
-import { Ref, Props } from '../../document';
+import { Props, Ref } from '../../document';
+import { JRegisterAccumulation, RegisterAccumulation } from './RegisterAccumulation';
 
 @JRegisterAccumulation({
   type: 'Register.Accumulation.AccountablePersons',
@@ -22,12 +22,16 @@ export class RegisterAccumulationAccountablePersons extends RegisterAccumulation
   @Props({ type: 'number' })
   AmountInBalance = 0;
 
+  @Props({ type: 'number' })
+  AmountInAccounting = 0;
+
   constructor(kind: boolean, public data: {
     currency: Ref,
     Employee: Ref,
     CashFlow: Ref,
     Amount: number,
     AmountInBalance: number,
+    AmountInAccounting: number,
   }) {
     super(kind, data);
   }

@@ -1,15 +1,13 @@
 import { MSSQL } from '../../mssql';
-import { buildViewModel } from '../../routes/utils/execute-script';
 import { lib } from '../../std.lib';
 import { CatalogCompany } from '../Catalogs/Catalog.Company';
 import { CatalogOperation } from '../Catalogs/Catalog.Operation';
-import { DocumentBaseServer, ServerDocument } from '../ServerDocument';
+import { ServerDocument } from '../ServerDocument';
 import { JQueue } from '../Tasks/tasks';
+import { PatchValue } from '../api';
 import { createDocumentServer } from '../documents.factory.server';
 import { PostResult } from './../post.interfaces';
 import { DocumentOperation } from './Document.Operation';
-import { PatchValue } from '../api';
-import { DocumentInvoice } from './Document.Invoice';
 
 export class DocumentOperationServer extends DocumentOperation implements ServerDocument {
 
@@ -49,8 +47,14 @@ export class DocumentOperationServer extends DocumentOperation implements Server
       FROM "Documents" WHERE id = '${this.Operation}'`;
       const Operation = await tx.oneOrNone<{ script: string }>(query);
       const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
+      const settings = await lib.info.sliceLastJSON('Settings', this.date, this.company, { }, tx) || {};
+      const accountingCurrency = settings.accountingCurrency || this.currency;
+      // tslint:disable-next-line:max-line-length
+      const exchangeRateAccounting = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: accountingCurrency }, tx) || 1;
       const script = `
+      let exchangeRateBalance = exchangeRate;
       let AmountInBalance = doc.Amount / exchangeRate;
+      let AmountInAccounting = doc.Amount / exchangeRateAccounting;
       ${ Operation!.script
           .replace(/\$\./g, 'doc.')
           .replace(/tx\./g, 'await tx.')
@@ -58,8 +62,8 @@ export class DocumentOperationServer extends DocumentOperation implements Server
           .replace(/\'doc\./g, '\'$.')}
       `;
       const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-      const func = new AsyncFunction('doc, Registers, tx, lib, exchangeRate', script);
-      await func(this, Registers, tx, lib, exchangeRate);
+      const func = new AsyncFunction('doc, Registers, tx, lib, settings, exchangeRate, exchangeRateAccounting', script);
+      await func(this, Registers, tx, lib, settings, exchangeRate, exchangeRateAccounting);
     }
 
     const oldInventory = ((this['deletedRegisterAccumulation'] && <any[]>this['deletedRegisterAccumulation']()) || [])

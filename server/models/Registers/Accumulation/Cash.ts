@@ -22,11 +22,15 @@ export class RegisterAccumulationCash extends RegisterAccumulation {
   @Props({ type: 'number' })
   AmountInBalance = 0;
 
+  @Props({ type: 'number' })
+  AmountInAccounting = 0;
+
   constructor(kind: boolean, public data: {
     CashRegister: Ref,
     CashFlow: Ref,
     Amount: number,
     AmountInBalance: number,
+    AmountInAccounting: number,
   }) {
     super(kind, data);
   }

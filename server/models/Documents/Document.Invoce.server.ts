@@ -2,16 +2,16 @@ import { CatalogCounterpartie } from '../../models/Catalogs/Catalog.Counterparti
 import { DocumentBase } from '../../models/document';
 import { MSSQL } from '../../mssql';
 import { BatchRow, lib } from '../../std.lib';
-import { createDocumentServer } from '../documents.factory.server';
+import { CatalogCompany } from '../Catalogs/Catalog.Company';
 import { RegisterAccumulationAR } from '../Registers/Accumulation/AR';
 import { RegisterAccumulationBalance } from '../Registers/Accumulation/Balance';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
 import { RegisterAccumulationPL } from '../Registers/Accumulation/PL';
 import { RegisterAccumulationSales } from '../Registers/Accumulation/Sales';
 import { ServerDocument } from '../ServerDocument';
+import { createDocumentServer } from '../documents.factory.server';
 import { PostResult } from './../post.interfaces';
 import { DocumentInvoice } from './Document.Invoice';
-import { CatalogCompany } from '../Catalogs/Catalog.Company';
 
 export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocument {
 
@@ -82,6 +82,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
       Customer: this.Customer,
       AR: this.Amount,
       AmountInBalance: this.Amount / exchangeRate,
+      AmountInAccounting: this.Amount,
       PayDay: this.PayDay,
       currency: this.currency
     }));

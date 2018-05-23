@@ -1,15 +1,15 @@
+import * as moment from 'moment';
+import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
+import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
+import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/ServerDocument';
 import { RefValue } from './models/api';
 import { configSchema } from './models/config';
-import { Ref, DocumentBase } from './models/document';
+import { DocumentBase, Ref } from './models/document';
+import { createDocument } from './models/documents.factory';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
-import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
-import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
-import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/ServerDocument';
 import { MSSQL, sdb } from './mssql';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
-import { createDocument } from './models/documents.factory';
-import * as moment from 'moment';
 
 export interface BatchRow {
   SKU: Ref; Storehouse: Ref; Qty: number; batch: Ref; Cost: number;
@@ -43,6 +43,8 @@ export interface JTL {
   };
   info: {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
+      analytics: { [key: string]: any }, tx?: MSSQL) => Promise<any>,
+    sliceLastJSON: (type: string, date: Date, company: Ref,
       analytics: { [key: string]: any }, tx?: MSSQL) => Promise<any>
   };
   inventory: {
@@ -76,7 +78,8 @@ export const lib: JTL = {
     docPrefix
   },
   info: {
-    sliceLast
+    sliceLast,
+    sliceLastJSON,
   },
   inventory: {
     batch,
@@ -237,6 +240,25 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
   const result = await tx.oneOrNone<{ result: any }>(queryText, [date]);
   return result ? result.result : null;
 }
+
+async function sliceLastJSON(type: string, date = new Date(), company: Ref,
+  analytics: { [key: string]: any }, tx = sdb): Promise<number | null> {
+
+  const addWhere = (key) => `AND CAST(JSON_VALUE(data, N'$."${key}"') AS UNIQUEIDENTIFIER) = '${analytics[key]}' \n`;
+  let where = ''; for (const el of Object.keys(analytics)) { where += addWhere(el); }
+
+  const queryText = `
+    SELECT TOP 1 JSON_QUERY(data) result FROM "Register.Info"
+    WHERE (1=1)
+      AND date <= @p1
+      AND type = 'Register.Info.${type}'
+      AND company = '${company}'
+      ${where}
+    ORDER BY date DESC`;
+  const result = await tx.oneOrNone<{ result: any }>(queryText, [date]);
+  return result ? result.result : null;
+}
+
 
 export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Promise<void> {
   return tx.tx<any>(async subtx => {

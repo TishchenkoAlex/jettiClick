@@ -1,5 +1,5 @@
-import { RoleObject, Roles, RoleType } from './Base';
-import { AllDocTypes, DocTypes } from '../documents.types';
+import { AllDocTypes } from '../documents.types';
+import { RoleObject, RoleType } from './Base';
 
 export const FinanceRoleObject: RoleObject[] = [
   { type: 'Catalog.Account', read: true, write: true },

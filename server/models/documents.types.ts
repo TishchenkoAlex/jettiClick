@@ -30,6 +30,7 @@ export type CatalogTypes =
 export type DocumentTypes =
   'Document.CashIn' |
   'Document.ExchangeRates' |
+  'Document.Settings' |
   'Document.Invoice' |
   'Document.Operation' |
   'Document.PriceList';
