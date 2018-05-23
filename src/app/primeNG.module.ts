@@ -1,7 +1,6 @@
 import locale from '@angular/common/locales/ru';
 import { NgModule } from '@angular/core';
 import { CovalentCodeEditorModule } from '@covalent/code-editor';
-import { NgDragDropModule } from 'ng-drag-drop';
 import { AutoCompleteModule } from 'primeng/components/autocomplete/autocomplete';
 import { ButtonModule } from 'primeng/components/button/button';
 import { CalendarModule } from 'primeng/components/calendar/calendar';
@@ -82,7 +81,6 @@ import { TableModule } from './common/datatable/table';
     TableModule,
     TabViewModule,
 
-    NgDragDropModule,
     CovalentCodeEditorModule
   ],
     providers: [ConfirmationService, MessageService]

@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable, isDevMode } from '@angular/core';
 import { MessageService } from 'primeng/components/common/messageservice';
-import { Observable, throwError ,  of as observableOf } from 'rxjs';
+import { Observable, of as observableOf, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { dateReviver } from './../../server/fuctions/dateReviver';
 import { AuthService } from './auth/auth.service';
@@ -32,7 +32,7 @@ export class ApiInterceptor implements HttpInterceptor {
         this.lds.loading = { req: req.url, loading: false };
         if (err.status === 401) {
           this.auth.logout();
-          return observableOf();
+          return observableOf<any>();
         }
         this.messageService.add({
           severity: 'error', summary: err.statusText, key: '-1',

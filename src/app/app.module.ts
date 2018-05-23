@@ -7,7 +7,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { NgDragDropModule } from 'ng-drag-drop';
 import 'reflect-metadata';
 import { take } from 'rxjs/operators';
 import { environment } from '../environments/environment';
@@ -43,7 +42,6 @@ export function getJwtToken(): string {
     MaterialModule,
     PrimeNGModule,
     DynamicFormsModule,
-    NgDragDropModule.forRoot(),
     RoutingModule,
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
   ],

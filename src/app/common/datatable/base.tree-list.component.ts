@@ -1,11 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { TreeNode } from 'primeng/components/common/treenode';
-// tslint:disable-next-line:import-blacklist
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { v1 } from 'uuid';
-
 import { ITree } from '../../../../server/models/api';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { DocService } from '../../common/doc.service';
@@ -21,8 +19,7 @@ import { ApiService } from '../../services/api.service';
         selectionMode="single" [(selection)]="selection" (selectionChange)="onSelectionChange($event)">
           <p-column field="description" header="hierarchy" [filter]="true" filterPlaceholder="Search">
           <ng-template let-row="rowData" pTemplate="body">
-          <span draggable [dragScope]="'docs'" [dragData]="row"
-            (onDrop)="onDragEnd($event)" droppable [dropScope]="'docs'" [dragOverClass]="'drag-target-border'">
+          <span>
             {{ row.data.description }}
           </span>
           </ng-template>
