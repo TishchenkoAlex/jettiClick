@@ -1,4 +1,4 @@
-import { JDocument, DocumentBase, Props, Ref } from './../document';
+import { DocumentBase, JDocument, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Catalog.Balance.Analytics',
@@ -9,7 +9,7 @@ import { JDocument, DocumentBase, Props, Ref } from './../document';
 })
 export class CatalogBalanceAnalytics extends DocumentBase {
 
-  @Props({ type: 'Catalog.Balance.Analytics', hiddenInList: true, order: -1 })
+  @Props({ type: 'Catalog.Balance', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
 }

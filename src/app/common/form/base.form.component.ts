@@ -44,8 +44,9 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   get isDeleted() { return <boolean>!!this.form.get('deleted')!.value; }
   get isNew() { return !this.form.get('timestamp')!.value; }
   get isFolder() { return (!!this.form.get('isfolder')!.value); }
-  get commands() { return (<MenuItem[]>this.form['metadata']['commandsOnServer']) || []; }
+  get commands() { return (<MenuItem[]>this.form['metadata']['commands']) || []; }
   get copyTo() { return (<MenuItem[]>this.form['metadata']['copyTo']) || []; }
+  get module() { return this.form['metadata']['clientModule'] || {}; }
 
   private _subscription$: Subscription = Subscription.EMPTY;
   private _descriptionSubscription$: Subscription = Subscription.EMPTY;
@@ -143,7 +144,14 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
   commandOnSever(method: string) {
     this.ds.api.onCommand(this.form.value, method, {}).then(value => {
       this.form.patchValue(value || {}, patchOptionsNoEvents);
-      this.cd.detectChanges();
+      this.form.markAsDirty();
+    });
+  }
+
+  commandOnClient(method: string) {
+    this.module[method](this.form.getRawValue()).then(value => {
+      this.form.patchValue(value || {}, patchOptionsNoEvents);
+      this.form.markAsDirty();
     });
   }
 

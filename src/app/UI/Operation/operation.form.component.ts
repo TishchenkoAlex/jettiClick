@@ -38,13 +38,27 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
       this.form['metadata']['copyTo'].push(item);
     }
 
-    this.form['metadata']['commandsOnServer'] = [];
+    this.form['metadata']['clientModule'] = {};
+    if (Operation && Operation.module) {
+      const func = new Function('', Operation.module);
+      this.form['metadata']['clientModule'] = func.bind(this)() || {};
+    }
+
+    this.form['metadata']['commands'] = [];
     for (const o of ((Operation && Operation.commandsOnServer) || [])) {
       const item: MenuItem = {
         label: o.label, icon: o.icon,
         command: () => this.super.commandOnSever(o.method)
       };
-      this.form['metadata']['commandsOnServer'].push(item);
+      this.form['metadata']['commands'].push(item);
+    }
+
+    for (const o of ((Operation && Operation.commandsOnClient) || [])) {
+      const item: MenuItem = {
+        label: o.label, icon: o.icon,
+        command: () => this.super.commandOnClient(o.method)
+      };
+      this.form['metadata']['commands'].push(item);
     }
 
     this._subscription$.unsubscribe();

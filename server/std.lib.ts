@@ -264,7 +264,7 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
   return tx.tx<any>(async subtx => {
     const doc = (await lib.doc.byId(id, subtx))!;
     if (doc.deleted) return; // throw new Error('cant POST deleted document');
-    const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc!);
+    const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc!, tx);
     serverDoc.posted = posted;
 
     const deleted = await subtx.manyOrNone(`

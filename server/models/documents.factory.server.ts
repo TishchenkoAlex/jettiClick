@@ -36,6 +36,7 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   } else {
     result = createDocument<T>(type, document);
   }
+  result['serverModule'] = {};
   const Props = Object.assign({}, result.Props());
   let Operation: CatalogOperation | null = null;
   let Grop: RefValue | null = null;
@@ -54,8 +55,8 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
         });
       });
       if (Operation && Operation.module) {
-        const func = new Function('', Operation.module);
-        result['module'] = func.bind(result)();
+        const func = new Function('tx', Operation.module);
+        result['serverModule'] = func.bind(result, tx)() || {};
       }
     }
   }
