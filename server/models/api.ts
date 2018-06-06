@@ -1,13 +1,13 @@
 import * as Queue from 'bull';
-
-import { AllTypes } from '../models/documents.types';
-import { Ref, DocumentOptions, DocumentBase } from './../models/document';
+import { AllDocTypes, AllTypes } from '../models/documents.types';
+import { DocumentOptions, Ref } from './../models/document';
 import { RoleType } from './Roles/Base';
-import { FormListFilter, FormListOrder, FormListSettings } from './user.settings';
 import { ColumnDef } from './column';
+import { FormListFilter, FormListOrder, FormListSettings } from './user.settings';
+
 
 export interface DocListRequestBody {
-  id: string; type: string; command: string; count: number; offset: number;
+  id: string; type: AllDocTypes; command: string; count: number; offset: number;
   filter: FormListFilter[];
   order: FormListOrder[];
 }

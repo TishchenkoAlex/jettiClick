@@ -9,20 +9,21 @@ export async function List(req: Request, res: Response) {
   params.filter = params.filter || [];
   params.command = params.command || 'first';
   const direction = params.command !== 'prev';
-  const cs = configSchema.get(params.type as any);
-  if (!cs) throw new Error(`Error in get-List function. ${params.type} is not defined`);
-  const { QueryList, Props } = configSchema.get(params.type as any)!;
+  const cs = configSchema.get(params.type);
+  if (!cs) throw new Error(`List: Error in 'List' function. Type (${params.type}) is not defined.`);
+  const { QueryList, Props } = cs;
 
   let row;
   if (params.id) { row = (await sdb.oneOrNone<any>(`${QueryList} AND d.id = '${params.id}'`)); }
-  params.order.forEach(el => el.field += Props![el.field].type.includes('.') ? '.value' : '');
-  params.filter.forEach(el => el.left += (Props![el.left] && Props![el.left].type && Props![el.left].type.includes('.')) ? '.id' : '');
+  params.order.forEach(el => el.field += (Props[el.field].type as string).includes('.') ? '.value' : '');
+  // tslint:disable-next-line:max-line-length
+  params.filter.forEach(el => el.left += (Props[el.left] && Props[el.left].type && (Props[el.left].type as string).includes('.')) ? '.id' : '');
   const valueOrder: { field: string, order: 'asc' | 'desc', value: any }[] = [];
   params.order.filter(el => el.order !== '').forEach(el => {
     const value = row ? el.field.includes('.value') ? row[el.field.split('.')[0]].value : row[el.field] : '';
     valueOrder.push({ field: el.field, order: el.order || 'asc', value: row ? value : '' });
   });
-  if (!row && params.command !== 'last') { params.command = 'first'; }
+  if (!row && params.command !== 'last') params.command = 'first';
   const lastORDER = valueOrder.length ? valueOrder[valueOrder.length - 1].order === 'asc' : true;
   valueOrder.push({ field: 'id', order: lastORDER ? 'asc' : 'desc', value: params.id });
 
@@ -38,15 +39,15 @@ export async function List(req: Request, res: Response) {
       switch (f.center) {
         case '=': case '>=': case '<=': case '>': case '<':
           if (Array.isArray(f.right)) { // time interval
-            if (f.right[0]) { where += ` AND d."${f.left}" >= '${f.right[0]}'`; }
-            if (f.right[1]) { where += ` AND d."${f.left}" <= '${f.right[1]}'`; }
+            if (f.right[0]) where += ` AND d."${f.left}" >= '${f.right[0]}'`;
+            if (f.right[1]) where += ` AND d."${f.left}" <= '${f.right[1]}'`;
             break;
           }
           if (typeof f.right === 'object') {
             if (!f.right.id) where += ` AND d."${f.left}" IS NULL `; else where += ` AND d."${f.left}" ${f.center} '${f.right.id}'`;
             break;
           }
-          if (typeof f.right === 'string') { f.right = f.right.toString().replace('\'', '\'\''); }
+          if (typeof f.right === 'string') f.right = f.right.toString().replace('\'', '\'\'');
           if (!f.right) where += ` AND d."${f.left}" IS NULL `; else where += ` AND d."${f.left}" ${f.center} '${f.right}'`;
           break;
         case 'like':
@@ -54,7 +55,7 @@ export async function List(req: Request, res: Response) {
           break;
         case 'beetwen':
           const interval = f.right as FilterInterval;
-          if (interval.start) { where += ` AND d."${f.left}" BEETWEN '${interval.start}' AND '${interval.end}' `; }
+          if (interval.start) where += ` AND d."${f.left}" BEETWEN '${interval.start}' AND '${interval.end}' `;
           break;
         case 'is null':
           where += ` AND d."${f.left}" IS NULL `;

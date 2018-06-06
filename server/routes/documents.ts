@@ -98,14 +98,18 @@ router.post('/view', viewAction);
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await sdb.tx(async tx => {
-      const id = req.params.id;
+      const id: string = req.params.id;
       const doc = await lib.doc.byId(id, tx);
-      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc!.type as DocTypes, doc!, tx);
+      if (!doc) throw new Error(`API - Delete: document with id '${id}' not found.`);
+
+      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type, doc, tx);
 
       await doSubscriptions(serverDoc, 'before detele', tx);
-      const beforeDelete = serverDoc['serverModule']['beforeDelete'];
+
+      const beforeDelete: (tx: MSSQL) => Promise<void> = serverDoc['serverModule']['beforeDelete'];
       if (typeof beforeDelete === 'function') await beforeDelete(tx);
-      if (serverDoc && serverDoc.beforeDelete) await serverDoc.beforeDelete(tx);
+
+      if (serverDoc.beforeDelete) await serverDoc.beforeDelete(tx);
 
       serverDoc.deleted = !!!serverDoc.deleted;
       serverDoc.posted = false;
@@ -118,10 +122,13 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
         UPDATE "Documents" SET deleted = @p1, posted = 0 WHERE id = '${id}';`, [serverDoc.deleted]);
       serverDoc['deletedRegisterAccumulation'] = () => deleted;
 
-      const afterDelete = serverDoc['serverModule']['afterDelete'];
+      const afterDelete: (tx: MSSQL) => Promise<void> = serverDoc['serverModule']['afterDelete'];
       if (typeof afterDelete === 'function') await afterDelete(tx);
+
       if (serverDoc && serverDoc.afterDelete) await serverDoc.afterDelete(tx);
+
       await doSubscriptions(serverDoc, 'after detele', tx);
+
       if (serverDoc && serverDoc.onPost) await serverDoc.onPost(tx);
 
       const view = await buildViewModel(serverDoc, tx);
@@ -136,11 +143,12 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
   const isNew = (await tx.oneOrNone<{ id: string }>(`SELECT id FROM "Documents" WHERE id = '${id}'`) === null);
   await doSubscriptions(serverDoc, isNew ? 'before insert' : 'before update', tx);
 
-  const beforeSave = serverDoc['serverModule']['beforeSave'];
+  const beforeSave: (tx: MSSQL) => Promise<void> = serverDoc['serverModule']['beforeSave'];
   if (typeof beforeSave === 'function') await beforeSave(tx);
 
-  const beforePost = serverDoc['serverModule']['beforePost'];
+  const beforePost: (tx: MSSQL) => Promise<void> = serverDoc['serverModule']['beforePost'];
   if (!!serverDoc.posted && (typeof beforePost === 'function')) await beforePost(tx);
+
   if (!!serverDoc.posted && serverDoc.beforePost) await serverDoc.beforePost(tx);
 
   if (serverDoc.isDoc) {
@@ -154,12 +162,15 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
   if (!serverDoc.code) serverDoc.code = await lib.doc.docPrefix(serverDoc.type, tx);
   serverDoc.timestamp = new Date();
 
+  const afterSave: (tx: MSSQL) => Promise<void> = serverDoc['serverModule']['afterSave'];
+  if (typeof afterSave === 'function') await afterSave(tx);
+
   if (serverDoc.isDoc && serverDoc.onPost) {
     const Registers = await serverDoc.onPost(tx);
     if (serverDoc.posted && !serverDoc.deleted) await InsertRegisterstoDB(serverDoc, Registers, tx);
   }
 
-  const afterPost = serverDoc['serverModule']['afterPost'];
+  const afterPost: (tx: MSSQL) => Promise<void> = serverDoc['serverModule']['afterPost'];
   if (!!serverDoc.posted && (typeof afterPost === 'function')) await afterPost(tx);
 
   const noSqlDocument = lib.doc.noSqlDocument(serverDoc);
@@ -270,8 +281,8 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc);
 
     let result: PatchValue = {};
-    const OnChange = serverDoc['serverModule'][property + '_OnChange'];
-    if (OnChange) result = await OnChange(value) || {};
+    const OnChange: (value: RefValue) => Promise<PatchValue> = serverDoc['serverModule'][property + '_OnChange'];
+    if (typeof OnChange === 'function') result = await OnChange(value) || {};
 
     if (Object.keys(result).length === 0 &&
       (serverDoc && serverDoc.onValueChanged) &&
@@ -290,8 +301,8 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
     const args: { [key: string]: any } = req.params.args;
     const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc, sdb);
 
-    const docModule = serverDoc['serverModule'][command];
-    if (docModule) await docModule(args);
+    const docModule: (args: { [key: string]: any }) => Promise<void> = serverDoc['serverModule'][command];
+    if (typeof docModule === 'function') await docModule(args);
 
     const view = await buildViewModel(serverDoc);
     res.json(view);

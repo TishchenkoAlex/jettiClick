@@ -7,6 +7,7 @@ import { ISuggest } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
 import { DocumentBase, DocumentOptions } from '../../../server/models/document';
 import { createDocument } from '../../../server/models/documents.factory';
+import { DocTypes } from '../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings } from '../../../server/models/user.settings';
 import { ApiDataSource } from '../common/datatable/api.datasource.v2';
 import { calendarLocale, dateFormat } from '../primeNG.module';
@@ -20,7 +21,7 @@ import { ApiService } from '../services/api.service';
 export class SuggestDialogComponent implements OnInit, OnDestroy {
   locale = calendarLocale; dateFormat = dateFormat;
 
-  @Input() type;
+  @Input() type: DocTypes;
   @Input() id: string;
   @Input() pageSize = 250;
   @Input() settings: FormListSettings = new FormListSettings();
@@ -45,13 +46,13 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const columns: ColumnDef[] = [];
     const data = [{ description: 'string' }, { code: 'string' }, { id: 'string' }];
-    try { this.doc = createDocument(this.type as any); } catch { }
+    try { this.doc = createDocument(this.type); } catch { }
     const schema = this.doc ? this.doc.Props() : {};
     const dimensions = this.doc ? (this.doc.Prop() as DocumentOptions).dimensions || [] : [];
     [...data, ...dimensions].forEach(el => {
       const field = Object.keys(el)[0]; const type = el[field];
       columns.push({
-        field, type: schema[field] && schema[field].type || type, label: schema[field] && schema[field].label || field,
+        field, type: <DocTypes>(schema[field] && schema[field].type || type), label: schema[field] && schema[field].label || field,
         hidden: !!(schema[field] && schema[field].hidden), required: true, readOnly: false, sort: new FormListOrder(field),
         order: schema[field] && schema[field].order || 0, style: schema[field] && schema[field].style || { width: '150px' },
       });

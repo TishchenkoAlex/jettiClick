@@ -14,7 +14,6 @@ export class CatalogSubcount extends DocumentBase {
   @Props({ type: 'Catalog.Subcount', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
-
   QueryList() {
     const select = RegisteredDocument
       .map(el => ({ type: el.type as AllTypes, description: (<DocumentOptions>(createDocument(el.type).Prop())).description }));

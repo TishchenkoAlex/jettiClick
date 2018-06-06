@@ -8,18 +8,18 @@
     <ng-content></ng-content>
     <p-toolbar>
       <div class="ui-toolbar-group-left">
-        <button id="add" icon="fa-plus" class="ui-button-success" pButton type="button" (click)="add()" [disabled]="(lds.busy$ | async)"></button>
-        <button id="open" icon="fa-pencil-square-o" class="ui-button-secondary" pButton type="button" (click)="open()" [disabled]="(lds.busy$ | async)"
+        <button id="add" icon="fa fa-plus" class="ui-button-success" pButton type="button" (click)="add()" [disabled]="(lds.busy$ | async)"></button>
+        <button id="open" icon="fa fa-pencil-square-o" class="ui-button-secondary" pButton type="button" (click)="open()" [disabled]="(lds.busy$ | async)"
           *ngIf="selection?.length == 1"></button>
-        <button id="copy" icon="fa-copy" class="ui-button-secondary" pButton type="button" (click)="copy()" [disabled]="(lds.busy$ | async)"
+        <button id="copy" icon="fa fa-copy" class="ui-button-secondary" pButton type="button" (click)="copy()" [disabled]="(lds.busy$ | async)"
           *ngIf="selection?.length == 1"></button>
-        <button id="post" icon="fa-check" class="ui-button-warning" pButton type="button" (click)="post()" [disabled]="(lds.busy$ | async)"
+        <button id="post" icon="fa fa-check" class="ui-button-warning" pButton type="button" (click)="post()" [disabled]="(lds.busy$ | async)"
           *ngIf="selection?.length >=1 && isDoc"></button>
-        <button id="unpost" icon="fa-square-o" class="ui-button-warning" pButton type="button" (click)="post('unpost')" [disabled]="(lds.busy$ | async)"
+        <button id="unpost" icon="fa fa-square-o" class="ui-button-warning" pButton type="button" (click)="post('unpost')" [disabled]="(lds.busy$ | async)"
           *ngIf="selection?.length >=1 && isDoc"></button>
-        <button id="delete" icon="fa-trash" class="ui-button-danger" pButton type="button" (click)="delete()" [disabled]="(lds.busy$ | async)"
+        <button id="delete" icon="fa fa-trash" class="ui-button-danger" pButton type="button" (click)="delete()" [disabled]="(lds.busy$ | async)"
           *ngIf="selection?.length"></button>
-        <button id="showTree" icon="fa-sitemap" class="ui-button-secondary" pButton type="button" (click)="showTree = !showTree"
+        <button id="showTree" icon="fa fa-sitemap" class="ui-button-secondary" pButton type="button" (click)="showTree = !showTree"
           [disabled]="(lds.busy$ | async)" *ngIf="isCatalog"></button>
       </div>
     </p-toolbar>
@@ -101,11 +101,11 @@
 
     <p-toolbar>
       <div class="ui-toolbar-group-right">
-        <button pButton type="button" icon="fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id.id)" [disabled]="(lds.busy$ | async)"></button>
-        <button pButton type="button" icon="fa-fast-backward" (click)="selection = []; dataSource?.first()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
-        <button pButton type="button" icon="fa-step-backward" (click)="selection = []; dataSource?.prev()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
-        <button pButton type="button" icon="fa-step-forward" (click)="selection = []; dataSource?.next()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
-        <button pButton type="button" icon="fa-fast-forward" (click)="selection = []; dataSource?.last()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id.id)" [disabled]="(lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa fa-fast-backward" (click)="selection = []; dataSource?.first()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa fa-step-backward" (click)="selection = []; dataSource?.prev()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa fa-step-forward" (click)="selection = []; dataSource?.next()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="fa fa-fast-forward" (click)="selection = []; dataSource?.last()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
       </div>
     </p-toolbar>
 

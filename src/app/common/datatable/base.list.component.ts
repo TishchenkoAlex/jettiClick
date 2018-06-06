@@ -168,11 +168,11 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   private setContextMenu(columns: ColumnDef[]) {
     this.contexCommands = [
       {
-        label: 'Select (All)', icon: 'fa-check-square',
+        label: 'Select (All)', icon: 'fa fa-check-square',
         command: (event) => this.selection = this.dataSource.renderedData
       },
       {
-        label: 'Quick filter', icon: 'fa-search',
+        label: 'Quick filter', icon: 'fa fa-search',
         command: (event) => this._update(columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
       },
       ...((createDocument(this.type).Prop() as DocumentOptions).copyTo || []).map(el => {

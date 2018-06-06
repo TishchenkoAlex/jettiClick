@@ -1,0 +1,17 @@
+<div style="width: 220px">
+  <p-treeTable [value]="treeNodes$ | async" selectionMode="multiple" [(selection)]="selection" [metaKeySelection]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>description</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+      <tr [ttSelectableRow]="rowNode">
+        <td>
+          <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+          {{rowData.description}}
+        </td>
+      </tr>
+    </ng-template>
+  </p-treeTable>
+</div>

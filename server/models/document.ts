@@ -1,14 +1,13 @@
-import { v1 } from 'uuid';
 import 'reflect-metadata';
-import { INoSqlDocument, IFlatDocument } from './../models/ServerDocument';
-import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
+import { v1 } from 'uuid';
+import { IFlatDocument } from './../models/ServerDocument';
 import { ICommand } from './commands';
-import { RefValue } from '../models/api';
+import { AllTypes, DocTypes, PrimitiveTypes } from './documents.types';
 
 export interface OwnerRef { dependsOn: string; filterBy: string; }
 
 export interface PropOptions {
-  type: AllTypes;
+  type: AllTypes | AllTypes[];
   label?: string;
   required?: boolean;
   readOnly?: boolean;

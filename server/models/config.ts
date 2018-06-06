@@ -2,7 +2,7 @@ import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { CatalogSubcount } from './../models/Catalogs/Catalog.Subcount';
 import { CatalogDocuments } from './Catalogs/Catalog.Documents';
 import { RegisteredTypes, createTypes } from './Types/Types.factory';
-import { DocumentBase, DocumentOptions } from './document';
+import { DocumentBase, DocumentOptions, PropOptions } from './document';
 import { RegisteredDocument, createDocument } from './documents.factory';
 import { AllDocTypes, AllTypes, ComplexTypes, DocTypes, DocumentTypes } from './documents.types';
 
@@ -16,7 +16,7 @@ export interface IConfigSchema {
   QueryList: string;
   dimensions?: { [x: string]: AllTypes }[];
   copyTo?: DocTypes[];
-  Props?: { [x: string]: any };
+  Props: { [x: string]: PropOptions };
   Prop?: DocumentOptions;
   doc?: DocumentBase;
 }

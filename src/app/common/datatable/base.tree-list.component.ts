@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { TreeNode } from 'primeng/components/common/treenode';
+import { TreeNode } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { v1 } from 'uuid';
@@ -9,23 +9,11 @@ import { DocTypes } from '../../../../server/models/documents.types';
 import { DocService } from '../../common/doc.service';
 import { ApiService } from '../../services/api.service';
 
+// tslint:disable:max-line-length
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'j-tree-list',
-  template: `
-    <div style="width: 220px" >
-      <j-tree-list-toolbar [owner]="this" [selection]="selection"></j-tree-list-toolbar>
-      <p-treeTable [value]="treeNodes$ | async"
-        selectionMode="single" [(selection)]="selection" (selectionChange)="onSelectionChange($event)">
-          <p-column field="description" header="hierarchy" [filter]="true" filterPlaceholder="Search">
-          <ng-template let-row="rowData" pTemplate="body">
-          <span>
-            {{ row.data.description }}
-          </span>
-          </ng-template>
-          </p-column>
-      </p-treeTable>
-    </div>`,
+  templateUrl: 'base.tree-list.component.html',
 })
 export class BaseTreeListComponent implements OnInit {
   @Output() selectionChange = new EventEmitter();
@@ -44,8 +32,8 @@ export class BaseTreeListComponent implements OnInit {
       label: '(All)',
       data: { id: null, description: '(All)' },
       expanded: true,
-      expandedIcon: 'fa-folder-open',
-      collapsedIcon: 'fa-folder',
+      expandedIcon: 'fa fa-folder-open',
+      collapsedIcon: 'fa fa-folder',
       children: this.buildTreeNodes(tree, null),
     }]));
   }
@@ -56,8 +44,8 @@ export class BaseTreeListComponent implements OnInit {
         label: el.description,
         data: { id: el.id, description: el.description },
         expanded: true,
-        expandedIcon: 'fa-folder-open',
-        collapsedIcon: 'fa-folder',
+        expandedIcon: 'fa fa-folder-open',
+        collapsedIcon: 'fa fa-folder',
         children: this.buildTreeNodes(tree, el.id) || [],
       };
     });

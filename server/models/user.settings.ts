@@ -18,23 +18,19 @@ export type FilterList = number[] | string[];
 export type matchOperator = '=' | '>=' | '<=' | '<' | '>' | 'like' | 'in' | 'beetwen' | 'is null';
 
 export class FormListFilter {
-  left: string;
-  center: matchOperator = '=';
-  right: any = null;
-
-  constructor (field: string) {
-    this.left = field;
-  }
+  constructor(
+    public left: string,
+    public center: matchOperator = '=',
+    public right: any = null) { }
 }
 
 export class FormListOrder {
-  order: 'asc' | 'desc' | ''  = '';
+  order: 'asc' | 'desc' | '' = '';
 
-  constructor (public field: string) {}
+  constructor(public field: string) { }
 }
 
 export class FormListSettings {
   filter: FormListFilter[] = [];
   order: FormListOrder[] = [];
 }
-

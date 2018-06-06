@@ -19,9 +19,9 @@ export interface BatchRow {
 export interface JTL {
   db: MSSQL;
   account: {
-    balance: (account: Ref, date: string, company: Ref) => Promise<number | null>,
-    debit: (account: Ref, date: string, company: Ref) => Promise<number | null>,
-    kredit: (account: Ref, date: string, company: Ref) => Promise<number | null>,
+    balance: (account: Ref, date: Date, company: Ref) => Promise<number | null>,
+    debit: (account: Ref, date: Date, company: Ref) => Promise<number | null>,
+    kredit: (account: Ref, date: Date, company: Ref) => Promise<number | null>,
     byCode: (code: string, tx?: MSSQL) => Promise<string | null>
   };
   register: {
@@ -35,7 +35,7 @@ export interface JTL {
     byCode: (type: DocTypes, code: string, tx?: MSSQL) => Promise<string | null>;
     byId: (id: string, tx?: MSSQL) => Promise<IFlatDocument | null>;
     byIdT: <T extends DocumentBase>(id: string, tx?: MSSQL) => Promise<T | null>;
-    formControlRef: (id: string, tx?: MSSQL) => Promise<RefValue>;
+    formControlRef: (id: string, tx?: MSSQL) => Promise<RefValue | null>;
     postById: (id: string, posted: boolean, tx?: MSSQL) => Promise<void>;
     noSqlDocument: (flatDoc: IFlatDocument) => INoSqlDocument | null;
     flatDocument: (noSqldoc: INoSqlDocument) => IFlatDocument | null;
@@ -129,35 +129,37 @@ async function docPrefix(type: DocTypes, tx: MSSQL = sdb): Promise<string> {
   if (metadata && metadata.prefix) {
     const prefix = metadata.prefix;
     const queryText = `SELECT '${prefix}' + FORMAT((NEXT VALUE FOR "Sq.${type}"), '0000000000') result `;
-    const result = await tx.oneOrNone<any>(queryText);
+    const result = await tx.oneOrNone<{ result: string }>(queryText);
     return result ? result.result : '';
   }
   return '';
 }
 
-async function formControlRef(id: string, tx: MSSQL = sdb): Promise<RefValue> {
+async function formControlRef(id: string, tx: MSSQL = sdb): Promise<RefValue | null> {
   const result = await tx.oneOrNone<RefValue>(`
     SELECT "id", "code", "description" as "value", "type" FROM "Documents" WHERE id = '${id}'`);
-  return result!;
+  return result;
 }
 
-async function debit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
+async function debit(account: Ref, date = new Date(), company: Ref): Promise<number> {
   const result = await sdb.oneOrNone<{ result: number }>(`
     SELECT SUM(sum) result FROM "Register.Account"
-    WHERE dt = @p1 AND datetime <= @p2 AND company = @p3`, [account, date, company]);
+    WHERE dt = @p1 AND datetime <= @p2 AND company = @p3
+  `, [account, date, company]);
   return result ? result.result : 0;
 }
 
-async function kredit(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
+async function kredit(account: Ref, date = new Date(), company: Ref): Promise<number> {
   const result = await sdb.oneOrNone<{ result: number }>(`
     SELECT SUM(sum) result FROM "Register.Account"
-    WHERE kt = @p1 AND datetime <= @p2 AND company = @p3`, [account, date, company]);
+    WHERE kt = @p1 AND datetime <= @p2 AND company = @p3
+  `, [account, date, company]);
   return result ? result.result : 0;
 }
 
-async function balance(account: Ref, date = new Date().toJSON(), company: Ref): Promise<number> {
+async function balance(account: Ref, date = new Date(), company: Ref): Promise<number> {
   const result = await sdb.oneOrNone<{ result: number }>(`
-  SELECT (SUM(u.dt) - SUM(u.kt)) result  FROM (
+  SELECT (SUM(u.dt) - SUM(u.kt)) result FROM (
       SELECT SUM(sum) dt, 0 kt
       FROM "Register.Account"
       WHERE dt = @p1 AND datetime <= @p2 AND company = @p3
@@ -167,8 +169,7 @@ async function balance(account: Ref, date = new Date().toJSON(), company: Ref): 
       SELECT 0 dt, SUM(sum) kt
       FROM "Register.Account"
       WHERE kt = @p1 AND datetime <= @p2 AND company = @p3
-    ) u
-    `, [account, date, company]);
+  ) u`, [account, date, company]);
   return result ? result.result : 0;
 }
 

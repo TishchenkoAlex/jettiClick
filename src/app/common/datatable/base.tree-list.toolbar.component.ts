@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { MenuItem } from 'primeng/components/common/menuitem';
-import { TreeNode } from 'primeng/components/common/treenode';
+import { MenuItem, TreeNode } from 'primeng/api';
 import { BaseTreeListComponent } from '../../common/datatable/base.tree-list.component';
 
 @Component({
@@ -30,14 +29,14 @@ export class BaseTreeListToolbarComponent {
   initState() {
     // tslint:disable:max-line-length
     this.buttons = [
-      { label: 'add', icon: 'fa-plus', styleClass: 'ui-button-success', command: this.owner.add.bind(this.owner), visible: true },
-      { label: 'open', icon: 'fa-pencil-square-o', styleClass: 'ui-button-secondary', command: this.owner.open.bind(this.owner), visible: this.selection !== null },
-      { label: 'delete', icon: 'fa-trash', styleClass: 'ui-button-danger', command: this.owner.delete.bind(this.owner), visible: this.selection !== null },
+      { label: 'add', icon: 'fa fa-plus', styleClass: 'ui-button-success', command: this.owner.add.bind(this.owner), visible: true },
+      { label: 'open', icon: 'fa fa-pencil-square-o', styleClass: 'ui-button-secondary', command: this.owner.open.bind(this.owner), visible: this.selection !== null },
+      { label: 'delete', icon: 'fa fa-trash', styleClass: 'ui-button-danger', command: this.owner.delete.bind(this.owner), visible: this.selection !== null },
     ];
   }
 
   private recalcButtonsState() {
-    if (!this.buttons.length) { this.initState(); }
+    if (!this.buttons.length) this.initState();
     this.buttons.find(b => b.label === 'delete')!.visible = this.selection !== null;
     this.buttons.find(b => b.label === 'open')!.visible = this.selection !== null && this.selection.data.id;
   }

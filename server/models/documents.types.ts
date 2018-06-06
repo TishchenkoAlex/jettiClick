@@ -3,6 +3,7 @@ export type CatalogTypes =
   'Catalog.Balance' |
   'Catalog.Balance.Analytics' |
   'Catalog.BankAccount' |
+  'Catalog.Brand' |
   'Catalog.CashFlow' |
   'Catalog.CashRegister' |
   'Catalog.Company' |
@@ -23,17 +24,16 @@ export type CatalogTypes =
   'Catalog.Subcount' |
   'Catalog.Documents' |
   'Catalog.User' |
-  'Catalog.Unit' |
-  'Catalog.Brand'
+  'Catalog.Unit'
  ;
 
 export type DocumentTypes =
   'Document.CashIn' |
   'Document.ExchangeRates' |
-  'Document.Settings' |
   'Document.Invoice' |
   'Document.Operation' |
-  'Document.PriceList';
+  'Document.PriceList' |
+  'Document.Settings';
 
 export type DocTypes =
   CatalogTypes |
@@ -58,7 +58,8 @@ export type PrimitiveTypes =
 export type ComplexTypes =
   'Types.Document' |
   'Types.Subcount' |
-  'Types.Catalog';
+  'Types.Catalog' |
+  'Types.ExpenseOrBalance';
 
 export type IncomeExpenseTypes =
 'Catalog.Expense' |

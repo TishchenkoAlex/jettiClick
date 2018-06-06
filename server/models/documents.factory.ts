@@ -43,7 +43,7 @@ export function createDocument<T extends DocumentBase>(type: DocTypes, document?
     ArrayProps.forEach(prop => result[prop].length = 0);
     if (document) result.map(document);
     return result;
-  } else throw new Error(`can't create type! ${type} is not registered`);
+  } else throw new Error(`createDocument: can't create '${type}' type! '${type}' is not registered`);
 }
 
 export const RegisteredDocument: IRegisteredDocument<any>[] = [

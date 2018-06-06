@@ -14,7 +14,7 @@ import { stdDocumentListCommands } from '../commands';
   menu: 'Invoices',
   prefix: 'INV-',
   commands: [
-    { command: 'test', icon: 'fa-plus', label: 'test' }
+    { command: 'test', icon: 'fa fa-plus', label: 'test' }
   ],
   copyTo: [
     'Document.PriceList'

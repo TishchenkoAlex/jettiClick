@@ -10,7 +10,7 @@ import { AccountRegister } from '../../../server/models/account.register';
 // tslint:disable-next-line:max-line-length
 import { DocListRequestBody, DocListResponse, IJob, IJobs, ISuggest, ITree, IViewModel, PatchValue, RefValue } from '../../../server/models/api';
 import { DocumentBase, Ref } from '../../../server/models/document';
-import { DocTypes } from '../../../server/models/documents.types';
+import { AllDocTypes, DocTypes } from '../../../server/models/documents.types';
 import { FormListFilter, FormListOrder, FormListSettings, UserDefaultsSettings } from '../../../server/models/user.settings';
 import { environment } from '../../environments/environment';
 import { IComplexObject } from '../common/dynamic-form/dynamic-form-base';
@@ -32,7 +32,7 @@ export class ApiService {
     return (this.http.get<RefValue>(query)).toPromise();
   }
 
-  getDocList(type: string, id: string, command: string,
+  getDocList(type: AllDocTypes, id: string, command: string,
     count = 10, offset = 0, order: FormListOrder[] = [], filter: FormListFilter[] = []): Observable<DocListResponse> {
     const query = `${environment.api}list`;
     const body: DocListRequestBody = { id, type, command, count, offset, order, filter };

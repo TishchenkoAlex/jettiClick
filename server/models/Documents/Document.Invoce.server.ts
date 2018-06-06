@@ -32,7 +32,7 @@ export class DocumentInvoiceServer extends DocumentInvoice implements ServerDocu
         const company = await lib.doc.byIdT<CatalogCompany>(value.id, tx);
         if (!company) { return {}; }
         const currency = await lib.doc.formControlRef(company.currency as string, tx);
-        this.currency = currency.id;
+        this.currency = currency ? currency.id : null;
         return { currency };
       default:
         return {};

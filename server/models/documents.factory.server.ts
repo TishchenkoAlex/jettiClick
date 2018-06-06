@@ -1,4 +1,4 @@
-import { sdb } from '../mssql';
+import { MSSQL, sdb } from '../mssql';
 import { lib } from '../std.lib';
 import { IRegisteredDocument, createDocument } from './../models/documents.factory';
 import { CatalogOperation } from './Catalogs/Catalog.Operation';
@@ -57,6 +57,9 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
       if (Operation && Operation.module) {
         const func = new Function('tx', Operation.module);
         result['serverModule'] = func.bind(result, tx)() || {};
+
+        const onCreate: (tx: MSSQL) => Promise<void> = result['serverModule']['onCreate'];
+        if (typeof onCreate === 'function') await onCreate(tx);
       }
     }
   }
