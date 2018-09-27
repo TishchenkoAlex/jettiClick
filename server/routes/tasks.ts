@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-import { JQueue, mapJob } from '../models/Tasks/tasks';
 import { IJobs } from '../models/api';
+import { JQueue, mapJob } from '../models/Tasks/tasks';
 import { User } from '../routes/user.settings';
 
 export const router = express.Router();
@@ -41,7 +41,7 @@ router.get('/jobs', async (req: Request, res: Response, next: NextFunction) => {
 router.get('/jobs/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const job = await JQueue.getJob(req.params.id);
-    res.json(mapJob(job));
+    res.json(mapJob(job!));
   } catch (err) { next(err); }
 });
 

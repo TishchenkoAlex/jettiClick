@@ -8,6 +8,7 @@ import * as httpServer from 'http';
 import * as path from 'path';
 import 'reflect-metadata';
 import * as socketIO from 'socket.io';
+import { SQLGenegatorMetadata } from './fuctions/SQLGenerator.MSSQL.Metadata';
 import { JQueue } from './models/Tasks/tasks';
 import { router as auth } from './routes/auth';
 import { router as documents } from './routes/documents';
@@ -55,7 +56,7 @@ const port = (process.env.PORT) || '3000';
 HTTP.listen(port, () => console.log(`API running on port:${port}`));
 JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
 
-// console.log(SQLGenegatorMetadata.AlterTriggerRegisterAccumulation());
+console.log(SQLGenegatorMetadata.AlterTriggerRegisterAccumulation());
 // console.log(SQLGenegator.CreateTableRegisterAccumulation());
 // const script = SQLGenegator.CreateViewCatalogs();
 // console.log(script);

@@ -1,4 +1,4 @@
-import { JDocument, DocumentBase, Props, Ref } from './../document';
+import { DocumentBase, JDocument, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Catalog.BankAccount',
@@ -18,7 +18,7 @@ export class CatalogBankAccount extends DocumentBase {
   @Props({ type: 'Catalog.Department'})
   Department: Ref = null;
 
-  @Props({ type: 'Catalog.Company', required: true, hiddenInForm: false})
+  @Props({ type: /*  */'Catalog.Company', required: true, hiddenInForm: false})
   company: Ref = null;
 
 }

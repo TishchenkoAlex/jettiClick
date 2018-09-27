@@ -36,7 +36,7 @@ export class ApiInterceptor implements HttpInterceptor {
         }
         this.messageService.add({
           severity: 'error', summary: err.statusText, key: '-1',
-          detail: err.status === 500 ? err.error : err.message
+          detail: err.status === 500 ? err.error : err.message, life: 10000
         });
         return throwError(err);
       }));

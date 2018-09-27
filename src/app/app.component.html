@@ -1,21 +1,22 @@
-<p-growl [immutable]="false" key="1"></p-growl>
-<p-growl [immutable]="false" key="-1" [life]="10000"></p-growl>
-<div class="layout-wrapper" (click)="onLayoutClick()" [ngClass]="{'menu-layout-static': !isOverlay(),
-  'menu-layout-overlay': isOverlay(),
-  'layout-menu-overlay-active': overlayMenuActive,
-  'menu-layout-horizontal': isHorizontal(),
-  'menu-layout-slim': isSlim(),
-  'layout-menu-static-inactive': staticMenuDesktopInactive,
-  'layout-menu-static-active': staticMenuMobileActive}">
+<p-toast key="1"></p-toast>
+<p-toast key="-1"></p-toast>
+<div class="layout-wrapper" (click)="onLayoutClick()"
+    [ngClass]="{'menu-layout-static': !isOverlay(),
+                'menu-layout-overlay': isOverlay(),
+                'layout-menu-overlay-active': overlayMenuActive,
+                'menu-layout-horizontal': isHorizontal(),
+                'menu-layout-slim': isSlim(),
+                'layout-menu-static-inactive': staticMenuDesktopInactive,
+                'layout-menu-static-active': staticMenuMobileActive}">
 
   <app-topbar></app-topbar>
   <div class="layout-menu-container" [ngClass]="{'layout-menu-dark':darkMenu}" (click)="onMenuClick($event)">
-    <div #layoutMenuScroller class="nano">
-      <div class="nano-content menu-scroll-content">
-        <app-inline-profile [inline]="true" *ngIf="profileMode=='inline' && !isHorizontal()"></app-inline-profile>
+    <p-scrollPanel #layoutMenuScroller [style]="{height: '100%' }">
+      <div class="menu-scroll-content">
+        <app-inline-profile *ngIf="profileMode=='inline'&&!isHorizontal()"></app-inline-profile>
         <app-menu [reset]="resetMenu"></app-menu>
-      </div>
-    </div>
+      </div>`
+    </p-scrollPanel>
   </div>
 
   <div class="layout-main">

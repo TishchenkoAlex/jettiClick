@@ -1,5 +1,6 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
+import { ScrollPanel } from '../../node_modules/primeng/scrollpanel';
 import { AuthService } from './auth/auth.service';
 import { LoadingService } from './common/loading.service';
 import { ApiService } from './services/api.service';
@@ -32,7 +33,7 @@ export class AppComponent implements AfterViewInit {
   resetMenu: boolean;
   menuHoverActive: boolean;
 
-  @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ElementRef;
+  @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ScrollPanel;
 
   constructor(
     public auth: AuthService, public apiService: ApiService, public lds: LoadingService, private swUpdate: SwUpdate) {
@@ -49,9 +50,8 @@ export class AppComponent implements AfterViewInit {
 
     }
   }
-
   ngAfterViewInit() {
-    this.layoutMenuScroller = <HTMLDivElement>this.layoutMenuScrollerViewChild.nativeElement;
+    setTimeout(() => { this.layoutMenuScrollerViewChild.moveBar(); }, 100);
   }
 
   onLayoutClick() {
@@ -72,13 +72,8 @@ export class AppComponent implements AfterViewInit {
       this.menuHoverActive = false;
     }
 
-    if (!this.rightPanelClick) {
-      this.rightPanelActive = false;
-    }
-
     this.topbarItemClick = false;
     this.menuClick = false;
-    this.rightPanelClick = false;
   }
 
   onMenuButtonClick(event) {
@@ -95,39 +90,42 @@ export class AppComponent implements AfterViewInit {
         this.staticMenuMobileActive = !this.staticMenuMobileActive;
       }
     }
+
     event.preventDefault();
   }
 
   onMenuClick($event) {
     this.menuClick = true;
     this.resetMenu = false;
+
+    if (!this.isHorizontal()) {
+      setTimeout(() => { this.layoutMenuScrollerViewChild.moveBar(); }, 450);
+    }
   }
 
   onTopbarMenuButtonClick(event) {
     this.topbarItemClick = true;
     this.topbarMenuActive = !this.topbarMenuActive;
+
     this.hideOverlayMenu();
+
     event.preventDefault();
   }
 
   onTopbarItemClick(event, item) {
     this.topbarItemClick = true;
+
     if (this.activeTopbarItem === item) {
       this.activeTopbarItem = null;
     } else {
       this.activeTopbarItem = item;
     }
+
     event.preventDefault();
   }
 
-  onRightPanelButtonClick(event) {
-    this.rightPanelClick = true;
-    this.rightPanelActive = !this.rightPanelActive;
+  onTopbarSubItemClick(event) {
     event.preventDefault();
-  }
-
-  onRightPanelClick() {
-    this.rightPanelClick = true;
   }
 
   hideOverlayMenu() {
@@ -176,5 +174,6 @@ export class AppComponent implements AfterViewInit {
   changeToSlimMenu() {
     this.layoutMode = MenuOrientation.SLIM;
   }
+
 
 }

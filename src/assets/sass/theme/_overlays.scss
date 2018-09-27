@@ -160,8 +160,11 @@ body {
                 @include transition(all .3s);
                 font-size: 24px;
                 margin-left: 4px;
+                color: #ffffff;
+                opacity: 1;
 
                 &:hover {
+                    color: $primaryColor;
                     @include scale(1.2);
                 }
                 
@@ -175,8 +178,11 @@ body {
                 @include transition(all .3s);
                 font-size: 24px;
                 margin-right: 4px;
+                color: #ffffff;
+                opacity: 1;
                 
                 &:hover {
+                    color: $primaryColor;
                     @include scale(1.2);
                 }
                 

@@ -11,18 +11,19 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
 import { FieldsetModule } from 'primeng/fieldset';
-import { GrowlModule } from 'primeng/growl';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { PaginatorModule } from 'primeng/paginator';
 import { PanelModule } from 'primeng/panel';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { SpinnerModule } from 'primeng/spinner';
 import { SplitButtonModule } from 'primeng/splitbutton';
 // import { TableModule } from 'primeng/table';
 import { TabViewModule } from 'primeng/tabview';
+import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TreeTableModule } from 'primeng/treetable';
@@ -46,7 +47,6 @@ import { TableModule } from './common/datatable/table';
     FieldsetModule,
     // MessagesModule,
     // MessageModule,
-    GrowlModule,
     TreeTableModule,
     SelectButtonModule,
     InputTextModule,
@@ -77,7 +77,8 @@ import { TableModule } from './common/datatable/table';
     // MultiSelectModule,
     // InplaceModule,
     // BlockUIModule,
-
+    ToastModule,
+    ScrollPanelModule,
     TableModule,
     TabViewModule,
 

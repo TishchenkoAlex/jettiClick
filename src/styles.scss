@@ -16,7 +16,7 @@ body {
   margin: 0 !important;
 }
 
-.ui-table .ui-table-tbody>tr>td {
+.ui-table .ui-table-tbody > tr > td {
   height: 24px;
   white-space: nowrap;
   /* Отменяем перенос текста */
@@ -25,11 +25,25 @@ body {
   text-overflow: ellipsis;
 }
 
-.tabViewClassInForm .ui-table .ui-table-tbody>tr>td {
+body .ui-table .ui-table-thead > tr > th, 
+body .ui-table .ui-table-tbody > tr > td, 
+body .ui-table .ui-table-tfoot > tr > td {
+  padding: 0.343em 0.343em;
+}
+
+.ui-inputtext {
+    padding: 0.343em 0.343em !important
+}
+
+.ui-table .ui-table-tbody> tr > td.ui-editing-cell input {
+  padding: 0.343em 0.343em !important
+}
+
+.tabViewClassInForm .ui-table .ui-table-tbody > tr > td {
   height: 26px;
 }
 
-.tabViewClassInForm .ui-table .ui-table-tbody>tr>td.ui-editing-cell {
+.tabViewClassInForm .ui-table .ui-table-tbody > tr > td.ui-editing-cell {
   padding: 0
 }
 
@@ -53,8 +67,13 @@ body {
   padding: 1px !important;
 }
 
+
 .ui-tabview .ui-tabview-panel {
   padding: 0 !important;
+}
+
+.ui-tabview-nav li.ui-state-active {
+  background-color: whitesmoke !important;
 }
 
 .ui-tabview-nav li a {
@@ -104,26 +123,32 @@ body {
   margin-top: -.41em !important;
 }
 
-// buttons
 .ui-button-icon-only .pi {
   margin-top: -.45em !important;
   margin-left: -.48em !important;
-  ;
 }
 
 .ui-button-text-icon-left .pi {
   margin-top: -.41em !important;
 }
 
-
-.ui-button-icon-only {
-  width: 2em !important;
-}
-
 .ui-toolbar .ui-button {
   margin-right: 1px;
 }
 
+.ui-toolbar .ui-button.ui-button-icon-only {
+  margin-right: 1px;
+  width: 28px;
+}
+
+j-autocomplete-png { 
+  .ui-button.ui-button-icon-only .ui-button-text {
+    padding: 0px;
+    width: 1.8em;
+  }
+}
+
+/*  */
 .ui-datepicker.ui-widget .ui-datepicker-calendar td a {
   padding: 4px !important;
 }

@@ -11,7 +11,15 @@ import { AppComponent } from './app.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-menu',
-  template: `<ul app-submenu [item]="model$ | async" root="true" class="layout-menu layout-main-menu clearfix" [reset]="reset" visible="true"></ul>`
+  template: `
+    <ul app-submenu
+      [item]="model$ | async"
+      root="true"
+      class="layout-menu layout-main-menu clearfix"
+      [reset]="reset"
+      visible="true"
+      parentActive="true">
+    </ul>`
 })
 export class AppMenuComponent implements OnInit {
 
@@ -223,6 +231,9 @@ export class AppSubMenuComponent {
 
     // prevent hash change
     if (item.items || (!item.url && !item.routerLink)) {
+      setTimeout(() => {
+        this.app.layoutMenuScrollerViewChild.moveBar();
+      }, 450);
       event.preventDefault();
     }
 
@@ -241,7 +252,8 @@ export class AppSubMenuComponent {
   }
 
   onMouseEnter(index: number) {
-    if (this.root && this.app.menuHoverActive && (this.app.isHorizontal() || this.app.isSlim())) {
+    if (this.root && this.app.menuHoverActive && (this.app.isHorizontal() || this.app.isSlim())
+      && !this.app.isMobile() && !this.app.isTablet()) {
       this.activeIndex = index;
     }
   }

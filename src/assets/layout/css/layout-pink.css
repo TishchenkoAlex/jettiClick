@@ -991,7 +991,7 @@ html {
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
-  color: #292B2C;
+  color: #212529;
   -webkit-font-smoothing: antialiased;
   padding: 0;
   margin: 0;
@@ -1147,19 +1147,25 @@ body {
   -o-transition: margin-left 0.3s;
   -webkit-transition: margin-left 0.3s;
   transition: margin-left 0.3s; }
-  .layout-wrapper .layout-menu-container > .nano > .nano-content.menu-scroll-content {
-    display: block;
-    height: 100%;
-    position: relative;
-    overflow: scroll;
-    overflow-x: hidden; }
-  .layout-wrapper .layout-menu-container > .nano > .nano-content .layout-main-menu {
-    margin-top: 16px;
-    padding-bottom: 120px; }
-  .layout-wrapper .layout-menu-container > .nano .nano-pane .nano-slider {
-    background-color: #aaaaaa;
-    opacity: 0.3;
-    filter: alpha(opacity=30); }
+  .layout-wrapper .layout-menu-container .ui-scrollpanel {
+    background: transparent;
+    border-radius: 0;
+    border: none; }
+    .layout-wrapper .layout-menu-container .ui-scrollpanel .ui-scrollpanel-bar {
+      background: #aaaaaa;
+      opacity: 0.3;
+      filter: alpha(opacity=30); }
+    .layout-wrapper .layout-menu-container .ui-scrollpanel .ui-scrollpanel-hidden {
+      display: block;
+      visibility: hidden; }
+    .layout-wrapper .layout-menu-container .ui-scrollpanel .ui-scrollpanel-content {
+      overflow-x: hidden; }
+    .layout-wrapper .layout-menu-container .ui-scrollpanel .menu-scroll-content {
+      width: 253px;
+      padding-right: 18px; }
+    .layout-wrapper .layout-menu-container .ui-scrollpanel .layout-main-menu {
+      margin-top: 16px;
+      padding-bottom: 120px; }
   .layout-wrapper .layout-menu-container .profile {
     padding: 15px;
     -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15);
@@ -1176,7 +1182,7 @@ body {
       margin-left: 4px; }
     .layout-wrapper .layout-menu-container .profile > a .profile-name {
       display: block;
-      color: #292B2C;
+      color: #212529;
       vertical-align: middle;
       font-size: 16px;
       font-weight: bold;
@@ -1284,7 +1290,7 @@ body {
   .layout-wrapper .layout-menu li a {
     display: block;
     padding: 10px 15px;
-    color: #292B2C;
+    color: #212529;
     width: 100%;
     -moz-transition: background-color 0.3s, border-left-color 0.3s;
     -o-transition: background-color 0.3s, border-left-color 0.3s;
@@ -1544,18 +1550,19 @@ body {
     -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
     -moz-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26); }
-    .layout-wrapper.menu-layout-horizontal .layout-menu-container > .nano {
-      overflow: visible; }
-      .layout-wrapper.menu-layout-horizontal .layout-menu-container > .nano .nano-content.menu-scroll-content {
-        display: inherit;
-        height: auto;
-        position: static;
-        overflow: visible;
-        overflow-x: visible; }
-      .layout-wrapper.menu-layout-horizontal .layout-menu-container > .nano .nano-content .layout-main-menu {
-        padding: 0; }
-      .layout-wrapper.menu-layout-horizontal .layout-menu-container > .nano .nano-pane {
-        display: none !important; }
+    .layout-wrapper.menu-layout-horizontal .layout-menu-container .ui-scrollpanel {
+      overflow: visible;
+      border: none; }
+      .layout-wrapper.menu-layout-horizontal .layout-menu-container .ui-scrollpanel .ui-scrollpanel-wrapper {
+        overflow: visible; }
+        .layout-wrapper.menu-layout-horizontal .layout-menu-container .ui-scrollpanel .ui-scrollpanel-wrapper .ui-scrollpanel-content {
+          overflow: visible; }
+      .layout-wrapper.menu-layout-horizontal .layout-menu-container .ui-scrollpanel .ui-scrollpanel-bar {
+        display: none; }
+      .layout-wrapper.menu-layout-horizontal .layout-menu-container .ui-scrollpanel .menu-scroll-content {
+        width: 100%; }
+      .layout-wrapper.menu-layout-horizontal .layout-menu-container .ui-scrollpanel .layout-main-menu {
+        padding-bottom: 0; }
     .layout-wrapper.menu-layout-horizontal .layout-menu-container ul.layout-menu:last-child {
       margin-top: 0; }
     .layout-wrapper.menu-layout-horizontal .layout-menu-container ul.layout-menu > li {
@@ -1563,9 +1570,9 @@ body {
       position: relative; }
       .layout-wrapper.menu-layout-horizontal .layout-menu-container ul.layout-menu > li > a:hover {
         background-color: #e8e8e8;
-        color: #292B2C; }
+        color: #212529; }
         .layout-wrapper.menu-layout-horizontal .layout-menu-container ul.layout-menu > li > a:hover i {
-          color: #292B2C; }
+          color: #212529; }
       .layout-wrapper.menu-layout-horizontal .layout-menu-container ul.layout-menu > li > ul {
         padding: 5px 0;
         z-index: 100;
@@ -1671,13 +1678,17 @@ body {
     overflow: visible;
     z-index: 100;
     top: 0; }
-    .layout-wrapper.menu-layout-slim .layout-menu-container .nano {
-      overflow: visible; }
-      .layout-wrapper.menu-layout-slim .layout-menu-container .nano .nano-content {
-        overflow: visible;
-        margin-right: 0px !important; }
-      .layout-wrapper.menu-layout-slim .layout-menu-container .nano .nano-pane {
-        display: none !important; }
+    .layout-wrapper.menu-layout-slim .layout-menu-container .ui-scrollpanel {
+      border: none;
+      border-radius: 0; }
+      .layout-wrapper.menu-layout-slim .layout-menu-container .ui-scrollpanel .ui-scrollpanel-wrapper {
+        overflow: visible; }
+        .layout-wrapper.menu-layout-slim .layout-menu-container .ui-scrollpanel .ui-scrollpanel-wrapper .ui-scrollpanel-content {
+          overflow: visible; }
+      .layout-wrapper.menu-layout-slim .layout-menu-container .ui-scrollpanel .ui-scrollpanel-bar {
+        display: none; }
+      .layout-wrapper.menu-layout-slim .layout-menu-container .ui-scrollpanel .menu-scroll-content {
+        width: 100%; }
     .layout-wrapper.menu-layout-slim .layout-menu-container .profile {
       height: 60px;
       padding-top: 7px; }
@@ -1807,7 +1818,7 @@ body {
       display: block;
       font-size: 16px;
       padding: 10px 15px;
-      color: #292B2C;
+      color: #212529;
       position: relative; }
       .layout-wrapper .topbar .topbar-right .topbar-items > li > a i {
         display: inline-block;
@@ -1854,12 +1865,12 @@ body {
         width: 100%;
         padding-right: 28px;
         border-color: #e5e5e5;
-        color: #292B2C; }
+        color: #212529; }
         .layout-wrapper .topbar .topbar-right .topbar-items > li.search-item .topbar-search input:focus {
           border-color: #e5e5e5; }
       .layout-wrapper .topbar .topbar-right .topbar-items > li.search-item .topbar-search label {
         top: 1px;
-        color: #292B2C; }
+        color: #212529; }
       .layout-wrapper .topbar .topbar-right .topbar-items > li.search-item .topbar-search i {
         position: absolute;
         right: 10px;
@@ -1881,3 +1892,38 @@ body {
     right: 10px; }
   .layout-wrapper.layout-rtl .topbar .topbar-right #topbar-menu-button {
     left: 10px; } }
+/* roboto-300 - latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: url("../fonts/roboto-v15-latin-300.eot");
+  /* IE9 Compat Modes */
+  src: local("Roboto Light"), local("Roboto-Light"), url("../fonts/roboto-v15-latin-300.eot#iefix") format("embedded-opentype"), url("../fonts/roboto-v15-latin-300.woff2") format("woff2"), url("../fonts/roboto-v15-latin-300.woff") format("woff"), url("../fonts/roboto-v15-latin-300.ttf") format("truetype"), url("../fonts/roboto-v15-latin-300.svg#Roboto") format("svg");
+  /* Legacy iOS */ }
+/* roboto-regular - latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url("../fonts/roboto-v15-latin-regular.eot");
+  /* IE9 Compat Modes */
+  src: local("Roboto"), local("Roboto-Regular"), url("../fonts/roboto-v15-latin-regular.eot#iefix") format("embedded-opentype"), url("../fonts/roboto-v15-latin-regular.woff2") format("woff2"), url("../fonts/roboto-v15-latin-regular.woff") format("woff"), url("../fonts/roboto-v15-latin-regular.ttf") format("truetype"), url("../fonts/roboto-v15-latin-regular.svg#Roboto") format("svg");
+  /* Legacy iOS */ }
+/* roboto-700 - latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url("../fonts/roboto-v15-latin-700.eot");
+  /* IE9 Compat Modes */
+  src: local("Roboto Bold"), local("Roboto-Bold"), url("../fonts/roboto-v15-latin-700.eot#iefix") format("embedded-opentype"), url("../fonts/roboto-v15-latin-700.woff2") format("woff2"), url("../fonts/roboto-v15-latin-700.woff") format("woff"), url("../fonts/roboto-v15-latin-700.ttf") format("truetype"), url("../fonts/roboto-v15-latin-700.svg#Roboto") format("svg");
+  /* Legacy iOS */ }
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url("../fonts/MaterialIcons-Regular.eot");
+  /* For IE6-8 */
+  src: local("Material Icons"), local("MaterialIcons-Regular"), url("../fonts/MaterialIcons-Regular.woff2") format("woff2"), url("../fonts/MaterialIcons-Regular.woff") format("woff"), url("../fonts/MaterialIcons-Regular.ttf") format("truetype"); }
+/* Add your customizations of layout here */

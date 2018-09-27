@@ -69,8 +69,8 @@ export class DocService {
       });
   }
 
-  openSnackBar(severity: string, message: string, detail: string) {
-    this.messageService.add({ severity: severity, summary: message, detail: detail, key: '1' });
+  openSnackBar(severity: string, summary: string, detail: string) {
+    this.messageService.add({ severity, summary, detail, key: '1' });
   }
 
 }

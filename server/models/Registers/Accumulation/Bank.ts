@@ -16,6 +16,9 @@ export class RegisterAccumulationBank extends RegisterAccumulation {
   @Props({ type: 'Catalog.CashFlow', required: true })
   CashFlow: Ref = null;
 
+  @Props({ type: 'Types.Catalog' })
+  Analytics: Ref = null;
+
   @Props({ type: 'number' })
   Amount = 0;
 
@@ -28,6 +31,7 @@ export class RegisterAccumulationBank extends RegisterAccumulation {
   constructor(kind: boolean, public data: {
     BankAccount: Ref,
     CashFlow: Ref,
+    Analytics: Ref,
     Amount: number,
     AmountInBalance: number,
     AmountInAccounting: number,

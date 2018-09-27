@@ -6,7 +6,7 @@
           (click)="PostClose()" *ngIf="!isDeleted"></button>
         <button pButton type="button" id="Post" icon="fa fa-check" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
           (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
-        <button pButton type="button" id="unPost" icon="fa-square-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
+        <button pButton type="button" id="unPost" icon="fa fa-square-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
           (click)="unPost()" *ngIf="!isDeleted && isPosted && isDoc"></button>
         <button pButton type="button" id="Save" icon="fa fa-floppy-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
           (click)="Save()" *ngIf="!isPosted || !isDoc"></button>
@@ -82,7 +82,7 @@
 
 </form>
 
-<p-confirmDialog [key]="id" appendTo="body" [closeOnEscape]="true" [closable]="true" #cd>
+<p-confirmDialog [key]="id" [closeOnEscape]="true" [closable]="true" #cd>
   <p-footer>
     <div cdkTrapFocus>
       <button type="button" pButton icon="fa fa-check" label="Yes" (click)="cd.accept()"></button>

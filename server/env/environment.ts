@@ -14,7 +14,7 @@ export const sqlConfig: config = {
   user: process.env.DB_USER || 'yuralex',
   password: process.env.DB_PASSWORD || 'MyNew01Password',
   requestTimeout: 1000 * 120,
-  pool: { min: 25, max: 10000 },
+  pool: { min: 25, max: 10000/* , acquireTimeoutMillis: 0 */ },
   options: { encrypt: false }
 };
 
@@ -25,6 +25,6 @@ export const sqlConfigAccounts: config = {
   user: process.env.DB_ACCOUNTS_USER || 'yuralex',
   password: process.env.DB_ACCOUNTS_PASSWORD || 'MyNew01Password',
   requestTimeout: 1000 * 120,
-  pool: { min: 25, max: 10000 },
+  pool: { min: 25, max: 10000/* , acquireTimeoutMillis: 0 */ },
   options: { encrypt: false }
 };

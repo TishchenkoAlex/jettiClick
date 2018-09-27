@@ -1,91 +1,24 @@
-ALTER TRIGGER "Accumulation.Delete" ON dbo."Accumulation"
-FOR DELETE AS
-BEGIN
-
-  DECLARE @type NVARCHAR(100);
-  DECLARE @document UNIQUEIDENTIFIER;
-  DECLARE @query AS NVARCHAR(max);
-
-  DECLARE types CURSOR FAST_FORWARD FOR SELECT distinct type, document
-  from DELETED
-  where type = 'Register.Accumulation.Sales';
-  OPEN types;
-  FETCH NEXT FROM types INTO @type, @document;
-  WHILE (@@FETCH_STATUS = 0)
-	BEGIN
-    SET @query = N'
-      DELETE FROM "' + @type + N'"
-      WHERE document = @document';
-    EXEC sp_executesql @query,  N'@document UNIQUEIDENTIFIER', @document = @document;
-    FETCH NEXT FROM types INTO @type, @document;
-  END;
-  CLOSE types;
-  DEALLOCATE types;
-END;
-GO;
-
 ALTER TRIGGER "Accumulation.Insert" ON dbo."Accumulation"
-FOR INSERT AS
-BEGIN
-
-  INSERT INTO "Register.Accumulation.Sales"
-    (date, document, company, Department, Customer, Product, Manager, Amount, Cost, Qty, Tax)
-  SELECT
-    CAST(date AS DATE) date,
-    document,
-    company,
-    CAST(JSON_VALUE(data, '$.Department') AS UNIQUEIDENTIFIER) Department,
-    CAST(JSON_VALUE(data, '$.Customer') AS UNIQUEIDENTIFIER) Customer,
-    CAST(JSON_VALUE(data, '$.Product') AS UNIQUEIDENTIFIER) Product,
-    CAST(JSON_VALUE(data, '$.Manager') AS UNIQUEIDENTIFIER) Manager,
-    CAST(JSON_VALUE(data, '$.Amount') AS NUMERIC(15, 2)) Amount,
-    CAST(JSON_VALUE(data, '$.Qty') AS NUMERIC(15, 4)) Qty,
-    CAST(JSON_VALUE(data, '$.Cost') AS NUMERIC(15, 4)) Cost,
-    CAST(JSON_VALUE(data, '$.Tax') AS NUMERIC(15, 4)) Tax
-  FROM INSERTED
-  WHERE type = 'Register.Accumulation.Sales';
-
-END;
-GO;
-
-ALTER TRIGGER [dbo].[Accumulation.DELETE] ON [dbo].[Accumulation]
-WITH NATIVE_COMPILATION, SCHEMABINDING
-AFTER DELETE AS 
-BEGIN ATOMIC WITH (TRANSACTION ISOLATION LEVEL = SNAPSHOT, LANGUAGE = N'us_english')
-
-DECLARE @id UNIQUEIDENTIFIER;
-SELECT @id = del.document FROM DELETED del;
-
-DELETE FROM dbo."Register.Accumulation.AccountablePersons" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.AP" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.AR" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.Balance" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.Bank" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.Cash" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.Cash.Transit" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.Inventory" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.Loan" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.PL" WHERE document = @id;
-DELETE FROM dbo."Register.Accumulation.Sales" WHERE document = @id;
-
-END;
-GO;
-
-      ALTER TRIGGER "Accumulation.Insert" ON dbo."Accumulation"      FOR INSERT AS
+      FOR INSERT AS
       BEGIN
 
-      INSERT INTO "Register.Accumulation.AccountablePersons"      (DT, date, document, company, kind , "currency"
-, "Employee", "CashFlow"
-, "Amount", "Amount.In"
+      INSERT INTO "Register.Accumulation.AccountablePersons"
+      (DT, date, document, company, kind , "currency"
+, "Employee"
+, "CashFlow"
+, "Amount"
+, "Amount.In"
 , "Amount.Out"
-, "AmountInBalance", "AmountInBalance.In", "AmountInBalance.Out"
+, "AmountInBalance"
+, "AmountInBalance.In"
+, "AmountInBalance.Out"
 , "AmountInAccounting"
 , "AmountInAccounting.In"
 , "AmountInAccounting.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
 , CAST(JSON_VALUE(data, N'$."Employee"') AS UNIQUEIDENTIFIER) "Employee"
@@ -122,8 +55,8 @@ GO;
 , "AmountInAccounting.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
 , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
@@ -162,8 +95,8 @@ GO;
 , "AmountInAccounting.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
 , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
@@ -189,6 +122,7 @@ GO;
       (DT, date, document, company, kind , "currency"
 , "BankAccount"
 , "CashFlow"
+, "Analytics"
 , "Amount"
 , "Amount.In"
 , "Amount.Out"
@@ -200,12 +134,13 @@ GO;
 , "AmountInAccounting.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
 , CAST(JSON_VALUE(data, N'$."BankAccount"') AS UNIQUEIDENTIFIER) "BankAccount"
 , CAST(JSON_VALUE(data, N'$."CashFlow"') AS UNIQUEIDENTIFIER) "CashFlow"
+, CAST(JSON_VALUE(data, N'$."Analytics"') AS UNIQUEIDENTIFIER) "Analytics"
 
         , CAST(JSON_VALUE(data, N'$.Amount') AS MONEY) * IIF(kind = 1, 1, -1) "Amount"
         , CAST(JSON_VALUE(data, N'$.Amount') AS MONEY) * IIF(kind = 1, 1, NULL) "Amount.In"
@@ -230,8 +165,8 @@ GO;
 , "Amount.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
 , CAST(JSON_VALUE(data, N'$."Balance"') AS UNIQUEIDENTIFIER) "Balance"
@@ -247,6 +182,7 @@ GO;
       (DT, date, document, company, kind , "currency"
 , "CashRegister"
 , "CashFlow"
+, "Analytics"
 , "Amount"
 , "Amount.In"
 , "Amount.Out"
@@ -258,12 +194,13 @@ GO;
 , "AmountInAccounting.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
 , CAST(JSON_VALUE(data, N'$."CashRegister"') AS UNIQUEIDENTIFIER) "CashRegister"
 , CAST(JSON_VALUE(data, N'$."CashFlow"') AS UNIQUEIDENTIFIER) "CashFlow"
+, CAST(JSON_VALUE(data, N'$."Analytics"') AS UNIQUEIDENTIFIER) "Analytics"
 
         , CAST(JSON_VALUE(data, N'$.Amount') AS MONEY) * IIF(kind = 1, 1, -1) "Amount"
         , CAST(JSON_VALUE(data, N'$.Amount') AS MONEY) * IIF(kind = 1, 1, NULL) "Amount.In"
@@ -295,8 +232,8 @@ GO;
 , "AmountInAccounting.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
 , CAST(JSON_VALUE(data, N'$."Sender"') AS UNIQUEIDENTIFIER) "Sender"
@@ -330,8 +267,8 @@ GO;
 , "Qty.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."Expense"') AS UNIQUEIDENTIFIER) "Expense"
 , CAST(JSON_VALUE(data, N'$."Storehouse"') AS UNIQUEIDENTIFIER) "Storehouse"
@@ -363,8 +300,8 @@ GO;
 , "AmountInAccounting.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."Loan"') AS UNIQUEIDENTIFIER) "Loan"
 , CAST(JSON_VALUE(data, N'$."Counterpartie"') AS UNIQUEIDENTIFIER) "Counterpartie"
@@ -393,8 +330,8 @@ GO;
 , "Amount.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
 , CAST(JSON_VALUE(data, N'$."PL"') AS UNIQUEIDENTIFIER) "PL"
@@ -437,8 +374,8 @@ GO;
 , "AmountInAR.Out"
 )
       SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) %1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
 , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
@@ -479,4 +416,3 @@ GO;
       FROM INSERTED WHERE type = N'Register.Accumulation.Sales';
 
       END;
-GO;

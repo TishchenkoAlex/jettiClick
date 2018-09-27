@@ -1,4 +1,4 @@
-* { 
+* {
     @include box-sizing(border-box);
 }
 
@@ -15,7 +15,7 @@ body {
     margin: 0;
     min-height: 100%;
     background-color: $bodyBgColor;
-    
+
     a {
         text-decoration: none;
     }
@@ -33,14 +33,14 @@ body {
 }
 
 .layout-wrapper {
-    
+
     .topbar {
         position: fixed;
         z-index: 100;
         width: 100%;
         height: 60px;
         @include shadow(0 2px 5px 0 rgba(0,0,0,0.26));
-                
+
         .topbar-left {
             padding: 15px;
             height: 60px;
@@ -53,12 +53,12 @@ body {
                 height: 30px;
             }
         }
-        
+
         .topbar-right {
             padding: 15px;
             height: 60px;
             @include background-gradient-left2right($topbarRightGradientStartBgColor, $topbarRightGradientEndBgColor);
-            
+
             #menu-button {
                 color: $menuButtonColor;
                 display: inline-block;
@@ -69,20 +69,20 @@ body {
                 left: 219px;
                 text-align: center;
                 background-color: $menuButtonBgColor;
-                
+
                 @include border-radius($borderRadius);
-                
-                
+
+
                 &:hover {
                     background-color: $menuHoverBgColor;
                 }
-                
+
                 i {
                     @include transition(all .3s);
                     @include transition(all .3s);
                     font-size: 32px;
                 }
-                                
+
                 &.menu-button-rotate {
                     i {
                         @include rotate(180deg);
@@ -90,7 +90,7 @@ body {
                     };
                 }
             }
-            
+
             #topbar-menu-button {
                 display: none;
                 color: $topbarTextColor;
@@ -101,19 +101,19 @@ body {
                 right: 25px;
 
                 @include transition(all .3s);
-                
+
                 i {
                     @include transition(color .5s);
                     font-size: 36px;
                 }
             }
-            
+
             .topbar-items {
-                .search-item {   
+                .search-item {
                     .topbar-search {
                         position: relative;
                         top: -2px;
-                        
+
                         input {
                             position: relative;
                             font-size: $fontSize;
@@ -123,14 +123,14 @@ body {
                             @include border-radius($borderRadius);
                             @include transition(box-shadow $transitionDuration, border-color $transitionDuration);
                             width: 200px;
-                            
+
                             &:focus {
                                 outline: 0 none;
                                 border: 1px solid $menuitemActiveColor;
                                 @include multi-shadow(inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px 0 $menuitemActiveColor);
                             }
                         }
-                        
+
                         i {
                             position: absolute;
                             color: $textSecondaryColor;
@@ -138,13 +138,13 @@ body {
                             right: 10px;
                             font-size: 18px;
                         }
-                    }                 
-                    
+                    }
+
                 }
             }
         }
     }
-    
+
     .layout-menu-container {
         overflow: auto;
         position: fixed;
@@ -155,45 +155,48 @@ body {
         @include background-gradient-left2right($menuGradientStartBgColor, $menuGradientEndBgColor);
         @include shadow(0 0 10px 0 rgba(0, 0, 0, 0.25));
         @include transition(margin-left .3s);
-                
-        > .nano {            
-            > .nano-content {
-                &.menu-scroll-content {
-                    display: block;
-                    height: 100%;
-                    position: relative;
-                    overflow: scroll;
-                    overflow-x: hidden;
-                }  
-                
-                .layout-main-menu {
-                    margin-top: 16px;
-                    padding-bottom: 120px;
-                }
+
+        .ui-scrollpanel {
+            background: transparent;
+            border-radius: 0;
+            border: none;
+            .ui-scrollpanel-bar {
+                background: #aaaaaa;
+                @include opacity(.3);
             }
-            
-            .nano-pane {
-                .nano-slider {
-                    background-color: #aaaaaa;
-                    @include opacity(.3);
-                }
+            .ui-scrollpanel-hidden {
+                display: block;
+                visibility: hidden;
+            }
+
+            .ui-scrollpanel-content {
+                overflow-x: hidden;
+            }
+
+            .menu-scroll-content {
+                width: 253px;
+                padding-right: 18px;
+            }
+
+            .layout-main-menu {
+                margin-top: 16px;
+                padding-bottom: 120px;
             }
         }
-                
+
         .profile {
             padding: 15px;
             @include shadow(0 2px 5px 0 rgba(0,0,0,0.15));
             @include clearfix();
 
-            > a {       
+            > a {
                 .profile-image {
                     width: 45px;
                     height: 45px;
                     float: right;
                     margin-left: 4px;
-                    border-radius: 50%;
                 }
-                         
+
                 .profile-name {
                     display: block;
                     color: $textColor;
@@ -203,7 +206,7 @@ body {
                     text-align: right;
                     margin-top: 4px;
                 }
-                
+
                 .profile-role {
                     display: block;
                     min-width: 100px;
@@ -212,14 +215,14 @@ body {
                     float: right;
                     color: $textSecondaryColor;
                 }
-                
+
                 i {
                     float: right;
                     color: $textSecondaryColor;
                     vertical-align: middle;
                     @include transition(transform .3s);
                 }
-                
+
             }
 
             &.profile-expanded {
@@ -228,94 +231,94 @@ body {
                 }
             }
         }
-        
+
         #profile-menu {
             border-bottom: 1px solid #d6d5d5;
             overflow: hidden;
-            
+
             li:first-child {
                 margin-top: 16px;
             }
-            
+
             li:last-child {
                 margin-bottom: 16px;
             }
         }
-                        
+
         &.layout-menu-dark {
             @include background-gradient-left2right($darkMenuGradientStartBgColor, $darkMenuGradientEndBgColor);
-            
+
             .profile {
                 .profile-name, .profile-role {
                     color: $darkMenuMenuitemColor;
                 }
-                
+
                 i {
                     color: $darkMenuMenuitemColor;
-                }    
+                }
             }
-            
+
             #profile-menu {
                 border-bottom: 1px solid $darkMenuHoverBgColor;
             }
-            
-            ul.layout-menu {                
+
+            ul.layout-menu {
                 li {
                     a {
                         color: $darkMenuMenuitemColor;
-                        
+
                         i {
                             color: $darkMenuMenuitemColor;
                         }
-                        
+
                         &:hover {
                             background-color: $darkMenuHoverBgColor;
                         }
-                        
+
                         &.active-menuitem-routerlink {
                             color: darken($darkMenuMenuitemActiveColor, 10%);
-                            
+
                             i:first-child {
                                 color:  darken($darkMenuMenuitemActiveColor, 10%);
                             }
                         }
                     }
-                    
+
                     &.active-menuitem {
                         > a {
                             border-left-color: $darkMenuMenuitemActiveColor;
                             color: $darkMenuMenuitemActiveColor;
                             background-color: $darkMenuMenuitemActiveBgColor;
-                            
+
                             i {
                                 color: $darkMenuMenuitemActiveColor;
                             }
                         }
                     }
                 }
-            }                    
+            }
         }
     }
-        
+
     &.menu-layout-overlay {
         .layout-menu-container {
             margin-left: -250px;
         }
-        
+
         .layout-main, .layout-footer {
             margin-left: 0;
         }
-        
+
         &.layout-menu-overlay-active {
             .layout-menu-container {
                 z-index: 999999999;
                 margin-left: 0px;
             }
-            
+
             .layout-mask {
                 display: block;
             }
-            
+
             .topbar {
                 .topbar-right {
                     #menu-button {
@@ -325,39 +328,39 @@ body {
                     }
                 }
             }
-        }  
-        
+        }
+
         .topbar {
             z-index: 999999998;
 
             .topbar-right {
-                #menu-button {                    
+                #menu-button {
                     i {
                         @include rotate(180deg);
                     }
                 }
             }
-        }      
+        }
     }
 
     .layout-main {
         padding: 80px 15px 15px 15px;
         @include transition(margin-left .3s);
     }
-    
+
     .layout-mask {
         display: none;
     }
-    
+
     .layout-footer {
         @include transition(margin-left .3s);
     }
-    
+
     .layout-menu {
         margin: 0;
         padding: 0;
         list-style: none;
-                
+
         li {
             a {
                 display: block;
@@ -367,18 +370,18 @@ body {
                 @include transition(background-color .3s, border-left-color .3s);
                 overflow: hidden;
                 border-left: 4px solid transparent;
-                
+
                 i {
                     color: $textSecondaryColor;
                 }
-                
+
                 i:first-child {
                     display: inline-block;
                     vertical-align: middle;
                     margin-right: 10px;
                     font-size: 16px;
                 }
-                
+
                 i.menuitem-toggle-icon {
                     float: right;
                     font-size: 16px;
@@ -386,20 +389,20 @@ body {
                     margin-right: -3px;
                     @include transition(transform .3s);
                 }
-                
+
                 .submenu-arrow {
                     display: none;
                 }
-                
+
                 &:hover {
                     background-color: $menuHoverBgColor;
                 }
-                
+
                 span {
                     display: inline-block;
                     vertical-align: middle;
                 }
-                
+
                 .menuitem-badge {
                     float: right;
                     width: 16px;
@@ -414,42 +417,42 @@ body {
                     @include border-radius(50%);
                     margin-top: 2px;
                 }
-                
+
                 &.active-menuitem-routerlink {
                     color: $menuitemActiveColor;
-                    
+
                     i:first-child {
                         color: $menuitemActiveColor;
                     }
                 }
             }
-                
+
             &.active-menuitem {
                 > a {
                     color: $menuitemActiveColor;
                     background-color: $menuitemActiveBgColor;
                     border-left-color: $menuitemActiveColor;
-                    
+
                     i:first-child {
                         color: $menuitemActiveColor;
                     }
-                    
+
                     i.menuitem-toggle-icon {
                         @include rotate(-180deg);
                     }
                 }
             }
-            
+
             ul {
                 overflow: hidden;
                 padding: 0;
                 margin: 0;
                 list-style: none;
-                
+
                 li {
                     a {
                         padding: 10px 15px 10px 30px;
-                        
+
                         i:first-child {
                             display: inline-block;
                             vertical-align: middle;
@@ -457,28 +460,28 @@ body {
                             font-size: 20px;
                         }
                     }
-                    
+
                     ul {
                         li {
                             a {
                                 padding-left: 45px;
                             }
                         }
-                        
+
                         ul {
                             li {
                                 a {
                                     padding-left: 60px;
                                 }
                             }
-                            
+
                             ul {
                                 li {
                                     a {
                                         padding-left: 75px;
                                     }
                                 }
-                                
+
                                 ul {
                                     li {
                                         a {
@@ -492,7 +495,7 @@ body {
                 }
             }
         }
-        
+
         .layout-menu-tooltip {
             display:none;
             padding: 0 5px;
@@ -501,7 +504,7 @@ body {
             top: 5px;
             z-index: 101;
             line-height: 1;
-            
+
             .layout-menu-tooltip-text {
                padding: 6px 8px;
                font-weight: 700;
@@ -513,7 +516,7 @@ body {
                @include border-radius($borderRadius);
                @include overlay-shadow();
             }
-            
+
             .layout-menu-tooltip-arrow {
                 position: absolute;
                 width: 0;
@@ -528,21 +531,21 @@ body {
             }
         }
     }
-    
+
     .layout-footer {
         padding: 15px 20px;
         @include shadow(0 0 10px 0 rgba(0, 0, 0, 0.25));
-        
+
         .footer-text-left {
             img {
                 height: 25px;
             }
         }
-        
+
         .footer-text-right {
             color: $textSecondaryColor;
             float: right;
-            
+
             a {
                 margin-left: 15px;
                 color: $darkGray;
@@ -558,9 +561,9 @@ body {
 }
 
 @media (min-width: 1025px) {
-    
+
     .layout-wrapper {
-        
+
         .topbar-items {
             -webkit-animation-name: none;
             animation-name: none;
@@ -568,20 +571,20 @@ body {
             margin: 5px 0 0 0;
             padding: 0;
             list-style-type: none;
-            
+
             > li {
                 float: right;
                 position: relative;
                 margin-left: 14px;
-                
+
                 > a {
                     position: relative;
                     display: block;
-                    
+
                     .topbar-item-name {
                         display: none;
                     }
-                    
+
                     .topbar-badge {
                         position: absolute;
                         right: 0;
@@ -600,33 +603,32 @@ body {
                     font-size: 24px;
                     color: $topbarTextColor;
                     @include transition(color .3s);
-                    
+
                     &:hover {
                         color: $lightGray;
                     }
                 }
-                
+
                 &.profile-item {
                     a {
                         @include transition(color .3s);
                         @include clearfix();
                         top: -3px;
-                        
+
                         .profile-image {
                             width: 36px;
                             height: 36px;
                             margin-top: -4px;
                             float: right;
                             margin-left: 12px;
-                            border-radius: 50%;
                         }
-                        
+
                         .topbar-item-name {
                             display: block;
                             float: left;
                             color: $topbarTextColor;
                         }
-                        
+
                         .topbar-item-role {
                             display: block;
                             font-size: 12px;
@@ -634,7 +636,7 @@ body {
                         }
                     }
                 }
-                
+
                 > ul {
                     position: absolute;
                     top: 50px;
@@ -647,7 +649,7 @@ body {
                     -webkit-animation-duration: .5s;
                     -moz-animation-duration: .5s;
                     animation-duration: .5s;
-                    
+
                     &:before {
                         width: 0;
                         height: 0;
@@ -660,13 +662,13 @@ body {
                         left: 232px;
                    }
                 }
-                
+
                 &.active-top-menu {
                     > ul {
                         display: block;
                     }
                 }
-                
+
                 .topbar-message {
                     img {
                         display: inline-block;
@@ -676,50 +678,50 @@ body {
                 }
             }
         }
-        
+
         &.menu-layout-static {
             .layout-menu-container {
                 margin-left: 0;
             }
-            
+
             .layout-main, .layout-footer {
                 margin-left: 235px;
             }
-            
+
             &.layout-menu-static-inactive {
                 .layout-menu-container {
                     margin-left: -250px;
                 }
-                
+
                 .layout-main, .layout-footer {
                     margin-left: 0px;
                 }
             }
-            
+
             .layout-mask {
                 display: none;
             }
         }
-        
+
         &.menu-layout-horizontal {
             .topbar {
                 @include no-shadow();
-                
+
                 .topbar-left {
                     background: $topbarLeftGradientStartBgColor;
                     @include no-shadow();
                 }
-                
+
                 .topbar-right {
                     background: $topbarLeftGradientStartBgColor;
-                    
+
                     #menu-button {
                         display: none;
                     }
                 }
             }
-            
-            .layout-menu-container {            
+
+            .layout-menu-container {
                 overflow: visible;
                 position: fixed;
                 width: 100%;
@@ -727,49 +729,50 @@ body {
                 height: auto;
                 background-color: $topbarLeftGradientEndBgColor;
                 @include shadow(0 2px 5px 0 rgba(0,0,0,0.26));
-                
-                > .nano {  
+
+                .ui-scrollpanel {
                     overflow: visible;
-                                                                             
-                    .nano-content {
-                        &.menu-scroll-content {
-                            display: inherit;
-                            height: auto;
-                            position: static;
+                    border: none;
+                    .ui-scrollpanel-wrapper {
+                        overflow: visible;
+                        .ui-scrollpanel-content {
                             overflow: visible;
-                            overflow-x: visible;
-                        }  
-                        
-                        .layout-main-menu {
-                            padding: 0;
                         }
                     }
-                    
-                    .nano-pane {
-                        display: none !important;
+
+                    .ui-scrollpanel-bar {
+                        display: none;
+                    }
+
+                    .menu-scroll-content {
+                        width: 100%;
+                    }
+
+                    .layout-main-menu {
+                        padding-bottom: 0;
                     }
                 }
-                
+
                 ul.layout-menu {
                     &:last-child {
                         margin-top: 0;
                     }
-                    
+
                     > li {
                         float: left;
                         position: relative;
-                        
-                        > a {                        
+
+                        > a {
                             &:hover {
                                 background-color: $menuitemHoverBgColor;
                                 color: $textColor;
-                                
+
                                 i {
                                     color: $textColor;
                                 }
                             }
                         }
-                        
+
                         > ul {
                             padding: 5px 0;
                             z-index: 100;
@@ -781,42 +784,42 @@ body {
                             border-top: 4px solid $menuitemActiveColor;
                             @include box-sizing(border-box);
                             @include multi-shadow(0 6px 20px 0 rgba(0, 0, 0, 0.19), 0 8px 17px 0 rgba(0, 0, 0, 0.2));
-                            
+
                             li {
                                 a {
                                     padding: 10px 16px;
                                 }
-                                
+
                                 ul {
                                     position: static;
-                                    
+
                                     li {
                                         a {
                                             padding-left: 32px;
                                         }
                                     }
-                                    
+
                                     ul {
                                         li {
                                             a {
                                                 padding-left: 48px;
                                             }
                                         }
-                                        
+
                                         ul {
                                             li {
                                                 a {
                                                     padding-left: 64px;
                                                 }
                                             }
-                                            
+
                                             ul {
                                                 li {
                                                     a {
                                                         padding-left: 80px;
                                                     }
                                                 }
-                                                
+
                                                 ul {
                                                     li {
                                                         a {
@@ -828,7 +831,7 @@ body {
                                         }
                                     }
                                 }
-                                
+
                                 &.active-menuitem {
                                     > a {
                                         color: $menuitemActiveColor;
@@ -837,7 +840,7 @@ body {
                                 }
                             }
                         }
-                        
+
                         &.active-menuitem {
                             > .submenu-arrow {
                                 width: 0;
@@ -850,19 +853,19 @@ body {
                                 top: 38px;
                                 left: 20px;
                             }
-                            
+
                             > a {
                                 color: $menuitemActiveColor;
                                 background-color: $menuitemActiveBgColor;
                                 border-left-color: transparent;
-                                
+
                                 i {
                                     color: $menuitemActiveColor;
                                 }
                             }
                         }
                     }
-                    
+
                     li {
                         a {
                             .menuitem-badge {
@@ -870,76 +873,76 @@ body {
                                 margin-left: 4px;
                                 margin-top: 0;
                             }
-                            
+
                             .menuitem-toggle-icon {
                                 margin-top: 0;
                             }
                         }
                     }
                 }
-                
+
                 &.layout-menu-dark {
                     @include background-gradient-left2right($darkMenuGradientStartBgColor, $darkMenuGradientEndBgColor);
-                                        
-                    ul.layout-menu {     
+
+                    ul.layout-menu {
                         li {
                             a {
                                 color: $darkMenuMenuitemColor;
-                                
+
                                 i {
                                     color: $darkMenuMenuitemColor;
                                 }
-                                
+
                                 &:hover {
                                     background-color: $darkMenuHoverBgColor;
                                 }
                             }
-                            
+
                             &.active-menuitem {
                                 > a {
                                     color: $darkMenuMenuitemActiveColor;
                                     background-color: $darkMenuMenuitemActiveBgColor;
-                                    
+
                                     i {
                                         color: $darkMenuMenuitemActiveColor;
                                     }
                                 }
                             }
-                            
+
                             ul {
                                 @include background-gradient-left2right($darkMenuGradientStartBgColor, $darkMenuGradientEndBgColor);
                             }
                         }
-                    }                    
+                    }
                 }
             }
-            
+
             .layout-main {
                 padding-top: 115px;
                 margin-left: 0px;
             }
-            
+
             .layout-footer {
                 margin-left: 0px;
             }
-            
+
             .layout-mask {
                 display: none;
             }
         }
-        
+
         &.menu-layout-slim {
             .topbar {
                 left: 75px;
                 width: calc(100% - 75px);
-                
+
                 .topbar-left {
                     background: transparent;
                     @include shadow(none);
                 }
-                
+
                 .topbar-right {
-                    #menu-button { 
+                    #menu-button {
                         display: none;
                     }
                 }
@@ -950,57 +953,63 @@ body {
                 overflow: visible;
                 z-index: 100;
                 top: 0;
-                
-                .nano {
-                    overflow: visible;
-                    
-                    .nano-content {
+
+                .ui-scrollpanel {
+                    border: none;
+                    border-radius: 0;
+                    .ui-scrollpanel-wrapper {
                         overflow: visible;
-                        margin-right: 0px !important;
+                        .ui-scrollpanel-content {
+                            overflow: visible;
+                        }
                     }
-                    
-                    .nano-pane {
-                        display: none !important;
+
+                    .ui-scrollpanel-bar {
+                        display: none;
+                    }
+
+                    .menu-scroll-content {
+                        width: 100%;
                     }
                 }
-                
+
                 .profile {
                     height: 60px;
                     padding-top: 7px;
-                    
+
                     > a {
                         .profile-name, .profile-role, i {
                             display: none;
                         }
-                    }  
+                    }
                 }
-                
+
                 .layout-menu {
                     padding: 0;
-                    
+
                     > li {
                         position: relative;
-                        
+
                         > a {
                             text-align: center;
                             padding-left: 0;
                             padding-right: 0;
                             padding-top: 8px;
                             padding-bottom: 8px;
-                            
+
                             i:first-child {
                                 font-size: 19px;
                             }
-                            
+
                             span, i.menuitem-toggle-icon {
                                 display: none;
                             }
-                            
+
                             &:hover + .layout-menu-tooltip {
                                 display: block;
                             }
                         }
-                        
+
                         > ul {
                             @include overlay-shadow();
                             background-color: #ffffff;
@@ -1008,40 +1017,40 @@ body {
                             top: 0;
                             left: 75px;
                             min-width: 200px;
-                            
+
                             li {
                                 a {
                                     padding-left: 16px;
                                 }
-                                
+
                                 ul {
                                     li {
                                         a {
                                             padding-left: 32px;
                                         }
                                     }
-                                    
+
                                     ul {
                                         li {
                                             a {
                                                 padding-left: 48px;
                                             }
                                         }
-                                        
+
                                         ul {
                                             li {
                                                 a {
                                                     padding-left: 64px;
                                                 }
                                             }
-                                            
+
                                             ul {
                                                 li {
                                                     a {
                                                         padding: 80px;
                                                     }
                                                 }
-                                                
+
                                                 ul {
                                                     li {
                                                         a {
@@ -1055,7 +1064,7 @@ body {
                                 }
                             }
                         }
-                        
+
                         &.active-menuitem {
                             > a {
                                 &:hover + .layout-menu-tooltip {
@@ -1065,7 +1074,7 @@ body {
                         }
                     }
                 }
-                
+
                 &.layout-menu-dark {
                     .layout-menu {
                         > li {
@@ -1076,11 +1085,11 @@ body {
                     }
                 }
             }
-            
+
             .layout-main {
                 margin-left: 75px;
             }
-            
+
             .layout-footer {
                 margin-left: 75px;
             }
@@ -1090,7 +1099,7 @@ body {
 
 @media (max-width: 1024px) {
     .layout-wrapper {
-        
+
         &.menu-layout-static {
             .topbar {
                 .topbar-right {
@@ -1098,7 +1107,7 @@ body {
                         i {
                             @include rotate(180deg);
                         }
-                        
+
                         &.menu-button-rotate {
                             i {
                                 @include rotate(0deg);
@@ -1110,7 +1119,7 @@ body {
             .layout-menu-container {
                 margin-left: -265px;
             }
-            
+
             .layout-main, .layout-footer  {
                 margin-left: 0px;
             }
@@ -1120,10 +1129,10 @@ body {
                     margin-left: 0;
                     z-index: 999999999;
                 }
-                
+
                 .topbar {
                     z-index: 999999998;
-                    
+
                     .topbar-right {
                         #menu-button {
                             i {
@@ -1132,16 +1141,16 @@ body {
                         }
                     }
                 }
-                
+
                 .layout-main, .layout-footer {
                     margin-left: 0;
                 }
-                
+
                 .layout-mask {
                     display: block;
                 }
             }
-            
+
             &.layout-menu-static-inactive {
                 .topbar {
                     .topbar-right {
@@ -1162,7 +1171,7 @@ body {
                 #topbar-menu-button {
                     display: block;
                 }
-                
+
                 .topbar-items {
                     position: absolute;
                     top: 75px;
@@ -1178,7 +1187,7 @@ body {
                     list-style-type: none;
                     margin: 0;
                     padding: 0;
-                    
+
                     &:before {
                         width: 0;
                         height: 0;
@@ -1190,7 +1199,7 @@ body {
                         top: -15px;
                         left: 242px;
                    }
-                    
+
                     > li {
                         > a {
                             width: 100%;
@@ -1199,23 +1208,23 @@ body {
                             padding: 10px 15px;
                             color: $textColor;
                             position: relative;
-                            
+
                             i {
                                 display: inline-block;
                                 vertical-align: middle;
                                 margin-right: 12px;
                                 font-size: 16px;
                             }
-                            
+
                             &:hover {
                                 background-color: $menuitemHoverBgColor;
                             }
-                            
+
                             .topbar-item-name {
                                 display: inline-block;
                                 vertical-align: middle;
                             }
-                                            
+
                             .topbar-badge {
                                 position: absolute;
                                 left: 30px;
@@ -1229,10 +1238,10 @@ body {
                                 line-height: 12px;
                             }
                         }
-                        
+
                         > ul {
                             display: none;
-                            
+
                             li {
                                 a {
                                     span, img, i {
@@ -1242,15 +1251,15 @@ body {
                                 }
                             }
                         }
-                        
+
                         &.active-top-menu {
                             > a {
                                 color: $menuitemActiveColor;
                             }
-                            
+
                             > ul {
                                 display: block;
-                                
+
                                 li {
                                     a {
                                         padding-left: 32px;
@@ -1258,14 +1267,14 @@ body {
                                 }
                             }
                         }
-                        
+
                         &.search-item {
                             width: 100%;
                             display: block;
                             font-size: 16px;
                             position: relative;
                             padding: 10px 15px;
-                            
+
                             .topbar-search {
                                 input {
                                     top: 0;
@@ -1273,27 +1282,27 @@ body {
                                     padding-right:28px;
                                     border-color: $dividerColor;
                                     color: $textColor;
-                                    
+
                                     &:focus {
                                         border-color: $dividerColor;
                                     }
                                 }
-                                                            
+
                                 label {
                                     top: 1px;
                                     color: $textColor;
                                 }
-                                
+
                                 i {
                                     position: absolute;;
                                     right: 10px;
                                     top: 5px;
                                 }
                             }
-                            
-                            
+
+
                         }
-                        
+
                         &.profile-item {
                             .profile-image {
                                 display: inline-block;
@@ -1302,16 +1311,15 @@ body {
                                 height: 24px;
                                 background-size: 24px 24px;
                                 margin-right: 14px;
-                                border-radius: 50%;
                             }
-                            
+
                             span {
                                 vertical-align: middle;
                                 display: inline-block;
                             }
                         }
                     }
-                    
+
                     &.topbar-items-visible {
                         display: block;
                     }
@@ -1330,7 +1338,7 @@ body {
                 }
             }
         }
-        
+
         &.layout-rtl {
             .topbar {
                 .topbar-right {

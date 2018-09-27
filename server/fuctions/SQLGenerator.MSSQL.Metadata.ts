@@ -1,7 +1,7 @@
-import { RegisteredRegisterAccumulation, createRegisterAccumulation } from '../models/Registers/Accumulation/factory';
 import { DocumentOptions } from '../models/document';
-import { RegisteredDocument, createDocument } from '../models/documents.factory';
-import { SQLGenegator, excludeRegisterAccumulatioProps } from './SQLGenerator.MSSQL';
+import { createDocument, RegisteredDocument } from '../models/documents.factory';
+import { createRegisterAccumulation, RegisteredRegisterAccumulation } from '../models/Registers/Accumulation/factory';
+import { excludeRegisterAccumulatioProps, SQLGenegator } from './SQLGenerator.MSSQL';
 
 // tslint:disable:max-line-length
 // tslint:disable:no-shadowed-variable
@@ -45,7 +45,7 @@ export class SQLGenegatorMetadata {
       (DT, date, document, company, kind ${insert})
       SELECT
         CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) DT,
+        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
         CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
         document, company, kind ${select}
       FROM INSERTED WHERE type = N'${type}'; \n`;
@@ -56,7 +56,7 @@ export class SQLGenegatorMetadata {
     let query = '';
     for (const type of RegisteredRegisterAccumulation) {
       const register = createRegisterAccumulation(type.type, true, {});
-      query += SQLGenegatorMetadata.QueryTriggerRegisterAccumulation(register.Props(), register.Prop().type);
+      query += SQLGenegatorMetadata.QueryTriggerRegisterAccumulation(register.Props(), register.Prop().type.toString());
     }
 
     query = `
