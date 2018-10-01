@@ -1,11 +1,11 @@
 import { MSSQL } from '../../mssql';
 import { lib } from '../../std.lib';
+import { PatchValue } from '../api';
 import { CatalogCompany } from '../Catalogs/Catalog.Company';
 import { CatalogOperation } from '../Catalogs/Catalog.Operation';
+import { createDocumentServer } from '../documents.factory.server';
 import { ServerDocument } from '../ServerDocument';
 import { JQueue } from '../Tasks/tasks';
-import { PatchValue } from '../api';
-import { createDocumentServer } from '../documents.factory.server';
 import { PostResult } from './../post.interfaces';
 import { DocumentOperation } from './Document.Operation';
 
@@ -46,11 +46,14 @@ export class DocumentOperationServer extends DocumentOperation implements Server
       SELECT (SELECT "script" FROM OPENJSON(doc) WITH ("script" NVARCHAR(MAX) '$."script"')) "script"
       FROM "Documents" WHERE id = '${this.Operation}'`;
       const Operation = await tx.oneOrNone<{ script: string }>(query);
-      const exchangeRate = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1;
+      // tslint:disable-next-line:max-line-length
+      const exchangeMult = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Mutiplicity', { currency: this.currency }, tx) || 1;
+      // tslint:disable-next-line:max-line-length
+      const exchangeRate = (await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: this.currency }, tx) || 1) / exchangeMult;
       const settings = await lib.info.sliceLastJSON('Settings', this.date, this.company, { }, tx) || {};
       const accountingCurrency = settings.accountingCurrency || this.currency;
       // tslint:disable-next-line:max-line-length
-      const exchangeRateAccounting = await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: accountingCurrency }, tx) || 1;
+      const exchangeRateAccounting = (await lib.info.sliceLast('ExchangeRates', this.date, this.company, 'Rate', { currency: accountingCurrency }, tx) || 1) / exchangeMult;
       const script = `
       let exchangeRateBalance = exchangeRate;
       let AmountInBalance = doc.Amount / exchangeRate;

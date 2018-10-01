@@ -735,6 +735,7 @@ body {
                         overflow: visible;
                         .ui-scrollpanel-content {
                             overflow: visible;
+                            padding: 0;
                         }
                     }
 
@@ -973,6 +974,7 @@ body {
 
                     .menu-scroll-content {
                         width: 100%;
+                        padding-right: 0;
                     }
                 }
 

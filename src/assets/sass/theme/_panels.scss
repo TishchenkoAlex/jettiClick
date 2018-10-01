@@ -137,13 +137,11 @@ body {
                     vertical-align: middle;
 
                     &.pi-caret-right {
-                        @include icon_override("\f054");
                         font-size: $fontSize + 2;
 
                     }
 
                     &.pi-caret-down {
-                        @include icon_override("\f078");
                         font-size: $fontSize + 2;
                     }
                 }
@@ -312,6 +310,11 @@ body {
         background-color: $headerBgColor;
         border-color: $contentBorderColor;
         padding: $headerPadding;
+
+        .ui-toolbar-seperator {
+            vertical-align: middle;
+            margin: 0 0.5em;
+        }
     }
 }
 

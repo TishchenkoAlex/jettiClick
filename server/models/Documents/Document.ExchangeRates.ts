@@ -21,4 +21,7 @@ class TableRates {
 
   @Props({ type: 'number', required: true })
   Rate = 1;
+
+  @Props({ type: 'number', required: true })
+  Mutiplicity = 1;
 }

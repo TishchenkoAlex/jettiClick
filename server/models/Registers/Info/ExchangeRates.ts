@@ -13,11 +13,14 @@ export class RegisterInfoExchangeRates extends RegisterInfo {
   @Props({ type: 'number', required: true })
   Rate = 1;
 
+  @Props({ type: 'number', required: true })
+  Mutiplicity = 1;
+
   constructor(public data: {
     currency: Ref,
     Rate: number,
+    Mutiplicity: number
   }) {
     super(data);
   }
 }
-

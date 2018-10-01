@@ -15,10 +15,6 @@ body {
             border-left: 0 none;
             border-right: 0 none;
 
-            span {
-                display: none;
-            }
-
             &:not(.ui-state-disabled):not(.ui-state-active):hover {
                 background-color: $datatableHoverBgColor;
             }
@@ -39,8 +35,8 @@ body {
         }
 
         .ui-paginator-first {
-            @include icon-override("\f048");
             background-color: #ffffff;
+            border-right: 1px solid $datatableCellBorderColor;
             border-left: 1px solid $datatableCellBorderColor;
             @include border-radius-left($borderRadius);
             margin-right: -4px;
@@ -51,10 +47,9 @@ body {
         }
 
         .ui-paginator-prev {
-            @include icon-override("\f04b");
-            @include rotate(180deg);
             background-color: #ffffff;
             border-right: 1px solid $datatableCellBorderColor;
+            border-left: 1px solid $datatableCellBorderColor;
             margin-right: -4px;
 
             &:before {
@@ -63,7 +58,6 @@ body {
         }
 
         .ui-paginator-next {
-            @include icon-override("\f04b");
             background-color: #ffffff;
             border-right: 1px solid $datatableCellBorderColor;
             border-left: 1px solid $datatableCellBorderColor;
@@ -75,7 +69,6 @@ body {
         }
 
         .ui-paginator-last {
-            @include icon-override("\f051");
             background-color: #ffffff;
             border-right: 1px solid $datatableCellBorderColor;
             border-left: 1px solid $datatableCellBorderColor;
@@ -94,6 +87,7 @@ body {
             margin: 0;
 
             .ui-paginator-page {
+                width: auto;
                 padding: 6px 12px;
                 margin-right: 0;
                 margin-left: 0;
@@ -220,7 +214,7 @@ body {
         }
 
         &.ui-table-hoverable-rows {
-            .ui-table-tbody > tr:not(.ui-state-highlight):hover {
+            .ui-table-tbody > tr:not(.ui-state-highlight):not(.ui-contextmenu-selected):hover {
                 cursor: pointer;
                 @include list-item-hover();
             }
@@ -346,14 +340,6 @@ body {
                     .ui-row-toggler {
                         color: $textSecondaryColor;
                         @include transition(color .3s);
-
-                        &.pi-chevron-circle-right {
-                            @include icon_override("\f054");
-                        }
-
-                        &.pi-chevron-circle-down {
-                            @include icon_override("\f078");
-                        }
 
                         &:hover {
                             color: $textColor;
@@ -552,14 +538,6 @@ body {
             @include transition(color .3s);
             color: $headerIconColor;
 
-            &.ui-carousel-next-button {
-                @include icon-override("\f054");
-            }
-
-            &.ui-carousel-prev-button {
-                @include icon-override("\f053");
-            }
-
             &:not(.ui-state-disabled):hover {
                 color: $headerIconHoverColor;
             }
@@ -578,12 +556,10 @@ body {
 
                 &.pi-circle-off {
                     color: $headerIconColor;
-                    @include icon-override("\F10C")
                 }
 
                 &.pi-circle-on {
                     color: $headerIconColor;
-                    @include icon-override("\F192")
                 }
             }
         }
@@ -743,7 +719,7 @@ body {
         }
 
         &.ui-treetable-hoverable-rows {
-            .ui-treetable-tbody > tr:not(.ui-state-highlight):hover {
+            .ui-treetable-tbody > tr:not(.ui-state-highlight):not(.ui-contextmenu-selected):hover {
                 cursor: pointer;
                 @include list-item-hover();
             }
@@ -852,12 +828,44 @@ body {
             }
 
             .ui-icon-circle-triangle-e {
-                @include icon_override("\f054");
+                background: none !important;
+                font-family: 'primeicons';
+                speak: none;
+                font-style: normal;
+                font-weight: normal;
+                font-variant: normal;
+                text-transform: none;
+                line-height: 1;
+                display: inline-block;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                text-indent: 0px !important;
+                text-align: center;
+
+                &:before {
+                    content: "\e901";
+                }
                 margin-top: 3px;
             }
 
             .ui-icon-circle-triangle-w {
-                @include icon_override("\f053");
+                background: none !important;
+                font-family: 'primeicons';
+                speak: none;
+                font-style: normal;
+                font-weight: normal;
+                font-variant: normal;
+                text-transform: none;
+                line-height: 1;
+                display: inline-block;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                text-indent: 0px !important;
+                text-align: center;
+
+                &:before {
+                    content: "\e900";
+                }
                 margin-top: 3px;
             }
         }

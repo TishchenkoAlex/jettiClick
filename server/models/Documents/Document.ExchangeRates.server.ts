@@ -29,7 +29,8 @@ export class DocumentExchangeRatesServer extends DocumentExchangeRates implement
     for (const row of this.Rates) {
       Registers.Info.push(new RegisterInfoExchangeRates({
           currency: row.Currency,
-          Rate: row.Rate
+          Rate: row.Rate,
+          Mutiplicity: row.Mutiplicity
         }));
     }
     return Registers;

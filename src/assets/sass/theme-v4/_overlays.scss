@@ -153,7 +153,6 @@ body {
             overflow: hidden;
 
             .ui-lightbox-nav-left {
-                @include icon_override("\f053");
                 @include transition(all .3s);
                 font-size: 24px;
                 margin-left: 4px;
@@ -171,7 +170,6 @@ body {
             }
 
             .ui-lightbox-nav-right {
-                @include icon_override("\f054");
                 @include transition(all .3s);
                 font-size: 24px;
                 margin-right: 4px;
