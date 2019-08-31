@@ -101,11 +101,11 @@
 
     <p-toolbar>
       <div class="ui-toolbar-group-right">
-        <button pButton type="button" icon="fa fa-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id.id)" [disabled]="(lds.busy$ | async)"></button>
-        <button pButton type="button" icon="fa fa-fast-backward" (click)="selection = []; dataSource?.first()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
-        <button pButton type="button" icon="fa fa-step-backward" (click)="selection = []; dataSource?.prev()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
-        <button pButton type="button" icon="fa fa-step-forward" (click)="selection = []; dataSource?.next()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
-        <button pButton type="button" icon="fa fa-fast-forward" (click)="selection = []; dataSource?.last()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="pi pi-refresh" class="ui-button-secondary" (click)="dataSource.refresh(id.id)" [disabled]="(lds.busy$ | async)"></button>
+        <button pButton type="button" icon="pi pi-fast-backward" (click)="selection = []; dataSource?.first()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="pi pi-step-backward" (click)="selection = []; dataSource?.prev()" [disabled]="!dataSource?.continuation?.first || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="pi pi-step-forward" (click)="selection = []; dataSource?.next()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
+        <button pButton type="button" icon="pi pi-fast-forward" (click)="selection = []; dataSource?.last()" [disabled]="!dataSource?.continuation?.last || (lds.busy$ | async)"></button>
       </div>
     </p-toolbar>
 

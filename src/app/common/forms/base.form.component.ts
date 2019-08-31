@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, QueryList, ViewChildren } from '@angular/core';
-import { ObservableMedia } from '@angular/flex-layout';
+import { MediaObserver } from '@angular/flex-layout';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBase, FormOptions } from '../../../../server/models/Forms/form';
@@ -35,7 +35,7 @@ export class BaseFormComponent {
   get tables() { return (<FormControlInfo[]>this.form['orderedControls']).filter(t => t.type === 'table'); }
   get description() { return <FormControl>this.form.get('description'); }
 
-  constructor(public router: Router, public route: ActivatedRoute, public media: ObservableMedia,
+  constructor(public router: Router, public route: ActivatedRoute, public media: MediaObserver,
     public cd: ChangeDetectorRef, public ds: DocService, private auth: AuthService, public tabStore: TabsStore) { }
 
   private _close() {

@@ -3,15 +3,15 @@ import { MenuItem } from 'primeng/components/common/menuitem';
 // tslint:disable-next-line:import-blacklist
 import { Subscription } from 'rxjs';
 import { CatalogOperation } from '../../../../server/models/Catalogs/Catalog.Operation';
-import { DocumentOperation } from '../../../../server/models/Documents/Document.Operation';
 import { DocumentOptions } from '../../../../server/models/document';
 import { createDocument } from '../../../../server/models/documents.factory';
+import { DocumentOperation } from '../../../../server/models/Documents/Document.Operation';
 import { FormControlInfo } from '../../common/dynamic-form/dynamic-form-base';
 import { getFormGroup } from '../../common/dynamic-form/dynamic-form.service';
 import { BaseDocFormComponent } from '../../common/form/base.form.component';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
   <j-form></j-form>`
 })
@@ -22,7 +22,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
   set form(value) { this.super.form = value; }
   get Operation() { return this.form.get('Operation')!; }
 
-  @ViewChild(BaseDocFormComponent) super: BaseDocFormComponent;
+  @ViewChild(BaseDocFormComponent, {static: true}) super: BaseDocFormComponent;
 
   async ngAfterViewInit() {
     this.form['metadata']['copyTo'] = [];

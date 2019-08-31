@@ -3,8 +3,8 @@ import { SelectItem } from 'primeng/components/common/selectitem';
 // tslint:disable-next-line:import-blacklist
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import { BaseDocListComponent } from './../../common/datatable/base.list.component';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,7 +20,7 @@ import { BaseDocListComponent } from './../../common/datatable/base.list.compone
     <j-list></j-list>`
 })
 export class OperationListComponent implements OnInit {
-  @ViewChild(BaseDocListComponent) super: BaseDocListComponent;
+  @ViewChild(BaseDocListComponent, { static: true}) super: BaseDocListComponent;
 
   operationsGroups$: Observable<SelectItem[]>;
 

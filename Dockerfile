@@ -1,4 +1,4 @@
-FROM node
+FROM node:lts
 # Create app directory
 RUN mkdir -p /usr/jetti
 WORKDIR /usr/jetti
@@ -21,7 +21,6 @@ COPY src/ ./src
 COPY server/ ./server
 RUN node_modules/typescript/bin/tsc -p ./server
 RUN $(npm bin)/ng build --prod
-
 
 ENV PORT 8080
 EXPOSE 8080

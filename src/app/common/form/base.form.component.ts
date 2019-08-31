@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem } from 'primeng/components/common/menuitem';
-import { Subscription, merge, of as observableOf } from 'rxjs';
+import { merge, of as observableOf, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { v1 } from 'uuid';
 import { calculateDescription } from '../../../../server/models/api';
@@ -24,7 +24,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
 
   @Input() id = this.route.snapshot.params.id as string;
   @Input() type = this.route.snapshot.params.type as string;
-  @Input() form: FormGroup = this.route.snapshot.data.detail;
+  @Input() form = this.route.snapshot.data.detail as FormGroup;
   @ViewChildren(CdkTrapFocus) cdkTrapFocus: QueryList<CdkTrapFocus>;
 
   get model() { return this.form.getRawValue() as DocumentBase; }

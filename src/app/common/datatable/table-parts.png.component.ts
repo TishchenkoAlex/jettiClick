@@ -1,14 +1,14 @@
 // tslint:disable-next-line:max-line-length
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { Subscription, merge } from 'rxjs';
+import { EditableColumn, Table } from 'primeng/table';
+import { merge, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ColumnDef } from '../../../../server/models/column';
 import { TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
 import { cloneFormGroup, patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
 import { DocService } from '../doc.service';
-import { EditableColumn, Table } from './table';
 
 
 @Component({
@@ -19,7 +19,7 @@ import { EditableColumn, Table } from './table';
 export class TablePartsComponent implements OnInit, OnDestroy {
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
-  @ViewChild(Table) dataTable: Table;
+  @ViewChild(Table, {static: true}) dataTable: Table;
   @ViewChildren(EditableColumn) editableColumns: QueryList<EditableColumn>;
 
   dataSource: any[];

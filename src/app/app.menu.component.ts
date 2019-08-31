@@ -36,7 +36,7 @@ export class AppMenuComponent implements OnInit {
     return [...[
       { label: 'Dashboard', icon: 'fa fa-fw fa-home', routerLink: [''] },
       {
-        label: 'Customization', icon: 'fa fa-fw fa-bars', badge: '8',
+        label: 'Customization', icon: 'fa fa-fw fa-bars',
         items: [
           { label: 'Static Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToStaticMenu() },
           { label: 'Overlay Menu', icon: 'fa fa-fw fa-bars', command: () => this.app.changeToOverlayMenu() },
@@ -56,7 +56,7 @@ export class AppMenuComponent implements OnInit {
           { label: 'Dark Menu', icon: 'fa fa-moon-o fa-fw', command: () => this.app.darkMenu = true }
         ]
       },
-      {
+/*       {
         label: 'Layout Colors', icon: 'fa fa-fw fa-magic',
         items: [
           {
@@ -121,7 +121,7 @@ export class AppMenuComponent implements OnInit {
           { label: 'Brown', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('brown'); } },
           { label: 'Dark Grey', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('darkgrey'); } },
         ]
-      },
+      },*/
     ],
     ...SubSystemsMenu(userRoleObjects),
     { label: 'Utils', icon: 'fa fa-fw fa-wrench', routerLink: ['/'] },

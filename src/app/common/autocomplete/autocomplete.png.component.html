@@ -45,7 +45,7 @@
   <span *ngIf="isComplexValue">
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
       <p-autoComplete #ac [formControl]="suggest" [suggestions]="Suggests$ | async" [required]="required" [readonly]="readOnly"
-        autocomplete="off" appendTo="body" (completeMethod)="getSuggests($event.query)" field="value" (onSelect)="this.value = this.suggest.value"
+        autocomplete="off" (completeMethod)="getSuggests($event.query)" field="value" (onSelect)="this.value = this.suggest.value"
         [inputStyle]="inputStyle" (onClear)="handleReset($event)" dataKey="id" (onFocus)="this.focus.emit($event)" (onBlur)="onBlur($event)"
         [autoHighlight]="true" spellcheck="false">
       </p-autoComplete>
@@ -61,6 +61,6 @@
 </form>
 
 <p-dialog *ngIf="showDialog" [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true"
-  [closeOnEscape]="true" [width]="calcDialogWidth()" [height]="540" appendTo="body" [blockScroll]="true">
+  [closeOnEscape]="true" [width]="calcDialogWidth()" [height]="540" [blockScroll]="true" appendTo="body">
   <j-suggest-list [type]="value.type || type" [id]="value.id" [settings]="calcFilters()" (Select)="searchComplete($event)"></j-suggest-list>
 </p-dialog>

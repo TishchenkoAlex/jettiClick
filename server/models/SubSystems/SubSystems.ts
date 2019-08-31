@@ -1,8 +1,8 @@
 import { RoleObject } from '../../models/Roles/Base';
+import { DocumentBase, DocumentOptions } from '../document';
 import { FormOptions } from '../Forms/form';
 import { createForm } from '../Forms/form.factory';
 import { FormTypes } from '../Forms/form.types';
-import { DocumentBase, DocumentOptions } from '../document';
 import { createDocument } from './../../models/documents.factory';
 import { DocTypes } from './../../models/documents.types';
 import { CatalogsSubSystem } from './Catalogs';

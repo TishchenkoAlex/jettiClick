@@ -14,7 +14,14 @@ export class AppRouteReuseStrategy extends RouteReuseStrategy {
   store(route: ActivatedRouteSnapshot, detachedTree: DetachedRouteHandle): void { }
   shouldAttach(route: ActivatedRouteSnapshot): boolean { return false; }
   retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null { return null; }
-  shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean { return future.component === curr.component; }
+  shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
+    // console.log('curr', curr.component);
+    // console.log('future', future.component);
+    return true;
+/*     return (typeof future.component  === typeof TabControllerComponent) &&
+      (typeof curr.component  === typeof TabControllerComponent) &&
+      (future.component === curr.component); */
+  }
 }
 
 @Injectable()

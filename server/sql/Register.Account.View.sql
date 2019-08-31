@@ -1,19 +1,18 @@
 CREATE VIEW "Register.Account.View" AS
 SELECT
   r.date date,
-  r.time time,
   r.sum  sum,
 
   r.document "document.id", document.description "document.value", document.code "document.code", document.type "document.type",
   company.description "company.value", company.id "company.id", company.code "company.code", company.type "company.type",
 
-  dt.code "debit.account", dt.description "debit.description", r.dt_qty "debit.qty", dt_cur.description "debit.currency",
+  dt.code "debit.account", dt.description "debit.description", r.dt_qty "debit.qty", dt_cur.description "debit.currency", dt_sum "debit.sum",
   dt_subcount1.id "debit.subcount1.id", dt_subcount1.type "debit.subcount1.type",dt_subcount1.description "debit.subcount1.value", dt_subcount1.type "debit.subcount1.code",
   dt_subcount2.id "debit.subcount2.id", dt_subcount2.type "debit.subcount2.type",dt_subcount2.description "debit.subcount2.value", dt_subcount2.type "debit.subcount2.code",
   dt_subcount3.id "debit.subcount3.id", dt_subcount3.type "debit.subcount3.type",dt_subcount3.description "debit.subcount3.value", dt_subcount3.type "debit.subcount3.code",
   dt_subcount4.id "debit.subcount4.id", dt_subcount4.type "debit.subcount4.type",dt_subcount4.description "debit.subcount4.value", dt_subcount4.type "debit.subcount4.code",
 
-  kt.code "kredit.account", dt.description "kredit.description", r.kt_qty "kredit.qty", kt_cur.description "kredit.currency",
+  kt.code "kredit.account", dt.description "kredit.description", r.kt_qty "kredit.qty", kt_cur.description "kredit.currency", kt_sum "kredit.sum",
   kt_subcount1.id "kredit.subcount1.id", kt_subcount1.type "kredit.subcount1.type",kt_subcount1.description "kredit.subcount1.value", kt_subcount1.type "kredit.subcount1.code",
   kt_subcount2.id "kredit.subcount2.id", kt_subcount2.type "kredit.subcount2.type",kt_subcount2.description "kredit.subcount2.value", kt_subcount2.type "kredit.subcount2.code",
   kt_subcount3.id "kredit.subcount3.id", kt_subcount3.type "kredit.subcount3.type",kt_subcount3.description "kredit.subcount3.value", kt_subcount3.type "kredit.subcount3.code",

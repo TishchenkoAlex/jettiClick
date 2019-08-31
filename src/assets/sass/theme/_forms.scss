@@ -17,24 +17,20 @@ body {
             @include focused-input();
         }
 
-        &.ng-dirty {
-            border: 1px solid $inputInvalidBorderColor;
+        &.ng-dirty.ng-invalid {
+            background-color: $inputInvalidBgColor;
 
-            &.ng-invalid {
-                background-color: $inputInvalidBgColor;
+            &:hover {
+                border-color: $inputInvalidBorderColor;
+            }
 
-                &:hover {
-                    border-color: $inputInvalidBorderColor;
-                }
+            &:focus {
+                border-color: $inputInvalidBorderColor;
+                box-shadow: none;
+            }
 
-                &:focus {
-                    border-color: $inputInvalidBorderColor;
-                    box-shadow: none;
-                }
-
-                &:active {
-                    border-color: $inputInvalidBorderColor;
-                }
+            &:active {
+                border-color: $inputInvalidBorderColor;
             }
         }
 
@@ -87,6 +83,8 @@ body {
         }
 
         &.ui-button-icon-only {
+            width: 2.143em;
+
             .ui-button-text {
                 padding: 0.429em;
             }

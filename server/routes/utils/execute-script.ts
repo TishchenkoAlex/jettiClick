@@ -10,20 +10,20 @@ export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: Po
     query += `
       INSERT INTO "Register.Account" (
         date, document, operation, sum, company,
-        dt, dt_subcount1, dt_subcount2, dt_subcount3, dt_subcount4, dt_qty, dt_cur,
-        kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur )
+        dt, dt_subcount1, dt_subcount2, dt_subcount3, dt_subcount4, dt_qty, dt_cur, dt_sum,
+        kt, kt_subcount1, kt_subcount2, kt_subcount3, kt_subcount4, kt_qty, kt_cur, kt_sum )
       VALUES (
         '${new Date(doc.date).toJSON()}',
-        '${doc.id}', '${rec.operation || doc['Operation'] || '00000000-0000-0000-0000-000000000000'}'
-        ,${rec.sum || 0}, '${rec.company || doc.company}',
+        '${doc.id}', '${rec.operation || doc['Operation'] || '00000000-0000-0000-0000-000000000000'}',
+         ${rec.sum || 0}, '${rec.company || doc.company}',
         '${rec.debit.account}',
         '${rec.debit.subcounts[0]}', '${rec.debit.subcounts[1]}',
         '${rec.debit.subcounts[2]}', '${rec.debit.subcounts[3]}',
-        ${rec.debit.qty || 0}, '${rec.debit.currency || doc['currency']}',
+        ${rec.debit.qty || 0},  '${rec.debit.currency  || doc['currency']}', ${rec.debit.sum || rec.sum || 0},
         '${rec.kredit.account}',
         '${rec.kredit.subcounts[0]}', '${rec.kredit.subcounts[1]}',
         '${rec.kredit.subcounts[2]}', '${rec.kredit.subcounts[3]}',
-        ${rec.kredit.qty || 0}, '${rec.kredit.currency || doc['currency']}'
+        ${rec.kredit.qty || 0}, '${rec.kredit.currency || doc['currency']}', ${rec.kredit.sum || rec.sum || 0}
       );`;
   }
 

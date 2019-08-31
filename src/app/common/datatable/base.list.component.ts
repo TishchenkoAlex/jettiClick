@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { SortMeta } from 'primeng/components/common/sortmeta';
-import { Observable, Subject, Subscription, iif as _if, merge, of } from 'rxjs';
+import { iif as _if, merge, Observable, of, Subject, Subscription } from 'rxjs';
 import { debounceTime, filter, map, tap } from 'rxjs/operators';
 import { v1 } from 'uuid';
 import { IViewModel } from '../../../../server/models/api';
@@ -236,7 +236,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   }
 
   onContextMenuSelect(event) {
-    let el = (event.originalEvent as MouseEvent).srcElement;
+    let el = (event.originalEvent as MouseEvent).srcElement as any;
     if (!el) return;
     while (!el.id && el.lastElementChild) { el = el.lastElementChild; }
     const value = event.data[el.id];

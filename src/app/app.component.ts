@@ -33,7 +33,7 @@ export class AppComponent implements AfterViewInit {
   resetMenu: boolean;
   menuHoverActive: boolean;
 
-  @ViewChild('layoutMenuScroller') layoutMenuScrollerViewChild: ScrollPanel;
+  @ViewChild('layoutMenuScroller', {static: true }) layoutMenuScrollerViewChild: ScrollPanel;
 
   constructor(
     public auth: AuthService, public apiService: ApiService, public lds: LoadingService, private swUpdate: SwUpdate) {

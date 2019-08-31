@@ -1,13 +1,13 @@
 import * as moment from 'moment';
-import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
-import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
-import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/ServerDocument';
 import { RefValue } from './models/api';
 import { configSchema } from './models/config';
 import { DocumentBase, Ref } from './models/document';
 import { createDocument } from './models/documents.factory';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
+import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
+import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
+import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/ServerDocument';
 import { MSSQL, sdb } from './mssql';
 import { InsertRegisterstoDB } from './routes/utils/execute-script';
 
@@ -45,7 +45,8 @@ export interface JTL {
     sliceLast: (type: string, date: Date, company: Ref, resource: string,
       analytics: { [key: string]: any }, tx?: MSSQL) => Promise<any>,
     sliceLastJSON: (type: string, date: Date, company: Ref,
-      analytics: { [key: string]: any }, tx?: MSSQL) => Promise<any>
+      analytics: { [key: string]: any }, tx?: MSSQL) => Promise<any>,
+    exchangeRate: (date: Date, company: Ref, currency: Ref, tx?: MSSQL) => Promise<number>
   };
   inventory: {
     batch: (date: Date, company: Ref, rows: BatchRow[], tx?: MSSQL) => Promise<BatchRow[]>,
@@ -80,6 +81,7 @@ export const lib: JTL = {
   info: {
     sliceLast,
     sliceLastJSON,
+    exchangeRate
   },
   inventory: {
     batch,
@@ -219,8 +221,8 @@ async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sd
       AND company = @p2
       AND "SKU" = @p3
       AND "Storehouse" = @p4`;
-  // tslint:disable-next-line:max-line-length
-  const result = await tx.oneOrNone<{ Cost: number, Qty: number, }>(queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
+  const result = await tx.oneOrNone<{ Cost: number, Qty: number, }>
+    (queryText, [date, analytics.company, analytics.SKU, analytics.Storehouse]);
   return result ? { Cost: result.Cost, Qty: result.Qty } : null;
 }
 
@@ -228,7 +230,7 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
   resource: string, analytics: { [key: string]: any }, tx = sdb): Promise<number | null> {
 
   const addWhere = (key) => `AND CAST(JSON_VALUE(data, N'$."${key}"') AS UNIQUEIDENTIFIER) = '${analytics[key]}' \n`;
-  let where = ''; for (const el of Object.keys(analytics)) { where += addWhere(el); }
+  let where = ''; for (const el of Object.keys(analytics)) where += addWhere(el);
 
   const queryText = `
     SELECT TOP 1 JSON_VALUE(data, N'$."${resource}"') result FROM "Register.Info"
@@ -240,6 +242,27 @@ async function sliceLast(type: string, date = new Date(), company: Ref,
     ORDER BY date DESC`;
   const result = await tx.oneOrNone<{ result: any }>(queryText, [date]);
   return result ? result.result : null;
+}
+
+async function exchangeRate(date = new Date(), company: Ref, currency: Ref, tx = sdb): Promise<number> {
+
+  const queryText = `
+    SELECT TOP 1 CAST(JSON_VALUE(data, N'$."Rate"') AS money) /
+      CASE
+        WHEN CAST(JSON_VALUE(data, N'$."Mutiplicity"') AS money) > 0 THEN
+          JSON_VALUE(data, N'$."Mutiplicity"')
+        ELSE
+          1
+      END result
+    FROM "Register.Info"
+    WHERE (1=1)
+      AND date <= @p1
+      AND type = 'Register.Info.ExchangeRates'
+      AND company = '${company}'
+      AND CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) = '${currency}'
+    ORDER BY date DESC`;
+  const result = await tx.oneOrNone<{ result: number }>(queryText, [date]);
+  return result ? result.result : 1;
 }
 
 async function sliceLastJSON(type: string, date = new Date(), company: Ref,

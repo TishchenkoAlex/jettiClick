@@ -26,7 +26,7 @@ export class DynamicComponent implements OnInit, AfterViewInit {
   component: BaseDynamicCompoment;
   componentRef: ComponentRef<any>;
 
-  @ViewChild(DynamicComponentDirective) host: DynamicComponentDirective;
+  @ViewChild(DynamicComponentDirective, {static: true}) host: DynamicComponentDirective;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver, private cd: ChangeDetectorRef) { }
 

@@ -2,19 +2,19 @@ import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 import { DocumentBase, DocumentOptions } from '../../server/models/document';
 import { dateReviver } from '../fuctions/dateReviver';
-import { DocumentOperation } from '../models/Documents/Document.Operation';
-import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
 import { IViewModel, PatchValue, RefValue } from '../models/api';
 import { createDocument } from '../models/documents.factory';
 import { createDocumentServer } from '../models/documents.factory.server';
 import { DocTypes } from '../models/documents.types';
+import { DocumentOperation } from '../models/Documents/Document.Operation';
+import { RegisterAccumulation } from '../models/Registers/Accumulation/RegisterAccumulation';
 import { MSSQL, sdb } from '../mssql';
 import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './../models/ServerDocument';
 import { FormListSettings } from './../models/user.settings';
 import { buildColumnDef } from './../routes/utils/columns-def';
 import { lib } from './../std.lib';
 import { User } from './user.settings';
-import { InsertRegisterstoDB, buildViewModel, doSubscriptions } from './utils/execute-script';
+import { buildViewModel, doSubscriptions, InsertRegisterstoDB } from './utils/execute-script';
 import { List } from './utils/list';
 
 export const router = express.Router();
@@ -39,7 +39,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     if (!doc) doc = Operation ?
       { ...createDocument<DocumentBaseServer>(type), Operation } :
       createDocument<DocumentBaseServer>(type);
-    const ServerDoc = await createDocumentServer<DocumentBaseServer>(type, doc, sdb);
+    const ServerDoc = await createDocumentServer<DocumentBaseServer>(type, doc as IFlatDocument, sdb);
     if (!ServerDoc) throw new Error(`wrong type ${type}`);
     if (id) ServerDoc.id = id;
 
@@ -277,7 +277,7 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
     const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body.doc), dateReviver);
     const value: RefValue = JSON.parse(JSON.stringify(req.body.value), dateReviver);
     const property: string = req.params.property;
-    const type: DocTypes = req.params.type;
+    const type: DocTypes = req.params.type as DocTypes;
     const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc);
 
     let result: PatchValue = {};
@@ -297,8 +297,8 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
   try {
     const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body.doc), dateReviver);
     const command: string = req.params.command;
-    const type: DocTypes = req.params.type;
-    const args: { [key: string]: any } = req.params.args;
+    const type: DocTypes = req.params.type as DocTypes;
+    const args: { [key: string]: any } = req.params.args as any;
     const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc, sdb);
 
     const docModule: (args: { [key: string]: any }) => Promise<void> = serverDoc['serverModule'][command];

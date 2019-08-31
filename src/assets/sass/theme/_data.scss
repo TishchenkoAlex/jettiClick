@@ -149,17 +149,21 @@ body {
             border: 1px solid $datatableCellBorderColor;
         }
 
+        p-sortIcon {
+            vertical-align: baseline;
+        }
+
         .ui-sortable-column {
             color: $textColor;
 
-            a, a:hover {
+            .ui-sortable-column-icon {
                 color: $textSecondaryColor;
             }
 
             &:not(.ui-state-highlight):hover {
                 @include list-item-hover();
 
-                a, a:hover {
+                .ui-sortable-column-icon {
                     @include list-item-hover();
                 }
             }
@@ -169,7 +173,7 @@ body {
                 color: $primaryTextColor;
                 border-top-color: $primaryColor;
 
-                a, a:hover {
+                .ui-sortable-column-icon {
                     color: $primaryTextColor;
                 }
             }
@@ -215,7 +219,7 @@ body {
         }
 
         &.ui-table-hoverable-rows {
-            .ui-table-tbody > tr:not(.ui-state-highlight):not(.ui-contextmenu-selected):hover {
+            .ui-table-tbody > tr.ui-selectable-row:not(.ui-state-highlight):not(.ui-contextmenu-selected):hover {
                 cursor: pointer;
                 @include list-item-hover();
             }
@@ -418,6 +422,14 @@ body {
         .ui-datascroller-header,
         .ui-datascroller-footer {
             padding: $headerPadding;
+        }
+    }
+
+    .ui-virtualscroller {
+        .ui-virtualscroller-list {
+            li {
+                border-bottom: 1px solid $contentBorderColor;
+            }
         }
     }
 
@@ -647,17 +659,21 @@ body {
             }
         }
 
+        p-treeTableToggler {
+            vertical-align: middle;
+        }
+
         .ui-sortable-column {
             color: $textColor;
 
-            a, a:hover {
+            .ui-sortable-column-icon {
                 color: $textSecondaryColor;
             }
 
             &:not(.ui-state-highlight):hover {
                 @include list-item-hover();
 
-                a, a:hover {
+                .ui-sortable-column-icon {
                     @include list-item-hover();
                 }
             }
@@ -667,7 +683,7 @@ body {
                 color: $primaryTextColor;
                 border-top-color: $primaryColor;
 
-                a, a:hover {
+                .ui-sortable-column-icon {
                     color: $primaryTextColor;
                 }
             }

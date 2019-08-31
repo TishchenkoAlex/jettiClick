@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, Output, ViewChild } from '@angular/core';
 // tslint:disable-next-line:max-line-length
 import { AbstractControl, ControlValueAccessor, FormControl, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -47,7 +47,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   @Input() openButton = true;
   @Output() change = new EventEmitter();
   @Output() focus = new EventEmitter();
-  @ViewChild('ac') input: AutoComplete;
+  @ViewChild('ac', {static: true}) input: AutoComplete;
   @Input() id: string;
   @Input() formControl: FormControl;
 

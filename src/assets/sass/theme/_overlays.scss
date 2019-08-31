@@ -25,6 +25,26 @@ body {
                 line-height: inherit;
             }
         }
+
+        &:after {
+            border-color: rgba($contentBgColor, 0);
+            border-bottom-color: $contentBgColor;
+        }
+
+        &:before {
+            border-color: rgba($overlayBorderColor, 0);
+            border-bottom-color: $overlayBorderColor;
+        }
+
+        &.ui-overlaypanel-flipped {
+            &:after {
+                border-top-color: $contentBgColor;
+            }
+
+            &:before {
+                border-top-color: $overlayBorderColor;
+            }
+        }
     }
 
     .ui-dialog {

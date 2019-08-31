@@ -10,7 +10,7 @@ router.get('/suggest/:id', async (req: Request, res: Response, next: NextFunctio
     const query = `
         SELECT id as id, description as value, code as code, type as type
         FROM "Documents" WHERE id = @p1`;
-    const data = await sdb.oneOrNone<ISuggest>(query, req.params.id);
+    const data = await sdb.oneOrNone<ISuggest>(query, [req.params.id]);
     res.json(data);
   } catch (err) { next(err); }
 });

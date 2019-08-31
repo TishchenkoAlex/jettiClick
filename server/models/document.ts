@@ -46,7 +46,7 @@ export function Props(props: PropOptions) {
 }
 
 export function JDocument(props: DocumentOptions) {
-  return function classDecorator<T extends { new(...args: any[]): {} }>(constructor: T) {
+  return function classDecorator<T extends new(...args: any[]) => {}>(constructor: T) {
     Reflect.defineMetadata(symbolProps, props, constructor);
     return class extends constructor {
       type = props.type;

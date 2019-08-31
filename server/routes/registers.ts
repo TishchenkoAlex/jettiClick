@@ -1,10 +1,10 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
-import { RegisterAccumulation, RegisterAccumulationOptions } from '../models/Registers/Accumulation/RegisterAccumulation';
-import { RegisterAccumulationTypes, createRegisterAccumulation } from '../models/Registers/Accumulation/factory';
-import { RegisterInfo, RegisterInfoOptions } from '../models/Registers/Info/RegisterInfo';
-import { RegisterInfoTypes, createRegisterInfo } from '../models/Registers/Info/factory';
 import { AccountRegister } from '../models/account.register';
+import { createRegisterAccumulation, RegisterAccumulationTypes } from '../models/Registers/Accumulation/factory';
+import { RegisterAccumulation, RegisterAccumulationOptions } from '../models/Registers/Accumulation/RegisterAccumulation';
+import { createRegisterInfo, RegisterInfoTypes } from '../models/Registers/Info/factory';
+import { RegisterInfo, RegisterInfoOptions } from '../models/Registers/Info/RegisterInfo';
 import { sdb } from '../mssql';
 
 export const router = express.Router();
@@ -47,7 +47,7 @@ router.get('/register/info/list/:id', async (req: Request, res: Response, next: 
 router.get('/register/accumulation/:type/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result: RegisterAccumulation[]; let config_schema;
-    const JRegister = createRegisterAccumulation(req.params.type, true, {});
+    const JRegister = createRegisterAccumulation(req.params.type as RegisterAccumulationTypes, true, {});
     config_schema = { queryObject: JRegister.QueryList() };
     result = await sdb.manyOrNone<RegisterAccumulation>(`${config_schema.queryObject} AND r.document = @p1`, [req.params.id]);
     res.json(result);
@@ -57,7 +57,7 @@ router.get('/register/accumulation/:type/:id', async (req: Request, res: Respons
 router.get('/register/info/:type/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     let result: RegisterInfo[]; let config_schema;
-    const JRegister = createRegisterInfo(req.params.type, {});
+    const JRegister = createRegisterInfo(req.params.type as RegisterInfoTypes, {});
     config_schema = { queryObject: JRegister.QueryList() };
     result = await sdb.manyOrNone<RegisterInfo>(`${config_schema.queryObject} AND r.document = @p1`, [req.params.id]);
     res.json(result);
