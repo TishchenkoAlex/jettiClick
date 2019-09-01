@@ -14,19 +14,13 @@ export const Jobs: { [key: string]: (job: Queue.Job) => Promise<void> } = {
 const QueOpts: QueueOptions = {
   redis: {
     host: REDIS_DB_HOST,
-    showFriendlyErrorStack: true,
-    reconnectOnError: (err: Error) => 2,
+    enableReadyCheck: true,
+    reconnectOnError: (err: Error) => true,
   },
   prefix: DB_NAME,
 };
 
 export let JQueue = new Queue(DB_NAME, QueOpts);
-
-JQueue.isReady().catch(err => {
-  console.error('Cannot establish connection to Redis during startup, exiting...');
-  console.error(err);
-  // process.exit(err);
-});
 
 JQueue.process(5, job => {
   const task = Jobs[job.data.job.id];

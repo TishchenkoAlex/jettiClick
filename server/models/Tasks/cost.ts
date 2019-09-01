@@ -1,10 +1,8 @@
 import * as Queue from 'bull';
-
 import { sdbq } from '../../mssql';
 import { lib } from '../../std.lib';
 import { DocumentBase } from '../document';
 import { RegisterAccumulationInventory } from '../Registers/Accumulation/Inventory';
-import { flow, groupBy, map, tap, chain } from 'lodash';
 
 export default async function (job: Queue.Job) {
   await job.progress(0);
