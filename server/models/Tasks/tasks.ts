@@ -14,8 +14,8 @@ export const Jobs: { [key: string]: (job: Queue.Job) => Promise<void> } = {
 const QueOpts: QueueOptions = {
   redis: {
     host: REDIS_DB_HOST,
-    enableReadyCheck: true,
-    reconnectOnError: (err: Error) => true,
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false
   },
   prefix: DB_NAME,
 };
