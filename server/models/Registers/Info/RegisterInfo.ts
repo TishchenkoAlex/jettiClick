@@ -8,7 +8,7 @@ export interface RegisterInfoOptions {
 }
 
 export function JRegisterInfo(props: RegisterInfoOptions) {
-  return function classDecorator<T extends { new(...args: any[]): {} }>(constructor: T) {
+  return function classDecorator<T extends new(...args: any[]) => {}>(constructor: T) {
     Reflect.defineMetadata(symbolProps, props, constructor);
     return class extends constructor {
       type = props.type;

@@ -1,16 +1,15 @@
-import { Ref } from '../../document';
-import { RegisterAccumulationAR } from './AR';
-import { RegisterAccumulationBalance } from './Balance';
-import { RegisterAccumulationInventory } from './Inventory';
-import { RegisterAccumulation } from './RegisterAccumulation';
-import { RegisterAccumulationSales } from './Sales';
-import { RegisterAccumulationPL } from './PL';
 import { RegisterAccumulationAccountablePersons } from './AccountablePersons';
 import { RegisterAccumulationAP } from './AP';
+import { RegisterAccumulationAR } from './AR';
+import { RegisterAccumulationBalance } from './Balance';
 import { RegisterAccumulationBank } from './Bank';
 import { RegisterAccumulationCash } from './Cash';
 import { RegisterAccumulationCashTransit } from './Cash.Transit';
+import { RegisterAccumulationInventory } from './Inventory';
 import { RegisterAccumulationLoan } from './Loan';
+import { RegisterAccumulationPL } from './PL';
+import { RegisterAccumulation } from './RegisterAccumulation';
+import { RegisterAccumulationSales } from './Sales';
 
 export type RegisterAccumulationTypes =
   'Register.Accumulation.AccountablePersons' |

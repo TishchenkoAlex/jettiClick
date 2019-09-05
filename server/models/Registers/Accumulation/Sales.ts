@@ -1,6 +1,5 @@
-import { Ref, Props } from '../../document';
+import { Props, Ref } from '../../document';
 import { JRegisterAccumulation, RegisterAccumulation } from './RegisterAccumulation';
-import { RegisterAccumulationTypes } from './factory';
 
 @JRegisterAccumulation({
   type: 'Register.Accumulation.Sales',

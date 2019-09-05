@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter, map, sampleTime, take } from 'rxjs/operators';
+import * as IO from 'socket.io-client';
 import { IJob, IJobs } from '../../../server/models/api';
 import { AuthService } from '../auth/auth.service';
 import { ApiService } from '../services/api.service';
@@ -25,12 +26,12 @@ export class EventsService implements OnDestroy {
     this.debonce$.pipe(sampleTime(1000)).subscribe(job => this.update(job));
 
     this.auth.userProfile$.pipe(filter(u => !!(u && u.account))).subscribe(u => {
-      const wsUrl = `${environment.socket}?token=${u.token}&transport=websocket`;
+      const wsUrl = `${environment.socket}?token=${u.token}`;
 
       const wsAuto = (url: string, onmessage: (data) => void) => {
-        const socket = new WebSocket(url);
-        socket.onmessage = data => onmessage(data);
-        socket.onclose = () => setTimeout(() => wsAuto(url, onmessage), 5000);
+        const socket = IO(url);
+        socket.on('job', (data) => onmessage(data));
+        socket.on('close',  () => setTimeout(() => wsAuto(url, onmessage), 5000));
       };
 
       wsAuto(wsUrl, data => { this.debonce$.next(data); });
