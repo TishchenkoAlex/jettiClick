@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-// tslint:disable-next-line:import-blacklist
+import * as moment from 'moment';
 import { Subscription } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { FormControlInfo } from './dynamic-form-base';
@@ -14,6 +14,7 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
   @Input() control: FormControlInfo;
   @Input() form: FormGroup;
   formControl: FormControl;
+  Moment = moment;
 
   valueChanges$: Subscription = Subscription.EMPTY;
 

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, fo
 // tslint:disable-next-line:max-line-length
 import { AbstractControl, ControlValueAccessor, FormControl, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
+import * as moment from 'moment';
 import { AutoComplete } from 'primeng/components/autocomplete/autocomplete';
 import { Observable } from 'rxjs';
 import { ISuggest } from '../../../../server/models/api';
@@ -47,7 +48,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   @Input() openButton = true;
   @Output() change = new EventEmitter();
   @Output() focus = new EventEmitter();
-  @ViewChild('ac', {static: true}) input: AutoComplete;
+  @ViewChild('ac', {static: false}) input: AutoComplete;
   @Input() id: string;
   @Input() formControl: FormControl;
 
@@ -59,6 +60,7 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   private NO_EVENT = false;
   showDialog = false;
+  Moment = moment;
 
   get isComplexValue() { return this.value && this.value.type && this.value.type.includes('.'); }
   get isTypeControl() { return this.type && this.type.startsWith('Types.'); }

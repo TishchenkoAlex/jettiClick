@@ -1,6 +1,4 @@
-import { JDocument, DocumentBase, Props, Ref } from './../document';
-import { INoSqlDocument } from '../ServerDocument';
-import { stdDocumentListCommands } from '../commands';
+import { DocumentBase, JDocument, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Document.Invoice',
@@ -109,7 +107,7 @@ export class DocumentInvoiceItem {
 }
 
 export class DocumentInvoiceComment {
-  @Props({ type: 'datetime' })
+  @Props({ type: 'datetime', style: { width: '195px' } })
   Date = new Date();
 
   @Props({ type: 'Catalog.User' })

@@ -22,7 +22,7 @@ export class OperationFormComponent implements AfterViewInit, OnDestroy {
   set form(value) { this.super.form = value; }
   get Operation() { return this.form.get('Operation')!; }
 
-  @ViewChild(BaseDocFormComponent, {static: true}) super: BaseDocFormComponent;
+  @ViewChild(BaseDocFormComponent, {static: false}) super: BaseDocFormComponent;
 
   async ngAfterViewInit() {
     this.form['metadata']['copyTo'] = [];

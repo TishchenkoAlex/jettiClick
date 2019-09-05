@@ -1,13 +1,16 @@
 <p-toolbar>
   <div class="ui-toolbar-group-left">
-    <button pButton type="button" icon="pi pi-plus" class="ui-button-success" (click)="add()" ></button>
-    <button pButton type="button" icon="pi pi-clone" class="ui-button-secondary" (click)="copy()" *ngIf="selection?.length === 1"></button>
-    <button pButton type="button" icon="pi pi-trash" class="ui-button-danger" (click)="delete()" *ngIf="selection?.length > 0"></button>
+    <button pButton type="button" icon="pi pi-plus" class="ui-button-success" (click)="add()"></button>
+    <button pButton type="button" icon="pi pi-clone" class="ui-button-secondary" (click)="copy()"
+      *ngIf="selection?.length === 1"></button>
+    <button pButton type="button" icon="pi pi-trash" class="ui-button-danger" (click)="delete()"
+      *ngIf="selection?.length > 0"></button>
   </div>
 </p-toolbar>
 
-<p-table [value]="dataSource" selectionMode="multiple" [metaKeySelection]="true" [(selection)]="selection" dataKey="index"
-  [scrollable]="true" (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)" (onEditInit)="onEditInit($event)">
+<p-table [value]="dataSource" selectionMode="multiple" [metaKeySelection]="true" [(selection)]="selection"
+  dataKey="index" [scrollable]="true" (onEditComplete)="onEditComplete($event)" (onEditCancel)="onEditCancel($event)"
+  (onEditInit)="onEditInit($event)">
 
   <ng-template pTemplate="header">
     <tr>
@@ -28,14 +31,15 @@
           </ng-template>
           <ng-template pTemplate="output">
             <span [ngSwitch]="col.type">
-              <span *ngSwitchCase="'date'">{{getControl(rowData.index).get(col.field)?.value | date:'dd.MM.yyyy'}}</span>
-              <span *ngSwitchCase="'datetime'">{{getControl(rowData.index).get(col.field)?.value | date:'dd.MM.yyyy hh:mm:ss'}}</span>
+              <span *ngSwitchCase="'date'">{{ getControlValue(rowData.index, col.field, col.type) }}</span>
+              <span *ngSwitchCase="'datetime'">{{ getControlValue(rowData.index, col.field, col.type) }}</span>
               <span *ngSwitchCase="'number'">{{getControl(rowData.index).get(col.field)?.value | number:'1.2-2'}}</span>
               <span *ngSwitchCase="'script'">{{getControl(rowData.index).get(col.field)?.value}}</span>
               <span *ngSwitchCase="'boolean'">
-                <i [class]="getControl(rowData.index).get(col.field)?.value ? 'fa fa-check-square' : 'fa fa-square-o'"></i>
+                <i
+                  [class]="getControl(rowData.index).get(col.field)?.value ? 'fa fa-check-square' : 'fa fa-square-o'"></i>
               </span>
-              <span *ngSwitchDefault>{{ getControlValue(rowData.index, col.field) }}
+              <span *ngSwitchDefault>{{ getControlValue(rowData.index, col.field, col.type) }}
               </span>
             </span>
           </ng-template>

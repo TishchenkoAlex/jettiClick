@@ -20,7 +20,7 @@
 
   <div *ngIf="value?.type === 'datetime'">
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
-      <input pInputText class="calendar" [value]="suggest.value.value | date:'yyy-MM-ddTHH:mm:ss'" step=1 [required]="required" [readonly]="readOnly"
+      <input pInputText class="calendar" [value]="Moment.isDate(suggest.value.value) ? (suggest.value.value | date:'yyy-MM-ddTHH:mm:ss') : null" step=1 [required]="required" [readonly]="readOnly"
         autocomplete="off" spellcheck="false" (focus)="$event.target.select()" type="datetime-local" (input)="parseDate($event.target.value)">
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
       <button pButton type="button" icon="pi pi-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
@@ -29,7 +29,7 @@
 
   <div *ngIf="value?.type === 'date'">
     <div class="ui-inputgroup" style="display: flex" [ngClass]="{'ui-float-label' : showLabel}">
-      <input pInputText class="calendar" [value]="suggest.value.value | date:'yyy-MM-dd'" [required]="required" [readonly]="readOnly"
+      <input pInputText class="calendar" [value]="Moment.isDate(suggest.value.value) ? (suggest.value.value | date:'yyy-MM-dd') : null" [required]="required" [readonly]="readOnly"
         autocomplete="off" spellcheck="false" (focus)="$event.target.select()" type="date" (input)="parseDate($event.target.value)">
       <label *ngIf="showLabel" for="suggest">{{placeholder}}</label>
       <button pButton type="button" icon="pi pi-close" class="ui-button-secondary" (click)="handleReset($event)" [tabindex]=-1></button>
@@ -61,6 +61,6 @@
 </form>
 
 <p-dialog *ngIf="showDialog" [header]="this.placeholder" [(visible)]="showDialog" [modal]="true" [responsive]="true" [closable]="true"
-  [closeOnEscape]="true" [width]="calcDialogWidth()" [height]="540" [blockScroll]="true" appendTo="body">
+  [closeOnEscape]="true" [width]="calcDialogWidth()" [height]="540" [blockScroll]="true" >
   <j-suggest-list [type]="value.type || type" [id]="value.id" [settings]="calcFilters()" (Select)="searchComplete($event)"></j-suggest-list>
 </p-dialog>

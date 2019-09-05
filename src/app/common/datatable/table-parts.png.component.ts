@@ -1,15 +1,14 @@
-// tslint:disable-next-line:max-line-length
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
-import { EditableColumn, Table } from 'primeng/table';
+import * as moment from 'moment';
 import { merge, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ColumnDef } from '../../../../server/models/column';
 import { TableDynamicControl } from '../../common/dynamic-form/dynamic-form-base';
 import { cloneFormGroup, patchOptionsNoEvents } from '../../common/dynamic-form/dynamic-form.service';
 import { ApiService } from '../../services/api.service';
+import { EditableColumn } from '../datatable/table';
 import { DocService } from '../doc.service';
-
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +18,6 @@ import { DocService } from '../doc.service';
 export class TablePartsComponent implements OnInit, OnDestroy {
   @Input() formGroup: FormArray;
   @Input() control: TableDynamicControl;
-  @ViewChild(Table, {static: true}) dataTable: Table;
   @ViewChildren(EditableColumn) editableColumns: QueryList<EditableColumn>;
 
   dataSource: any[];
@@ -52,10 +50,13 @@ export class TablePartsComponent implements OnInit, OnDestroy {
     return this.formGroup.at(i) as FormGroup;
   }
 
-  getControlValue(index: number, field: string) {
+  getControlValue(index: number, field: string, type: string) {
+
     const control = this.getControl(index).get(field);
     if (!control) return null;
     const value = control.value;
+    if (type === 'datetime' && moment.isDate(value)) return moment(value).format('DD.MM.YYYY HH:MM:ss');
+    if (type === 'date' && moment.isDate(value)) return moment(value).format('DD.MM.YYYY');
     const result = value && (value.value || typeof value === 'object' ? value.value || '' : value || '');
     return result;
   }
@@ -79,13 +80,11 @@ export class TablePartsComponent implements OnInit, OnDestroy {
         if (rows[i].field === firsFiled) return rows[i].openCell();
       }
     });
-    // (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
 
   copy() {
     const newFormGroup = cloneFormGroup(this.formGroup.at(this.selection[0].index) as FormGroup);
     this.addCopy(newFormGroup);
-    // (this.dataTable).first = Math.max(this.dataSource.length - 9, 0);
   }
 
   delete() {
@@ -108,7 +107,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
   }
 
   onEditComplete(event) { }
-  onEditInit(event) { }
+  onEditInit(event) {  }
   onEditCancel(event) { }
 
   calcTotals(field: string): number {
