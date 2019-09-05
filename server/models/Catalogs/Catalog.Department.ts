@@ -1,9 +1,9 @@
-import { JDocument, DocumentBase, Props, Ref } from './../document';
+import { DocumentBase, JDocument, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Catalog.Department',
   description: 'Подразделение',
-  icon: 'fa fa-money',
+  icon: 'fa fa-list',
   menu: 'Подразделения',
   prefix: 'DEP-'
 })

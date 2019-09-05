@@ -3,7 +3,7 @@ import { DocumentBase, JDocument, Props, Ref } from './../document';
 @JDocument({
   type: 'Catalog.User',
   description: 'Пользователь',
-  icon: 'fa fa-money',
+  icon: 'fa fa-list',
   menu: 'Пользователи',
   prefix: 'USR-'
 })

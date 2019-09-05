@@ -1,7 +1,7 @@
-import { AllTypes, DocTypes } from '../documents.types';
+import { DocTypes } from '../documents.types';
+import { buildSubcountQueryList } from './../../fuctions/SQLGenerator.MSSQL';
 import { createDocument, RegisteredDocument } from './../../models/documents.factory';
 import { DocumentBase, DocumentOptions, JDocument, Props, Ref } from './../document';
-import { buildSubcountQueryList } from './../../fuctions/SQLGenerator.MSSQL';
 
 @JDocument({
   type: 'Catalog.Documents',

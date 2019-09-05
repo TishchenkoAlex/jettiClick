@@ -3,7 +3,7 @@ import { DocumentBase, JDocument, Props, Ref } from '../document';
 @JDocument({
   type: 'Catalog.TaxRates',
   description: 'Ставки налогов',
-  icon: 'fa fa-money',
+  icon: 'fa fa-list',
   menu: 'Ставки налого',
   prefix: 'TXR-'
 })

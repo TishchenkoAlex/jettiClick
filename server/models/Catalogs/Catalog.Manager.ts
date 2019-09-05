@@ -3,7 +3,7 @@ import { DocumentBase, JDocument, Props, Ref } from './../document';
 @JDocument({
   type: 'Catalog.Manager',
   description: 'Менеджер',
-  icon: 'fa fa-money',
+  icon: 'fa fa-list',
   menu: 'Менеджеры',
   prefix: 'MAN-'
 })

@@ -1,5 +1,5 @@
 import { IAccount } from '../../models/api';
-import { sdb, sdba } from '../../mssql';
+import { sdba } from '../../mssql';
 
 export namespace Accounts {
 
@@ -14,7 +14,8 @@ export namespace Accounts {
     existing = existing ? existing.data : null;
     if (!existing) {
       const data = await sdba.oneOrNone<IAccount>(`
-        INSERT INTO "accounts" (id, data) VALUES (@p1, @p2) OUTPUT inserted.* `, [account.email, account]);
+        INSERT INTO "accounts" (id, data) OUTPUT inserted.* VALUES (@p1, JSON_QUERY(@p2))`,
+        [account.email, JSON.stringify(account)]);
       return data;
     } else {
       const data = await sdba.oneOrNone<IAccount>(`

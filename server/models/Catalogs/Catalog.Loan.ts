@@ -1,9 +1,9 @@
-import { JDocument, DocumentBase, Props, Ref } from './../document';
+import { DocumentBase, JDocument, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Catalog.Loan',
   description: 'Договор кредита/займа',
-  icon: 'fa fa-money',
+  icon: 'fa fa-list',
   menu: 'Договоры кредита/займа',
   prefix: 'LOAN-'
 })

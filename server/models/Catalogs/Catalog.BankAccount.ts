@@ -3,7 +3,7 @@ import { DocumentBase, JDocument, Props, Ref } from './../document';
 @JDocument({
   type: 'Catalog.BankAccount',
   description: 'Банковский счет',
-  icon: 'fa fa-money',
+  icon: 'fa fa-list',
   menu: 'Банковкие счета',
   prefix: 'BANK-'
 })

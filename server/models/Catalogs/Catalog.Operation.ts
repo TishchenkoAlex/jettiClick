@@ -1,4 +1,4 @@
-import { JDocument, DocumentBase, Props, Ref } from './../document';
+import { DocumentBase, JDocument, Props, Ref } from './../document';
 
 const defaultScript = `
 // const CashFlow = lib.doc.byCode('Catalog.CashFlow', 'IN.CUSTOMER');
@@ -14,7 +14,7 @@ const defaultScript = `
 @JDocument({
   type: 'Catalog.Operation',
   description: 'Правило операции',
-  icon: 'fa fa-money',
+  icon: 'fa fa-list',
   menu: 'Правила операций',
   dimensions: [
     { Group: 'Catalog.Operation.Group' }

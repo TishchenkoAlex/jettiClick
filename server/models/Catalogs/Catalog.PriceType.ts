@@ -1,9 +1,9 @@
-import { JDocument, DocumentBase, Props, Ref } from './../document';
+import { DocumentBase, JDocument, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Catalog.PriceType',
   description: 'Типы цен',
-  icon: 'fa fa-money',
+  icon: 'fa fa-list',
   menu: 'Типы цен',
   prefix: 'PRT-'
 })

@@ -1,15 +1,15 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: jetti
+  name: sm
   labels:
-    app: jetti
+    app: sm
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: jetti
+        app: sm
         tier: web
     spec:
       containers:
@@ -24,7 +24,7 @@ spec:
             - name: DB_HOST
               value: mssql
             - name: DB_NAME
-              value: jetti-app
+              value: sm
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -57,21 +57,21 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "1"            
+              value: "3"
             - name: NODE_ENV
               value: "production"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: jetti
+  name: sm
   labels:
-    app: jetti
+    app: sm
 spec:
   type: NodePort
   sessionAffinity: ClientIP
   selector:
-    app: jetti
+    app: sm
   ports:
   - port: 8080
     targetPort: 8080
