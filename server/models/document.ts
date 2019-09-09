@@ -34,6 +34,7 @@ export interface DocumentOptions {
   prefix: string;
   commands?: ICommand[];
   presentation?: 'code' | 'description';
+  hierarchy?: 'folders' | 'elements';
   copyTo?: DocTypes[];
   relations?: [{ name: string, type: DocTypes, field: string }];
 }
@@ -46,7 +47,7 @@ export function Props(props: PropOptions) {
 }
 
 export function JDocument(props: DocumentOptions) {
-  return function classDecorator<T extends new(...args: any[]) => {}>(constructor: T) {
+  return function classDecorator<T extends new (...args: any[]) => {}>(constructor: T) {
     Reflect.defineMetadata(symbolProps, props, constructor);
     return class extends constructor {
       type = props.type;
@@ -127,8 +128,9 @@ export class DocumentBase {
       const Prop = proto.targetProp(this, prop);
       if (!Prop) { continue; }
       result[prop] = Object.assign({}, Prop);
+      const metadata = proto.Prop() as DocumentOptions;
+      if (metadata && metadata.hierarchy === undefined) metadata.hierarchy = 'elements';
       if (prop === 'code') {
-        const metadata = proto.Prop() as DocumentOptions;
         if (metadata && metadata.prefix) {
           result[prop].label = (Prop.label || prop) + ' (auto)';
           result[prop].required = false;

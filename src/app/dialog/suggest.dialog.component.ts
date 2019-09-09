@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FilterMetadata } from 'primeng/components/common/filtermetadata';
 import { SortMeta } from 'primeng/components/common/sortmeta';
-import { Observable, Subject, Subscription, of } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
 import { debounceTime, filter, map, take } from 'rxjs/operators';
 import { ISuggest } from '../../../server/models/api';
 import { ColumnDef } from '../../../server/models/column';
@@ -49,6 +49,7 @@ export class SuggestDialogComponent implements OnInit, OnDestroy {
     try { this.doc = createDocument(this.type); } catch { }
     const schema = this.doc ? this.doc.Props() : {};
     const dimensions = this.doc ? (this.doc.Prop() as DocumentOptions).dimensions || [] : [];
+    const hierarchy = this.doc ? (this.doc.Prop() as DocumentOptions).hierarchy : 'elements';
     [...data, ...dimensions].forEach(el => {
       const field = Object.keys(el)[0]; const type = el[field];
       columns.push({

@@ -52,7 +52,7 @@
     </div>
   </p-panel>
 
-  <p-panel #pad [toggleable]="true" header="Additonal Info" [collapsed]="true">
+  <p-panel #pad [toggleable]="true" header="Additonal Info" [collapsed]="isDoc ? true : false">
     <div fxLayout="row" fxLayoutGap="35px" fxLayout.xs="column">
       <j-control *ngIf="vk['parent']" [control]="vk['parent']" [form]="form"></j-control>
       <j-control *ngIf="vk['user']" [control]="vk['user']" [form]="form"></j-control>

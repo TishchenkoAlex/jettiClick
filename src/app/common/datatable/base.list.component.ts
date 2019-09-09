@@ -232,7 +232,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   parentChange(event) {
     this.filters['parent'] = {
       matchMode: '=',
-      value: event && event.data ? {
+      value: event && event.data && event.data.id ? {
         id:  event.data.id,
         code: '',
         description: event.data.description

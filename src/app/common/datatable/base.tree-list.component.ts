@@ -42,7 +42,7 @@ export class BaseTreeListComponent implements OnInit, OnDestroy {
         return this.api.tree(this.type).pipe(
           map(tree => <TreeNode[]>[{
             label: '(All)',
-            data: { id: null, description: '(All)' },
+            data: { id: undefined, description: '(All)' },
             expanded: true,
             expandedIcon: 'fa fa-folder-open',
             collapsedIcon: 'fa fa-folder',

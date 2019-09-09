@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, QueryList, ViewChildren } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { merge } from 'rxjs';
@@ -18,13 +18,13 @@ export class TabControllerComponent {
 
   @ViewChildren(DynamicComponent) components: QueryList<DynamicComponent>;
 
-  @HostListener('keydown', ['$event'])
+/*   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
     if (event.keyCode === 27 && this.tabStore.selectedIndex) {
       this.handleClose({ originalEvent: event, index: this.tabStore.selectedIndex });
     }
   }
-
+ */
   constructor(
     private router: Router, private route: ActivatedRoute, private ds: DocService, public tabStore: TabsStore) {
 
