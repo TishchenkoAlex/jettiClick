@@ -172,7 +172,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
         command: (event) => this.selection = this.dataSource.renderedData
       },
       {
-        label: 'Quick filter', icon: 'fa fa-search',
+        label: 'Quick filter', icon: 'pi pi-search',
         command: (event) => this._update(columns.find(c => c.field === this.ctxData.column), this.ctxData.value, null)
       },
       ...((createDocument(this.type).Prop() as DocumentOptions).copyTo || []).map(el => {
@@ -230,7 +230,14 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   }
 
   parentChange(event) {
-    this.filters['parent'] = { matchMode: '=', value: event && event.data ? event.data.id : null };
+    this.filters['parent'] = {
+      matchMode: '=',
+      value: event && event.data ? {
+        id:  event.data.id,
+        code: '',
+        description: event.data.description
+      } : null
+    };
     this.prepareDataSource();
     this.dataSource.sort();
   }

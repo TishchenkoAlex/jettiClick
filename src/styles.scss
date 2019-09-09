@@ -224,6 +224,10 @@ j-control {
   padding-right: 0.5em;
 }
 
+body .ui-treetable .ui-treetable-thead > tr > th, body .ui-treetable .ui-treetable-tbody > tr > td, body .ui-treetable .ui-treetable-tfoot > tr > td {
+  padding: 5px;
+}
+
 @keyframes ui-progress-spinner-color {
   100%,
   0% {
