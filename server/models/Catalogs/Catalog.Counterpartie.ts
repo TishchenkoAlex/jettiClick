@@ -11,7 +11,8 @@ import { DocumentBase, JDocument, Props, Ref } from './../document';
   ],
   relations: [
     { name: 'Client invoices', type: 'Document.Invoice', field: 'Customer' }
-  ]
+  ],
+  hierarchy: 'folders'
 })
 export class CatalogCounterpartie extends DocumentBase {
 

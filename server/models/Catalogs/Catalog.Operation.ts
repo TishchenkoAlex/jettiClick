@@ -22,7 +22,8 @@ const defaultScript = `
   prefix: 'RULE-',
   relations: [
     { name: 'Operations', type: 'Document.Operation', field: 'Operation' }
-  ]
+  ],
+  hierarchy: 'folders'
 })
 export class CatalogOperation extends DocumentBase {
 

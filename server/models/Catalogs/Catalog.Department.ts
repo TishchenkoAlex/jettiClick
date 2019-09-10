@@ -5,7 +5,8 @@ import { DocumentBase, JDocument, Props, Ref } from './../document';
   description: 'Подразделение',
   icon: 'fa fa-list',
   menu: 'Подразделения',
-  prefix: 'DEP-'
+  prefix: 'DEP-',
+  hierarchy: 'folders'
 })
 export class CatalogDepartment extends DocumentBase {
 

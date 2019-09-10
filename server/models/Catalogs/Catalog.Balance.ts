@@ -8,7 +8,8 @@ import { DocumentBase, JDocument, Props, Ref } from './../document';
   prefix: '',
   relations: [
     { name: 'Balance analytics', type: 'Catalog.Balance.Analytics', field: 'parent' }
-  ]
+  ],
+  hierarchy: 'folders'
 })
 export class CatalogBalance extends DocumentBase {
 

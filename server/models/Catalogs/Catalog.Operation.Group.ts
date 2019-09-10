@@ -8,7 +8,7 @@ import { DocumentBase, JDocument, Props, Ref } from './../document';
   prefix: 'OPG-',
   relations: [
     { name: 'Operations', type: 'Catalog.Operation', field: 'Group' }
-  ]
+  ],
 })
 export class CatalogOperationGroup extends DocumentBase {
 
