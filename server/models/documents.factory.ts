@@ -21,17 +21,19 @@ import { CatalogOperationGroup } from './Catalogs/Catalog.Operation.Group';
 import { CatalogPerson } from './Catalogs/Catalog.Person';
 import { CatalogPriceType } from './Catalogs/Catalog.PriceType';
 import { CatalogProduct } from './Catalogs/Catalog.Product';
+import { CatalogProductCategory } from './Catalogs/Catalog.ProductCategory';
+import { CatalogProductKind } from './Catalogs/Catalog.ProductKind';
 import { CatalogStorehouse } from './Catalogs/Catalog.Storehouse';
 import { CatalogSubcount } from './Catalogs/Catalog.Subcount';
 import { CatalogUnit } from './Catalogs/Catalog.Unit';
 import { CatalogUser } from './Catalogs/Catalog.User';
+import { DocumentBase } from './document';
+import { DocTypes } from './documents.types';
 import { DocumentExchangeRates } from './Documents/Document.ExchangeRates';
 import { DocumentInvoice } from './Documents/Document.Invoice';
 import { DocumentOperation } from './Documents/Document.Operation';
 import { DocumentPriceList } from './Documents/Document.PriceList';
 import { DocumentSettings } from './Documents/Document.Settings';
-import { DocumentBase } from './document';
-import { DocTypes } from './documents.types';
 
 export interface IRegisteredDocument<T extends DocumentBase> { type: DocTypes; Class: T; }
 
@@ -65,6 +67,8 @@ export const RegisteredDocument: IRegisteredDocument<any>[] = [
   { type: 'Catalog.Person', Class: CatalogPerson },
   { type: 'Catalog.PriceType', Class: CatalogPriceType },
   { type: 'Catalog.Product', Class: CatalogProduct },
+  { type: 'Catalog.ProductCategory', Class: CatalogProductCategory },
+  { type: 'Catalog.ProductKind', Class: CatalogProductKind },
   { type: 'Catalog.Storehouse', Class: CatalogStorehouse },
   { type: 'Catalog.Operation', Class: CatalogOperation },
   { type: 'Catalog.Operation.Group', Class: CatalogOperationGroup },

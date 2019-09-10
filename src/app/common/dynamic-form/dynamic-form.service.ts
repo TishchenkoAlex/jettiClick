@@ -6,7 +6,7 @@ import { createForm } from '../../../../server/models/Forms/form.factory';
 import { FormTypes } from '../../../../server/models/Forms/form.types';
 import { ApiService } from '../../services/api.service';
 // tslint:disable-next-line:max-line-length
-import { AutocompleteFormControl, BooleanFormControl, DateFormControl, DateTimeFormControl, FormControlInfo, IFormControlInfo, NumberFormControl, ScriptFormControl, TableDynamicControl, TextareaFormControl, TextboxFormControl } from './dynamic-form-base';
+import { AutocompleteFormControl, BooleanFormControl, DateFormControl, DateTimeFormControl, EnumFormControl, FormControlInfo, IFormControlInfo, NumberFormControl, ScriptFormControl, TableDynamicControl, TextareaFormControl, TextboxFormControl } from './dynamic-form-base';
 
 export function cloneFormGroup(formGroup: FormGroup): FormGroup {
   const newFormGroup = new FormGroup({});
@@ -66,14 +66,15 @@ export function getFormGroup(schema: { [x: string]: any }, model: { [x: string]:
       const owner = prop['owner'] || null;
       const onChange = prop['onChange'];
       const onChangeServer = !!prop['onChangeServer'];
+      let value = prop['value'];
       let newControl: FormControlInfo;
       const controlOptions: IFormControlInfo = {
         key, label, type: controlType, required, readOnly,
-        hidden, disabled, change, order, style, onChange, owner, totals, onChangeServer
+        hidden, disabled, change, order, style, onChange, owner, totals, onChangeServer, value
       };
       switch (controlType) {
         case 'table':
-          const value: FormControlInfo[] = [];
+          value = [];
           processRecursive(v[key][key] || {}, value);
           newControl = new TableDynamicControl(controlOptions);
           (newControl as TableDynamicControl).controls = value;
@@ -96,6 +97,9 @@ export function getFormGroup(schema: { [x: string]: any }, model: { [x: string]:
         case 'textarea':
           newControl = new TextareaFormControl(controlOptions);
           break;
+        case 'enum':
+            newControl = new EnumFormControl(controlOptions);
+            break;
         default:
           if (type.includes('.')) {
             controlOptions.type = controlType; // здесь нужен тип ссылки

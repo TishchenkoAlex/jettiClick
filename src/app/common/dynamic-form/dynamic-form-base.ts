@@ -1,6 +1,6 @@
 import { OwnerRef } from '../../../../server/models/document';
 
-export type ControlTypes = 'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'table';
+export type ControlTypes = 'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'table' | 'enum';
 
 export interface IFormControlInfo {
   value?: any;
@@ -22,6 +22,7 @@ export interface IFormControlInfo {
 
 export class FormControlInfo {
   value: any;
+  valuesOptions: { label: string, value: string | null }[];
   type: string;
   key: string;
   label: string;
@@ -68,6 +69,17 @@ export class TextboxFormControl extends FormControlInfo {
   constructor(options: IFormControlInfo) {
     super(options);
     if (options.style) this.style = options.style;
+  }
+}
+
+export class EnumFormControl extends FormControlInfo {
+  value = '';
+  controlType = 'enum';
+  type = 'enum';
+  constructor(options: IFormControlInfo) {
+    super(options);
+    if (options.style) this.style = options.style;
+    this.valuesOptions = [{label: '',  value: null}, ...(options.value as string[]).map(el => ({label: el, value: el}))];
   }
 }
 
@@ -127,7 +139,8 @@ export class NumberFormControl extends FormControlInfo {
 }
 
 export interface IComplexObject {
-  id: string | null; value: string | null; code: string | null; type: string | null; data?: any | null; }
+  id: string | null; value: string | null; code: string | null; type: string | null; data?: any | null;
+}
 
 export class AutocompleteFormControl extends FormControlInfo {
   controlType = 'autocomplete';

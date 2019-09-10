@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/components/common/messageservice';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 import { FieldsetModule } from 'primeng/fieldset';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -50,7 +51,7 @@ import { TableModule } from './common/datatable/table';
     SelectButtonModule,
     InputTextModule,
     // ChipsModule,
-    // DropdownModule,
+    DropdownModule,
     InputTextareaModule,
     // InputMaskModule,
     // PasswordModule,

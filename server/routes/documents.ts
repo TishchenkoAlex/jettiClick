@@ -47,6 +47,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     const querySettings = await sdb.oneOrNone<{ doc: FormListSettings }>(`
       SELECT JSON_QUERY(settings, '$."${type}"') doc FROM users where email = @p1`, [user]);
     const settings = querySettings && querySettings.doc || new FormListSettings();
+    const userID = await lib.doc.byCode('Catalog.User', user);
 
     if (id) {
 
@@ -65,6 +66,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           Object.keys(schema).filter(p => schema[p].value !== undefined).forEach(p => ServerDoc[p] = schema[p].value);
           addIncomeParamsIntoDoc(params, ServerDoc);
           if (req.query.isfolder) ServerDoc.isfolder = true;
+          if (userID) ServerDoc.user = userID;
           if (ServerDoc.onCreate) { await ServerDoc.onCreate(sdb); }
           break;
         case 'copy':
@@ -74,6 +76,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           copyDoc.id = id; copyDoc.date = ServerDoc.date; copyDoc.code = ServerDoc.code;
           copyDoc.posted = false; copyDoc.deleted = false; copyDoc.timestamp = null;
           copyDoc.parent = copyDoc.parent;
+          if (userID) copyDoc.user = userID;
           ServerDoc.map(copyDoc);
           addIncomeParamsIntoDoc(params, ServerDoc);
           ServerDoc.description = 'Copy: ' + ServerDoc.description;

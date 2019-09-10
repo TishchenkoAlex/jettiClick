@@ -54,7 +54,7 @@ export class BaseDocListComponent implements OnInit, OnDestroy {
   multiSortMeta: SortMeta[] = [];
   contexCommands: MenuItem[] = [];
   ctxData = { column: '', value: undefined };
-  showTree = false;
+  showTree = this.routeData.metadata.hierarchy === 'folders';
   dataSource: ApiDataSource;
 
   ngOnInit() {

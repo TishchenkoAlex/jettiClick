@@ -25,6 +25,11 @@ body {
   text-overflow: ellipsis;
 }
 
+.ui-treetable .ui-treetable-tbody > tr > td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 body .ui-table .ui-table-thead > tr > th, 
 body .ui-table .ui-table-tbody > tr > td, 
 body .ui-table .ui-table-tfoot > tr > td {
@@ -33,6 +38,10 @@ body .ui-table .ui-table-tfoot > tr > td {
 
 .ui-inputtext {
     padding: 0.343em 0.343em !important
+}
+
+.ui-dropdown .ui-inputtext {
+  padding: 0.170em 0.170em !important;
 }
 
 .ui-table .ui-table-tbody> tr > td.ui-editing-cell input {

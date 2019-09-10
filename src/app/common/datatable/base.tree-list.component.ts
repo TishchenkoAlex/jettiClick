@@ -9,6 +9,7 @@ import { DocumentBase } from '../../../../server/models/document';
 import { DocTypes } from '../../../../server/models/documents.types';
 import { DocService } from '../../common/doc.service';
 import { ApiService } from '../../services/api.service';
+import { LoadingService } from '../loading.service';
 import { BaseDocListComponent } from './base.list.component';
 
 @Component({
@@ -25,20 +26,18 @@ export class BaseTreeListComponent implements OnInit, OnDestroy {
 
   private paginator = new Subject<DocumentBase>();
   private _docSubscription$: Subscription = Subscription.EMPTY;
+  get scrollHeight() { return `${(window.innerHeight - 275)}px`; }
 
-  constructor(private api: ApiService, public router: Router, public ds: DocService) { }
+  constructor(private api: ApiService, public router: Router, public ds: DocService, public lds: LoadingService) { }
 
   ngOnInit() {
 
     this._docSubscription$ = merge(...[this.ds.save$, this.ds.delete$, this.ds.saveClose$, this.ds.goto$]).pipe(
-      filter(doc => doc && doc.type === this.type))
-      .subscribe(doc => {
-        this.paginator.next(doc);
-      });
+      filter(doc => doc && doc.type === this.type)).
+      subscribe(doc => this.paginator.next(doc));
 
     this.treeNodes$ = this.paginator.pipe(
       switchMap(doc => {
-        console.log('doc', doc);
         return this.api.tree(this.type).pipe(
           map(tree => <TreeNode[]>[{
             label: '(All)',
@@ -57,7 +56,7 @@ export class BaseTreeListComponent implements OnInit, OnDestroy {
             this.selection = current;
           }));
       }));
-    setTimeout(() => this.paginator.next(this.owner.dataSource.renderedData[0]));
+    setTimeout(() => this.paginator.next());
   }
 
   private findDoc(tree: TreeNode[], doc: DocumentBase): TreeNode | undefined {

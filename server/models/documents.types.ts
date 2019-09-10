@@ -25,7 +25,9 @@ export type CatalogTypes =
   'Catalog.Documents' |
   'Catalog.User' |
   'Catalog.Unit' |
-  'Catalog.TaxRates'
+  'Catalog.TaxRates' |
+  'Catalog.ProductCategory' |
+  'Catalog.ProductKind'
  ;
 
 export type DocumentTypes =
@@ -71,6 +73,7 @@ export type IncomeExpenseAnalyticTypes =
 'Catalog.Income.Analytics';
 
 export type AllTypes =
+  'enum' |
   PrimitiveTypes |
   ComplexTypes |
   DocTypes;

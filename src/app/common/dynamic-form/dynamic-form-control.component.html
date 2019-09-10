@@ -5,6 +5,12 @@
     <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
   </div>
 
+  <div *ngSwitchCase="'enum'" [ngClass]="{'ui-float-label' : control.showLabel}">
+    {{ control.value  }}
+    <p-dropdown [options]="control.valuesOptions" [formControlName]="control.key" [showClear]="true" [readonly]="control.readOnly" [required]="control.required"></p-dropdown>
+    <label *ngIf="control.showLabel" [for]="control.key">{{control.label}}</label>
+  </div>
+
   <div *ngSwitchCase="'textarea'" [ngClass]="{'ui-float-label' : control.showLabel}">
     <textarea [required]="control.required" pInputTextarea [formControlName]="control.key" [readonly]="control.readOnly" (focus)="$event.target.select()"
       spellcheck="false">
