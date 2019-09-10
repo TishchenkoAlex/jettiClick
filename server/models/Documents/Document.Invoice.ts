@@ -107,7 +107,7 @@ export class DocumentInvoiceItem {
 }
 
 export class DocumentInvoiceComment {
-  @Props({ type: 'datetime', style: { width: '195px' } })
+  @Props({ type: 'date', style: { width: '195px' } })
   Date = new Date();
 
   @Props({ type: 'Catalog.User' })

@@ -109,7 +109,7 @@ export class DateFormControl extends FormControlInfo {
   value = new Date();
   controlType = 'date';
   type = 'date';
-  style = { 'min-width': '110px', 'max-width': '110px', 'width': '110px' };
+  style = { 'min-width': '130px', 'max-width': '130px', 'width': '130px' };
   constructor(options: IFormControlInfo) {
     super(options);
     if (options.style) this.style = options.style;
@@ -120,7 +120,7 @@ export class DateTimeFormControl extends FormControlInfo {
   value = new Date();
   controlType = 'datetime';
   type = 'datetime';
-  style = { 'min-width': '145px', 'max-width': '145px', 'width': '145px' };
+  style = { 'min-width': '195px', 'max-width': '195px', 'width': '195px' };
   constructor(options: IFormControlInfo) {
     super(options);
     if (options.style) this.style = options.style;
