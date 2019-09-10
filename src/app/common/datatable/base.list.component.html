@@ -21,7 +21,7 @@
         <button id="delete" icon="fa fa-trash" class="ui-button-danger" pButton type="button" (click)="delete()"
           [disabled]="(lds.busy$ | async)" *ngIf="selection?.length"></button>
         <button id="showTree" icon="fa fa-sitemap" class="ui-button-secondary" pButton type="button"
-          (click)="showTree = !showTree" [disabled]="(lds.busy$ | async)" *ngIf="isCatalog"></button>
+          (click)="showTree = !showTree" [disabled]="(lds.busy$ | async)" *ngIf="showTreeButton"></button>
       </div>
     </p-toolbar>
     <p-table #tbl [value]="dataSource.result$ | async" selectionMode="multiple" dataKey="id" [lazy]="true"
