@@ -15,4 +15,10 @@ export class CatalogUser extends DocumentBase {
   @Props({ type: 'string', order: 1, required: true, style: { width: '250px' } })
   code = '';
 
+  @Props({ type: 'string', label: 'Exchange code', hiddenInList: true, readOnly: true})
+  ExchangeCode = '';
+
+  @Props({ type: 'string', label: 'Exchange base', hiddenInList: true, readOnly: true})
+  ExchangeBase = '';
+
 }
