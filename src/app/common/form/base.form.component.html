@@ -2,40 +2,48 @@
   <p-panel #mp [header]="description?.value?.concat(isPosted ? ', [posted]' : ', [unposted]')" [toggleable]="true">
     <p-toolbar>
       <div class="ui-toolbar-group-left">
-        <button pButton type="button" id="PostClose " icon="fa fa-check-square-o" label="Post&Close" class="ui-button-warning" [disabled]="!form.valid || (lds.busy$ | async)"
-          (click)="PostClose()" *ngIf="!isDeleted"></button>
-        <button pButton type="button" id="Post" icon="fa fa-check" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
-          (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
-        <button pButton type="button" id="unPost" icon="fa fa-square-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
-          (click)="unPost()" *ngIf="!isDeleted && isPosted && isDoc"></button>
-        <button pButton type="button" id="Save" icon="fa fa-floppy-o" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
-          (click)="Save()" *ngIf="!isPosted || !isDoc"></button>
-        <button pButton type="button" id="Copy" icon="fa fa-copy" class="ui-button-secondary" [disabled]="!form.valid || (lds.busy$ | async)"
-          (click)="Copy()" *ngIf="!isDeleted && !isNew"></button>
-        <button pButton type="button" id="Delete" icon="fa fa-trash" class="ui-button-danger" *ngIf="!isNew" (click)="Delete()" [disabled]="(lds.busy$ | async)"></button>
+        <button pButton type="button" id="PostClose " icon="fa fa-check-square-o" label="Post&Close"
+          class="ui-button-warning" [disabled]="!form.valid || (lds.busy$ | async)" (click)="PostClose()"
+          *ngIf="!isDeleted"></button>
+        <button pButton type="button" id="Post" icon="fa fa-check" class="ui-button-secondary"
+          [disabled]="!form.valid || (lds.busy$ | async)" (click)="Post()" *ngIf="!isDeleted && isDoc"></button>
+        <button pButton type="button" id="unPost" icon="fa fa-square-o" class="ui-button-secondary"
+          [disabled]="!form.valid || (lds.busy$ | async)" (click)="unPost()"
+          *ngIf="!isDeleted && isPosted && isDoc"></button>
+        <button pButton type="button" id="Save" icon="fa fa-floppy-o" class="ui-button-secondary"
+          [disabled]="!form.valid || (lds.busy$ | async)" (click)="Save()" *ngIf="!isPosted || !isDoc"></button>
+        <button pButton type="button" id="Copy" icon="fa fa-copy" class="ui-button-secondary"
+          [disabled]="!form.valid || (lds.busy$ | async)" (click)="Copy()" *ngIf="!isDeleted && !isNew"></button>
+        <button pButton type="button" id="Delete" icon="fa fa-trash" class="ui-button-danger" *ngIf="!isNew"
+          (click)="Delete()" [disabled]="(lds.busy$ | async)"></button>
       </div>
       <div class="ui-toolbar-group-right">
-        <p-splitButton *ngIf="copyTo.length" [model]="copyTo" styleClass="ui-button-secondary" label="base on"></p-splitButton>
-        <p-splitButton  *ngIf="commands.length" [model]="commands" styleClass="ui-button-secondary" label="commands"></p-splitButton>
-        <button *ngIf="!isNew" pButton type="button" icon="fa fa-list" class="ui-button-secondary" (click)="Goto()" [disabled]="(lds.busy$ | async)"></button>
-        <button *ngIf="isPosted" pButton type="button" icon="fa fa-print" class="ui-button-secondary" [disabled]="(lds.busy$ | async)"></button>
+        <p-splitButton *ngIf="copyTo.length" [model]="copyTo" styleClass="ui-button-secondary" label="base on">
+        </p-splitButton>
+        <p-splitButton *ngIf="commands.length" [model]="commands" styleClass="ui-button-secondary" label="commands">
+        </p-splitButton>
+        <button *ngIf="!isNew" pButton type="button" icon="fa fa-list" class="ui-button-secondary" (click)="Goto()"
+          [disabled]="(lds.busy$ | async)"></button>
+        <button *ngIf="isPosted" pButton type="button" icon="fa fa-print" class="ui-button-secondary"
+          [disabled]="(lds.busy$ | async)"></button>
       </div>
     </p-toolbar>
 
     <div fxLayout="column" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" cdkFocusInitial>
 
-      <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px" fxLayoutGap.xs="0px" *ngFor="let i of [0,3,6,9,12,15]">
+      <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="35px" fxLayoutGap.xs="0px"
+        *ngFor="let i of [0,3,6,9,12,15]">
         <div fxFlex>
-          <j-control *ngIf="v[i+0] && v[i+0].order > 0 && v[i+0].type !== 'table' && v[i+0].controlType !== 'script'" [control]="v[i+0]"
-            [form]="form"></j-control>
+          <j-control *ngIf="v[i+0] && v[i+0].order > 0 && v[i+0].type !== 'table' && v[i+0].controlType !== 'script'"
+            [control]="v[i+0]" [form]="form"></j-control>
         </div>
         <div fxFlex>
-          <j-control *ngIf="v[i+1] && v[i+1].order > 0 && v[i+1].type !== 'table' && v[i+1].controlType !== 'script'" [control]="v[i+1]"
-            [form]="form"></j-control>
+          <j-control *ngIf="v[i+1] && v[i+1].order > 0 && v[i+1].type !== 'table' && v[i+1].controlType !== 'script'"
+            [control]="v[i+1]" [form]="form"></j-control>
         </div>
         <div fxFlex>
-          <j-control *ngIf="v[i+2] && v[i+2].order > 0 && v[i+2].type !== 'table' && v[i+2].controlType !== 'script'" [control]="v[i+2]"
-            [form]="form"></j-control>
+          <j-control *ngIf="v[i+2] && v[i+2].order > 0 && v[i+2].type !== 'table' && v[i+2].controlType !== 'script'"
+            [control]="v[i+2]" [form]="form"></j-control>
         </div>
       </div>
 
@@ -50,8 +58,8 @@
 
       <ng-content></ng-content>
     </div>
-  </p-panel>
 
+  </p-panel>
   <p-panel #pad [toggleable]="true" header="Additonal Info" [collapsed]="isDoc ? true : false">
     <div fxLayout="row" fxLayoutGap="35px" fxLayout.xs="column">
       <j-control *ngIf="vk['parent']" [control]="vk['parent']" [form]="form"></j-control>
@@ -60,11 +68,13 @@
     <j-control *ngIf="vk['info']" [control]="vk['info']" [form]="form"></j-control>
   </p-panel>
 
-  <p-panel *ngIf="type === 'Catalog.Operation'" [toggleable]="true" header="Post script" [collapsed]="true" (collapsedChange)="mp.collapse(); pad.collapse()">
+  <p-panel *ngIf="type === 'Catalog.Operation' && isFolder === false" [toggleable]="true" header="Post script"
+    [collapsed]="true" (collapsedChange)="mp.collapse(); pad.collapse()">
     <j-control *ngIf="vk['script']" [control]="vk['script']" [form]="form"></j-control>
   </p-panel>
 
-  <p-panel *ngIf="type === 'Catalog.Operation'" [toggleable]="true" header="Document module" [collapsed]="true" (collapsedChange)="mp.collapse(); pad.collapse()">
+  <p-panel *ngIf="type === 'Catalog.Operation' && isFolder === false" [toggleable]="true" header="Document module"
+    [collapsed]="true" (collapsedChange)="mp.collapse(); pad.collapse()">
     <j-control *ngIf="vk['module']" [control]="vk['module']" [form]="form"></j-control>
   </p-panel>
 
@@ -73,12 +83,16 @@
     <j-register-accumulation-list *ngIf="!accumulation.collapsed" [doc]="model"></j-register-accumulation-list>
   </p-panel>
 
-  <div *ngFor="let r of relations">
-    <p-panel [toggleable]="true" [collapsed]="true" #relation [header]="r.name">
-      <j-list *ngIf="!relation.collapsed" [type]="r.type" [pageSize]=10 [settings]="{order: [], filter: [{left: r.field, center: '=', right: {id: model.id, type: model.type, value: model.description}}]}">
-      </j-list>
-    </p-panel>
+  <div *ngIf="isFolder === false">
+    <div *ngFor="let r of relations">
+      <p-panel [toggleable]="true" [collapsed]="true" #relation [header]="r.name">
+        <j-list *ngIf="!relation.collapsed" [type]="r.type" [pageSize]=10
+          [settings]="{order: [], filter: [{left: r.field, center: '=', right: {id: model.id, type: model.type, value: model.description}}]}">
+        </j-list>
+      </p-panel>
+    </div>
   </div>
+
 
 </form>
 

@@ -28,9 +28,4 @@ export class CatalogProduct extends DocumentBase {
   @Props({ type: 'number' })
   Volume = 0;
 
-  @Props({ type: 'string', label: 'Exchange code', hiddenInList: true, readOnly: true})
-  ExchangeCode = '';
-
-  @Props({ type: 'string', label: 'Exchange base', hiddenInList: true, readOnly: true})
-  ExchangeBase = '';
 }

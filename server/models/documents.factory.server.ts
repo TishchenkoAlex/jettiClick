@@ -1,8 +1,11 @@
 import { MSSQL, sdb } from '../mssql';
 import { lib } from '../std.lib';
-import { IRegisteredDocument, createDocument } from './../models/documents.factory';
+import { createDocument, IRegisteredDocument } from './../models/documents.factory';
+import { calculateDescription, RefValue } from './api';
 import { CatalogOperation } from './Catalogs/Catalog.Operation';
 import { CatalogOperationServer } from './Catalogs/Catalog.Operation.server';
+import { DocumentBase, DocumentOptions } from './document';
+import { DocTypes } from './documents.types';
 import { DocumentExchangeRatesServer } from './Documents/Document.ExchangeRates.server';
 import { DocumentInvoiceServer } from './Documents/Document.Invoce.server';
 import { DocumentOperation } from './Documents/Document.Operation';
@@ -10,9 +13,6 @@ import { DocumentOperationServer } from './Documents/Document.Operation.server';
 import { DocumentPriceListServer } from './Documents/Document.PriceList.server';
 import { DocumentSettingsServer } from './Documents/Document.Settings.server';
 import { DocumentBaseServer, IFlatDocument } from './ServerDocument';
-import { RefValue, calculateDescription } from './api';
-import { DocumentBase, DocumentOptions } from './document';
-import { DocTypes } from './documents.types';
 
 const RegisteredServerDocument: IRegisteredDocument<any>[] = [
   { type: 'Document.Invoice', Class: DocumentInvoiceServer },
@@ -37,7 +37,27 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
     result = createDocument<T>(type, document);
   }
   result['serverModule'] = {};
-  const Props = Object.assign({}, result.Props());
+
+  let Props = Object.assign({}, result.Props());
+  if (document && document.isfolder) {
+    // упрощенные метаданные формы для Папки
+    Props = {
+      id: Props.id,
+      type: Props.type,
+      date: Props.date,
+      code: Props.code,
+      description: Props.description,
+      company: Props.company,
+      user: Props.user,
+      posted: Props.posted,
+      deleted: Props.deleted,
+      parent: Props.parent,
+      isfolder: Props.isfolder,
+      info: Props.info,
+      timestamp: Props.timestamp
+    };
+  }
+
   let Operation: CatalogOperation | null = null;
   let Grop: RefValue | null = null;
   if (result instanceof DocumentOperation && document && document.id) {

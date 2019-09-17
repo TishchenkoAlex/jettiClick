@@ -47,7 +47,7 @@ export class DocumentOperationServer extends DocumentOperation implements Server
         FROM "Documents" WHERE id = '${this.Operation}'`;
       const Operation = await tx.oneOrNone<{ script: string }>(query);
       const exchangeRate = await lib.info.exchangeRate(this.date, this.company, this.currency, tx);
-      const settings = await lib.info.sliceLastJSON('Settings', this.date, this.company, { }, tx) || {};
+      const settings = await lib.info.sliceLastJSON('Settings', this.date, this.company, {}, tx) || {};
       const accountingCurrency = settings.accountingCurrency || this.currency;
       const exchangeRateAccounting = await lib.info.exchangeRate(this.date, this.company, accountingCurrency, tx);
       const script = `
@@ -107,6 +107,10 @@ export class DocumentOperationServer extends DocumentOperation implements Server
     } else {
       switch (sourceDoc.type) {
         case 'Catalog.Counterpartie':
+          break;
+        case 'Catalog.Operation':
+          this.Operation = (sourceDoc as CatalogOperation).id;
+          this.Group = (sourceDoc as CatalogOperation).Group;
           break;
         default:
           break;

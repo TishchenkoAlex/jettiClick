@@ -34,9 +34,4 @@ export class CatalogCounterpartie extends DocumentBase {
   @Props({ type: 'string', required: false })
   Phone: Ref = null;
 
-  @Props({ type: 'string', label: 'Exchange code', hiddenInList: true, readOnly: true})
-  ExchangeCode = '';
-
-  @Props({ type: 'string', label: 'Exchange base', hiddenInList: true, readOnly: true})
-  ExchangeBase = '';
 }

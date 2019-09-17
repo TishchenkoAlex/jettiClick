@@ -12,10 +12,4 @@ export class CatalogPerson extends DocumentBase {
   @Props({ type: 'Catalog.Person', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
-  @Props({ type: 'string', label: 'Exchange code', hiddenInList: true, readOnly: true})
-  ExchangeCode = '';
-
-  @Props({ type: 'string', label: 'Exchange base', hiddenInList: true, readOnly: true})
-  ExchangeBase = '';
-
 }

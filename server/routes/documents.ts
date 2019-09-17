@@ -33,12 +33,16 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
     const id: string | undefined = params.id;
     const type: DocTypes = params.type;
     const Operation: string | undefined = req.query.Operation || undefined;
+    const isFolder: boolean = req.query.isfolder === 'true';
 
     let doc: IFlatDocument | DocumentOperation | null = null;
     if (id) doc = await lib.doc.byId(id);
-    if (!doc) doc = Operation ?
-      { ...createDocument<DocumentBaseServer>(type), Operation } :
-      createDocument<DocumentBaseServer>(type);
+    if (!doc) {
+      doc = Operation ?
+        { ...createDocument<DocumentBaseServer>(type), Operation } :
+        createDocument<DocumentBaseServer>(type);
+      doc!.isfolder = isFolder;
+    }
     const ServerDoc = await createDocumentServer<DocumentBaseServer>(type, doc as IFlatDocument, sdb);
     if (!ServerDoc) throw new Error(`wrong type ${type}`);
     if (id) ServerDoc.id = id;
@@ -65,7 +69,6 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           const schema = ServerDoc.Props();
           Object.keys(schema).filter(p => schema[p].value !== undefined).forEach(p => ServerDoc[p] = schema[p].value);
           addIncomeParamsIntoDoc(params, ServerDoc);
-          if (req.query.isfolder) ServerDoc.isfolder = true;
           if (userID) ServerDoc.user = userID;
           if (ServerDoc.onCreate) { await ServerDoc.onCreate(sdb); }
           break;
@@ -89,6 +92,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
       }
       model = (await buildViewModel(ServerDoc, sdb))!;
     }
+
     const columnsDef = buildColumnDef(ServerDoc.Props(), settings);
     const result: IViewModel = { schema: ServerDoc.Props(), model, columnsDef, metadata: ServerDoc.Prop() as DocumentOptions, settings };
     res.json(result);

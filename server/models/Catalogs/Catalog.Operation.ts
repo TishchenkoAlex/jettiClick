@@ -23,6 +23,9 @@ const defaultScript = `
   relations: [
     { name: 'Operations', type: 'Document.Operation', field: 'Operation' }
   ],
+  copyTo: [
+    'Document.Operation'
+  ],
   hierarchy: 'folders'
 })
 export class CatalogOperation extends DocumentBase {
