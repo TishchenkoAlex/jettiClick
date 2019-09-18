@@ -12,4 +12,7 @@ export class CatalogStorehouse extends DocumentBase {
   @Props({ type: 'Catalog.Storehouse', hiddenInList: true, order: -1 })
   parent: Ref = null;
 
+  @Props({ type: 'Catalog.Department'})
+  Department: Ref = null;
+
 }
