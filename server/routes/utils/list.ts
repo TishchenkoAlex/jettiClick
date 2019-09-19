@@ -34,7 +34,7 @@ export async function List(req: Request, res: Response) {
   orderbyAfter = orderbyAfter.slice(0, -2);
 
   const filterBuilder = (filter: FormListFilter[]) => {
-    let where = ' (1=1) ';
+    let where = ' isfolder = 0 ';
     filter.filter(f => !(f.right === null || f.right === undefined)).forEach(f => {
       switch (f.center) {
         case '=': case '>=': case '<=': case '>': case '<':

@@ -35,7 +35,7 @@ router.get('/suggest/:type/*', async (req: Request, res: Response, next: NextFun
   try {
     query = `
       SELECT top 10 id as id, description as value, code as code, type as type
-      FROM "Documents" WHERE type = '${req.params.type}'
+      FROM "Documents" WHERE type = '${req.params.type}' AND isfolder = 0
       AND (description LIKE @p1 OR code LIKE @p1)
       ORDER BY type, description`;
     const data = await sdb.manyOrNone<ISuggest>(query, ['%' + req.params[0] + '%']);
