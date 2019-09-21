@@ -5,6 +5,7 @@ import { RegisterAccumulationBalance } from './Balance';
 import { RegisterAccumulationBank } from './Bank';
 import { RegisterAccumulationCash } from './Cash';
 import { RegisterAccumulationCashTransit } from './Cash.Transit';
+import { RegisterAccumulationDepreciation } from './Depreciation';
 import { RegisterAccumulationInventory } from './Inventory';
 import { RegisterAccumulationLoan } from './Loan';
 import { RegisterAccumulationPL } from './PL';
@@ -22,7 +23,8 @@ export type RegisterAccumulationTypes =
   'Register.Accumulation.Inventory' |
   'Register.Accumulation.Loan' |
   'Register.Accumulation.PL' |
-  'Register.Accumulation.Sales';
+  'Register.Accumulation.Sales' |
+  'Register.Accumulation.Depreciation';
 
 interface IRegisteredRegisterAccumulation { type: RegisterAccumulationTypes; Class: typeof RegisterAccumulation; }
 export const RegisteredRegisterAccumulation: IRegisteredRegisterAccumulation[] = [
@@ -37,6 +39,7 @@ export const RegisteredRegisterAccumulation: IRegisteredRegisterAccumulation[] =
   { type: 'Register.Accumulation.Loan', Class: RegisterAccumulationLoan },
   { type: 'Register.Accumulation.PL', Class: RegisterAccumulationPL },
   { type: 'Register.Accumulation.Sales', Class: RegisterAccumulationSales },
+  { type: 'Register.Accumulation.Depreciation', Class: RegisterAccumulationDepreciation },
 ];
 
 export function createRegisterAccumulation(

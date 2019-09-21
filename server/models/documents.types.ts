@@ -27,7 +27,9 @@ export type CatalogTypes =
   'Catalog.Unit' |
   'Catalog.TaxRates' |
   'Catalog.ProductCategory' |
-  'Catalog.ProductKind'
+  'Catalog.ProductKind' |
+  'Catalog.ObjectsExploitation' |
+  'Catalog.GroupObjectsExploitation'
  ;
 
 export type DocumentTypes =

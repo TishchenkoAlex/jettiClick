@@ -1,3 +1,4 @@
+import { RegisterInfoDepreciation } from './Depreciation';
 import { RegisterInfoExchangeRates } from './ExchangeRates';
 import { RegisterInfoPriceList } from './PriceList';
 import { RegisterInfo } from './RegisterInfo';
@@ -6,7 +7,8 @@ import { RegisterInfoSettings } from './Settings';
 export type RegisterInfoTypes =
     'Register.Info.PriceList' |
     'Register.Info.ExchangeRates' |
-    'Register.Info.Settings';
+    'Register.Info.Settings' |
+    'Register.Info.Depreciation';
 
 export type RegistersInfo =
     RegisterInfoPriceList |
@@ -21,6 +23,7 @@ const RegisteredRegisterInfo: IRegisteredRegisterInfo[] = [
     { type: 'Register.Info.PriceList', Class: RegisterInfoPriceList },
     { type: 'Register.Info.ExchangeRates', Class: RegisterInfoExchangeRates },
     { type: 'Register.Info.Settings', Class: RegisterInfoSettings },
+    { type: 'Register.Info.Depreciation', Class: RegisterInfoDepreciation },
 ];
 
 export function createRegisterInfo(type: RegisterInfoTypes, data: { [x: string]: any }) {

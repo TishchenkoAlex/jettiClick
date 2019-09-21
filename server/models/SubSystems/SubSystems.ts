@@ -18,6 +18,7 @@ export type SubSystem =
   'Finance' |
   'Catalogs' |
   'Operations' |
+  'FixedAssets' |
   'Manufacturing'
 ;
 
