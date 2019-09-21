@@ -8,6 +8,7 @@ import { DocTypes } from './../../models/documents.types';
 import { CatalogsSubSystem } from './Catalogs';
 import { CommonSubSystem } from './Common';
 import { FinanceSubSystem } from './Finance';
+import { FixedAssetsSubSystem } from './FixedAssets';
 import { ManufacturingSubSystem } from './Manufacturing';
 import { OperationsSubSystem } from './Operations';
 import { SalesSubSystem } from './Sales';
@@ -19,8 +20,8 @@ export type SubSystem =
   'Catalogs' |
   'Operations' |
   'FixedAssets' |
-  'Manufacturing'
-;
+  'Manufacturing' |
+  'FixedAssets';
 
 export interface ISubSystem {
   type: SubSystem;
@@ -35,7 +36,8 @@ export const SubSystems: ISubSystem[] = [
   SalesSubSystem,
   FinanceSubSystem,
   OperationsSubSystem,
-  ManufacturingSubSystem
+  ManufacturingSubSystem,
+  FixedAssetsSubSystem
 ];
 
 export interface MenuItem { type: string; icon: string; label: string; items?: MenuItem[]; routerLink?: string[]; }
