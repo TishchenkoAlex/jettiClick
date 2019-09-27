@@ -1,10 +1,10 @@
 import { SQLGenegator } from '../fuctions/SQLGenerator.MSSQL';
 import { CatalogSubcount } from './../models/Catalogs/Catalog.Subcount';
 import { CatalogDocuments } from './Catalogs/Catalog.Documents';
-import { RegisteredTypes, createTypes } from './Types/Types.factory';
 import { DocumentBase, DocumentOptions, PropOptions } from './document';
-import { RegisteredDocument, createDocument } from './documents.factory';
-import { AllDocTypes, AllTypes, ComplexTypes, DocTypes, DocumentTypes } from './documents.types';
+import { createDocument, RegisteredDocument } from './documents.factory';
+import { AllDocTypes, AllTypes, ComplexTypes, DocTypes } from './documents.types';
+import { createTypes, RegisteredTypes } from './Types/Types.factory';
 
 export interface IConfigSchema {
   type: AllDocTypes;
@@ -47,15 +47,10 @@ export const configSchema = new Map([
   ...RegisteredTypes.map(el => {
     const doc = createTypes(el.type as ComplexTypes);
     const fakeDoc = new DocumentBase(); fakeDoc.type = el.type as any;
-    const result: IConfigSchema = {
-      type: el.type as DocumentTypes,
-      QueryList: doc.QueryList(),
-      Props: fakeDoc.Props()
-    };
     return ({
       type: el.type as ComplexTypes,
       QueryList: doc.QueryList(),
       Props: fakeDoc.Props()
     });
-  })]
-  .map((i): [AllDocTypes, IConfigSchema] => [i.type, i]));
+  }),
+].map((i): [AllDocTypes, IConfigSchema] => [i.type, i]));

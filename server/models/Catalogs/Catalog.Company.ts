@@ -18,4 +18,13 @@ export class CatalogCompany extends DocumentBase {
   @Props({ type: 'string', required: true })
   prefix = '';
 
+  @Props({ type: 'enum', required: true, value: [
+    'UTC',
+    'Central European Standard Time',
+    'Russian Standard Time',
+    'E. Europe Standard Time',
+    'US Eastern Standard Time'
+    ]})
+  timeZone = 'UTC';
+
 }

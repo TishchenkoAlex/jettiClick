@@ -73,7 +73,7 @@
                 (ngModelChange)="update(column, $event, 'like')">
             </div>
             <div *ngSwitchCase="'enum'">
-              <p-dropdown [options]="column.data" [ngModel]="filters[column.field]?.value" (ngModelChange)="update(column, $event, 'like')"
+              <p-dropdown [options]="column.value" [ngModel]="filters[column.field]?.value" (ngModelChange)="update(column, $event, 'like')"
                 [showClear]="true" appendTo="body"></p-dropdown>
             </div>
             <div *ngSwitchDefault>

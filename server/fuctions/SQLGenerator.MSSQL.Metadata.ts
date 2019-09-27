@@ -9,7 +9,7 @@ import { excludeRegisterAccumulatioProps, SQLGenegator } from './SQLGenerator.MS
 
 export class SQLGenegatorMetadata {
 
-  static QueryTriggerRegisterAccumulation(doc: { [x: string]: any }, type: string) {
+  static QueryTriggerRegisterAccumulation(doc: { [x: string]: any }, type: string, timeZone = 'UTC') {
 
     const simleProperty = (prop: string, type: string) => {
       if (type === 'boolean') { return `, ISNULL(JSON_VALUE(data, N'$.${prop}'), 0) "${prop}" \n`; }
@@ -46,11 +46,11 @@ export class SQLGenegatorMetadata {
       SELECT
         CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
         (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
-        CAST(SWITCHOFFSET(date, '+03:00') AS DATE) date,
+        CAST(date AS datetime) date,
         document, company, kind ${select}
       FROM INSERTED WHERE type = N'${type}'; \n`;
     return query;
-  }
+  } // AT TIME ZONE @TimeZone
 
   static AlterTriggerRegisterAccumulation() {
     let query = '';
@@ -63,6 +63,17 @@ export class SQLGenegatorMetadata {
       ALTER TRIGGER "Accumulation.Insert" ON dbo."Accumulation"
       FOR INSERT AS
       BEGIN
+        DECLARE @TimeZone NVARCHAR(150);
+        DECLARE @company UNIQUEIDENTIFIER;
+
+        SELECT @company = ins.company FROM INSERTED ins;
+
+        SET @TimeZone =
+          ISNULL(
+            (SELECT CAST(JSON_VALUE(doc, N'$.timeZone') AS NVARCHAR(150))
+            FROM Documents WHERE type = 'Catalog.Company' AND id = @company),
+          'UTC');
+
         ${query}
       END;`;
     return query;

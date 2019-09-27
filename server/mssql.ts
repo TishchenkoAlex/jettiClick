@@ -50,7 +50,7 @@ export class MSSQL {
   private setParams(params: any[], request: sql.Request) {
     for (let i = 0; i < params.length; i++) {
       if (params[i] instanceof Date) {
-        request.input(`p${i + 1}`, sql.DateTimeOffset, params[i]);
+        request.input(`p${i + 1}`, sql.DateTime, params[i]);
       } else
         request.input(`p${i + 1}`, params[i]);
     }

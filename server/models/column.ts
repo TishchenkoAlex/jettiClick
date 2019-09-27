@@ -1,5 +1,5 @@
-import { FormListFilter, FormListOrder } from './user.settings';
 import { OwnerRef } from './document';
+import { FormListFilter, FormListOrder } from './user.settings';
 
 export interface ColumnDef {
     field: string;
@@ -16,5 +16,6 @@ export interface ColumnDef {
     onChangeServer?: boolean;
     sort?: FormListOrder;
     filter?: FormListFilter;
-    data?: any;
+    value: any;
+    control?: any; // FormControlInfo;
 }

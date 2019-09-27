@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, ViewChild } from '@angular/core';
 import { MenuItem } from 'primeng/components/common/menuitem';
-// tslint:disable-next-line:import-blacklist
 import { Subscription } from 'rxjs';
 import { CatalogOperation } from '../../../../server/models/Catalogs/Catalog.Operation';
 import { DocumentOptions } from '../../../../server/models/document';

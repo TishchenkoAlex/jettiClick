@@ -23,6 +23,7 @@ export const FinanceRoleObject: RoleObject[] = [
   { type: 'Catalog.TaxRates', read: true, write: true },
   { type: 'Catalog.GroupObjectsExploitation', read: true, write: true },
   { type: 'Catalog.ObjectsExploitation', read: true, write: true },
+  { type: 'Catalog.Catalog', read: true, write: true },
 ];
 
 export interface Permissions { read: boolean; write: boolean; }

@@ -8,6 +8,7 @@ export interface OwnerRef { dependsOn: string; filterBy: string; }
 
 export interface PropOptions {
   type: AllTypes | AllTypes[];
+  controlType?: PrimitiveTypes;
   label?: string;
   required?: boolean;
   readOnly?: boolean;
@@ -15,7 +16,6 @@ export interface PropOptions {
   hiddenInList?: boolean;
   hiddenInForm?: boolean;
   order?: number;
-  controlType?: PrimitiveTypes;
   style?: { [x: string]: any };
   owner?: OwnerRef[];
   totals?: number;

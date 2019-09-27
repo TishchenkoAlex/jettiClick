@@ -1,5 +1,5 @@
 import { registerLocaleData } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import localeRUExtra from '@angular/common/locales/extra/ru';
 import localeRU from '@angular/common/locales/ru';
 import { LOCALE_ID, NgModule } from '@angular/core';
@@ -10,7 +10,6 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import 'reflect-metadata';
 import { take } from 'rxjs/operators';
 import { environment } from '../environments/environment';
-import { DynamicFormsModule } from './UI/dynamic.froms.module';
 import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
 import { AppMenuComponent, AppSubMenuComponent } from './app.menu.component';
@@ -20,6 +19,7 @@ import { AppProfileComponent } from './auth/app.profile.component';
 import { AuthService } from './auth/auth.service';
 import { MaterialModule } from './material.module';
 import { PrimeNGModule } from './primeNG.module';
+import { DynamicFormsModule } from './UI/dynamic.froms.module';
 
 export function getJwtToken(): string {
   return localStorage.getItem('access_token') || '';

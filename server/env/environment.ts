@@ -1,6 +1,6 @@
 import { config } from 'mssql';
 
-export const DB_NAME = process.env.DB_NAME || 'jetti-app';
+export const DB_NAME = process.env.DB_NAME || 'sm';
 export const REDIS_DB_HOST = process.env.REDIS_DB_HOST || '127.0.0.1';
 export const JTW_KEY = process.env.JTW_KEY || 'Pa5315word';
 

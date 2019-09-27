@@ -6,6 +6,7 @@ import { CatalogBankAccount } from './Catalogs/Catalog.BankAccount';
 import { CatalogBrand } from './Catalogs/Catalog.Brand';
 import { CatalogCashFlow } from './Catalogs/Catalog.CashFlow';
 import { CatalogCashRegister } from './Catalogs/Catalog.CashRegister';
+import { CatalogCatalog } from './Catalogs/Catalog.Catalog';
 import { CatalogCompany } from './Catalogs/Catalog.Company';
 import { CatalogCounterpartie } from './Catalogs/Catalog.Counterpartie';
 import { CatalogCurrency } from './Catalogs/Catalog.Currency';
@@ -17,7 +18,7 @@ import { CatalogGroupObjectsExploitation } from './Catalogs/Catalog.GroupObjects
 import { CatalogIncome } from './Catalogs/Catalog.Income';
 import { CatalogLoan } from './Catalogs/Catalog.Loan';
 import { CatalogManager } from './Catalogs/Catalog.Manager';
-import { CatalogObjectsExploitation } from './Catalogs/Catalog.ObjectsExploitation copy';
+import { CatalogObjectsExploitation } from './Catalogs/Catalog.ObjectsExploitation';
 import { CatalogOperation } from './Catalogs/Catalog.Operation';
 import { CatalogOperationGroup } from './Catalogs/Catalog.Operation.Group';
 import { CatalogPerson } from './Catalogs/Catalog.Person';
@@ -81,6 +82,7 @@ export const RegisteredDocument: IRegisteredDocument<any>[] = [
   { type: 'Catalog.Brand', Class: CatalogBrand },
   { type: 'Catalog.GroupObjectsExploitation', Class: CatalogGroupObjectsExploitation },
   { type: 'Catalog.ObjectsExploitation', Class: CatalogObjectsExploitation },
+  { type: 'Catalog.Catalog', Class: CatalogCatalog },
 
   { type: 'Document.ExchangeRates', Class: DocumentExchangeRates },
   { type: 'Document.Settings', Class: DocumentSettings },

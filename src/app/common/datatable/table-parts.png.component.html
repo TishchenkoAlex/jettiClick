@@ -27,7 +27,7 @@
       <td *ngFor="let col of columns" [ngStyle]="col.style" pEditableColumn [pEditableColumnField]="col.field">
         <p-cellEditor>
           <ng-template pTemplate="input">
-            <j-control [control]="col.data" [form]="getControl(rowData.index)"></j-control>
+            <j-control [control]="col.control" [form]="getControl(rowData.index)"></j-control>
           </ng-template>
           <ng-template pTemplate="output">
             <span [ngSwitch]="col.type">

@@ -33,7 +33,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.columns = this.control.controls.map((el) => <ColumnDef>{
       field: el.key, type: el.controlType, label: el.label, hidden: el.hidden, onChange: el.onChange, onChangeServer: el.onChangeServer,
-      order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, data: el
+      order: el.order, style: el.style, required: el.required, readOnly: el.readOnly, totals: el.totals, value: el.value, control: el
     });
     this.control.controls.forEach(v => v.showLabel = false);
     this.showTotals = this.control.controls.findIndex(v => v.totals > 0) !== -1;
@@ -55,7 +55,7 @@ export class TablePartsComponent implements OnInit, OnDestroy {
     const control = this.getControl(index).get(field);
     if (!control) return null;
     const value = control.value;
-    if (type === 'datetime' && moment.isDate(value)) return moment(value).format('DD.MM.YYYY HH:MM:ss');
+    if (type === 'datetime' && moment.isDate(value)) return moment(value).format('DD.MM.YYYY kk:mm:ss');
     if (type === 'date' && moment.isDate(value)) return moment(value).format('DD.MM.YYYY');
     const result = value && (value.value || typeof value === 'object' ? value.value || '' : value || '');
     return result;

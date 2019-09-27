@@ -1,9 +1,8 @@
-import { OwnerRef } from '../../../../server/models/document';
+export interface OwnerRef { dependsOn: string; filterBy: string; }
 
 export type ControlTypes = 'string' | 'number' | 'boolean' | 'date' | 'datetime' | 'table' | 'enum';
 
 export interface IFormControlInfo {
-  value?: any;
   type: string;
   key: string;
   label: string;
@@ -16,13 +15,12 @@ export interface IFormControlInfo {
   owner?: OwnerRef[];
   totals: number;
   change: string;
-  onChange?: ((doc, value) => Promise<any>) | string;
+  onChange?: ((doc: any, value: any) => Promise<any>) | string;
   onChangeServer?: boolean;
+  value: any;
 }
 
 export class FormControlInfo {
-  value: any;
-  valuesOptions: { label: string, value: string | null }[];
   type: string;
   key: string;
   label: string;
@@ -35,13 +33,14 @@ export class FormControlInfo {
   style: { [key: string]: any };
   owner?: OwnerRef[];
   totals: number;
-  showLabel = true;
+  showLabel: boolean;
+  value: any;
+  valuesOptions: { label: string, value: string | null }[];
   change: string;
-  onChange?: ((doc, value) => Promise<any>) | string;
+  onChange?: ((doc: any, value: any) => Promise<any>) | string;
   onChangeServer?: boolean;
 
   constructor(options: IFormControlInfo) {
-    this.value = options.value;
     this.type = options.type;
     this.key = options.key;
     this.label = options.label || options.key;
@@ -53,6 +52,9 @@ export class FormControlInfo {
     this.style = options.style || { 'width': '200px', 'min-width': '200px', 'max-width': '200px' };
     this.totals = options.totals;
     this.owner = options.owner;
+    this.showLabel = true;
+    this.value = options.value;
+    this.valuesOptions = [];
     this.onChange = options.onChange;
     this.onChangeServer = options.onChangeServer;
     this.change = options.change;
@@ -75,11 +77,15 @@ export class TextboxFormControl extends FormControlInfo {
 export class EnumFormControl extends FormControlInfo {
   value = '';
   controlType = 'enum';
-  type = 'enum';
+  type = 'string';
   constructor(options: IFormControlInfo) {
     super(options);
     if (options.style) this.style = options.style;
-    this.valuesOptions = [{label: '',  value: null}, ...(options.value as string[]).map(el => ({label: el, value: el}))];
+    this.valuesOptions = [
+      { label: '', value: null },
+      ...(options.value as string[])
+        .map(el => ({ label: el, value: el }))
+    ];
   }
 }
 
@@ -161,6 +167,7 @@ export class TableDynamicControl extends FormControlInfo {
 export class ScriptFormControl extends FormControlInfo {
   value = '';
   controlType = 'script';
+  type = 'string';
   style = { 'width': '600px', 'min-width': '600px', 'max-width': '600px' };
 
   constructor(options: IFormControlInfo) {

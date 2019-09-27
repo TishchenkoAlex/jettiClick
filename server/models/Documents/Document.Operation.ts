@@ -1,6 +1,4 @@
-import { CatalogOperation } from '../../models/Catalogs/Catalog.Operation';
-import { DocumentBase, JDocument, Props, Ref, DocumentOptions } from './../document';
-import { SQLGenegator } from '../../fuctions/SQLGenerator.MSSQL';
+import { DocumentBase, JDocument, Props, Ref } from './../document';
 
 @JDocument({
   type: 'Document.Operation',

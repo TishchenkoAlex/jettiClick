@@ -59,5 +59,5 @@ JQueue.getJobCounts().then(jobs => console.log('JOBS:', jobs));
 
 // console.log(SQLGenegatorMetadata.AlterTriggerRegisterAccumulation());
 // console.log(SQLGenegatorMetadata.CreateTableRegisterAccumulation());
-// const script = SQLGenegatorMetadata.CreateViewCatalogs();
-// fs.writeFile('CreateViewCatalogs.sql', script, (err) => {});
+// const script = SQLGenegatorMetadata.AlterTriggerRegisterAccumulation();
+// fs.writeFile('AlterTriggerRegisterAccumulation.sql', script, (err) => {});

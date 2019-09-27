@@ -1,40 +1,41 @@
-import { DocumentBase, JDocument, Props, Ref } from './../document';
+import { DocumentBase, JDocument, Props, Ref } from '../document';
 
 @JDocument({
-  type: 'Catalog.Operation',
-  description: 'Правило операции',
+  type: 'Catalog.Catalog',
+  description: 'Catalog construcror',
   icon: 'fa fa-list',
-  menu: 'Правила операций',
+  menu: 'Catalog construcror',
   dimensions: [
-    { Group: 'Catalog.Operation.Group' }
   ],
-  prefix: 'RULE-',
-  relations: [
-    { name: 'Operations', type: 'Document.Operation', field: 'Operation' }
-  ],
-  copyTo: [
-    'Document.Operation'
-  ],
-  hierarchy: 'folders'
+  prefix: '',
 })
-export class CatalogOperation extends DocumentBase {
+export class CatalogCatalog extends DocumentBase {
 
-  @Props({ type: 'Catalog.Operation', hiddenInList: true, order: -1 })
+  @Props({ type: 'Catalog.Catalog', hiddenInList: true, order: -1 })
   parent: Ref = null;
-
-  @Props({ type: 'Catalog.Operation.Group', order: 2, label: 'Operation group', required: true, style: { width: '30%' } })
-  Group: Ref = null;
 
   @Props({ type: 'string', order: 3, required: true, style: { width: '50%' } })
   description = '';
 
-  @Props({ type: 'javascript', required: true, hiddenInList: true, style: { height: '600px' }, value: '' })
-  script = '';
+  @Props({ type: 'string' })
+  prefix = '';
+
+  @Props({ type: 'string', value: 'fa fa-list', required: true })
+  icon = 'fa fa-list';
+
+  @Props({ type: 'string' , required: true})
+  menu = '';
+
+  @Props({ type: 'enum', value: ['code', 'description'], required: true })
+  presentation = 'description';
+
+  @Props({ type: 'enum', value: ['folders', 'elements'], required: true })
+  hierarchy = 'elements';
 
   @Props({ type: 'javascript', hiddenInList: true, style: { height: '600px' } })
   module = '';
 
-  @Props({ type: 'table', required: true })
+  @Props({ type: 'table' })
   Parameters: Parameter[] = [new Parameter()];
 
   @Props({ type: 'table', label: 'Copy to...' })
@@ -45,6 +46,12 @@ export class CatalogOperation extends DocumentBase {
 
   @Props({ type: 'table', label: 'Commands on client' })
   commandsOnClient: Command[] = [new Command()];
+
+  @Props({ type: 'table', label: 'Relations' })
+  relations: Relation[]  = [new Relation()];
+
+  @Props({ type: 'table', label: 'Dimensions' })
+  dimensions: Dimension[]  = [new Dimension()];
 }
 
 class Parameter {
@@ -96,4 +103,27 @@ class Command {
 
   @Props({ type: 'number', required: true })
   order: number | null = null;
+}
+
+class Relation {
+
+  @Props({ type: 'string', required: true })
+  name = '';
+
+  @Props({ type: 'Catalog.Subcount', required: true })
+  type: Ref = null;
+
+  @Props({ type: 'string'})
+  field = '';
+
+}
+
+class Dimension {
+
+  @Props({ type: 'string', required: true })
+  name = '';
+
+  @Props({ type: 'Catalog.Subcount', required: true })
+  type: Ref = null;
+
 }

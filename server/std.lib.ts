@@ -199,7 +199,7 @@ async function registerBalance(type: RegisterAccumulationTypes, date = new Date(
 async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<number | null> {
   const queryText = `
   SELECT
-    SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) result
+    SUM("Cost.In") / ISNULL(SUM("Qty.In"), 1) result
   FROM "Register.Accumulation.Inventory"
   WHERE (1=1)
     AND kind = 1
@@ -229,7 +229,7 @@ async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sd
 async function sliceLast(type: string, date = new Date(), company: Ref,
   resource: string, analytics: { [key: string]: any }, tx = sdb): Promise<number | null> {
 
-  const addWhere = (key) => `AND CAST(JSON_VALUE(data, N'$."${key}"') AS UNIQUEIDENTIFIER) = '${analytics[key]}' \n`;
+  const addWhere = (key: string) => `AND CAST(JSON_VALUE(data, N'$."${key}"') AS UNIQUEIDENTIFIER) = '${analytics[key]}' \n`;
   let where = ''; for (const el of Object.keys(analytics)) where += addWhere(el);
 
   const queryText = `
@@ -331,7 +331,7 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: MSSQ
       SELECT
         batch,
         SUM("Qty") Qty,
-        SUM("Cost.In") / NULLIF(SUM("Qty.In"), 1) Cost
+        SUM("Cost.In") / ISNULL(SUM("Qty.In"), 1) Cost
       FROM "Register.Accumulation.Inventory" r
       WHERE (1=1)
         AND date <= @p1
@@ -383,7 +383,7 @@ export async function batchReturn(retDoc: string, rows: BatchRow[], tx: MSSQL = 
       SELECT
         batch,
         -SUM("Qty") Qty,
-        SUM("Cost.Out") / NULLIF(SUM("Qty.Out"), -1) Cost
+        SUM("Cost.Out") / ISNULL(SUM("Qty.Out"), -1) Cost
       FROM "Register.Accumulation.Inventory" r
       WHERE (1=1)
         AND "document" = @p1
