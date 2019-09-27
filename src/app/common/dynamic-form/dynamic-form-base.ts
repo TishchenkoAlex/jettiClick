@@ -167,12 +167,13 @@ export class TableDynamicControl extends FormControlInfo {
 export class ScriptFormControl extends FormControlInfo {
   value = '';
   controlType = 'script';
-  type = 'string';
+  type = 'javascipt';
   style = { 'width': '600px', 'min-width': '600px', 'max-width': '600px' };
 
   constructor(options: IFormControlInfo) {
     super(options);
     if (options.style) this.style = options.style;
+    if (options.type) this.type = options.type;
   }
 }
 
