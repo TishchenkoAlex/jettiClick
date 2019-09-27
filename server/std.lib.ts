@@ -357,7 +357,8 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: MSSQ
     }
     if (total > 0) {
       const SKU = await lib.doc.byId(row.SKU as string, tx);
-      throw new Error(`Не достаточно ${total} единиц ${SKU!.description}`);
+      console.log(`Не достаточно ${total} единиц ${SKU!.description}`);
+      // throw new Error(`Не достаточно ${total} единиц ${SKU!.description}`);
     }
   }
   return result;
@@ -406,7 +407,8 @@ export async function batchReturn(retDoc: string, rows: BatchRow[], tx: MSSQL = 
     }
     if (total > 0) {
       const SKU = await lib.doc.byId(row.SKU as string, tx);
-      throw new Error(`Не достаточно ${total} единиц ${SKU!.description}`);
+      console.log(`Не достаточно ${total} единиц ${SKU!.description}`);
+      // throw new Error(`Не достаточно ${total} единиц ${SKU!.description}`);
     }
   }
   return result;
