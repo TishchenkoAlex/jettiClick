@@ -28,10 +28,11 @@ export async function InsertRegisterstoDB(doc: DocumentBaseServer, Registers: Po
   }
 
   for (const rec of Registers.Accumulation) {
+    const date = rec.date ? rec.date : doc.date;
     const data = { ...rec.data, type: rec.type, company: rec.company || doc.company, document: doc.id };
     query += `
     INSERT INTO "Accumulation" (kind, date, type, company, document, data)
-    VALUES (${rec.kind ? 1 : 0}, '${new Date(doc.date).toJSON()}', N'${rec.type}' , N'${rec.company || doc.company}',
+    VALUES (${rec.kind ? 1 : 0}, '${new Date(date).toJSON()}', N'${rec.type}' , N'${rec.company || doc.company}',
     '${doc.id}', JSON_QUERY(N'${JSON.stringify(data)}'));`;
   }
 
