@@ -1,6 +1,6 @@
 import * as sql from 'mssql';
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
-import { dateReviver, dateReviverUTC } from './fuctions/dateReviver';
+import { dateReviverUTC } from './fuctions/dateReviver';
 
 export class MSSQL {
   private POOL: sql.ConnectionPool | sql.Transaction;
@@ -75,7 +75,7 @@ export class MSSQL {
     this.setParams(params, request);
     const response = await request.query(`${text} FOR JSON PATH, INCLUDE_NULL_VALUES;`);
     const data = response.recordset[0]['JSON_F52E2B61-18A1-11d1-B105-00805F49916B'];
-    return data ? JSON.parse(data, dateReviver) : [];
+    return data ? JSON.parse(data, dateReviverUTC) : [];
   }
 
   async none<T>(text: string, params: any[] = []) {

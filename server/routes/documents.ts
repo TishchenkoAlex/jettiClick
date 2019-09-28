@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { NextFunction, Request, Response } from 'express';
 import { DocumentBase, DocumentOptions } from '../../server/models/document';
-import { dateReviverSQL } from '../fuctions/dateReviver';
+import { dateReviverUTC } from '../fuctions/dateReviver';
 import { IViewModel, PatchValue, RefValue } from '../models/api';
 import { createDocument } from '../models/documents.factory';
 import { createDocumentServer } from '../models/documents.factory.server';
@@ -245,7 +245,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await sdb.tx(async tx => {
       const mode: 'post' | 'save' = req.query.mode || 'save';
-      const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body), dateReviverSQL);
+      const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body), dateReviverUTC);
       if (doc.deleted && mode === 'post') throw new Error('cant POST deleted document');
       if (mode === 'post') doc.posted = true;
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc, tx);
@@ -281,8 +281,8 @@ router.get('/byId/:id', async (req: Request, res: Response, next: NextFunction) 
 
 router.post('/valueChanges/:type/:property', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body.doc), dateReviverSQL);
-    const value: RefValue = JSON.parse(JSON.stringify(req.body.value), dateReviverSQL);
+    const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body.doc), dateReviverUTC);
+    const value: RefValue = JSON.parse(JSON.stringify(req.body.value), dateReviverUTC);
     const property: string = req.params.property;
     const type: DocTypes = req.params.type as DocTypes;
     const serverDoc = await createDocumentServer<DocumentBaseServer>(type, doc);
@@ -302,7 +302,7 @@ router.post('/valueChanges/:type/:property', async (req: Request, res: Response,
 
 router.post('/command/:type/:command', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body.doc), dateReviverSQL);
+    const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body.doc), dateReviverUTC);
     const command: string = req.params.command;
     const type: DocTypes = req.params.type as DocTypes;
     const args: { [key: string]: any } = req.params.args as any;

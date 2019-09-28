@@ -22,7 +22,7 @@ export function dateReviver(key, value) {
   return value;
 }
 
-export function dateReviverSQL(key, value) {
+/* export function dateReviverSQL(key, value) {
   if (typeof value === 'string' && value.length < 25) {
     const a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
     if (a) {
@@ -42,4 +42,4 @@ export function dateReviverSQL(key, value) {
   }
   return value;
 }
-
+ */
