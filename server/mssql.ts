@@ -1,6 +1,6 @@
 import * as sql from 'mssql';
 import { sqlConfig, sqlConfigAccounts } from './env/environment';
-import { dateReviver } from './fuctions/dateReviver';
+import { dateReviver, dateReviverUTC } from './fuctions/dateReviver';
 
 export class MSSQL {
   private POOL: sql.ConnectionPool | sql.Transaction;
@@ -27,7 +27,7 @@ export class MSSQL {
       (value[0] === '{' && value[value.length - 1] === '}') ||
       (value[0] === '[' && value[value.length - 1] === ']')
     ))
-      try { return JSON.parse(value, dateReviver); } catch { return value; }
+      try { return JSON.parse(value, dateReviverUTC); } catch { return value; }
     else
       return value;
   }

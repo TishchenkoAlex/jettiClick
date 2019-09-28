@@ -50,7 +50,7 @@ export class SQLGenegator {
           case 'number': return `, "${prop}" MONEY\n`;
           case 'boolean': return `, "${prop}" BIT\n`;
           case 'date':     return `, "${prop}" DATE\n`;
-          case 'datetime': return `, "${prop}" DATETIME2\n`;
+          case 'datetime': return `, "${prop}" DATETIME\n`;
           default: return `, "${prop}" NVARCHAR(max)\n`;
         }
       }
@@ -167,7 +167,7 @@ export class SQLGenegator {
           case 'number': return `, "${prop}" MONEY\n`;
           case 'boolean': return `, "${prop}" BIT\n`;
           case 'date': return `, "${prop}" DATE\n`;
-          case 'datetime': return `, "${prop}" DATETIME2\n`;
+          case 'datetime': return `, "${prop}" DATETIME\n`;
           default: return `, "${prop}" NVARCHAR(max)\n`;
         }
       }

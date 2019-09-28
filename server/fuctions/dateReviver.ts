@@ -21,3 +21,25 @@ export function dateReviver(key, value) {
   }
   return value;
 }
+
+export function dateReviverSQL(key, value) {
+  if (typeof value === 'string' && value.length < 25) {
+    const a = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+    if (a) {
+      const result = new Date(+a[1], +a[2] - 1, +a[3], +a[4], +a[5], +a[6]);
+      return new Date(result as any - result.getTimezoneOffset() * 60000 * 2);
+    }
+    const b = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/.exec(value);
+    if (b) {
+      const result = new Date(+b[1], +b[2] - 1, +b[3], +b[4], +b[5]);
+      return new Date(result as any - result.getTimezoneOffset() * 60000 * 2);
+    }
+    const c = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+    if (c) {
+      const result = new Date(+c[1], +c[2] - 1, +c[3]);
+      return new Date(result as any - result.getTimezoneOffset() * 60000 * 2);
+    }
+  }
+  return value;
+}
+
