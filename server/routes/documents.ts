@@ -319,7 +319,7 @@ router.post('/command/:type/:command', async (req: Request, res: Response, next:
 // Get tree for document list
 router.get('/tree/:type', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const query = `select id, description, parent from "Documents" where isfolder = 1 and type = @p1`;
+    const query = `select id, description, parent from "Documents" where isfolder = 1 and type = @p1 order by description, parent`;
     res.json(await sdb.manyOrNone(query, [req.params.type]));
   } catch (err) { next(err); }
 });
