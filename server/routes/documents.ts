@@ -186,14 +186,15 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
   if (isNew) {
     response = <INoSqlDocument>await tx.oneOrNone<INoSqlDocument>(`
       INSERT INTO Documents(
-        [id], [type] ,[date], [code], [description], [posted], [deleted],
+        [id], [type], [date], [code], [description], [posted], [deleted],
         [parent], [isfolder], [company], [user], [info], [doc])
       OUTPUT inserted.*
       SELECT
-        [id], [type], @p2 [date], [code], [description], [posted], [deleted],
+        [id], [type], [date], [code], [description], [posted], [deleted],
         [parent], [isfolder], [company], [user], [info], [doc]
       FROM OPENJSON(@p1) WITH (
         [id] UNIQUEIDENTIFIER,
+        [date] DATETIME,
         [type] NVARCHAR(100),
         [code] NVARCHAR(36),
         [description] NVARCHAR(150),
@@ -205,13 +206,13 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
         [user] UNIQUEIDENTIFIER,
         [info] NVARCHAR(max),
         [doc] NVARCHAR(max) N'$.doc' AS JSON
-      )`, [jsonDoc, serverDoc.date]);
+      )`, [jsonDoc]);
   } else {
     response = <INoSqlDocument>await tx.oneOrNone<INoSqlDocument>(`
       UPDATE Documents
         SET
           type = i.type, parent = i.parent,
-          date = @p2, code = i.code, description = i.description,
+          date = i.date, code = i.code, description = i.description,
           posted = i.posted, deleted = i.deleted, isfolder = i.isfolder,
           "user" = i."user", company = i.company, info = i.info, timestamp = GETDATE(),
           doc = i.doc
@@ -220,6 +221,7 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
           SELECT *
           FROM OPENJSON(@p1) WITH (
             [id] UNIQUEIDENTIFIER,
+            [date] DATETIME,
             [type] NVARCHAR(100),
             [code] NVARCHAR(36),
             [description] NVARCHAR(150),
@@ -233,7 +235,7 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
             [doc] NVARCHAR(max) N'$.doc' AS JSON
           )
         ) i
-        WHERE Documents.id = i.id;`, [jsonDoc, serverDoc.date]);
+        WHERE Documents.id = i.id;`, [jsonDoc]);
   }
   serverDoc.map(response);
   await doSubscriptions(serverDoc, isNew ? 'after insert' : 'after update', tx);

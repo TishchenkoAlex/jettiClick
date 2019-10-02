@@ -6,6 +6,7 @@ import { createDocument } from './models/documents.factory';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
+import { RegisterAccumulationInventory } from './models/Registers/Accumulation/Inventory';
 import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
 import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/ServerDocument';
 import { MSSQL, sdb } from './mssql';
@@ -49,6 +50,8 @@ export interface JTL {
     exchangeRate: (date: Date, company: Ref, currency: Ref, tx?: MSSQL) => Promise<number>
   };
   inventory: {
+    batchRows: (date: Date, company: Ref, Storehouse: Ref, SKU: Ref, Qty: number,
+      Inventory: RegisterAccumulationInventory[], tx?: MSSQL) => Promise<any[]>,
     batch: (date: Date, company: Ref, rows: BatchRow[], tx?: MSSQL) => Promise<BatchRow[]>,
     batchReturn(retDoc: string, rows: BatchRow[], tx?: MSSQL)
   };
@@ -84,6 +87,7 @@ export const lib: JTL = {
     exchangeRate
   },
   inventory: {
+    batchRows,
     batch,
     batchReturn
   }
@@ -196,7 +200,7 @@ async function registerBalance(type: RegisterAccumulationTypes, date = new Date(
   return (result ? result : {});
 }
 
-async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<number | null> {
+async function avgCost(date: Date, analytics: { [key: string]: Ref }, tx = sdb): Promise<number | null> {
   const queryText = `
   SELECT
     SUM("Cost.In") / ISNULL(SUM("Qty.In"), 1) result
@@ -211,7 +215,7 @@ async function avgCost(date, analytics: { [key: string]: Ref }, tx = sdb): Promi
   return result ? result.result : null;
 }
 
-async function inventoryBalance(date, analytics: { [key: string]: Ref }, tx = sdb): Promise<{ Cost: number, Qty: number } | null> {
+async function inventoryBalance(date: Date, analytics: { [key: string]: Ref }, tx = sdb): Promise<{ Cost: number, Qty: number } | null> {
   const queryText = `
   SELECT
     SUM("Cost") "Cost", SUM("Qty") "Qty"
@@ -283,7 +287,6 @@ async function sliceLastJSON(type: string, date = new Date(), company: Ref,
   return result ? result.result : null;
 }
 
-
 export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Promise<void> {
   return tx.tx<any>(async subtx => {
     const doc = (await lib.doc.byId(id, subtx))!;
@@ -296,8 +299,10 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
       DELETE FROM "Register.Account" WHERE document = '${id}';
       DELETE FROM "Register.Info" WHERE document = '${id}';
       DELETE FROM "Accumulation" WHERE document = '${id}';
-      UPDATE "Documents" SET posted = @p1, deleted = 0 WHERE id = '${id}'`, [serverDoc.posted]);
+      UPDATE "Documents" SET posted = @p1, deleted = 0, description = @p2 WHERE id = '${id}'`,
+      [serverDoc.posted, serverDoc.description]);
     doc['deletedRegisterAccumulation'] = () => deleted;
+
     if (serverDoc.isDoc && serverDoc.onPost) {
       const Registers = await serverDoc.onPost(subtx);
       if (posted && !doc.deleted) await InsertRegisterstoDB(serverDoc, Registers, subtx);
@@ -362,6 +367,70 @@ export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: MSSQ
     }
   }
   return result;
+}
+
+export async function batchRows(date: Date, company: Ref, Storehouse: Ref, SKU: Ref, Qty: number, BatchRows: any[], tx: MSSQL = sdb) {
+
+  const ResultBatchRows: any[] = [];
+
+  const queryText = `
+    SELECT batch, Qty, Cost, b.date FROM (
+      SELECT
+        batch,
+        SUM("Qty") Qty,
+        SUM("Cost.In") / ISNULL(SUM("Qty.In"), 1) Cost
+      FROM (
+        SELECT
+        [batch],
+        [Cost.In],
+        [Qty],
+        [Qty.In]
+      FROM [Register.Accumulation.Inventory] r
+      WHERE (1=1)
+        AND [date] <= @p1
+        AND [company] = @p2
+        AND [SKU] = @p3
+        AND [Storehouse] = @p4
+
+      UNION ALL
+
+      SELECT
+        [batch],
+        [Cost][Cost.In],
+        [Qty] [Qty],
+        [Qty] [Qty.In]
+      FROM OPENJSON(@p5) WITH (
+        [batch] UNIQUEIDENTIFIER,
+        [Storehouse] UNIQUEIDENTIFIER,
+        [SKU] UNIQUEIDENTIFIER,
+        [Qty] MONEY,
+        [Cost] MONEY
+      )
+      WHERE (1=1)
+        AND [SKU] = @p3
+        AND [Storehouse] = @p4
+      ) r
+    GROUP BY batch
+    HAVING SUM("Qty") > 0 ) s
+    LEFT JOIN Documents b ON b.id = s.batch
+    ORDER BY b.date, s.batch`;
+  const queryResult = await tx.manyOrNone<{ batch: string, Qty: number, Cost: number }>
+    (queryText, [date, company, SKU, Storehouse, JSON.stringify(BatchRows)]);
+  let total = Qty;
+  for (const a of queryResult) {
+    if (total <= 0) break;
+    const q = Math.min(total, a.Qty);
+    const rate = q / Qty;
+    BatchRows.push({ batch: a.batch, Qty: q, Cost: a.Cost * q, Storehouse, SKU, rate });
+    ResultBatchRows.push({ batch: a.batch, Qty: q, Cost: a.Cost * q, Storehouse, SKU, rate });
+    total = total - q;
+  }
+  if (total > 0) {
+    BatchRows.push({ batch: null, Qty, Cost: 0, Storehouse, SKU, rate: 1 });
+    ResultBatchRows.push({ batch: null, Qty, Cost: 0, Storehouse, SKU, rate: 1 });
+  }
+
+  return ResultBatchRows;
 }
 
 export async function batchReturn(retDoc: string, rows: BatchRow[], tx: MSSQL = sdb) {

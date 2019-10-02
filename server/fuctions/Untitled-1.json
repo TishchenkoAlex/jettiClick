@@ -1,0 +1,57 @@
+[
+  {
+    "date": "2019-10-01T18:29:14",
+    "doc": {
+      "Group": "5B7E85A4-BA99-11E7-BB80-DF3C32C3B9C9",
+      "Operation": "58FA3C90-DEA7-11E9-8D32-67D574707955",
+      "Amount": 2185,
+      "currency": "651F6690-5B53-11E8-9113-9FF2C9F0136C",
+      "f1": "FD0CA500-D44F-11E9-9F94-BF0DD9072930",
+      "f2": "E95E433E-F36B-1410-88BD-00E48F493B18",
+      "f3": "AD2D42D0-D862-11E9-A46F-4F0C8303B47F",
+      "Customer": "FD0CA500-D44F-11E9-9F94-BF0DD9072930",
+      "Manager": "E95E433E-F36B-1410-88BD-00E48F493B18",
+      "NumCashShift": "332",
+      "Department": "AD2D42D0-D862-11E9-A46F-4F0C8303B47F",
+      "Storehouse": "01C99B00-E03C-11E9-8052-43827DE0B3A7",
+      "PayCash": null,
+      "PayKupon": null,
+      "PayAggregator": null,
+      "PayCard": 2185,
+      "ItemsInventory": [
+        {
+          "SKU": "79EC423E-F36B-1410-88A7-00E48F493B18",
+          "TimeStart": "2019-07-06T04:32:00.000Z",
+          "TimePrint": "2019-07-06T04:33:00.000Z",
+          "TimeFeed": "2019-07-06T04:33:00.000Z",
+          "Qty": 1,
+          "Price": 1290,
+          "AmountFull": 1290,
+          "Discount": null,
+          "AmountDiscount": 1290
+        },
+        {
+          "SKU": "6FEC423E-F36B-1410-88A7-00E48F493B18",
+          "TimeStart": "2019-07-06T04:32:00.000Z",
+          "TimePrint": "2019-07-06T04:33:00.000Z",
+          "TimeFeed": "2019-07-06T04:33:00.000Z",
+          "Qty": 1,
+          "Price": 895,
+          "AmountFull": 895,
+          "Discount": null,
+          "AmountDiscount": 895
+        }
+      ],
+      "ItemsPay": [
+        {
+          "TypePay": "BANK",
+          "Client": "FD0CA500-D44F-11E9-9F94-BF0DD9072930",
+          "AmountPay": 2185,
+          "BankAccount": "D44A4E50-DF09-11E9-99A3-655A53E7768A"
+        }
+      ],
+      "serverModule": {},
+      "f4": "01C99B00-E03C-11E9-8052-43827DE0B3A7"
+    }
+  }
+]
