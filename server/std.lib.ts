@@ -396,9 +396,9 @@ export async function batchRows(date: Date, company: Ref, Storehouse: Ref, SKU: 
 
       SELECT
         [batch],
-        [Cost][Cost.In],
-        [Qty] [Qty],
-        [Qty] [Qty.In]
+        -[Cost][Cost.In],
+        -[Qty] [Qty],
+        -[Qty] [Qty.In]
       FROM OPENJSON(@p5) WITH (
         [batch] UNIQUEIDENTIFIER,
         [Storehouse] UNIQUEIDENTIFIER,
