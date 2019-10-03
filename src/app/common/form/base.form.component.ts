@@ -7,6 +7,7 @@ import { MenuItem } from 'primeng/components/common/menuitem';
 import { merge, of as observableOf, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { v1 } from 'uuid';
+import { dateReviverLocal } from '../../../../server/fuctions/dateReviver';
 import { calculateDescription } from '../../../../server/models/api';
 import { DocumentBase, DocumentOptions, Ref } from '../../../../server/models/document';
 import { DocService } from '../../common/doc.service';
@@ -83,7 +84,7 @@ export class BaseDocFormComponent implements OnInit, OnDestroy {
       const date = this.form.get('date')!.value;
       const code = this.form.get('code')!.value;
       const group = this.form.get('Group') && this.form.get('Group')!.value ? this.form.get('Group')!.value.value : '';
-      const value = calculateDescription(this.docDescription, date, code, group);
+      const value = calculateDescription(this.docDescription, JSON.parse(JSON.stringify(date), dateReviverLocal), code, group);
       this.description.patchValue(value, patchOptionsNoEvents);
     }
   }

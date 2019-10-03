@@ -1,8 +1,8 @@
 import * as Queue from 'bull';
 import { AllDocTypes, AllTypes } from '../models/documents.types';
 import { DocumentOptions, Ref } from './../models/document';
-import { RoleType } from './Roles/Base';
 import { ColumnDef } from './column';
+import { RoleType } from './Roles/Base';
 import { FormListFilter, FormListOrder, FormListSettings } from './user.settings';
 
 
@@ -100,10 +100,10 @@ export interface ISuggest {
   value: string;
 }
 
-export function calculateDescription(description: string, date: Date, code: string, group = '') {
+export function calculateDescription(description: string, date: Date | string, code: string, group = '') {
   const Group = group ? '(' + group + ')' : '';
   const value = `${description} ${Group} #${code}, ${date ?
-    date.toISOString() :
+    new Date(date).toISOString() :
     (new Date()).toISOString()}`;
   return value;
 }

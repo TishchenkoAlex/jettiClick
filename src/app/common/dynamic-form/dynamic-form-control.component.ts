@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import * as moment from 'moment';
 import { Subscription } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { FormControlInfo } from './dynamic-form-base';
@@ -14,14 +13,28 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
   @Input() control: FormControlInfo;
   @Input() form: FormGroup;
   formControl: FormControl;
-  Moment = moment;
 
   valueChanges$: Subscription = Subscription.EMPTY;
+
+  _dateTimeValue: Date | null | string;
+  get dateTimeValue() { return this._dateTimeValue instanceof Date ? this._dateTimeValue : null; }
+  set dateTimeValue(value: null | string | Date) { this._dateTimeValue = value instanceof Date ? value : null; }
+
+  parseDate(dateString: string) {
+    const date = dateString ? new Date(dateString) : null;
+    if (date instanceof Date) this.formControl.setValue(date);
+    else if (!date && this.control.required) this.formControl.setErrors({ 'invalid date': true });
+    else if (!date && !this.control.required) this.formControl.setValue(date);
+  }
 
   constructor(public api: ApiService, private cd: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.formControl = this.form.get(this.control.key)! as FormControl;
+
+    this.dateTimeValue = this.formControl.value;
+    this.dateValue = this.formControl.value;
+
     if (this.formControl && (this.control.onChange || this.control.onChangeServer))
       this.valueChanges$ = this.formControl.valueChanges.subscribe(async value => {
 
@@ -45,13 +58,6 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
             });
         }
       });
-  }
-
-  parseDate(dateString: string) {
-    const date = dateString ? new Date(dateString) : null;
-    if (date instanceof Date) this.formControl.setValue(date);
-    else if (!date && this.control.required) this.formControl.setErrors({ 'invalid date': true });
-    else if (!date && !this.control.required) this.formControl.setValue(date);
   }
 
   marginTop() {
