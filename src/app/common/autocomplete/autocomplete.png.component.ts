@@ -43,12 +43,12 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   @Input() showClear = true;
   @Input() showLabel = true;
   @Input() type = '';
-  @Input() inputStyle;
+  @Input() inputStyle: {[x: string]: any };
   @Input() checkValue = true;
   @Input() openButton = true;
   @Output() change = new EventEmitter();
   @Output() focus = new EventEmitter();
-  @ViewChild('ac', {static: false}) input: AutoComplete;
+  @ViewChild('ac', { static: false }) input: AutoComplete;
   @Input() id: string;
   @Input() formControl: FormControl;
 
@@ -117,13 +117,19 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
   handleReset = (event: Event) => this.value = this.EMPTY;
   handleOpen = (event: Event) => this.router.navigate([this.value.type || this.type, this.value.id]);
   handleSearch = (event: Event) => this.showDialog = true;
-  select = () => this.input.inputEL.nativeElement.select();
+  select = () => setTimeout(() => {
+    if (this.input && this.input.inputEL && this.input.inputEL.nativeElement) {
+      this.input.inputEL.nativeElement.select();
+      this.input.inputEL.nativeElement.focus();
+    }
+  })
   onBlur = (event: Event) => {
     if (this.value && this.suggest.value && (this.value.id !== this.suggest.value.id)) { this.value = this.value; }
   }
 
   searchComplete(row: ISuggest) {
     this.showDialog = false;
+    this.select();
     if (!row) return;
     this.value = { id: this.isTypeValue ? null : row.id, code: row.code, type: row.type, value: this.isTypeValue ? null : row.value };
   }

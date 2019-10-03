@@ -6,7 +6,6 @@ import { createDocument } from './models/documents.factory';
 import { createDocumentServer } from './models/documents.factory.server';
 import { DocTypes } from './models/documents.types';
 import { RegisterAccumulationTypes } from './models/Registers/Accumulation/factory';
-import { RegisterAccumulationInventory } from './models/Registers/Accumulation/Inventory';
 import { RegisterAccumulation } from './models/Registers/Accumulation/RegisterAccumulation';
 import { DocumentBaseServer, IFlatDocument, INoSqlDocument } from './models/ServerDocument';
 import { MSSQL, sdb } from './mssql';
@@ -51,8 +50,7 @@ export interface JTL {
   };
   inventory: {
     batchRows: (date: Date, company: Ref, Storehouse: Ref, SKU: Ref, Qty: number,
-      Inventory: RegisterAccumulationInventory[], tx?: MSSQL) => Promise<any[]>,
-    batch: (date: Date, company: Ref, rows: BatchRow[], tx?: MSSQL) => Promise<BatchRow[]>,
+      Inventory: any[], tx?: MSSQL) => Promise<any[]>,
     batchReturn(retDoc: string, rows: BatchRow[], tx?: MSSQL)
   };
 }
@@ -88,7 +86,6 @@ export const lib: JTL = {
   },
   inventory: {
     batchRows,
-    batch,
     batchReturn
   }
 };
@@ -314,59 +311,6 @@ export async function movementsByDoc<T extends RegisterAccumulation>(type: Regis
   const queryText = `
   SELECT * FROM Accumulation where type = '${type}' AND document = '${doc}'`;
   return await tx.manyOrNone<T>(queryText);
-}
-
-export async function batch(date: Date, company: Ref, rows: BatchRow[], tx: MSSQL = sdb) {
-  const rowsKeys = rows.map(r => (r.Storehouse as string) + (r.SKU as string));
-  const uniquerowsKeys = rowsKeys.filter((v, i, a) => a.indexOf(v) === i);
-  const grouped = uniquerowsKeys.map(r => {
-    const filter = rows.filter(f => (f.Storehouse as string) + (f.SKU as string) === r);
-    const Qty = filter.reduce((a, b) => a + b.Qty, 0);
-    const res1 = filter.reduce((a, b) => a + b.res1, 0);
-    const res2 = filter.reduce((a, b) => a + b.res2, 0);
-    const res3 = filter.reduce((a, b) => a + b.res3, 0);
-    const res4 = filter.reduce((a, b) => a + b.res4, 0);
-    const res5 = filter.reduce((a, b) => a + b.res5, 0);
-    return <BatchRow>({ SKU: filter[0].SKU, Storehouse: filter[0].Storehouse, Qty, Cost: 0, batch: null, res1, res2, res3 });
-  });
-  const result: BatchRow[] = [];
-  for (const row of grouped) {
-    const queryText = `
-      SELECT batch, Qty, Cost, b.date FROM (
-      SELECT
-        batch,
-        SUM("Qty") Qty,
-        SUM("Cost.In") / ISNULL(SUM("Qty.In"), 1) Cost
-      FROM "Register.Accumulation.Inventory" r
-      WHERE (1=1)
-        AND date <= @p1
-        AND company = @p2
-        AND "SKU" = @p3
-        AND "Storehouse" = @p4
-      GROUP BY batch
-      HAVING SUM("Qty") > 0 ) s
-      LEFT JOIN Documents b ON b.id = s.batch
-      ORDER BY b.date, s.batch`;
-    const queryResult = await tx.manyOrNone<{ batch: string, Qty: number, Cost: number }>
-      (queryText, [date, company, row.SKU, row.Storehouse]);
-    let total = row.Qty;
-    for (const a of queryResult) {
-      if (total <= 0) break;
-      const q = Math.min(total, a.Qty);
-      const rate = q / row.Qty;
-      result.push({
-        batch: a.batch, Qty: q, Cost: a.Cost * q, Storehouse: row.Storehouse, SKU: row.SKU,
-        res1: row.res1 * rate, res2: row.res2 * rate, res3: row.res3 * rate, res4: row.res3 * rate, res5: row.res3 * rate
-      });
-      total = total - q;
-    }
-    if (total > 0) {
-      const SKU = await lib.doc.byId(row.SKU as string, tx);
-      console.log(`Не достаточно ${total} единиц ${SKU!.description}`);
-      // throw new Error(`Не достаточно ${total} единиц ${SKU!.description}`);
-    }
-  }
-  return result;
 }
 
 export async function batchRows(date: Date, company: Ref, Storehouse: Ref, SKU: Ref, Qty: number, BatchRows: any[], tx: MSSQL = sdb) {
