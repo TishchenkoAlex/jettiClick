@@ -1,9 +1,10 @@
 import * as Queue from 'bull';
-
 import { sdbq } from '../../mssql';
 import { lib } from '../../std.lib';
 
+
 export default async function (job: Queue.Job) {
+  console.log('start job: ', job.name);
   await job.progress(0);
   const params = job.data;
   const query = `
@@ -14,24 +15,20 @@ export default async function (job: Queue.Job) {
       date between @p3 AND @p4
     ORDER BY
       date`;
-  const TaskList: any[] = [];
+
+  const startDate = new Date(params.StartDate);
+  startDate.setUTCHours(0, 0, 0, 0);
   const endDate = new Date(params.EndDate);
-  endDate.setHours(23, 59, 59, 999);
-  const list = await sdbq.manyOrNone<any>(query, [params.type, params.company, params.StartDate, endDate.toJSON()]);
-  const count = list.length; let offset = 0;
-  job.data.job['total'] = list.length;
-  await job.update(job.data);
-  while (offset < count) {
-    let i = 0;
-    for (i = 0; i < 99; i++) {
-      if (!list[i + offset]) { break; }
-      const q = lib.doc.postById(list[i + offset].id, true, sdbq);
-      TaskList.push(q);
+  endDate.setUTCHours(23, 59, 59, 999);
+
+  const list = await sdbq.manyOrNone<any>(query, [params.type, params.company, startDate.toJSON(), endDate.toJSON()]);
+  if (list && list.length) {
+    job.data.job['total'] = list.length;
+    await job.update(job.data);
+    for (let i = 1; i <= list.length; i++) {
+      await lib.doc.postById(list[i - 1].id, true, sdbq);
+      await job.progress(Math.round(i / list.length * 100));
     }
-    offset = offset + i;
-    await Promise.all(TaskList);
-    TaskList.length = 0;
-    await job.progress(Math.round(offset / count * 100));
   }
   await job.progress(100);
 }

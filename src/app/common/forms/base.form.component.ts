@@ -70,7 +70,7 @@ export class BaseFormComponent {
       company: data.company.id,
       StartDate: data.StartDate,
       EndDate: data.EndDate.setHours(23, 59, 59, 999)
-    } , { jobId: 'FormPostServer', removeOnComplete: true, removeOnFail: true }).toPromise();
+    }).toPromise();
   }
 
 }

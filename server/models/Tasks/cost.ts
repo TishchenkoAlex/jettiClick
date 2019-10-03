@@ -38,21 +38,11 @@ export default async function (job: Queue.Job) {
     list = [...list, ...(await sdbq.manyOrNone<any>(query,
       [doc.date, r!.company, r!.Storehouse, r!.SKU, r!.batch, doc.id]))];
   }
-  const TaskList: any[] = [];
-  const count = list.length; let offset = 0;
   job.data.job['total'] = list.length;
   await job.update(job.data);
-  while (offset < count) {
-    let i = 0;
-    for (i = 0; i < 25; i++) {
-      if (!list[i + offset]) break;
-      const q = lib.doc.postById(list[i + offset].document, true, sdbq);
-      TaskList.push(q);
-    }
-    offset = offset + i;
-    await Promise.all(TaskList);
-    TaskList.length = 0;
-    await job.progress(Math.round(offset / count * 100));
+  for (let i = 1; i <= list.length; i++) {
+    await lib.doc.postById(list[i - 1].id, true, sdbq);
+    await job.progress(Math.round(i / list.length * 100));
   }
   await job.progress(100);
 }
