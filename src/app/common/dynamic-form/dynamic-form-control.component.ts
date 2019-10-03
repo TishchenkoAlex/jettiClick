@@ -33,7 +33,6 @@ export class DynamicFormControlComponent implements OnInit, OnDestroy {
     this.formControl = this.form.get(this.control.key)! as FormControl;
 
     this.dateTimeValue = this.formControl.value;
-    this.dateValue = this.formControl.value;
 
     if (this.formControl && (this.control.onChange || this.control.onChangeServer))
       this.valueChanges$ = this.formControl.valueChanges.subscribe(async value => {
