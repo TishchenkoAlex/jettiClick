@@ -22,7 +22,7 @@ const QueOpts: QueueOptions = {
 
 export let JQueue = new Queue(DB_NAME, QueOpts);
 
-JQueue.process(5, job => {
+JQueue.process(1, job => {
   const task = Jobs[job.data.job.id];
   if (task) return task(job);
 });

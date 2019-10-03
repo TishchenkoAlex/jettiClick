@@ -34,6 +34,7 @@ router.get('/jobs', async (req: Request, res: Response, next: NextFunction) => {
     result.Completed.length = Math.min(5, result.Completed.length);
     result.Delayed.length = Math.min(5, result.Delayed.length);
     result.Failed.length = Math.min(5, result.Failed.length);
+    result.Waiting.length = Math.min(5, result.Waiting.length);
     res.json(result);
   } catch (err) { next(err); }
 });
