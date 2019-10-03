@@ -41,7 +41,7 @@ export default async function (job: Queue.Job) {
   job.data.job['total'] = list.length;
   await job.update(job.data);
   for (let i = 1; i <= list.length; i++) {
-    await lib.doc.postById(list[i - 1].id, true, sdbq);
+    await lib.doc.postById(list[i - 1].document, true, sdbq);
     await job.progress(Math.round(i / list.length * 100));
   }
   await job.progress(100);
