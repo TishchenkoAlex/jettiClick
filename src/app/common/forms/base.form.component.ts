@@ -69,7 +69,7 @@ export class BaseFormComponent {
       type: data.type.id,
       company: data.company.id,
       StartDate: data.StartDate,
-      EndDate: data.EndDate.setHours(23, 59, 59, 999)
+      EndDate: data.EndDate
     }).toPromise();
   }
 

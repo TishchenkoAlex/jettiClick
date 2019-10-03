@@ -4,7 +4,6 @@ import { lib } from '../../std.lib';
 
 
 export default async function (job: Queue.Job) {
-  console.log('start job: ', job.name);
   await job.progress(0);
   const params = job.data;
   const query = `
@@ -22,13 +21,21 @@ export default async function (job: Queue.Job) {
   endDate.setUTCHours(23, 59, 59, 999);
 
   const list = await sdbq.manyOrNone<any>(query, [params.type, params.company, startDate.toJSON(), endDate.toJSON()]);
-  if (list && list.length) {
-    job.data.job['total'] = list.length;
-    await job.update(job.data);
-    for (let i = 1; i <= list.length; i++) {
-      await lib.doc.postById(list[i - 1].id, true, sdbq);
-      await job.progress(Math.round(i / list.length * 100));
+  const TaskList: any[] = [];
+  const count = list.length; let offset = 0;
+  job.data.job['total'] = list.length;
+  await job.update(job.data);
+  while (offset < count) {
+    let i = 0;
+    for (i = 0; i < 5; i++) {
+      if (!list[i + offset]) break;
+      const q = lib.doc.postById(list[i + offset].id, true, sdbq);
+      TaskList.push(q);
     }
+    offset = offset + i;
+    await Promise.all(TaskList);
+    TaskList.length = 0;
+    await job.progress(Math.round(offset / count * 100));
+    await job.progress(100);
   }
-  await job.progress(100);
 }

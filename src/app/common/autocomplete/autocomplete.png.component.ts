@@ -159,9 +159,9 @@ export class AutocompleteComponent implements ControlValueAccessor, Validator {
 
   parseDate(dateString: string) {
     const date = dateString ? new Date(dateString) : null;
-    if (date) this.formControl.setValue(date, { onlySelf: true });
-    else if (!date && this.required) this.formControl.setErrors({ 'invalid date': true }, { emitEvent: false });
-    else if (!date && !this.required) this.formControl.setValue(date, { onlySelf: true });
+    if (date instanceof Date) this.formControl.setValue(date);
+    else if (!date && this.required) this.formControl.setErrors({ 'invalid date': true });
+    else if (!date && !this.required) this.formControl.setValue(date);
   }
 
 }
