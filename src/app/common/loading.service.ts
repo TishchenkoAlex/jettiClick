@@ -10,7 +10,7 @@ export class LoadingService {
   loading$ = this._loading.asObservable();
   set loading(value: { req: string, loading: boolean }) {
     if (history[value.req] && !!!value.loading) delete history[value.req];
-    else if (value.loading === true) history[value.req] = value.req;
+    else if ((value.loading === true) && value.req) history[value.req] = value.req;
     if (Object.keys(history).length === 0) this._loading.next(undefined); else this._loading.next(value);
   }
   get loading() { return this._loading.value!; }
@@ -26,5 +26,10 @@ export class LoadingService {
   get color() { return this._color.value; }
 
   busy$ = combineLatest(this.loading$, this.color$).pipe(map(r => r[0] && r[1] === 'accent'));
+
+  reset() {
+    this.history = {};
+    this._loading.next(undefined);
+  }
 
 }
