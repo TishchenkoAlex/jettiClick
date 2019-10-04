@@ -8,7 +8,7 @@ const DB_PORT = isNaN(parseInt(process.env.DB_PORT as string, undefined)) ?
   1433 : 1433; // parseInt(process.env.DB_PORT as string, undefined);
 
 export const sqlConfig: config = {
-  server: process.env.DB_HOST || '35.204.31.43', // sql.jetti-app.com
+  server: '35.204.31.43', // process.env.DB_HOST || '35.204.31.43', // sql.jetti-app.com
   port: DB_PORT,
   database: DB_NAME,
   user: process.env.DB_USER || 'yuralex',

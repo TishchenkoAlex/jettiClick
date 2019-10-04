@@ -23,8 +23,7 @@ export default async function (job: Queue.Job) {
   let list: any[] = [];
   for (const r of grouped) {
     const query = `
-    SELECT s.date, s.document, d.description doc FROM (
-      SELECT date, document from "Register.Accumulation.Inventory"
+      SELECT DISTINCT document from "Register.Accumulation.Inventory"
       WHERE [Qty.Out] <> 0
         AND date >= @p1
         AND company = @p2
@@ -32,9 +31,7 @@ export default async function (job: Queue.Job) {
         AND SKU = @p4
         AND batch = @p5
         AND document <> @p6
-      GROUP BY date, document) s
-    LEFT JOIN "Documents" d ON d.id = s.document
-    ORDER BY s.date`;
+      ORDER BY date`;
     list = [...list, ...(await sdbq.manyOrNone<any>(query,
       [doc.date, r!.company, r!.Storehouse, r!.SKU, r!.batch, doc.id]))];
   }

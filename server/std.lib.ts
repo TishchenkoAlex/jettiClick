@@ -33,10 +33,11 @@ export interface JTL {
   };
   doc: {
     byCode: (type: DocTypes, code: string, tx?: MSSQL) => Promise<string | null>;
-    byId: (id: string, tx?: MSSQL) => Promise<IFlatDocument | null>;
+    byId: (id: Ref, tx?: MSSQL) => Promise<IFlatDocument | null>;
     byIdT: <T extends DocumentBase>(id: string, tx?: MSSQL) => Promise<T | null>;
     formControlRef: (id: string, tx?: MSSQL) => Promise<RefValue | null>;
     postById: (id: string, posted: boolean, tx?: MSSQL) => Promise<void>;
+    repostById: (id: Ref, tx?: MSSQL) => Promise<void>;
     noSqlDocument: (flatDoc: IFlatDocument) => INoSqlDocument | null;
     flatDocument: (noSqldoc: INoSqlDocument) => IFlatDocument | null;
     docPrefix: (type: DocTypes, tx?: MSSQL) => Promise<string>
@@ -75,6 +76,7 @@ export const lib: JTL = {
     byIdT: byIdT,
     formControlRef,
     postById,
+    repostById,
     noSqlDocument,
     flatDocument,
     docPrefix
@@ -296,13 +298,40 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
       DELETE FROM "Register.Account" WHERE document = '${id}';
       DELETE FROM "Register.Info" WHERE document = '${id}';
       DELETE FROM "Accumulation" WHERE document = '${id}';
-      UPDATE "Documents" SET posted = @p1, deleted = 0, description = @p2 WHERE id = '${id}'`,
+      UPDATE "Documents" SET posted = @p1, deleted = 0, description = @p2 WHERE id = '${id}' AND posted = 0`,
       [serverDoc.posted, serverDoc.description]);
-    doc['deletedRegisterAccumulation'] = () => deleted;
+    serverDoc['deletedRegisterAccumulation'] = () => deleted;
 
     if (serverDoc.isDoc && serverDoc.onPost) {
       const Registers = await serverDoc.onPost(subtx);
       if (posted && !doc.deleted) await InsertRegisterstoDB(serverDoc, Registers, subtx);
+    }
+  });
+}
+
+export async function repostById(id: Ref, tx: MSSQL = sdb): Promise<void> {
+  return tx.tx<any>(async subtx => {
+
+    const doc = (await lib.doc.byId(id, subtx))!;
+
+    if (doc) {
+      if (doc.deleted) return;
+
+      const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type, doc, tx);
+
+      const deleted = await subtx.manyOrNone(`
+        SELECT * FROM "Accumulation" WHERE document = '${id}';
+        DELETE FROM "Register.Account" WHERE document = '${id}';
+        DELETE FROM "Register.Info" WHERE document = '${id}';
+        DELETE FROM "Accumulation" WHERE document = '${id}';'
+        UPDATE "Documents" SET posted = 1, deleted = 0, description = @p1 WHERE id = '${id}' AND posted = 0`,
+        [serverDoc.description]);
+      serverDoc['deletedRegisterAccumulation'] = () => deleted;
+
+      if (serverDoc.isDoc && serverDoc.onPost) {
+        const Registers = await serverDoc.onPost(subtx);
+        await InsertRegisterstoDB(serverDoc, Registers, subtx);
+      }
     }
   });
 }
