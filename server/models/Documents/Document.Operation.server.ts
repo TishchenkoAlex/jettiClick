@@ -69,7 +69,8 @@ export class DocumentOperationServer extends DocumentOperation implements Server
       .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true);
 
     const newInventory = (Registers.Accumulation || [])
-      .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true);
+    .filter(r => r.type === 'Register.Accumulation.Inventory' && r.kind === true)
+    .map(r => ({...r, date: r.date ? r.date : this.date}));
 
     if (!(oldInventory.length || newInventory.length)) return Registers;
 
