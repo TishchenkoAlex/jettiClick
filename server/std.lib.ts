@@ -323,8 +323,8 @@ export async function repostById(id: Ref, tx: MSSQL = sdb): Promise<void> {
         SELECT * FROM "Accumulation" WHERE document = '${id}';
         DELETE FROM "Register.Account" WHERE document = '${id}';
         DELETE FROM "Register.Info" WHERE document = '${id}';
-        DELETE FROM "Accumulation" WHERE document = '${id}';'
-        UPDATE "Documents" SET posted = 1, deleted = 0, description = @p1 WHERE id = '${id}' AND posted = 0`,
+        DELETE FROM "Accumulation" WHERE document = '${id}';
+        UPDATE "Documents" SET posted = 1, deleted = 0, description = @p1 WHERE id = '${id}' AND posted = 0;`,
         [serverDoc.description]);
       serverDoc['deletedRegisterAccumulation'] = () => deleted;
 
