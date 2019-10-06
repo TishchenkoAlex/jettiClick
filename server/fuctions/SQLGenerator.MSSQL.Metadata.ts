@@ -22,15 +22,18 @@ export class SQLGenegatorMetadata {
       return `, JSON_VALUE(data, '$.${prop}') "${prop}" \n`;
     };
 
-    const complexProperty = (prop: string, type: string) =>
-      `, CAST(JSON_VALUE(data, N'$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}" \n`;
+    const complexProperty = (prop: string, type: string) => `
+        , CAST(JSON_VALUE(data, N'$."${prop}"') AS UNIQUEIDENTIFIER) "${prop}"`;
 
     let insert = ''; let select = '';
     for (const prop in excludeRegisterAccumulatioProps(doc)) {
       const type: string = doc[prop].type || 'string';
-      insert += `, "${prop}"\n`;
+      insert += `
+        , "${prop}"`;
       if (type === 'number') {
-        insert += `, "${prop}.In"\n, "${prop}.Out"\n`;
+        insert += `
+        , "${prop}.In"
+        , "${prop}.Out"`;
       }
 
       if (type.includes('.')) {
@@ -41,13 +44,12 @@ export class SQLGenegatorMetadata {
     }
 
     const query = `
-      INSERT INTO "${type}"
-      (DT, date, document, company, kind ${insert})
-      SELECT
-        CAST(DATEDIFF_BIG(MICROSECOND, '00010101', [date]) * 10 + (DATEPART(NANOSECOND, [date]) % 1000) / 100 +
-        (SELECT ABS(CONVERT(SMALLINT, CONVERT(VARBINARY(16), (document), 1)))) AS BIGINT) + RIGHT(id,1) DT,
-        CAST(date AS datetime) date,
-        document, company, kind ${select}
+      INSERT INTO "${type}" (DT, date, document, company, kind ${insert})
+        SELECT
+          DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+        CAST(date AS datetime) date, document, company, kind ${select}
       FROM INSERTED WHERE type = N'${type}'; \n`;
     return query;
   } // AT TIME ZONE @TimeZone

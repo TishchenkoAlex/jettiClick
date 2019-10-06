@@ -386,7 +386,8 @@ export async function batchRows(date: Date, company: Ref, Storehouse: Ref, SKU: 
     GROUP BY batch
     HAVING SUM("Qty") > 0 ) s
     LEFT JOIN Documents b ON b.id = s.batch
-    ORDER BY b.date, s.batch`;
+    ORDER BY b.date, s.batch
+    OPTION (TABLE HINT(r, INDEX ([forBatch]))) `;
   const queryResult = await tx.manyOrNone<{ batch: string, Qty: number, Cost: number }>
     (queryText, [date, company, SKU, Storehouse, JSON.stringify(BatchRows)]);
   let total = Qty;
