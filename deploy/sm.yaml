@@ -1,3 +1,4 @@
+#kubectl apply -f deploy/sm.yaml
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -57,7 +58,7 @@ spec:
                   name: jwt-key
                   key: JTW_KEY
             - name: REFRESH_ID
-              value: "001"
+              value: "002"
             - name: NODE_ENV
               value: "production"
 ---

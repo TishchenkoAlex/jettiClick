@@ -5,10 +5,10 @@ export const REDIS_DB_HOST = process.env.REDIS_DB_HOST || '127.0.0.1';
 export const JTW_KEY = process.env.JTW_KEY || 'Pa5315word';
 
 const DB_PORT = isNaN(parseInt(process.env.DB_PORT as string, undefined)) ?
-  1433 : 1433; // parseInt(process.env.DB_PORT as string, undefined);
+  1433 : parseInt(process.env.DB_PORT as string, undefined);
 
 export const sqlConfig: config = {
-  server: '35.204.31.43', // process.env.DB_HOST || '35.204.31.43', // sql.jetti-app.com
+  server: process.env.DB_HOST || '35.204.31.43', // sql.jetti-app.com
   port: DB_PORT,
   database: DB_NAME,
   user: process.env.DB_USER || 'yuralex',
