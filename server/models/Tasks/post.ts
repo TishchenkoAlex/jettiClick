@@ -27,7 +27,7 @@ export default async function (job: Queue.Job) {
   await job.update(job.data);
   while (offset < count) {
     let i = 0;
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < 25; i++) {
       if (!list[i + offset]) break;
       const q = lib.doc.postById(list[i + offset].id, true, sdbq);
       TaskList.push(q);
@@ -36,6 +36,6 @@ export default async function (job: Queue.Job) {
     await Promise.all(TaskList);
     TaskList.length = 0;
     await job.progress(Math.round(offset / count * 100));
-    await job.progress(100);
   }
+  await job.progress(100);
 }
