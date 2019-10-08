@@ -298,7 +298,7 @@ export async function postById(id: string, posted: boolean, tx: MSSQL = sdb): Pr
       DELETE FROM "Register.Account" WHERE document = '${id}';
       DELETE FROM "Register.Info" WHERE document = '${id}';
       DELETE FROM "Accumulation" WHERE document = '${id}';
-      UPDATE "Documents" SET posted = @p1, deleted = 0, description = @p2 WHERE id = '${id}' AND posted = 0`,
+      UPDATE "Documents" SET posted = @p1, deleted = 0, description = @p2 WHERE id = '${id}' AND posted <> @p1`,
       [serverDoc.posted, serverDoc.description]);
     serverDoc['deletedRegisterAccumulation'] = () => deleted;
 

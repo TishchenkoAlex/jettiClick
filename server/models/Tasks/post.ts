@@ -29,7 +29,7 @@ export default async function (job: Queue.Job) {
     let i = 0;
     for (i = 0; i < 25; i++) {
       if (!list[i + offset]) break;
-      const q = lib.doc.repostById(list[i + offset].id, sdbq);
+      const q = lib.doc.postById(list[i + offset].id, true, sdbq);
       TaskList.push(q);
     }
     offset = offset + i;
