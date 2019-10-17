@@ -2,13 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import { MsalService } from '@azure/msal-angular';
 import * as jwt_decode from 'jwt-decode';
 import { BehaviorSubject } from 'rxjs';
 import { filter, map, shareReplay, tap } from 'rxjs/operators';
-import { RoleObject, RoleType, getRoleObjects } from '../../../server/models/Roles/Base';
 import { IAccount, ILoginResponse } from '../../../server/models/api';
-import { environment } /*  */ from '../../environments/environment';
-
+import { getRoleObjects, RoleObject, RoleType } from '../../../server/models/Roles/Base';
+import { environment, OAuthSettings } /*  */ from '../../environments/environment';
 export const ANONYMOUS_USER: ILoginResponse = { account: undefined, token: '' };
 
 @Injectable()
@@ -33,12 +33,16 @@ export class AuthService {
   set token(value) { localStorage.setItem('jetti_token', value); }
   get tokenPayload() { return jwt_decode(this.token); }
 
-  constructor(private router: Router, private http: HttpClient, public sanitizer: DomSanitizer) {}
+  constructor(private router: Router, private http: HttpClient, private msalService: MsalService, public sanitizer: DomSanitizer) { }
 
-  public login(email: string, password: string) {
-    return this.http.post<ILoginResponse>(`${environment.auth}login`, { email, password }).pipe(
-      tap(loginResponse => { if (loginResponse.account) { this.init(loginResponse); } }),
-      shareReplay());
+  public async login(email: string, password: string) {
+    await this.msalService.loginPopup(OAuthSettings.scopes);
+    const acquireTokenSilentResult = await this.msalService.acquireTokenSilent(OAuthSettings.scopes);
+
+    return this.http.post<ILoginResponse>(`${environment.auth}login`,
+      { email, password, token: acquireTokenSilentResult }).pipe(
+        tap(loginResponse => { if (loginResponse.account) { this.init(loginResponse); } }),
+        shareReplay());
   }
 
   public logout() {

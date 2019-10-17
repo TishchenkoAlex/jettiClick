@@ -47,8 +47,8 @@ export class SQLGenegatorMetadata {
       INSERT INTO "${type}" (DT, date, document, company, kind ${insert})
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind ${select}
       FROM INSERTED WHERE type = N'${type}'; \n`;
     return query;

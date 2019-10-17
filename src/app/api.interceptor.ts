@@ -32,7 +32,7 @@ export class ApiInterceptor implements HttpInterceptor {
         if (data instanceof HttpResponse) this.lds.loading = { req: req.url, loading: false };
       }),
       catchError((err: HttpErrorResponse) => {
-        this.lds.reset();
+        this.lds.loading = { req: req.url, loading: false };
         if (err.status === 401) {
           this.auth.logout();
           return observableOf<any>();

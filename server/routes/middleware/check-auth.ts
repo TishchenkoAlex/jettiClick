@@ -1,28 +1,22 @@
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as SocketIO from 'socket.io';
-
 import { JTW_KEY } from '../../env/environment';
 import { IJWTPayload } from '../auth';
 
-export async function authHTTP (req: Request, res: Response, next: NextFunction) {
-  try {
-    const token = ((req.headers.authorization as string) || '').split(' ')[1];
-    const decoded = await jwt.verify(token, JTW_KEY as string) as IJWTPayload;
+export function authHTTP(req: Request, res: Response, next: NextFunction) {
+  const token = ((req.headers.authorization as string) || '').split(' ')[1];
+  jwt.verify(token, JTW_KEY as string, undefined, (error, decoded) => {
+    if (error) return res.status(401).json({ message: 'Auth failed:' + error });
     (<any>req).user = decoded;
     next();
-  } catch (error) {
-    return res.status(401).json({ message: 'Auth failed:' + error });
-  }
+  });
 }
 
-export async function authIO(socket: SocketIO.Socket, next) {
+export function authIO(socket: SocketIO.Socket, next) {
   const token = socket.handshake.query.token;
-  try {
-    const decoded = await jwt.verify(token, JTW_KEY as string) as IJWTPayload;
-    socket.handshake.query.user = decoded.email;
+  jwt.verify(token, JTW_KEY as string, undefined, (error, decoded: IJWTPayload) => {
+    if (!error) socket.handshake.query.user = decoded.email;
     next();
-  } catch (error) {
-    next();
-  }
+  });
 }

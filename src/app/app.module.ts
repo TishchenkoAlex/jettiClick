@@ -7,9 +7,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { MsalModule } from '@azure/msal-angular';
 import 'reflect-metadata';
 import { take } from 'rxjs/operators';
-import { environment } from '../environments/environment';
+import { environment, OAuthSettings } from '../environments/environment';
 import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
 import { AppMenuComponent, AppSubMenuComponent } from './app.menu.component';
@@ -43,6 +44,7 @@ export function getJwtToken(): string {
     PrimeNGModule,
     DynamicFormsModule,
     RoutingModule,
+    MsalModule.forRoot(OAuthSettings),
     ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production }),
   ],
   providers: [

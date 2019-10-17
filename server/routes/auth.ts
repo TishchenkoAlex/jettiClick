@@ -1,11 +1,11 @@
+import axios from 'axios';
 import * as bcrypt from 'bcrypt';
 import * as express from 'express';
 import * as jwt from 'jsonwebtoken';
-
 import { JTW_KEY } from '../env/environment';
 import { IAccount } from '../models/api';
 import { Accounts } from './middleware/accounts.db';
-import {  authHTTP, authIO } from './middleware/check-auth';
+import { authHTTP } from './middleware/check-auth';
 
 // tslint:disable-next-line:max-line-length
 const email: RegExp = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
@@ -89,7 +89,7 @@ router.delete('/:key', authHTTP, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.post('/login', async (req, res, next) => {
+router.post('/login2', async (req, res, next) => {
   try {
     // tslint:disable-next-line:no-shadowed-variable
     const { email, password } = req.body;
@@ -127,3 +127,23 @@ router.post('/refresh', authHTTP, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.post('/login', async (req, res, next) => {
+  try {
+    const instance = axios.create({ baseURL: 'https://graph.microsoft.com' });
+    instance.defaults.headers.common['Authorization'] = `Bearer ${req.body.token}`;
+
+    const user = (await instance.get('/v1.0/me/')).data;
+    const mail = user.mail;
+    const existing = await Accounts.get('sm@sushi-master.net');
+    if (!existing) { return res.status(401).json({ message: 'Auth failed' }); }
+    const payload: IJWTPayload = {
+      email: existing.email,
+      description: existing.description,
+      isAdmin: existing.isAdmin === true ? true : false,
+      roles: existing.roles,
+      env: existing.env,
+    };
+    const token = jwt.sign(payload, JTW_KEY, { expiresIn: '24h' });
+    return res.json({ account: existing, token });
+  } catch (err) { next(err); }
+});

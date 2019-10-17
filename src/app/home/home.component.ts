@@ -13,8 +13,8 @@ export class HomeComponent  {
 
   constructor(public ts: EventsService, public auth: AuthService) { }
 
-  login(email: string, password: string) {
-    this.auth.login(email, password).pipe(take(1)).subscribe(
+  async login(email: string, password: string) {
+    (await this.auth.login(email, password)).pipe(take(1)).subscribe(
       r => { },
       console.error
     );

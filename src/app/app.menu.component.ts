@@ -1,10 +1,9 @@
-// tslint:disable:max-line-length
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/components/common/menuitem';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { getRoleObjects } from '../../server/models/Roles/Base';
+import { getRoleObjects, RoleObject } from '../../server/models/Roles/Base';
 import { SubSystemsMenu } from './../../server/models/SubSystems/SubSystems';
 import { AppComponent } from './app.component';
 
@@ -32,7 +31,7 @@ export class AppMenuComponent implements OnInit {
       map(userProfile => this.buildMenu(getRoleObjects(userProfile.account ? userProfile.account.roles : []))));
   }
 
-  private buildMenu(userRoleObjects) {
+  private buildMenu(userRoleObjects: RoleObject[] | undefined) {
     return [...[
       { label: 'Dashboard', icon: 'fa fa-fw fa-home', routerLink: [''] },
       {
@@ -56,72 +55,6 @@ export class AppMenuComponent implements OnInit {
           { label: 'Dark Menu', icon: 'fa fa-moon-o fa-fw', command: () => this.app.darkMenu = true }
         ]
       },
-/*       {
-        label: 'Layout Colors', icon: 'fa fa-fw fa-magic',
-        items: [
-          {
-            label: 'Flat',
-            icon: 'fa fa-fw fa-circle',
-            items: [
-              { label: 'Blue', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('blue'); } },
-              { label: 'Purple', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('purple'); } },
-              { label: 'Cyan', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('cyan'); } },
-              { label: 'Indigo', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('indigo'); } },
-              { label: 'Teal', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('teal'); } },
-              { label: 'Pink', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('pink'); } },
-              { label: 'Lime', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('lime'); } },
-              { label: 'Green', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('green'); } },
-              { label: 'Amber', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('amber'); } },
-              { label: 'Dark Grey', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('darkgrey'); } },
-            ]
-          },
-          {
-            label: 'Special',
-            icon: 'fa fa-fw fa-fire',
-            items: [
-              {
-                label: 'Influenza', icon: 'fa fa-fw fa-paint-brush',
-                command: (event) => { this.changeLayout('influenza', true); }
-              },
-              { label: 'Suzy', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('suzy', true); } },
-              { label: 'Calm', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('calm', true); } },
-
-              { label: 'Crimson', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('crimson', true); } },
-              { label: 'Night', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('night', true); } },
-              { label: 'Skyling', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('skyline', true); } },
-              { label: 'Sunkist', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('sunkist', true); } },
-              {
-                label: 'Little Leaf', icon: 'fa fa-fw fa-paint-brush',
-                command: (event) => { this.changeLayout('littleleaf', true); }
-              },
-              { label: 'Joomla', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeLayout('joomla', true); } },
-              {
-                label: 'Firewatch', icon: 'fa fa-fw fa-paint-brush',
-                command: (event) => { this.changeLayout('firewatch', true); }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        label: 'Themes', icon: 'fa fa-fw fa-paint-brush', badge: '5',
-        items: [
-          { label: 'Blue', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('blue'); } },
-          { label: 'Cyan', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('cyan'); } },
-          { label: 'Indigo', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('indigo'); } },
-          { label: 'Purple', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('purple'); } },
-          { label: 'Teal', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('teal'); } },
-          { label: 'Orange', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('orange'); } },
-          { label: 'Deep Purple', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('deeppurple'); } },
-          { label: 'Light Blue', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('lightblue'); } },
-          { label: 'Green', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('green'); } },
-          { label: 'Light Green', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('lightgreen'); } },
-          { label: 'Lime', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('lime'); } },
-          { label: 'Amber', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('amber'); } },
-          { label: 'Brown', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('brown'); } },
-          { label: 'Dark Grey', icon: 'fa fa-fw fa-paint-brush', command: (event) => { this.changeTheme('darkgrey'); } },
-        ]
-      },*/
     ],
     ...SubSystemsMenu(userRoleObjects),
     { label: 'Utils', icon: 'fa fa-fw fa-wrench', routerLink: ['/'] },

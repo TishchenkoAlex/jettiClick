@@ -29,8 +29,8 @@
         , "AmountInAccounting.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
         , CAST(JSON_VALUE(data, N'$."Employee"') AS UNIQUEIDENTIFIER) "Employee"
@@ -66,8 +66,8 @@
         , "AmountInAccounting.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
         , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
@@ -105,8 +105,8 @@
         , "AmountInAccounting.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
         , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
@@ -143,8 +143,8 @@
         , "AmountInAccounting.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
         , CAST(JSON_VALUE(data, N'$."BankAccount"') AS UNIQUEIDENTIFIER) "BankAccount"
@@ -173,8 +173,8 @@
         , "Amount.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
         , CAST(JSON_VALUE(data, N'$."Balance"') AS UNIQUEIDENTIFIER) "Balance"
@@ -201,8 +201,8 @@
         , "AmountInAccounting.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
         , CAST(JSON_VALUE(data, N'$."CashRegister"') AS UNIQUEIDENTIFIER) "CashRegister"
@@ -238,8 +238,8 @@
         , "AmountInAccounting.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
         , CAST(JSON_VALUE(data, N'$."Sender"') AS UNIQUEIDENTIFIER) "Sender"
@@ -272,8 +272,8 @@
         , "Qty.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."Expense"') AS UNIQUEIDENTIFIER) "Expense"
         , CAST(JSON_VALUE(data, N'$."Storehouse"') AS UNIQUEIDENTIFIER) "Storehouse"
@@ -304,8 +304,8 @@
         , "AmountInAccounting.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."Loan"') AS UNIQUEIDENTIFIER) "Loan"
         , CAST(JSON_VALUE(data, N'$."Counterpartie"') AS UNIQUEIDENTIFIER) "Counterpartie"
@@ -333,8 +333,8 @@
         , "Amount.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
         , CAST(JSON_VALUE(data, N'$."PL"') AS UNIQUEIDENTIFIER) "PL"
@@ -376,8 +376,8 @@
         , "AmountInAR.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind 
         , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"
         , CAST(JSON_VALUE(data, N'$."Department"') AS UNIQUEIDENTIFIER) "Department"
@@ -432,8 +432,8 @@
         , "AmountInAccounting.Out")
         SELECT
           DATEDIFF_BIG(MICROSECOND, '00010101', [date]) +
-          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1) % 10000000 +
-          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC)) DT,
+          CONVERT(BIGINT, CONVERT (VARBINARY(8), document, 1)) % 10000000 +
+          ROW_NUMBER() OVER (PARTITION BY [document] ORDER BY date ASC) DT,
         CAST(date AS datetime) date, document, company, kind , JSON_VALUE(data, '$.BusinessOperation') "BusinessOperation" 
 
         , CAST(JSON_VALUE(data, N'$."currency"') AS UNIQUEIDENTIFIER) "currency"

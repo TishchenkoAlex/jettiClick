@@ -18,9 +18,9 @@ spec:
         - containerPort: 6379
           protocol: TCP
         resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
+#          requests:
+#            cpu: 500m
+#            memory: 300Mi
         volumeMounts:
         - mountPath: /data
           name: redisdata
@@ -39,5 +39,5 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 50Gi
   storageClassName: standard

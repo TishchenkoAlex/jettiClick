@@ -76,7 +76,7 @@ const viewAction = async (req: Request, res: Response, next: NextFunction) => {
           const copy = await lib.doc.byId(req.query.copy);
           if (!copy) throw new Error(`base document ${req.query.copy} for copy is not found!`);
           const copyDoc = await createDocumentServer<DocumentBaseServer>(type, copy);
-          copyDoc.id = id; copyDoc.date = ServerDoc.date; copyDoc.code = ServerDoc.code;
+          copyDoc.id = id; copyDoc.date = ServerDoc.date; copyDoc.code = '';
           copyDoc.posted = false; copyDoc.deleted = false; copyDoc.timestamp = null;
           copyDoc.parent = copyDoc.parent;
           if (userID) copyDoc.user = userID;
@@ -166,7 +166,6 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
     DELETE FROM "Accumulation" WHERE document = '${id}';`);
     serverDoc['deletedRegisterAccumulation'] = () => deleted;
   }
-  if (!serverDoc.code) serverDoc.code = await lib.doc.docPrefix(serverDoc.type, tx);
   serverDoc.timestamp = new Date();
 
   const afterSave: (tx: MSSQL) => Promise<void> = serverDoc['serverModule']['afterSave'];

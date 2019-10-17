@@ -2,8 +2,6 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, ViewChild } from '@a
 import { SwUpdate } from '@angular/service-worker';
 import { ScrollPanel } from '../../node_modules/primeng/scrollpanel';
 import { AuthService } from './auth/auth.service';
-import { LoadingService } from './common/loading.service';
-import { ApiService } from './services/api.service';
 
 enum MenuOrientation { STATIC, OVERLAY, SLIM, HORIZONTAL }
 
@@ -36,10 +34,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('layoutMenuScroller', {static: false }) layoutMenuScrollerViewChild: ScrollPanel;
 
   constructor(
-    public auth: AuthService, public apiService: ApiService, public lds: LoadingService, private swUpdate: SwUpdate) {
-
-    const lm = localStorage.getItem('layoutMode');
-    const a = this.layoutMode.toString();
+    public auth: AuthService, private swUpdate: SwUpdate) {
 
     if (this.swUpdate.isEnabled) {
       this.swUpdate.available.subscribe(() => {
