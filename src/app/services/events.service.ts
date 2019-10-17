@@ -29,7 +29,7 @@ export class EventsService implements OnDestroy {
       const wsUrl = `${environment.socket}?token=${u.token}`;
 
       const wsAuto = (url: string, onmessage: (data: any) => void) => {
-        const socket = IO(url);
+        const socket = IO(url, {transports: ['websocket']});
         socket.on('job', (data: any) => onmessage(data));
       };
 
