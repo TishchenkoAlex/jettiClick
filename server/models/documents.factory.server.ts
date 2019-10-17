@@ -85,7 +85,7 @@ export async function createDocumentServer<T extends DocumentBaseServer | Docume
   }
   // protect against mutate
   result.Props = () => Props;
-  if (document && !result.code) result.code = await lib.doc.docPrefix(result.type, tx);
+
   if (result.isDoc) result.description =
     calculateDescription((result.Prop() as DocumentOptions).description, result.date, result.code, Grop && Grop.value as string || '');
   return result;

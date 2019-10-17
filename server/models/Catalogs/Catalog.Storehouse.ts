@@ -15,4 +15,6 @@ export class CatalogStorehouse extends DocumentBase {
   @Props({ type: 'Catalog.Department'})
   Department: Ref = null;
 
+  @Props({ type: 'Catalog.Company', required: true, hiddenInForm: false})
+  company: Ref = null;
 }

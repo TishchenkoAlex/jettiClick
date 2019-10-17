@@ -249,7 +249,10 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const doc: IFlatDocument = JSON.parse(JSON.stringify(req.body), dateReviverUTC);
       if (doc.deleted && mode === 'post') throw new Error('cant POST deleted document');
       if (mode === 'post') doc.posted = true;
+
+      if (!doc.code) doc.code = await lib.doc.docPrefix(doc.type, tx);
       const serverDoc = await createDocumentServer<DocumentBaseServer>(doc.type as DocTypes, doc, tx);
+
       await post(serverDoc, mode, tx);
       const view = await buildViewModel(serverDoc, tx);
       res.json(view);
