@@ -51,6 +51,7 @@
     "rxjs-compat": "^6.5.3",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
+    "socket.io-redis": "^5.2.0",
     "tedious": "^6.4.0",
     "uuid": "^3.3.3",
     "zone.js": "^0.10.2"
@@ -77,6 +78,7 @@
     "@types/socket.io-client": "^1.4.32",
     "@types/tedious": "^4.0.0",
     "@types/uuid": "^3.4.5",
+    "@types/socket.io-redis": "^1.0.25",
     "codelyzer": "~5.1.2",
     "node-sass": "^4.12.0",
     "ts-node": "~8.4.1",

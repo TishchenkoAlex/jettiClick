@@ -23,7 +23,7 @@ spec:
             - name: DB_PORT
               value: "1433"
             - name: DB_HOST
-              value: mssql
+              value: jetti-db-01
             - name: DB_NAME
               value: sm
             - name: DB_USER
@@ -37,7 +37,7 @@ spec:
                   name: mssql-db-credentials
                   key: password
             - name: DB_ACCOUNTS_HOST
-              value: mssql
+              value: jetti-db-01
             - name: DB_ACCOUNTS_NAME
               value: accounts
             - name: DB_ACCOUNTS_USER

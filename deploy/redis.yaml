@@ -18,9 +18,9 @@ spec:
         - containerPort: 6379
           protocol: TCP
         resources:
-#          requests:
-#            cpu: 500m
-#            memory: 300Mi
+          requests:
+            cpu: 500m
+            memory: 300Mi
         volumeMounts:
         - mountPath: /data
           name: redisdata
