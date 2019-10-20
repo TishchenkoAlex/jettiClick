@@ -39,5 +39,26 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 50Gi
+      storage: 128Gi
   storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redis
+    role: master
+    tier: backend
+  name: redis-master
+  namespace: default
+spec:
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6379
+  selector:
+    app: redis
+    role: master
+    tier: backend
+  sessionAffinity: None
+  type: ClusterIP
