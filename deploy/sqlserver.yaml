@@ -8,7 +8,7 @@ spec:
   accessModes: [ReadWriteOnce]
   resources:
     requests:
-      storage: 100Gi
+      storage: 200Gi
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -27,7 +27,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: mssql
-        image: eu.gcr.io/jetti-pg/mssql
+        image: mcr.microsoft.com/mssql/server ##eu.gcr.io/jetti-pg/mssql
         ports:
         - containerPort: 1433
         #resources:

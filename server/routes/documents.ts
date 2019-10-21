@@ -215,7 +215,6 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
           posted = i.posted, deleted = i.deleted, isfolder = i.isfolder,
           "user" = i."user", company = i.company, info = i.info, timestamp = GETDATE(),
           doc = i.doc
-        OUTPUT inserted.*
         FROM (
           SELECT *
           FROM OPENJSON(@p1) WITH (
@@ -234,7 +233,8 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
             [doc] NVARCHAR(max) N'$.doc' AS JSON
           )
         ) i
-        WHERE Documents.id = i.id;`, [jsonDoc]);
+        WHERE Documents.id = i.id;
+        SELECT * FROM Documents WHERE id = @p2`, [jsonDoc, id]);
   }
   serverDoc.map(response);
   await doSubscriptions(serverDoc, isNew ? 'after insert' : 'after update', tx);

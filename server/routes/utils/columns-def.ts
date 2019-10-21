@@ -18,7 +18,7 @@ export function buildColumnDef(view: { [x: string]: PropOptions; }, settings: Fo
     const totals = prop['totals']! * 1;
     let value = prop['value'];
     let style = prop['style'];
-    if (type === 'number' && !style) { style = { 'width': '90px', 'text-align': 'right' }; }
+    if (type === 'number' && !style) { style = { 'width': '100px', 'text-align': 'right' }; }
     if (type === 'boolean' && !style) { style = { 'width': '90px', 'text-align': 'center' }; }
     if (type === 'datetime' && !style) { style = { 'width': '135px', 'text-align': 'center' }; }
     if (type === 'enum') {
