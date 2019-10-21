@@ -187,7 +187,6 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
       INSERT INTO Documents(
         [id], [type], [date], [code], [description], [posted], [deleted],
         [parent], [isfolder], [company], [user], [info], [doc])
-      OUTPUT inserted.*
       SELECT
         [id], [type], [date], [code], [description], [posted], [deleted],
         [parent], [isfolder], [company], [user], [info], [doc]
@@ -205,7 +204,8 @@ async function post(serverDoc: DocumentBaseServer, mode: 'post' | 'save', tx: MS
         [user] UNIQUEIDENTIFIER,
         [info] NVARCHAR(max),
         [doc] NVARCHAR(max) N'$.doc' AS JSON
-      )`, [jsonDoc]);
+      );
+      SELECT * FROM Documents WHERE id = @p2`, [jsonDoc, id]);
   } else {
     response = <INoSqlDocument>await tx.oneOrNone<INoSqlDocument>(`
       UPDATE Documents
