@@ -43,6 +43,8 @@ spec:
               key: password
         - name: MSSQL_PID
           value: Enterprise
+        - name: MSSQL_AGENT_ENABLED
+          value: "true"
         volumeMounts:
         - name: mssqldb
           mountPath: /var/opt/mssql
