@@ -376,13 +376,14 @@ export async function ListOperation(req: Request, res: Response) {
     let _result = '';
     const order = valueOrder.slice();
     const char1 = lastORDER ? isAfter ? '>' : '<' : isAfter ? '<' : '>';
+    const where = filterBuilder(params.filter);
     valueOrder.filter(o => o.value).forEach(o => {
-      let where = filterBuilder(params.filter);
-      order.filter(_o => _o.value).forEach(_o => where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
+      let _where = where;
+      order.filter(_o => _o.value).forEach(_o => _where += ` AND "${_o.field}" ${_o !== order[order.length - 1] ? '=' :
         char1 + ((_o.field === 'id') && isAfter ? '=' : '')} '${_o.value instanceof Date ? _o.value.toJSON() : _o.value}' `);
       order.length--;
       const addQuery = `\nSELECT id FROM(SELECT TOP ${params.count + 1} id FROM [Documents.Operation] ID
-        WHERE ${where}\n${lastORDER ?
+        WHERE ${_where}\n${lastORDER ?
           (char1 === '>') ? orderbyAfter : orderbyBefore :
           (char1 === '<') ? orderbyAfter : orderbyBefore}) ID\n UNION ALL`;
 
@@ -397,7 +398,7 @@ export async function ListOperation(req: Request, res: Response) {
   if (queryBefore) {
     query = `SELECT id FROM (${queryBefore} \nUNION ALL\n${queryAfter}) ID)`;
     query = `SELECT * FROM (${QueryList} d WHERE d.id IN (${query}) d ${orderbyAfter} `;
-  } else query = `SELECT TOP ${params.count + 1} * FROM (${QueryList}) d ${orderbyAfter} `;
+  } else query = `SELECT TOP ${params.count + 1} * FROM (${QueryList} d WHERE ${filterBuilder(params.filter)}) d ${orderbyAfter} `;
 
   const data = await sdb.manyOrNone<any>(query);
   let result: any[] = [];
