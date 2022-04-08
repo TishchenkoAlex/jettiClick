@@ -41,7 +41,7 @@
     "ioredis": "^4.14.1",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^2.2.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "mssql": "^5.1.0",
     "nanoscroller": "^0.8.7",
     "primeicons": "^2.0.0",
